@@ -120,6 +120,22 @@ if PRODUCTION_SERVICE:
         for name in ("/usr/bin/python3","/opt/tor-validation"):
             if Path(name).exists():
                 raise AssertionError("development tooling remains in production root")
+        gid=next(line for line in status.splitlines() if line.startswith("Gid:")).split()[1:]
+        if any(int(value)!=905 for value in gid):
+            raise AssertionError("production daemon did not drop to gid 905")
+        if READ_ONLY_ROOT:
+            mounts=[line.split() for line in Path("/proc/mounts").read_text().splitlines()]
+            root=next(row for row in mounts if row[1]=="/")
+            state=next(row for row in mounts if row[1]=="/var/lib/tor")
+            if root[2]!="squashfs" or "ro" not in root[3].split(",") or state[2]!="ext4":
+                raise AssertionError("immutable root or separate writable state was not mounted")
+        for key,field in (("production_rss_bytes","VmRSS:"),("production_peak_rss_bytes","VmHWM:")):
+            r["metrics"][key]=1024*int(next(line for line in status.splitlines() if line.startswith(field)).split()[1])
+        smaps=Path(f"/proc/{pid}/smaps_rollup").read_text()
+        r["metrics"]["production_pss_bytes"]=1024*int(next(line for line in smaps.splitlines() if line.startswith("Pss:")).split()[1])
+        volume=os.statvfs("/var/lib/tor")
+        r["metrics"]["production_state_volume_bytes"]=volume.f_blocks*volume.f_frsize
+        r["metrics"]["production_state_free_bytes"]=volume.f_bavail*volume.f_frsize
         r["metrics"]["production_state_bytes"]=sum(p.stat().st_size for p in Path("/var/lib/tor").rglob("*") if p.is_file())
         r["tests"].append({"id":"production_service","mode":"online","status":"PASS","detail":"native daemon bootstrapped as uid 905; no fixture libraries or Python in deployed root","seconds":time.monotonic()-start})
     except Exception as exc:
@@ -129,8 +145,9 @@ if PRODUCTION_SERVICE:
 print("\nTOR_"+"VALIDATION_JSON="+json.dumps(r,separators=(",",":"),allow_nan=False),flush=True)
 print("TOR_"+"VALIDATION_END",flush=True)
 '''
-    post = post.replace("PRODUCTION_SERVICE", repr(bool(profile.get("production_service"))))
+    post = post.replace("PRODUCTION_SERVICE", repr(bool(profile.get("production_service")) and mode == "online"))
     post = post.replace("BOOTSTRAP_TIMEOUT", str(profile["bootstrap_timeout_seconds"]))
+    post = post.replace("READ_ONLY_ROOT", repr(bool(profile.get("read_only_root"))))
     return "\n".join([
         "#!/bin/sh", "set -eu", "mkdir -p /run/lock/subsys", "hostname -F /etc/hostname",
         "/etc/init.d/rcS", "umask 077", "mkdir -p /mnt/validation /tmp/tor-validation",

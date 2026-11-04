@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261104T171128Z-fixture-reference-546024`
+Run: `20261104T173131Z-b63cb205`
 
-**REFERENCE** — Reference: immutable original image under external validation fixture
+**REJECTED** — Iteration 3 diagnostic repeat: unchanged image after public HSDir timeout; original incomplete result retained
 
-Build: PASS. Previously validated immutable baseline image; artifact hashes rechecked; no image rebuild claimed
+Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `da7c5281145589821ceeb4f6b7aabd4d98833587`; dirty: `False`.
+Commit: `31cbdc0b645d8d6821045d969979d92b0ec012de`; dirty: `True`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 
@@ -25,3 +25,4 @@ Hardware behavior: unverified. Measurements describe only the recorded test envi
 | two_node | online | PASS | explicit assertions passed |
 | bidirectional_integrity | online | PASS | explicit assertions passed |
 | reconnection | online | PASS | explicit assertions passed |
+| production_service | online | PASS | native daemon bootstrapped as uid 905; no fixture libraries or Python in deployed root |
