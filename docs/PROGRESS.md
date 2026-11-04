@@ -55,3 +55,8 @@ the actual most recent pipeline outcome.
 Ubuntu WSL2 build session: prerequisites and all 34 checks passed. The first complete
 build attempt exposed Windows PATH entries containing spaces; subsequent builds
 use the native Linux PATH. Target baseline build and measurements are in progress.
+
+The first complete cross-build produced bzImage and a 256 MiB ext4 rootfs.
+Runtime validation was initially blocked by two aliases of the same generated
+compiler. The validator now selects GNU_TARGET_NAME; --resume-run permits only
+host-reporting fixes with identical target inputs. Original logs are retained.

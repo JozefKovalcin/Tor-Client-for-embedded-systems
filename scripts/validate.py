@@ -145,6 +145,7 @@ def main():
     parser.add_argument("--record-baseline", action="store_true", help="seal first fully validated clean build; never replace")
     parser.add_argument("--checks-only", action="store_true", help="run fast checks and report INCOMPLETE; does not accept builds")
     parser.add_argument("--jobs", type=int, default=min(8, os.cpu_count() or 1))
+    parser.add_argument("--resume-run", help="resume a compatible completed build after a host reporting fix")
     args = parser.parse_args()
     if not re.fullmatch(r"[a-zA-Z0-9_-]+", args.profile) or args.jobs < 1:
         parser.error("invalid profile or jobs")
@@ -197,6 +198,24 @@ def main():
         # A change to ANY versioned build/test input gets a new output directory.
         # No make clean, deletion, or reuse across incompatible toolchains.
         output = ROOT / "build/embedded" / args.profile / input_sha[:20]
+        if args.resume_run:
+            if not re.fullmatch(r"[A-Za-z0-9_-]+", args.resume_run):
+                raise ValueError("invalid resume run identifier")
+            previous_run = ROOT / "reports/benchmarks" / args.resume_run
+            previous = read_json(previous_run / "results.json")
+            old_inputs = read_json(previous_run / "inputs.json")
+            # These host-only files cannot change the target build inputs.
+            allowed = {"scripts/validate.py", "tests/test_pipeline.py"}
+            changed = {name for name in set(old_inputs) | set(manifest)
+                       if old_inputs.get(name) != manifest.get(name)}
+            if changed - allowed:
+                raise ValueError("resume refused: target inputs changed: " + ", ".join(sorted(changed - allowed)))
+            output = (ROOT / previous["build"]["output_directory"]).resolve()
+            if not output.is_relative_to((ROOT / "build/embedded" / args.profile).resolve()) or not (output / ".config").is_file():
+                raise ValueError("resume output is missing or outside the selected profile")
+            result["metadata"]["resumed_build_from"] = {
+                "run_id": args.resume_run, "input_sha256": previous["metadata"]["input_sha256"],
+                "git": previous["metadata"]["git"], "host_only_changes": sorted(changed)}
         output.mkdir(parents=True, exist_ok=True)
         result["build"]["output_directory"] = str(output.relative_to(ROOT))
         env = dict(os.environ, SOURCE_DATE_EPOCH=str(lock["source_date_epoch"]), TZ="UTC", LC_ALL="C", LANG="C")
@@ -214,10 +233,13 @@ def main():
         result["build"]["seconds"] = time.monotonic() - started
         result["metrics"].update(collect(output, profile, run))
         result["metadata"]["source_provenance_sha256"] = source_provenance(output, source, downloads, run)
-        compilers = [p for p in (output / "host/bin").glob("*-gcc") if p.is_file()]
-        if len(compilers) != 1:
-            raise ValueError("cannot identify unique target compiler")
-        result["metadata"]["compiler"] = subprocess.check_output([str(compilers[0]), "--version"], text=True).splitlines()[0]
+        target_name = subprocess.check_output([*base, "-s", "printvars", "VARS=GNU_TARGET_NAME"], env=env, text=True).strip()
+        if not target_name.startswith("GNU_TARGET_NAME="):
+            raise ValueError("cannot identify configured target compiler")
+        compiler = output / "host/bin" / (target_name.split("=", 1)[1] + "-gcc")
+        if not compiler.is_file():
+            raise ValueError("configured target compiler is missing")
+        result["metadata"]["compiler"] = subprocess.check_output([str(compiler), "--version"], text=True).splitlines()[0]
         vars_cmd = [*base, "-s", "printvars", "VARS=TARGET_CFLAGS TARGET_LDFLAGS TOR_CONF_OPTS GNU_TARGET_NAME", "QUOTED_VARS=YES"]
         flags = subprocess.check_output(vars_cmd, env=env, text=True)
         result["metadata"]["compiler_flags"] = flags.strip()
@@ -227,7 +249,7 @@ def main():
             if len(configs) != 1:
                 raise ValueError("cannot identify resolved config: " + kind)
             shutil.copy2(configs[0], run / (kind.replace("-*", "") + ".config"))
-        readelf = compilers[0].with_name(compilers[0].name[:-3] + "readelf")
+        readelf = compiler.with_name(compiler.name[:-3] + "readelf")
         elf = subprocess.check_output([str(readelf), "-hlWd", str(output / "target/usr/bin/tor")], text=True)
         (run / "tor-elf.txt").write_text(elf, encoding="utf-8")
         if not (re.search(r"Type:\s+DYN", elf) and "GNU_RELRO" in elf and "BIND_NOW" in elf):

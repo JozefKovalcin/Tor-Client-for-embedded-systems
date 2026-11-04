@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261104T153211Z-4ef44872`
+Run: `20261104T153343Z-b65345cc`
 
-**INCOMPLETE** — First Ubuntu WSL2 complete Linux baseline
+**INCOMPLETE** — First Ubuntu WSL2 Linux baseline with native PATH
 
-Build: FAIL. CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2.
+Build: FAIL. ValueError: cannot identify unique target compiler
 
-Commit: `5cd931b1ac8a25869df120ff32a341eb7e5414bd`; dirty: `False`.
+Commit: `60254c8a7b08fd06e9682180213ecfc935acc694`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 
@@ -15,12 +15,12 @@ Hardware behavior: unverified. Measurements describe only the recorded test envi
 | Test | Mode | Status | Detail |
 |---|---|---|---|
 | repository_checks | offline | PASS | see checks.log |
-| security_config | offline | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
-| tor_config | offline | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
-| tor_startup | offline | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
-| socks5 | online | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
-| public_bootstrap | online | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
-| onion_v3 | online | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
-| two_node | online | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
-| bidirectional_integrity | online | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
-| reconnection | online | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
+| security_config | offline | BLOCKED | ValueError: cannot identify unique target compiler |
+| tor_config | offline | BLOCKED | ValueError: cannot identify unique target compiler |
+| tor_startup | offline | BLOCKED | ValueError: cannot identify unique target compiler |
+| socks5 | online | BLOCKED | ValueError: cannot identify unique target compiler |
+| public_bootstrap | online | BLOCKED | ValueError: cannot identify unique target compiler |
+| onion_v3 | online | BLOCKED | ValueError: cannot identify unique target compiler |
+| two_node | online | BLOCKED | ValueError: cannot identify unique target compiler |
+| bidirectional_integrity | online | BLOCKED | ValueError: cannot identify unique target compiler |
+| reconnection | online | BLOCKED | ValueError: cannot identify unique target compiler |
