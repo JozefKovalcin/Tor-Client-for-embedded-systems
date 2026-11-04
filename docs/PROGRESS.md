@@ -15,7 +15,8 @@
 - Repository scope split on 2026-11-04: this repository is Tor-only and retains
   its original Git history. Nym has a separate repository and an initial project
   scaffold; no existing Nym implementation was present to transfer. The Tor
-  implementation and documentation are being promoted to `main` by fast-forward.
+  implementation and documentation were promoted to `main` by fast-forward,
+  preserving the original commits. Both repositories use `main` as the default.
 - Official Buildroot 2026.08.1 archive downloaded; SHA-256 computed as
   `34fb7bea8a213ffde39cc02e61703391560f26e0850f03138c722d0b09880f2b`.
   Package versions/configuration and upstream hash files inspected directly.
