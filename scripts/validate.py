@@ -145,7 +145,7 @@ def main():
     parser.add_argument("--record-baseline", action="store_true", help="seal first fully validated clean build; never replace")
     parser.add_argument("--checks-only", action="store_true", help="run fast checks and report INCOMPLETE; does not accept builds")
     parser.add_argument("--jobs", type=int, default=min(8, os.cpu_count() or 1))
-    parser.add_argument("--resume-run", help="resume a compatible completed build after a host reporting fix")
+    parser.add_argument("--resume-run", help="resume with unchanged toolchain/kernel/package inputs")
     args = parser.parse_args()
     if not re.fullmatch(r"[a-zA-Z0-9_-]+", args.profile) or args.jobs < 1:
         parser.error("invalid profile or jobs")
@@ -204,8 +204,19 @@ def main():
             previous_run = ROOT / "reports/benchmarks" / args.resume_run
             previous = read_json(previous_run / "results.json")
             old_inputs = read_json(previous_run / "inputs.json")
-            # These host-only files cannot change the target build inputs.
-            allowed = {"scripts/validate.py", "tests/test_pipeline.py"}
+            # Host fixes and reinstalled test fixtures do not change compiled
+            # package/toolchain inputs. make all still rebuilds the root image.
+            allowed = {"scripts/validate.py", "tests/test_pipeline.py", "tests/run_all.py"}
+            profile_name = f"config/profiles/{args.profile}.json"
+            if old_inputs.get(profile_name) != manifest.get(profile_name):
+                with tarfile.open(previous_run / "source-inputs.tar") as saved:
+                    old_profile = json.loads(saved.extractfile(profile_name).read())
+                new_profile = json.loads(json.dumps(profile))
+                for item in (old_profile, new_profile):
+                    item["environment"].pop("measurement_protocol", None)
+                if old_profile != new_profile:
+                    raise ValueError("resume refused: build or hardware profile changed")
+                allowed.add(profile_name)
             changed = {name for name in set(old_inputs) | set(manifest)
                        if old_inputs.get(name) != manifest.get(name)}
             if changed - allowed:
@@ -215,7 +226,7 @@ def main():
                 raise ValueError("resume output is missing or outside the selected profile")
             result["metadata"]["resumed_build_from"] = {
                 "run_id": args.resume_run, "input_sha256": previous["metadata"]["input_sha256"],
-                "git": previous["metadata"]["git"], "host_only_changes": sorted(changed)}
+                "git": previous["metadata"]["git"], "compatible_changes": sorted(changed)}
         output.mkdir(parents=True, exist_ok=True)
         result["build"]["output_directory"] = str(output.relative_to(ROOT))
         env = dict(os.environ, SOURCE_DATE_EPOCH=str(lock["source_date_epoch"]), TZ="UTC", LC_ALL="C", LANG="C")

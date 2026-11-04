@@ -1,5 +1,5 @@
 {
-  "run_id": "20261104T155711Z-ad98aa0a",
+  "run_id": "20261104T161505Z-bed18230",
   "tests": [
     {
       "detail": "see checks.log",
@@ -14,57 +14,66 @@
       "status": "PASS"
     },
     {
-      "detail": "target produced no complete test result; see QEMU log",
+      "detail": "explicit assertions passed",
       "id": "security_config",
       "mode": "offline",
-      "status": "BLOCKED"
+      "seconds": 0.0035575489999999377,
+      "status": "PASS"
     },
     {
-      "detail": "target produced no complete test result; see QEMU log",
+      "detail": "explicit assertions passed",
       "id": "tor_config",
       "mode": "offline",
-      "status": "BLOCKED"
+      "seconds": 0.18985529700000026,
+      "status": "PASS"
     },
     {
-      "detail": "target produced no complete test result; see QEMU log",
+      "detail": "explicit assertions passed",
       "id": "tor_startup",
       "mode": "offline",
-      "status": "BLOCKED"
+      "seconds": 6.7072306610000005,
+      "status": "PASS"
     },
     {
-      "detail": "target produced no complete test result; see QEMU log",
+      "detail": "explicit assertions passed",
       "id": "socks5",
       "mode": "online",
-      "status": "BLOCKED"
+      "seconds": 0.00575671800000066,
+      "status": "PASS"
     },
     {
-      "detail": "target produced no complete test result; see QEMU log",
+      "detail": "explicit assertions passed",
       "id": "public_bootstrap",
       "mode": "online",
-      "status": "BLOCKED"
+      "seconds": 13.991359382999999,
+      "status": "PASS"
     },
     {
-      "detail": "target produced no complete test result; see QEMU log",
+      "detail": "explicit assertions passed",
       "id": "onion_v3",
       "mode": "online",
-      "status": "BLOCKED"
+      "seconds": 3.840738530000003,
+      "status": "PASS"
     },
     {
-      "detail": "target produced no complete test result; see QEMU log",
+      "detail": "explicit assertions passed",
       "id": "two_node",
       "mode": "online",
-      "status": "BLOCKED"
+      "seconds": 1.326607940999999,
+      "status": "PASS"
     },
     {
-      "detail": "target produced no complete test result; see QEMU log",
+      "detail": "explicit assertions passed",
       "id": "bidirectional_integrity",
       "mode": "online",
-      "status": "BLOCKED"
+      "seconds": 10.850975648999999,
+      "status": "PASS"
     },
     {
-      "detail": "target produced no complete test result; see QEMU log",
+      "detail": "reconnection after service crash timed out",
       "id": "reconnection",
       "mode": "online",
+      "seconds": 210.89102257499997,
       "status": "BLOCKED"
     }
   ]

@@ -130,6 +130,7 @@ class Node:
     def start(self):
         self.output = (self.root / "process.log").open("ab")
         self.started = time.monotonic()
+        self.last_bootstrap = None
         self.process = subprocess.Popen([self.tor, "--defaults-torrc", str(self.defaults), "-f", str(self.config)],
                                         stdout=self.output, stderr=subprocess.STDOUT)
 
@@ -151,7 +152,12 @@ class Node:
             raise AssertionError(self.name + " exited during bootstrap")
         with contextlib.closing(Control(self.control)) as ctl:
             ctl.authenticate(self.data / "control_auth_cookie")
-            return "PROGRESS=100" in ctl.command("GETINFO status/bootstrap-phase")
+            answer = ctl.command("GETINFO status/bootstrap-phase")
+            progress = re.search(r"PROGRESS=(\d+)", answer)
+            if progress and progress.group(1) != self.last_bootstrap:
+                self.last_bootstrap = progress.group(1)
+                print(f"BOOTSTRAP {self.name}: {self.last_bootstrap}%", flush=True)
+            return "PROGRESS=100" in answer
 
     def stop(self, force=False):
         if self.process and self.process.poll() is None:
@@ -293,6 +299,7 @@ def run(args):
             status, detail = "FAIL", type(exc).__name__ + ": " + str(exc)
         rows.append({"id": name, "mode": mode, "status": status, "detail": detail,
                      "seconds": time.monotonic() - start})
+        print(f"TEST {name}: {status} ({time.monotonic() - start:.2f}s) {detail}", flush=True)
         return status == "PASS"
 
     try:
@@ -406,10 +413,34 @@ def run(args):
                 nodes[1].stop(force=True)
                 nodes[1].start()
                 wait_for(nodes[1].ready, 45, "restarted service failed startup")
-                wait_for(nodes[1].bootstrap, args.bootstrap_timeout, "restarted service bootstrap timeout")
-                if (nodes[1].hs / "hostname").read_text().strip() != address[0]:
-                    raise AssertionError("service restart changed its identity")
-                wait_for(lambda: retry_exchange(exchange), args.connection_timeout, "reconnection after service crash timed out")
+                with contextlib.closing(Control(nodes[1].control)) as events:
+                    events.authenticate(nodes[1].data / "control_auth_cookie")
+                    events.command("SETEVENTS HS_DESC")
+                    wait_for(nodes[1].bootstrap, args.bootstrap_timeout, "restarted service bootstrap timeout")
+                    if (nodes[1].hs / "hostname").read_text().strip() != address[0]:
+                        raise AssertionError("service restart changed its identity")
+                    deadline = time.monotonic() + args.connection_timeout
+                    while time.monotonic() < deadline:
+                        events.sock.settimeout(max(0.1, deadline - time.monotonic()))
+                        try:
+                            line = events.file.readline(65536).decode("ascii")
+                        except TimeoutError:
+                            raise Blocked("restarted onion descriptor publication timed out") from None
+                        if not line:
+                            raise AssertionError("service control connection closed during publication")
+                        if " HS_DESC UPLOADED " in line and address[0].removesuffix(".onion") in line:
+                            print("RECONNECT B: new descriptor uploaded", flush=True)
+                            break
+                    else:
+                        raise Blocked("restarted onion descriptor publication timed out")
+                def fresh_connection():
+                    # Tor's supported recovery request purges stale HS descriptors
+                    # and intro-point state after a service crash. Preserve keys.
+                    with contextlib.closing(Control(nodes[0].control)) as ctl:
+                        ctl.authenticate(nodes[0].data / "control_auth_cookie")
+                        ctl.command("SIGNAL NEWNYM")
+                    return retry_exchange(exchange)
+                wait_for(fresh_connection, args.connection_timeout, "reconnection after service crash timed out")
             test("reconnection", "online", reconnect)
         else:
             idle_start = time.monotonic()

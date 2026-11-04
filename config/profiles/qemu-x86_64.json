@@ -10,10 +10,13 @@
     "memory_mib": 512,
     "cpus": 1,
     "network": "user-mode-nat",
-    "measurement_protocol": "tor-two-node-v1"
+    "measurement_protocol": "tor-two-node-v2-restart-refresh"
   },
   "qemu": "qemu-system-x86_64",
-  "artifacts": {"kernel": "bzImage", "rootfs": "rootfs.ext2"},
+  "artifacts": {
+    "kernel": "bzImage",
+    "rootfs": "rootfs.ext2"
+  },
   "timeout_seconds": 1800,
   "bootstrap_timeout_seconds": 600,
   "connection_timeout_seconds": 180,

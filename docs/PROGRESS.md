@@ -66,3 +66,9 @@ communication and bidirectional integrity. Service restart reconnection timed ou
 (BLOCKED); therefore no baseline was sealed. The serial output also exposed an
 extra blank line before its end marker; the parser now accepts that whitespace.
 Recovered diagnostic JSON is preserved alongside the original serial log.
+
+Two target runs reproduced stale onion-client state after service crash/restart.
+Recovery now waits for an authenticated HS_DESC UPLOADED event and requests
+SIGNAL NEWNYM on the client before retrying the same onion identity and verifying
+payload integrity. This is Tor upstream control behavior, not a protocol change.
+The measured test protocol is versioned v2; no prior run qualified as a baseline.

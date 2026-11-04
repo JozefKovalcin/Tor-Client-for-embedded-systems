@@ -5,3 +5,4 @@ timestamp,run_id,commit,configuration_id,change,status,build_status,tor_executab
 2026-11-04T15:32:11.658076+00:00,20261104T153211Z-4ef44872,5cd931b1ac8a25869df120ff32a341eb7e5414bd,qemu-x86_64,First Ubuntu WSL2 complete Linux baseline,INCOMPLETE,FAIL,,,,
 2026-11-04T15:33:43.442037+00:00,20261104T153343Z-b65345cc,60254c8a7b08fd06e9682180213ecfc935acc694,qemu-x86_64,First Ubuntu WSL2 Linux baseline with native PATH,INCOMPLETE,FAIL,3397272,275092480,,
 2026-11-04T15:57:11.231807+00:00,20261104T155711Z-ad98aa0a,95cc6f54e7c513a81e657528a45e705031ed2198,qemu-x86_64,Complete Linux baseline: corrected compiler metadata and QEMU tests,INCOMPLETE,PASS,3397272,275092480,,
+2026-11-04T16:15:05.666392+00:00,20261104T161505Z-bed18230,6e0cf4709995b4feaa5778d16ad3321c66ea59c4,qemu-x86_64,Baseline retry: guest JSON framing fixed; all network tests required,INCOMPLETE,PASS,3397272,275092480,127778816.0,131448832
