@@ -1,0 +1,319 @@
+{
+  "artifacts": [
+    {
+      "bytes": 4420608,
+      "path": "images/bzImage",
+      "role": "kernel",
+      "sha256": "569b405f6320c51a7b3b4d07e3bd5734a93526e121084df352b7aa77b9864ab5"
+    },
+    {
+      "bytes": 33554432,
+      "path": "images/rootfs.ext2",
+      "role": "rootfs",
+      "sha256": "a29a39ee4f2389017ce289ff1a0239b2424b344d048e4016330cdb9532c1cc40"
+    }
+  ],
+  "comparison": {
+    "baseline_reference": "reports/references/external-fixture/baseline",
+    "differences": [
+      {
+        "baseline": 21.527869747,
+        "candidate": 18.809926351999998,
+        "delta": -2.7179433950000025,
+        "improvement_percent": 12.625231511254194,
+        "metric": "bootstrap_seconds",
+        "reduction_percent": 12.625231511254194
+      },
+      {
+        "baseline": 275092480,
+        "candidate": 37975040,
+        "delta": -237117440,
+        "improvement_percent": 86.1955368609131,
+        "metric": "complete_image_bytes",
+        "reduction_percent": 86.1955368609131
+      },
+      {
+        "baseline": 54.37785271538515,
+        "candidate": 13.177265363066097,
+        "delta": -41.200587352319054,
+        "improvement_percent": 75.76722009963102,
+        "metric": "cpu_percent",
+        "reduction_percent": 75.76722009963102
+      },
+      {
+        "baseline": 118120091.82608695,
+        "candidate": 41623595.57446808,
+        "delta": -76496496.25161886,
+        "improvement_percent": 64.76162951536458,
+        "metric": "idle_pss_bytes",
+        "reduction_percent": 64.76162951536458
+      },
+      {
+        "baseline": 127745691.82608695,
+        "candidate": 49690667.57446808,
+        "delta": -78055024.25161886,
+        "improvement_percent": 61.101883856782436,
+        "metric": "idle_rss_bytes",
+        "reduction_percent": 61.101883856782436
+      },
+      {
+        "baseline": 79142912,
+        "candidate": 20951040,
+        "delta": -58191872,
+        "improvement_percent": 73.52758513611427,
+        "metric": "image_host_allocated_bytes",
+        "reduction_percent": 73.52758513611427
+      },
+      {
+        "baseline": 63362683,
+        "candidate": 11949952,
+        "delta": -51412731,
+        "improvement_percent": 81.14039457577893,
+        "metric": "installed_rootfs_bytes",
+        "reduction_percent": 81.14039457577893
+      },
+      {
+        "baseline": 6657024,
+        "candidate": 4420608,
+        "delta": -2236416,
+        "improvement_percent": 33.594831564374715,
+        "metric": "kernel_bytes",
+        "reduction_percent": 33.594831564374715
+      },
+      {
+        "baseline": 18515107,
+        "candidate": 8479760,
+        "delta": -10035347,
+        "improvement_percent": 54.20085879060812,
+        "metric": "library_bytes",
+        "reduction_percent": 54.20085879060812
+      },
+      {
+        "baseline": 131522560,
+        "candidate": 50958336,
+        "delta": -80564224,
+        "improvement_percent": 61.25506072874494,
+        "metric": "peak_process_rss_bytes",
+        "reduction_percent": 61.25506072874494
+      },
+      {
+        "baseline": 161996800,
+        "candidate": 82374656,
+        "delta": -79622144,
+        "improvement_percent": 49.150442477876105,
+        "metric": "peak_system_used_bytes",
+        "reduction_percent": 49.150442477876105
+      },
+      {
+        "baseline": 11506100,
+        "candidate": 11499867,
+        "delta": -6233,
+        "improvement_percent": 0.05417126567646727,
+        "metric": "persistent_storage_bytes",
+        "reduction_percent": 0.05417126567646727
+      },
+      {
+        "baseline": 268435456,
+        "candidate": 33554432,
+        "delta": -234881024,
+        "improvement_percent": 87.5,
+        "metric": "rootfs_bytes",
+        "reduction_percent": 87.5
+      },
+      {
+        "baseline": 7.139516616,
+        "candidate": 0.47848205300000046,
+        "delta": -6.661034562999999,
+        "improvement_percent": 93.29811696316108,
+        "metric": "startup_seconds",
+        "reduction_percent": 93.29811696316108
+      },
+      {
+        "baseline": 3397272,
+        "candidate": 2592728,
+        "delta": -804544,
+        "improvement_percent": 23.68206019417933,
+        "metric": "tor_executable_bytes",
+        "reduction_percent": 23.68206019417933
+      }
+    ],
+    "functional_regressions": [
+      "onion_v3",
+      "two_node",
+      "bidirectional_integrity",
+      "reconnection"
+    ],
+    "reasons": [
+      "mandatory test not passed: onion_v3",
+      "mandatory test not passed: two_node",
+      "mandatory test not passed: bidirectional_integrity",
+      "mandatory test not passed: reconnection",
+      "missing/invalid measurement: onion_connection_seconds",
+      "missing/invalid measurement: throughput_bytes_per_second",
+      "functional regressions: onion_v3, two_node, bidirectional_integrity, reconnection"
+    ],
+    "status": "INCOMPLETE"
+  },
+  "result": {
+    "build": {
+      "detail": "make all succeeded; all required boot artifacts and ELF hardening verified",
+      "output_directory": "build/embedded/qemu-x86_64-production/cc61120298dfcb642d0d",
+      "seconds": 553.81040537,
+      "status": "PASS"
+    },
+    "change": "Iteration 3: native uid-905 production daemon; no Python or test files; 32 MiB root",
+    "environment": {
+      "accelerator": "tcg,thread=single",
+      "cpu": "qemu64",
+      "cpus": 1,
+      "host_cpu_sha256": "945d7876e23adee4ff42b5f5e48f2ebb01ed0af7a15676221bad924b41f52c79",
+      "host_memory_bytes": 16284282880,
+      "host_platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+      "kind": "qemu",
+      "machine": "pc-i440fx-8.2",
+      "measurement_protocol": "tor-two-node-v2-external-fixture",
+      "memory_mib": 512,
+      "network": "user-mode-nat",
+      "qemu_version": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.3)",
+      "serial_baud": 115200,
+      "test_mode": "online",
+      "timeouts": {
+        "bootstrap_timeout_seconds": 600,
+        "connection_timeout_seconds": 180,
+        "idle_seconds": 10
+      },
+      "validation_boot": "external-fixture-v1",
+      "validation_fixture_sha256": "48521767cbdc5fc4a9a213bd5fe48da3c2b45fa95adc3e1c48503e672c6422fd"
+    },
+    "metadata": {
+      "architecture": "x86_64",
+      "buildroot_version": "2026.08.1",
+      "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+      "compiler_flags": "GNU_TARGET_NAME='x86_64-buildroot-linux-musl'\nTARGET_CFLAGS='-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -Os -g0 '\nTARGET_LDFLAGS=' -ztext'\nTOR_CONF_OPTS='--disable-gcc-hardening --disable-unittests --with-libevent-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-production/cc61120298dfcb642d0d/host/x86_64-buildroot-linux-musl/sysroot/usr --with-openssl-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-production/cc61120298dfcb642d0d/host/x86_64-buildroot-linux-musl/sysroot/usr --with-zlib-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-production/cc61120298dfcb642d0d/host/x86_64-buildroot-linux-musl/sysroot/usr --disable-systemd --disable-lzma --disable-zstd --enable-seccomp --disable-module-relay --disable-module-dirauth'",
+      "configuration_id": "qemu-x86_64-production",
+      "git": {
+        "commit": "31cbdc0b645d8d6821045d969979d92b0ec012de",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false
+      },
+      "input_sha256": "cc61120298dfcb642d0da167641479c9df2c58a2429c27795776904e0c583d03",
+      "kernel_version": "6.18.7",
+      "policy_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552",
+      "source_provenance_sha256": "b152e52d319641bc5ba86a0f3d64cad002e654b941105a97047332698d62c59b",
+      "toolchain_archive": {
+        "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+        "path": "downloads/toolchains/x86_64-buildroot-linux-musl_sdk-buildroot.tar.gz",
+        "sha256": "5fd7659021ec80cf0bb47794be75776867270e672166210453acbaab89800e1e",
+        "source_baseline_commit": "da7c5281145589821ceeb4f6b7aabd4d98833587"
+      },
+      "tor_version": "0.4.9.14"
+    },
+    "metrics": {
+      "bootstrap_seconds": 18.809926351999998,
+      "complete_image_bytes": 37975040,
+      "cpu_percent": 13.177265363066097,
+      "idle_pss_bytes": 41623595.57446808,
+      "idle_rss_bytes": 49690667.57446808,
+      "image_host_allocated_bytes": 20951040,
+      "installed_rootfs_bytes": 11949952,
+      "kernel_bytes": 4420608,
+      "library_bytes": 8479760,
+      "onion_connection_seconds": null,
+      "peak_process_rss_bytes": 50958336,
+      "peak_system_used_bytes": 82374656,
+      "persistent_storage_bytes": 11499867,
+      "production_state_bytes": 5745357,
+      "rootfs_bytes": 33554432,
+      "startup_seconds": 0.47848205300000046,
+      "throughput_bytes_per_second": null,
+      "tor_executable_bytes": 2592728
+    },
+    "run_id": "20261104T171716Z-86a5a81b",
+    "schema_version": 1,
+    "tests": [
+      {
+        "detail": "see checks.log",
+        "id": "repository_checks",
+        "mode": "offline",
+        "status": "PASS"
+      },
+      {
+        "detail": "PIE, RELRO, NOW and non-executable stack observed",
+        "id": "elf_hardening",
+        "mode": "offline",
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "security_config",
+        "mode": "offline",
+        "seconds": 0.0035504550000000634,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "tor_config",
+        "mode": "offline",
+        "seconds": 0.25964261399999966,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "tor_startup",
+        "mode": "offline",
+        "seconds": 0.47902681700000027,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "socks5",
+        "mode": "online",
+        "seconds": 0.008946082000000466,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "public_bootstrap",
+        "mode": "online",
+        "seconds": 19.330155504,
+        "status": "PASS"
+      },
+      {
+        "detail": "onion reachability timeout: TimeoutError",
+        "id": "onion_v3",
+        "mode": "online",
+        "seconds": 181.011508404,
+        "status": "BLOCKED"
+      },
+      {
+        "detail": "reachable v3 service required",
+        "id": "two_node",
+        "mode": "online",
+        "seconds": 0,
+        "status": "BLOCKED"
+      },
+      {
+        "detail": "reachable v3 service required",
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "seconds": 0,
+        "status": "BLOCKED"
+      },
+      {
+        "detail": "reachable v3 service required",
+        "id": "reconnection",
+        "mode": "online",
+        "seconds": 0,
+        "status": "BLOCKED"
+      },
+      {
+        "detail": "native daemon bootstrapped as uid 905; no fixture libraries or Python in deployed root",
+        "id": "production_service",
+        "mode": "online",
+        "seconds": 9.205297693000006,
+        "status": "PASS"
+      }
+    ],
+    "timestamp": "2026-11-04T17:17:16.842436+00:00"
+  }
+}

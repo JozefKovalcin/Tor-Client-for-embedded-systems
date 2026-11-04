@@ -1,0 +1,191 @@
+{
+  "comparison": {
+    "differences": [],
+    "reasons": [
+      "Original baseline remeasured with the exact same external test disk used for production candidates; original baseline remains immutable"
+    ],
+    "status": "REFERENCE"
+  },
+  "result": {
+    "build": {
+      "detail": "Previously validated immutable baseline image; artifact hashes rechecked; no image rebuild claimed",
+      "output_directory": "build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973",
+      "seconds": 9.102405330000238,
+      "status": "PASS"
+    },
+    "change": "Reference: immutable original image under external validation fixture",
+    "environment": {
+      "accelerator": "tcg,thread=single",
+      "cpu": "qemu64",
+      "cpus": 1,
+      "host_cpu_sha256": "945d7876e23adee4ff42b5f5e48f2ebb01ed0af7a15676221bad924b41f52c79",
+      "host_memory_bytes": 16284282880,
+      "host_platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+      "kind": "qemu",
+      "machine": "pc-i440fx-8.2",
+      "measurement_protocol": "tor-two-node-v2-external-fixture",
+      "memory_mib": 512,
+      "network": "user-mode-nat",
+      "qemu_version": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.3)",
+      "serial_baud": 115200,
+      "test_mode": "online",
+      "timeouts": {
+        "bootstrap_timeout_seconds": 600,
+        "connection_timeout_seconds": 180,
+        "idle_seconds": 10
+      },
+      "validation_boot": "external-fixture-v1",
+      "validation_fixture_sha256": "48521767cbdc5fc4a9a213bd5fe48da3c2b45fa95adc3e1c48503e672c6422fd"
+    },
+    "metadata": {
+      "architecture": "x86_64",
+      "baseline_artifacts": [
+        {
+          "bytes": 6657024,
+          "path": "build/baseline/bzImage",
+          "role": "kernel",
+          "sha256": "d49916853b8095195ca0b1bc241a6617ccde3b1779573dcc877a8bbd44b0a16d"
+        },
+        {
+          "bytes": 268435456,
+          "path": "build/baseline/rootfs.ext2",
+          "role": "rootfs",
+          "sha256": "48521767cbdc5fc4a9a213bd5fe48da3c2b45fa95adc3e1c48503e672c6422fd"
+        }
+      ],
+      "buildroot_version": "2026.08.1",
+      "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+      "compiler_flags": "GNU_TARGET_NAME='x86_64-buildroot-linux-musl'\nTARGET_CFLAGS='-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -O2 -g0 '\nTARGET_LDFLAGS=' -ztext'\nTOR_CONF_OPTS='--disable-gcc-hardening --disable-unittests --with-libevent-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973/host/x86_64-buildroot-linux-musl/sysroot/usr --with-openssl-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973/host/x86_64-buildroot-linux-musl/sysroot/usr --with-zlib-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973/host/x86_64-buildroot-linux-musl/sysroot/usr --disable-systemd --disable-lzma --disable-zstd --enable-seccomp'",
+      "configuration_id": "baseline-external-fixture-reference",
+      "git": {
+        "commit": "da7c5281145589821ceeb4f6b7aabd4d98833587",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false
+      },
+      "image_origin_run": "20261104T162447Z-cd6efe9f",
+      "input_sha256": "d30beacff8256b20b97c25c071de01bc549a673feff7ef7103df1e1e88a952bf",
+      "kernel_version": "6.18.7",
+      "policy_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552",
+      "resumed_build_from": {
+        "compatible_changes": [
+          "config/profiles/qemu-x86_64.json",
+          "scripts/validate.py",
+          "tests/run_all.py"
+        ],
+        "git": {
+          "commit": "6e0cf4709995b4feaa5778d16ad3321c66ea59c4",
+          "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "dirty": false
+        },
+        "input_sha256": "7315e37a1f9e1eff35c00b500a88be0f5c25d2dc05b6737e0c4b64644778ac84",
+        "run_id": "20261104T161505Z-bed18230"
+      },
+      "source_provenance_sha256": "a689623be60e44f0022043c8e44f2e49794cd6b1a7c07b04100baf6c01fb98ca",
+      "tor_version": "0.4.9.14",
+      "validation_git": {
+        "commit": "27d45537ef08f69890166d247ec8cdf28e1be118",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false
+      }
+    },
+    "metrics": {
+      "bootstrap_seconds": 21.527869747,
+      "complete_image_bytes": 275092480,
+      "cpu_percent": 54.37785271538515,
+      "idle_pss_bytes": 118120091.82608695,
+      "idle_rss_bytes": 127745691.82608695,
+      "image_host_allocated_bytes": 79142912,
+      "installed_rootfs_bytes": 63362683,
+      "kernel_bytes": 6657024,
+      "library_bytes": 18515107,
+      "onion_connection_seconds": 1.924364752999999,
+      "peak_process_rss_bytes": 131522560,
+      "peak_system_used_bytes": 161996800,
+      "persistent_storage_bytes": 11506100,
+      "rootfs_bytes": 268435456,
+      "startup_seconds": 7.139516616,
+      "throughput_bytes_per_second": 288197.7190368614,
+      "tor_executable_bytes": 3397272
+    },
+    "run_id": "20261104T171128Z-fixture-reference-546024",
+    "schema_version": 1,
+    "tests": [
+      {
+        "detail": "see checks.log",
+        "id": "repository_checks",
+        "mode": "offline",
+        "status": "PASS"
+      },
+      {
+        "detail": "PIE, RELRO, NOW and non-executable stack observed",
+        "id": "elf_hardening",
+        "mode": "offline",
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "security_config",
+        "mode": "offline",
+        "seconds": 0.0032323339999997813,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "tor_config",
+        "mode": "offline",
+        "seconds": 0.24229995399999993,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "tor_startup",
+        "mode": "offline",
+        "seconds": 7.1400918,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "socks5",
+        "mode": "online",
+        "seconds": 0.00539555699999994,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "public_bootstrap",
+        "mode": "online",
+        "seconds": 15.389911824999999,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "onion_v3",
+        "mode": "online",
+        "seconds": 1.9277143190000032,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "two_node",
+        "mode": "online",
+        "seconds": 0.7890024279999963,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "seconds": 7.725565397000004,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "reconnection",
+        "mode": "online",
+        "seconds": 16.857422481000008,
+        "status": "PASS"
+      }
+    ],
+    "timestamp": "2026-11-04T17:12:35.863180+00:00"
+  }
+}

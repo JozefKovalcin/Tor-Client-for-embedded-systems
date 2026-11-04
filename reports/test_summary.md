@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261104T173131Z-b63cb205`
+Run: `20261104T173443Z-2cd3ee20`
 
-**REJECTED** — Iteration 3 diagnostic repeat: unchanged image after public HSDir timeout; original incomplete result retained
+**REJECTED** — Iteration 4: gzip SquashFS read-only production root, 16 MiB ext4 state, omit unused split libevent libraries
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `31cbdc0b645d8d6821045d969979d92b0ec012de`; dirty: `True`.
+Commit: `f33d5a3f345ebac146cf262e0c0c3c8043f3e4b9`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 

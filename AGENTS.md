@@ -37,7 +37,4 @@ validation. Unavailable metrics are null. Preserve failure logs and update
 `docs/PROGRESS.md` at each major stage. Never invent baseline data, performance
 claims, hardware measurements or successful public-network tests.
 
-Current state on 2026-11-04: original workspace was empty. Automation was
-implemented and portable regression checks executed. No initial Linux image,
-Tor distribution or physical device existed. Consult `docs/PROGRESS.md` for
-current verified checks and blockers before making new claims.
+Current state on 2026-11-04: the original Linux baseline is fully validated under Ubuntu WSL2/QEMU and sealed with tag `baseline`. Smaller data/tiny/production/compressed candidates have actual build and test evidence. Consult `reports/measured/2026-11-04/README.md` and `docs/PROGRESS.md` for measured outcomes and acceptance decisions. Do not confuse functional PASS with automatic optimization acceptance or physical hardware verification.

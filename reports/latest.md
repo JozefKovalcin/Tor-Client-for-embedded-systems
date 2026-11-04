@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261104T173131Z-b63cb205`
+Run: `20261104T173443Z-2cd3ee20`
 
-**REJECTED** — Iteration 3 diagnostic repeat: unchanged image after public HSDir timeout; original incomplete result retained
+**REJECTED** — Iteration 4: gzip SquashFS read-only production root, 16 MiB ext4 state, omit unused split libevent libraries
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `31cbdc0b645d8d6821045d969979d92b0ec012de`; dirty: `True`.
+Commit: `f33d5a3f345ebac146cf262e0c0c3c8043f3e4b9`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 
@@ -33,27 +33,33 @@ Null means unavailable; bytes use base 1024 for KiB conversions.
 
 | Metric | Candidate | Baseline | Delta | Reduction % |
 |---|---:|---:|---:|---:|
-| bootstrap_seconds | 18.422064179 | 21.527869747 | -3.105805568000001 | 14.426906166286182 |
-| complete_image_bytes | 37975040 | 275092480 | -237117440 | 86.1955368609131 |
-| cpu_percent | 63.649398417817196 | 54.37785271538515 | 9.271545702432043 | -17.050224014838378 |
-| idle_pss_bytes | 41077804.52173913 | 118120091.82608695 | -77042287.30434781 | 65.22369405010312 |
-| idle_rss_bytes | 49351724.52173913 | 127745691.82608695 | -78393967.30434781 | 61.367210262615664 |
-| image_host_allocated_bytes | 20951040 | 79142912 | -58191872 | 73.52758513611427 |
-| installed_rootfs_bytes | 11949958 | 63362683 | -51412725 | 81.14038510648294 |
-| kernel_bytes | 4420608 | 6657024 | -2236416 | 33.594831564374715 |
-| library_bytes | 8479760 | 18515107 | -10035347 | 54.20085879060812 |
-| onion_connection_seconds | 7.588422586999997 | 1.924364752999999 | 5.664057833999998 | -294.333900325808 |
-| peak_process_rss_bytes | 60948480 | 131522560 | -70574080 | 53.65929616941763 |
-| peak_system_used_bytes | 85770240 | 161996800 | -76226560 | 47.0543615676359 |
-| persistent_storage_bytes | 11525748 | 11506100 | 19648 | -0.1707615960229791 |
-| production_state_bytes | 5745357 | None | None | None |
-| rootfs_bytes | 33554432 | 268435456 | -234881024 | 87.5 |
-| startup_seconds | 0.4900201150000001 | 7.139516616 | -6.649496501 | 93.13650851513054 |
-| throughput_bytes_per_second | 182794.08313502706 | 288197.7190368614 | -105403.63590183432 | 36.5733761717777 |
+| bootstrap_seconds | 83.43889079899999 | 21.527869747 | 61.911021051999995 | -287.5854498359159 |
+| complete_image_bytes | 27145216 | 275092480 | -247947264 | 90.13233077109196 |
+| cpu_percent | 15.488579442814718 | 54.37785271538515 | -38.889273272570435 | 71.51675053466661 |
+| idle_pss_bytes | 41904955.91489362 | 118120091.82608695 | -76215135.91119334 | 64.52343097007409 |
+| idle_rss_bytes | 50084667.91489362 | 127745691.82608695 | -77661023.91119334 | 60.793458316325136 |
+| image_host_allocated_bytes | 10645504 | 79142912 | -68497408 | 86.54901148949384 |
+| installed_rootfs_bytes | 11542400 | 63362683 | -51820283 | 81.78359966228072 |
+| kernel_bytes | 4445184 | 6657024 | -2211840 | 33.22565759113982 |
+| library_bytes | 8111688 | 18515107 | -10403419 | 56.18881381565875 |
+| onion_connection_seconds | 161.34814355999998 | 1.924364752999999 | 159.423778807 | -8284.488611551704 |
+| peak_process_rss_bytes | 56115200 | 131522560 | -75407360 | 57.33416381189661 |
+| peak_system_used_bytes | 88244224 | 161996800 | -73752576 | 45.527180783817954 |
+| persistent_storage_bytes | 11538685 | 11506100 | 32585 | -0.2831976082252023 |
+| production_peak_rss_bytes | 23064576 | None | None | None |
+| production_pss_bytes | 22173696 | None | None | None |
+| production_rss_bytes | 22675456 | None | None | None |
+| production_state_bytes | 5640895 | None | None | None |
+| production_state_free_bytes | 7545856 | None | None | None |
+| production_state_volume_bytes | 14410752 | None | None | None |
+| rootfs_bytes | 22700032 | 268435456 | -245735424 | 91.5435791015625 |
+| startup_seconds | 0.3852869339999998 | 7.139516616 | -6.754229682 | 94.60345910342791 |
+| throughput_bytes_per_second | 163495.94819980508 | 288197.7190368614 | -124701.7708370563 | 43.26952040210511 |
 | tor_executable_bytes | 2592728 | 3397272 | -804544 | 23.68206019417933 |
 
 ## Decision
 
+- bootstrap_seconds exceeds regression limit 20%
 - onion_connection_seconds exceeds regression limit 20%
 - throughput_bytes_per_second exceeds regression limit 20%
 

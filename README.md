@@ -1,7 +1,8 @@
 # Tor Client for Embedded Systems
 
-**Work in progress.** The Tor optimization laboratory below is implemented;
-the complete embedded image and physical hardware still require validation.
+**Built and tested under Ubuntu WSL2/QEMU.** The original Linux baseline and smaller embedded Tor candidates have executed public-network regression tests. Physical hardware remains unverified.
+
+See [actual measured builds and decisions](reports/measured/2026-11-04/README.md). The production variants omit Python and development test files; the compressed variant separates immutable system files from writable Tor state.
 
 Repository: [JozefKovalcin/Tor-Client-for-embedded-systems](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems).
 
@@ -25,7 +26,7 @@ On a Linux host, in a path **without spaces**, install prerequisites (Debian/Ubu
 ```sh
 sudo apt-get update
 sudo apt-get install build-essential bc bison flex cpio rsync unzip wget file \
-  python3 git patch libncurses-dev libssl-dev qemu-system-x86 shellcheck
+  python3 git patch libncurses-dev libssl-dev qemu-system-x86 shellcheck cmake cmake
 python3 scripts/check.py
 python3 scripts/check_buildroot.py
 ```

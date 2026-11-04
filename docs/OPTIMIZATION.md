@@ -3,7 +3,7 @@
 ## Source and configuration inputs
 
 `br2-external/` is a native Buildroot external tree. Its defconfig pins the
-architecture, internal toolchain, musl, compiler series, kernel, packages,
+architecture, baseline internal toolchain or pinned derived SDK, musl, compiler series, kernel, packages,
 hardening and image format. `board/qemu/linux.config` and `busybox.config` were
 copied from the official pinned Buildroot archive, rather than reconstructed
 from guesses. Kernel and BusyBox resolved `.config` files are retained per run.
@@ -13,7 +13,7 @@ tests, profiles, build scripts and benchmark policy are also versioned.
 The inspected release is Buildroot 2026.08.1, which supplies Tor 0.4.9.14,
 OpenSSL 3.6.5, libevent 2.1.13, zlib 1.3.2, musl 1.2.6 and BusyBox 1.38.0.
 The profile selects GCC 15.x (15.3.0 in this release), binutils 2.45.1 and
-kernel 6.18.7. These are source-inspected versions, not locally built versions.
+kernel 6.18.7. These versions were built and executed in the 2026-11-04 Ubuntu WSL2 baseline and candidate runs.
 The authoritative inputs are `config/sources.lock.json`, the upstream package
 hash snapshots under `config/upstream/` and the verified archive itself.
 
@@ -62,7 +62,7 @@ retains a source-input tar snapshot alongside the file-hash manifest, so dirty
 configuration candidates can be reproduced. It refuses secret-like filenames
 in that snapshot and refuses acceptance if inputs change during a run. It
 never invokes `make clean`, `git reset`, `git clean` or recursive project deletion.
-It reuses matching output directories only for unchanged inputs. Unchanged
+It reuses matching output directories for unchanged inputs. Explicit `--resume-run` also permits recorded host reporting/test-fixture fixes after verifying that compiled package, kernel and toolchain inputs are unchanged; it records the original and current source provenance. Configuration changes remain isolated. Unchanged
 Buildroot outputs are incremental; for an independent rebuild use a separate
 checkout at the same commit with the same tool inputs. Artifact hashes permit
 checking byte identity. `BR2_REPRODUCIBLE` is not proof of byte identity across
@@ -104,10 +104,10 @@ configured. Public Tor integration is not replaced by two offline daemons.
 | Metric | Measurement and scope |
 |---|---|
 | Tor executable | Bytes of stripped target `/usr/bin/tor` |
-| Libraries | Unique regular shared-library files under target lib directories; symlinks/hardlinks not double counted; includes test-harness dependencies |
+| Libraries | Unique regular shared-library files under target lib directories; symlinks/hardlinks not double counted; includes test dependencies only in development/reference images |
 | Kernel | Deployed `bzImage` bytes, not uncompressed vmlinux |
-| Root filesystem | `rootfs.ext2` artifact length, formatted as ext4; fixed 256 MiB capacity is reported honestly |
-| Complete image | Sum of distinct kernel and filesystem boot artifacts; not a fabricated SD-card image |
+| Root filesystem | Selected deployable artifact length: ext4 capacity for baseline/small/tiny/production, complete partitioned `disk.img` for compressed production |
+| Complete image | Sum of distinct kernel and complete root disk artifacts; compressed variant includes its state partition and alignment exactly once; no bootloader is included in this direct-kernel QEMU boot set |
 | Installed rootfs | Logical regular-file bytes in target tree; useful when fixed filesystem capacity masks size changes |
 | Persistent storage | Logical bytes of both test nodes' state plus service identity, excluding harness configs/logs; VM state is ephemeral, real flash allocation unverified |
 | Idle RSS/PSS | Mean sum for A+B during a fixed post-bootstrap idle window; PSS from smaps_rollup where available |
@@ -196,3 +196,116 @@ configuration in Git, build/test/measure, review deltas and only retain accepted
 functionality. Rejections never revert files automatically. Compiler LTO,
 section GC, static linking and footprint reductions are future candidates to
 measure; none has been claimed beneficial without an executed target build.
+
+
+## Current WSL2 builds and production variants
+
+The actual build host is Ubuntu 26.04.1 on WSL2, with 15 GiB available RAM,
+native GCC 15.2 and QEMU 10.2.1. Build as `jozef` in
+`/home/jozef/embedded-tor`, not under the Windows directory containing a space.
+WSL inherits Windows PATH entries with spaces; sanitize PATH before Buildroot:
+
+```sh
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+cd /home/jozef/embedded-tor
+```
+
+The complete baseline and four optimization iterations are recorded in
+[`reports/measured/2026-11-04/README.md`](../reports/measured/2026-11-04/README.md).
+Do not run `--record-baseline` again in this checkout. The immutable original
+baseline is tagged `baseline`; the separate external-fixture reference does not
+replace it. Nonzero exit after a successful build can still mean a conservative
+public-network performance rejection; read the report rather than discarding
+the build or changing thresholds.
+
+The optimized profiles are `qemu-x86_64-small`, `qemu-x86_64-tiny`,
+`qemu-x86_64-production` and `qemu-x86_64-compressed`. All use separate outputs.
+Production removes target Python, development tests, GeoIP country databases,
+relay/authority modules and unused tools. Country-based routing rules and relay
+operation are intentionally outside this endpoint configuration. Upstream
+client/onion protocols and cryptographic libraries remain in use.
+
+### Exact SDK prerequisite
+
+To avoid rebuilding the same cross-compiler on every compatible target
+iteration, the existing validated baseline output was exported with Buildroot's
+standard `sdk` target. The archive is local, ignored by Git, and required by the
+optimized profiles. Its digest is checked before building:
+
+```text
+downloads/toolchains/x86_64-buildroot-linux-musl_sdk-buildroot.tar.gz
+SHA256 5fd7659021ec80cf0bb47794be75776867270e672166210453acbaab89800e1e
+Extracted/relocated: build/toolchains/baseline-sdk
+Compiler: x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0
+Source baseline commit: da7c5281145589821ceeb4f6b7aabd4d98833587
+```
+
+It is already present in the current WSL2 checkout. To reconstruct this setup
+from the preserved baseline output, export without modifying the baseline image:
+
+```sh
+make -C build/sources/34fb7bea8a213ffd/buildroot-2026.08.1 \
+  O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973 \
+  BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external sdk
+```
+
+Copy the resulting `images/*_sdk-buildroot.tar.gz` into
+`downloads/toolchains/`, verify its digest, extract into a **new**
+`build/toolchains/baseline-sdk` directory with the archive's top directory
+removed, then run its `relocate-sdk.sh`. Never overwrite an existing SDK or
+assume a newly built compiler/archive has the same bytes. A different SDK digest
+requires an explicit provenance/profile update and fresh output directories;
+compiler/ABI changes require a new compatible measurement lineage. SDK
+relocation is Buildroot's supported mechanism, not a copied toolchain build tree.
+
+### External test fixture and reference
+
+Production images contain no Python or test suite. Validation attaches the
+hash-verified original baseline rootfs as a read-only second disk, runs its exact
+test harness/Python, and launches candidate `/usr/bin/tor` through a wrapper
+that clears fixture library/Python paths. Candidate Tor maps are also checked
+by the native service probe. This prevents accidentally measuring the original
+Tor executable/libraries while reporting the smaller candidate.
+
+The original kernel/rootfs were remeasured under this same external apparatus
+before production testing. That additional immutable reference lives at
+`reports/references/external-fixture/baseline/`. The exact calibration command
+is saved as `reports/measured/2026-11-04/remeasure-reference.py`; it verifies
+original artifact hashes, executes real public tests, refuses replacement and
+only seals a complete valid result. On another host, remeasure both reference
+and candidate; do not copy timing numbers and claim hardware equivalence.
+
+```sh
+./scripts/validate.sh --profile qemu-x86_64-compressed \
+  --baseline-ref reports/references/external-fixture/baseline \
+  --change "Next actual production optimization"
+```
+
+The extra disk and laboratory Python memory are present in both reference and
+candidate runtime measurements. They are not deployed storage requirements.
+Original baseline versus externally driven candidates is refused by the default
+exact-environment comparison; select the explicit compatible reference.
+
+### Immutable production root and persistent state
+
+The compressed variant boots `bzImage` and `disk.img` directly in QEMU with
+`root=/dev/vda1 ro`. The disk contains a gzip SquashFS system partition and a
+16 MiB ext4 `/var/lib/tor` state partition, including MBR/alignment overhead.
+`/tmp`, `/run` and `/dev/shm` use tmpfs; init does not attempt to remount the
+SquashFS root writable. The native init service starts Tor as uid/gid 905,
+creates mode-0700 state and run directories, and uses authenticated loopback
+control and SOCKS listeners. Runtime keys/state remain outside Git. Snapshot
+mode keeps test-generated keys out of distributable artifacts.
+
+Sixteen MiB is a tested laboratory state budget, not an unlimited long-term
+storage guarantee. Monitor state growth and reserve more space for other
+deployment workloads. No USB-controller, physical Ethernet board, bootloader,
+flash endurance, minimum RAM, suspend/resume or power-loss behavior is verified
+by these QEMU runs. The native service probe verifies a real public bootstrap
+and privilege drop; the full two-node suite exercises the same deployed Tor
+executable/libraries with its controlled laboratory configurations.
+
+The partition generator follows the upstream
+[genimage configuration format](https://github.com/pengutronix/genimage/blob/v20/README.rst).
+Run Buildroot `legal-info` before distributing binaries and preserve its source
+and license obligations. No generated compiler or Linux/Tor image is committed.
