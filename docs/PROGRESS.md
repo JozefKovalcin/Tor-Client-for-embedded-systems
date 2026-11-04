@@ -7,6 +7,11 @@
 - Supplied GitHub repository inspected later in the session: its main branch
   contained only a placeholder README. Existing history is preserved; the new
   work extends its documented Tor scope and leaves Nym implementation pending.
+- Implementation published on `codex/optimization-tracking`. GitHub Actions
+  [run 41855759505](https://github.com/JozefKovalcin/Tor-and-NymMixNet-Clients-for-embended-systems/actions/runs/41855759505)
+  passed regression/script checks and real Buildroot configuration resolution,
+  and uploaded configuration evidence. Full image building was intentionally
+  skipped by the workflow's manual/resource gate; it is not a passing full build.
 - Official Buildroot 2026.08.1 archive downloaded; SHA-256 computed as
   `34fb7bea8a213ffde39cc02e61703391560f26e0850f03138c722d0b09880f2b`.
   Package versions/configuration and upstream hash files inspected directly.
