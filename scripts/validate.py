@@ -177,6 +177,11 @@ def main():
         profile = read_json(ROOT / "config/profiles" / (args.profile + ".json"))
         lock = read_json(ROOT / "config/sources.lock.json")
         snapshot_inputs(run, manifest)
+        if profile.get("toolchain_archive"):
+            sdk = profile["toolchain_archive"]
+            if sha256(ROOT / sdk["path"]) != sdk["sha256"]:
+                raise ValueError("external SDK archive digest mismatch")
+            result["metadata"]["toolchain_archive"] = sdk
         result["metadata"].update({"architecture": profile["architecture"],
                                   "buildroot_version": lock["buildroot"]["version"],
                                   "tor_version": lock["tor_version"], "kernel_version": lock["kernel_version"]})

@@ -1,5 +1,5 @@
 {
-  "run_id": "20261104T161505Z-bed18230",
+  "run_id": "20261104T162447Z-cd6efe9f",
   "tests": [
     {
       "detail": "see checks.log",
@@ -17,64 +17,64 @@
       "detail": "explicit assertions passed",
       "id": "security_config",
       "mode": "offline",
-      "seconds": 0.0035575489999999377,
+      "seconds": 0.0031326919999998815,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "tor_config",
       "mode": "offline",
-      "seconds": 0.18985529700000026,
+      "seconds": 0.17841076800000044,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "tor_startup",
       "mode": "offline",
-      "seconds": 6.7072306610000005,
+      "seconds": 6.326496215999999,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "socks5",
       "mode": "online",
-      "seconds": 0.00575671800000066,
+      "seconds": 0.004285518999999738,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "public_bootstrap",
       "mode": "online",
-      "seconds": 13.991359382999999,
+      "seconds": 15.594720626,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "onion_v3",
       "mode": "online",
-      "seconds": 3.840738530000003,
+      "seconds": 2.2853781549999965,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "two_node",
       "mode": "online",
-      "seconds": 1.326607940999999,
+      "seconds": 1.3940830729999973,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "bidirectional_integrity",
       "mode": "online",
-      "seconds": 10.850975648999999,
+      "seconds": 9.517527783999995,
       "status": "PASS"
     },
     {
-      "detail": "reconnection after service crash timed out",
+      "detail": "explicit assertions passed",
       "id": "reconnection",
       "mode": "online",
-      "seconds": 210.89102257499997,
-      "status": "BLOCKED"
+      "seconds": 139.387187305,
+      "status": "PASS"
     }
   ]
 }

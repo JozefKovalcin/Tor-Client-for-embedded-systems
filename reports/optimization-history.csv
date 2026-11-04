@@ -6,3 +6,4 @@ timestamp,run_id,commit,configuration_id,change,status,build_status,tor_executab
 2026-11-04T15:33:43.442037+00:00,20261104T153343Z-b65345cc,60254c8a7b08fd06e9682180213ecfc935acc694,qemu-x86_64,First Ubuntu WSL2 Linux baseline with native PATH,INCOMPLETE,FAIL,3397272,275092480,,
 2026-11-04T15:57:11.231807+00:00,20261104T155711Z-ad98aa0a,95cc6f54e7c513a81e657528a45e705031ed2198,qemu-x86_64,Complete Linux baseline: corrected compiler metadata and QEMU tests,INCOMPLETE,PASS,3397272,275092480,,
 2026-11-04T16:15:05.666392+00:00,20261104T161505Z-bed18230,6e0cf4709995b4feaa5778d16ad3321c66ea59c4,qemu-x86_64,Baseline retry: guest JSON framing fixed; all network tests required,INCOMPLETE,PASS,3397272,275092480,127778816.0,131448832
+2026-11-04T16:24:47.912818+00:00,20261104T162447Z-cd6efe9f,da7c5281145589821ceeb4f6b7aabd4d98833587,qemu-x86_64,Linux baseline with descriptor-aware authenticated restart recovery,BASELINE,PASS,3397272,275092480,128241838.29787233,130019328

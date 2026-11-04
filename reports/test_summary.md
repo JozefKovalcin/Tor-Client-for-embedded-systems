@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261104T161505Z-bed18230`
+Run: `20261104T162447Z-cd6efe9f`
 
-**INCOMPLETE** — Baseline retry: guest JSON framing fixed; all network tests required
+**BASELINE** — Linux baseline with descriptor-aware authenticated restart recovery
 
-Build: PASS. baseline refused: mandatory test not passed: reconnection
+Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `6e0cf4709995b4feaa5778d16ad3321c66ea59c4`; dirty: `False`.
+Commit: `da7c5281145589821ceeb4f6b7aabd4d98833587`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 
@@ -24,4 +24,4 @@ Hardware behavior: unverified. Measurements describe only the recorded test envi
 | onion_v3 | online | PASS | explicit assertions passed |
 | two_node | online | PASS | explicit assertions passed |
 | bidirectional_integrity | online | PASS | explicit assertions passed |
-| reconnection | online | BLOCKED | reconnection after service crash timed out |
+| reconnection | online | PASS | explicit assertions passed |

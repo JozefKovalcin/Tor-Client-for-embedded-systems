@@ -1,3 +1,25 @@
+# Current Ubuntu WSL2 build and optimization state
+
+The first fully validated embedded Linux baseline is sealed in
+`reports/baseline/` with read-only boot artifacts in `build/baseline/` and Git
+tag `baseline` (commit `da7c5281145589821ceeb4f6b7aabd4d98833587`). All nine mandatory
+tests passed in QEMU, including public bootstrap, v3 onion communication,
+SHA-256 bidirectional integrity and controlled crash/restart recovery.
+
+Baseline: complete boot set 275,092,480 bytes; installed files 63,362,683 bytes;
+combined A+B idle RSS 128,241,838 bytes; peak sampled process RSS 130,019,328
+bytes; peak guest used memory 160,100,352 bytes. CPU observation: 16.88% of
+one guest CPU averaged over the measured run. These are emulated observations,
+not hardware minimum claims.
+
+Iteration 1 is in progress: omit 26,375,711 bytes of unused GeoIP country data
+and authority/diagnostic helper tools, then right-size the filesystem to 64 MiB.
+The Tor executable, cryptography, kernel and hardening are preserved. The exact
+baseline compiler is reused as a hash-recorded SDK in a fresh output directory.
+No size or RAM reduction is accepted until the image is built and all tests run.
+
+## Earlier implementation and build history
+
 # Verified project state — 2026-11-04
 
 - Initial recursive inventory: workspace empty, no Git repository, Tor executable,
