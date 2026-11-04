@@ -1,5 +1,5 @@
 {
-  "run_id": "20261104T151444Z-a17869fa",
+  "run_id": "20261104T153211Z-4ef44872",
   "tests": [
     {
       "detail": "see checks.log",
@@ -8,55 +8,55 @@
       "status": "PASS"
     },
     {
-      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "detail": "CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2.",
       "id": "security_config",
       "mode": "offline",
       "status": "BLOCKED"
     },
     {
-      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "detail": "CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2.",
       "id": "tor_config",
       "mode": "offline",
       "status": "BLOCKED"
     },
     {
-      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "detail": "CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2.",
       "id": "tor_startup",
       "mode": "offline",
       "status": "BLOCKED"
     },
     {
-      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "detail": "CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2.",
       "id": "socks5",
       "mode": "online",
       "status": "BLOCKED"
     },
     {
-      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "detail": "CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2.",
       "id": "public_bootstrap",
       "mode": "online",
       "status": "BLOCKED"
     },
     {
-      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "detail": "CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2.",
       "id": "onion_v3",
       "mode": "online",
       "status": "BLOCKED"
     },
     {
-      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "detail": "CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2.",
       "id": "two_node",
       "mode": "online",
       "status": "BLOCKED"
     },
     {
-      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "detail": "CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2.",
       "id": "bidirectional_integrity",
       "mode": "online",
       "status": "BLOCKED"
     },
     {
-      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "detail": "CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2.",
       "id": "reconnection",
       "mode": "online",
       "status": "BLOCKED"

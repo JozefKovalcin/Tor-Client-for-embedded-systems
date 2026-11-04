@@ -2,3 +2,4 @@ timestamp,run_id,commit,configuration_id,change,status,build_status,tor_executab
 2026-11-04T15:07:49.657934+00:00,20261104T150749Z-e3a7208e,,qemu-x86_64,Initial integration: Linux target build unavailable on Windows host,INCOMPLETE,BLOCKED,,,,
 2026-11-04T15:12:22.798981+00:00,20261104T151222Z-e2c5aa16,,qemu-x86_64,Initial integration: Linux target build unavailable on Windows host,INCOMPLETE,BLOCKED,,,,
 2026-11-04T15:14:44.084641+00:00,20261104T151444Z-a17869fa,17b6179edcbc8730cc7f0e048a970a9c19625ad9,qemu-x86_64,Committed implementation: target image requires Linux build runner,INCOMPLETE,BLOCKED,,,,
+2026-11-04T15:32:11.658076+00:00,20261104T153211Z-4ef44872,5cd931b1ac8a25869df120ff32a341eb7e5414bd,qemu-x86_64,First Ubuntu WSL2 complete Linux baseline,INCOMPLETE,FAIL,,,,

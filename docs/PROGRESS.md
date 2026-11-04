@@ -51,3 +51,7 @@ commit the reviewed inputs, run `./scripts/validate.sh --record-baseline`, then
 test one configuration change with the same runner. Keep the initial successful
 image and baseline result archive outside Git. Inspect `reports/latest.md` for
 the actual most recent pipeline outcome.
+
+Ubuntu WSL2 build session: prerequisites and all 34 checks passed. The first complete
+build attempt exposed Windows PATH entries containing spaces; subsequent builds
+use the native Linux PATH. Target baseline build and measurements are in progress.

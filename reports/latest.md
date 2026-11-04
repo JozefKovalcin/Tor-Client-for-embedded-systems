@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261104T151444Z-a17869fa`
+Run: `20261104T153211Z-4ef44872`
 
-**INCOMPLETE** — Committed implementation: target image requires Linux build runner
+**INCOMPLETE** — First Ubuntu WSL2 complete Linux baseline
 
-Build: BLOCKED. Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner
+Build: FAIL. CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2.
 
-Commit: `17b6179edcbc8730cc7f0e048a970a9c19625ad9`; dirty: `False`.
+Commit: `5cd931b1ac8a25869df120ff32a341eb7e5414bd`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 
@@ -15,15 +15,15 @@ Hardware behavior: unverified. Measurements describe only the recorded test envi
 | Test | Mode | Status | Detail |
 |---|---|---|---|
 | repository_checks | offline | PASS | see checks.log |
-| security_config | offline | BLOCKED | Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner |
-| tor_config | offline | BLOCKED | Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner |
-| tor_startup | offline | BLOCKED | Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner |
-| socks5 | online | BLOCKED | Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner |
-| public_bootstrap | online | BLOCKED | Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner |
-| onion_v3 | online | BLOCKED | Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner |
-| two_node | online | BLOCKED | Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner |
-| bidirectional_integrity | online | BLOCKED | Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner |
-| reconnection | online | BLOCKED | Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner |
+| security_config | offline | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
+| tor_config | offline | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
+| tor_startup | offline | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
+| socks5 | online | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
+| public_bootstrap | online | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
+| onion_v3 | online | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
+| two_node | online | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
+| bidirectional_integrity | online | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
+| reconnection | online | BLOCKED | CalledProcessError: Command '['make', '--no-print-directory', '-C', '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1', 'O=/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973', 'BR2_EXTERNAL=/home/jozef/embedded-tor/br2-external', 'BR2_DL_DIR=/home/jozef/embedded-tor/downloads/packages', '-j8', 'all']' returned non-zero exit status 2. |
 
 ## Measurements
 
@@ -47,7 +47,7 @@ Null means unavailable; bytes use base 1024 for KiB conversions.
 
 ## Decision
 
-- no usable immutable baseline: [Errno 2] No such file or directory: 'C:\\Users\\jozef\\Downloads\\Tor Klient\\reports\\baseline'
+- no usable immutable baseline: [Errno 2] No such file or directory: '/home/jozef/embedded-tor/reports/baseline'
 - complete build did not pass
 - mandatory test not passed: security_config
 - mandatory test not passed: tor_config
