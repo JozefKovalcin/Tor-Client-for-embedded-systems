@@ -1,0 +1,123 @@
+name: Embedded Tor validation
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      full_build:
+        description: Run the complete cross-build and public Tor tests
+        type: boolean
+        default: false
+      runner:
+        description: Full-build runner (dedicated local Linux runner recommended)
+        type: choice
+        options: [self-hosted, ubuntu-24.04]
+        default: self-hosted
+      record_baseline:
+        description: Seal the first fully validated build (never replace)
+        type: boolean
+        default: false
+      baseline_run_id:
+        description: Prior workflow run containing the immutable baseline artifact
+        type: string
+        default: ''
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: tor-validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install lightweight checks
+        run: sudo apt-get update && sudo apt-get install -y shellcheck build-essential
+      - name: Script and regression tests
+        run: python3 scripts/check.py
+      - name: Resolve Buildroot configurations without cross-building
+        run: python3 scripts/check_buildroot.py
+      - name: Upload configuration evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: configuration-checks
+          path: build/config-check/**/.config
+          include-hidden-files: true
+          if-no-files-found: warn
+  full:
+    if: github.event_name == 'workflow_dispatch' && inputs.full_build
+    needs: checks
+    runs-on: ${{ inputs.runner == 'self-hosted' && fromJSON('["self-hosted","linux","x64","embedded-tor"]') || fromJSON('["ubuntu-24.04"]') }}
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Dedicated CI workspace only. Preserve prior baseline/build logs.
+          clean: false
+      - name: Check resources and prerequisites
+        id: resources
+        shell: bash
+        run: |
+          disk_kib=$(df -Pk . | awk 'NR==2 {print $4}')
+          mem_kib=$(awk '/MemTotal/ {print $2}' /proc/meminfo)
+          if (( disk_kib < 40*1024*1024 || mem_kib < 6*1024*1024 )); then
+            echo 'ready=false' >> "$GITHUB_OUTPUT"
+            echo 'Insufficient resources: require 40 GiB available disk and 6 GiB RAM.'
+          else
+            echo 'ready=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install hosted full-build dependencies
+        if: steps.resources.outputs.ready == 'true' && inputs.runner == 'ubuntu-24.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential bc bison flex cpio rsync unzip wget file \
+            python3 git patch libncurses-dev libssl-dev qemu-system-x86 shellcheck
+      - name: Refuse to overwrite a local baseline during artifact restore
+        if: inputs.baseline_run_id != ''
+        run: test ! -e reports/baseline
+      - name: Restore specifically selected baseline
+        if: inputs.baseline_run_id != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: baseline
+          path: reports/baseline
+          run-id: ${{ inputs.baseline_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Complete validation
+        if: steps.resources.outputs.ready == 'true'
+        env:
+          RECORD_BASELINE: ${{ inputs.record_baseline }}
+        shell: bash
+        run: |
+          args=(--change 'GitHub Actions validation')
+          if [[ "$RECORD_BASELINE" == true ]]; then args+=(--record-baseline); fi
+          ./scripts/validate.sh "${args[@]}"
+      - name: Record insufficient-resource result
+        if: steps.resources.outputs.ready != 'true'
+        run: python3 scripts/validate.py --checks-only --change 'Full build blocked by runner resource gate'
+      - name: Upload baseline separately
+        if: always() && inputs.record_baseline
+        uses: actions/upload-artifact@v4
+        with:
+          name: baseline
+          path: reports/baseline/
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Preserve reports and failure logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tor-validation-${{ github.run_id }}
+          path: |
+            reports/latest.md
+            reports/optimization-history.csv
+            reports/test_results.json
+            reports/test_summary.md
+            reports/benchmarks/
+          retention-days: 30
+          if-no-files-found: warn

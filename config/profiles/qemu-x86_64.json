@@ -1,0 +1,21 @@
+{
+  "id": "qemu-x86_64",
+  "defconfig": "tor_qemu_x86_64_defconfig",
+  "architecture": "x86_64",
+  "environment": {
+    "kind": "qemu",
+    "machine": "pc-i440fx-8.2",
+    "cpu": "qemu64",
+    "accelerator": "tcg,thread=single",
+    "memory_mib": 512,
+    "cpus": 1,
+    "network": "user-mode-nat",
+    "measurement_protocol": "tor-two-node-v1"
+  },
+  "qemu": "qemu-system-x86_64",
+  "artifacts": {"kernel": "bzImage", "rootfs": "rootfs.ext2"},
+  "timeout_seconds": 1800,
+  "bootstrap_timeout_seconds": 600,
+  "connection_timeout_seconds": 180,
+  "idle_seconds": 10
+}

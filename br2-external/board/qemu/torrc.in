@@ -1,0 +1,11 @@
+DataDirectory "@DATA@"
+SocksPort 127.0.0.1:@SOCKS@
+ControlPort 127.0.0.1:@CONTROL@
+CookieAuthentication 1
+CookieAuthFileGroupReadable 0
+ClientOnly 1
+SafeLogging 1
+AvoidDiskWrites 1
+RunAsDaemon 0
+Log notice stdout
+DisableNetwork @OFFLINE@

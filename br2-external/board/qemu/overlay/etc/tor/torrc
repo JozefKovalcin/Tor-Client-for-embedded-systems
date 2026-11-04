@@ -1,0 +1,11 @@
+# Secure inactive template. Supply trusted time and a persistent /var/lib/tor
+# mount before enabling network operation on an actual device.
+DataDirectory /var/lib/tor
+SocksPort 127.0.0.1:9050
+ControlPort 127.0.0.1:9051
+CookieAuthentication 1
+CookieAuthFileGroupReadable 0
+ClientOnly 1
+SafeLogging 1
+AvoidDiskWrites 1
+DisableNetwork 1

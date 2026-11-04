@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "required_tests": [
+    "security_config", "tor_config", "tor_startup", "socks5",
+    "public_bootstrap", "onion_v3", "two_node", "bidirectional_integrity", "reconnection"
+  ],
+  "required_metrics": [
+    "tor_executable_bytes", "library_bytes", "kernel_bytes", "rootfs_bytes",
+    "complete_image_bytes", "persistent_storage_bytes", "idle_rss_bytes",
+    "peak_process_rss_bytes", "peak_system_used_bytes", "bootstrap_seconds",
+    "onion_connection_seconds", "cpu_percent", "throughput_bytes_per_second"
+  ],
+  "maximum_regression_percent": {
+    "tor_executable_bytes": 0,
+    "library_bytes": 0,
+    "kernel_bytes": 0,
+    "rootfs_bytes": 0,
+    "complete_image_bytes": 0,
+    "idle_rss_bytes": 5,
+    "peak_process_rss_bytes": 5,
+    "bootstrap_seconds": 20,
+    "onion_connection_seconds": 20,
+    "throughput_bytes_per_second": 20
+  },
+  "higher_is_better": ["throughput_bytes_per_second"],
+  "require_improvement": true
+}

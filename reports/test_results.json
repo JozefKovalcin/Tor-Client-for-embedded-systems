@@ -1,0 +1,65 @@
+{
+  "run_id": "20261104T151222Z-e2c5aa16",
+  "tests": [
+    {
+      "detail": "see checks.log",
+      "id": "repository_checks",
+      "mode": "offline",
+      "status": "PASS"
+    },
+    {
+      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "id": "security_config",
+      "mode": "offline",
+      "status": "BLOCKED"
+    },
+    {
+      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "id": "tor_config",
+      "mode": "offline",
+      "status": "BLOCKED"
+    },
+    {
+      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "id": "tor_startup",
+      "mode": "offline",
+      "status": "BLOCKED"
+    },
+    {
+      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "id": "socks5",
+      "mode": "online",
+      "status": "BLOCKED"
+    },
+    {
+      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "id": "public_bootstrap",
+      "mode": "online",
+      "status": "BLOCKED"
+    },
+    {
+      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "id": "onion_v3",
+      "mode": "online",
+      "status": "BLOCKED"
+    },
+    {
+      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "id": "two_node",
+      "mode": "online",
+      "status": "BLOCKED"
+    },
+    {
+      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "id": "bidirectional_integrity",
+      "mode": "online",
+      "status": "BLOCKED"
+    },
+    {
+      "detail": "Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner",
+      "id": "reconnection",
+      "mode": "online",
+      "status": "BLOCKED"
+    }
+  ]
+}
