@@ -60,3 +60,9 @@ The first complete cross-build produced bzImage and a 256 MiB ext4 rootfs.
 Runtime validation was initially blocked by two aliases of the same generated
 compiler. The validator now selects GNU_TARGET_NAME; --resume-run permits only
 host-reporting fixes with identical target inputs. Original logs are retained.
+
+The first QEMU run passed public bootstrap, v3 onion service reachability, two-node
+communication and bidirectional integrity. Service restart reconnection timed out
+(BLOCKED); therefore no baseline was sealed. The serial output also exposed an
+extra blank line before its end marker; the parser now accepts that whitespace.
+Recovered diagnostic JSON is preserved alongside the original serial log.

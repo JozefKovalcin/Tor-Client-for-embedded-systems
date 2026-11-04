@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261104T153343Z-b65345cc`
+Run: `20261104T155711Z-ad98aa0a`
 
-**INCOMPLETE** — First Ubuntu WSL2 Linux baseline with native PATH
+**INCOMPLETE** — Complete Linux baseline: corrected compiler metadata and QEMU tests
 
-Build: FAIL. ValueError: cannot identify unique target compiler
+Build: PASS. target produced no complete test result; see QEMU log
 
-Commit: `60254c8a7b08fd06e9682180213ecfc935acc694`; dirty: `False`.
+Commit: `95cc6f54e7c513a81e657528a45e705031ed2198`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 
@@ -15,12 +15,13 @@ Hardware behavior: unverified. Measurements describe only the recorded test envi
 | Test | Mode | Status | Detail |
 |---|---|---|---|
 | repository_checks | offline | PASS | see checks.log |
-| security_config | offline | BLOCKED | ValueError: cannot identify unique target compiler |
-| tor_config | offline | BLOCKED | ValueError: cannot identify unique target compiler |
-| tor_startup | offline | BLOCKED | ValueError: cannot identify unique target compiler |
-| socks5 | online | BLOCKED | ValueError: cannot identify unique target compiler |
-| public_bootstrap | online | BLOCKED | ValueError: cannot identify unique target compiler |
-| onion_v3 | online | BLOCKED | ValueError: cannot identify unique target compiler |
-| two_node | online | BLOCKED | ValueError: cannot identify unique target compiler |
-| bidirectional_integrity | online | BLOCKED | ValueError: cannot identify unique target compiler |
-| reconnection | online | BLOCKED | ValueError: cannot identify unique target compiler |
+| elf_hardening | offline | PASS | PIE, RELRO, NOW and non-executable stack observed |
+| security_config | offline | BLOCKED | target produced no complete test result; see QEMU log |
+| tor_config | offline | BLOCKED | target produced no complete test result; see QEMU log |
+| tor_startup | offline | BLOCKED | target produced no complete test result; see QEMU log |
+| socks5 | online | BLOCKED | target produced no complete test result; see QEMU log |
+| public_bootstrap | online | BLOCKED | target produced no complete test result; see QEMU log |
+| onion_v3 | online | BLOCKED | target produced no complete test result; see QEMU log |
+| two_node | online | BLOCKED | target produced no complete test result; see QEMU log |
+| bidirectional_integrity | online | BLOCKED | target produced no complete test result; see QEMU log |
+| reconnection | online | BLOCKED | target produced no complete test result; see QEMU log |

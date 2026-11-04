@@ -1,5 +1,5 @@
 {
-  "run_id": "20261104T153343Z-b65345cc",
+  "run_id": "20261104T155711Z-ad98aa0a",
   "tests": [
     {
       "detail": "see checks.log",
@@ -8,55 +8,61 @@
       "status": "PASS"
     },
     {
-      "detail": "ValueError: cannot identify unique target compiler",
+      "detail": "PIE, RELRO, NOW and non-executable stack observed",
+      "id": "elf_hardening",
+      "mode": "offline",
+      "status": "PASS"
+    },
+    {
+      "detail": "target produced no complete test result; see QEMU log",
       "id": "security_config",
       "mode": "offline",
       "status": "BLOCKED"
     },
     {
-      "detail": "ValueError: cannot identify unique target compiler",
+      "detail": "target produced no complete test result; see QEMU log",
       "id": "tor_config",
       "mode": "offline",
       "status": "BLOCKED"
     },
     {
-      "detail": "ValueError: cannot identify unique target compiler",
+      "detail": "target produced no complete test result; see QEMU log",
       "id": "tor_startup",
       "mode": "offline",
       "status": "BLOCKED"
     },
     {
-      "detail": "ValueError: cannot identify unique target compiler",
+      "detail": "target produced no complete test result; see QEMU log",
       "id": "socks5",
       "mode": "online",
       "status": "BLOCKED"
     },
     {
-      "detail": "ValueError: cannot identify unique target compiler",
+      "detail": "target produced no complete test result; see QEMU log",
       "id": "public_bootstrap",
       "mode": "online",
       "status": "BLOCKED"
     },
     {
-      "detail": "ValueError: cannot identify unique target compiler",
+      "detail": "target produced no complete test result; see QEMU log",
       "id": "onion_v3",
       "mode": "online",
       "status": "BLOCKED"
     },
     {
-      "detail": "ValueError: cannot identify unique target compiler",
+      "detail": "target produced no complete test result; see QEMU log",
       "id": "two_node",
       "mode": "online",
       "status": "BLOCKED"
     },
     {
-      "detail": "ValueError: cannot identify unique target compiler",
+      "detail": "target produced no complete test result; see QEMU log",
       "id": "bidirectional_integrity",
       "mode": "online",
       "status": "BLOCKED"
     },
     {
-      "detail": "ValueError: cannot identify unique target compiler",
+      "detail": "target produced no complete test result; see QEMU log",
       "id": "reconnection",
       "mode": "online",
       "status": "BLOCKED"

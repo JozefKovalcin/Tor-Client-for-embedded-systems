@@ -129,7 +129,7 @@ def emulation(output, profile, mode, run):
                     process.kill()
                     process.wait(timeout=5)
     data = log.read_text(encoding="utf-8", errors="replace")
-    match = re.search(r"TOR_VALIDATION_JSON=(\{[^\r\n]+\})\r?\nTOR_VALIDATION_END", data)
+    match = re.search(r"TOR_VALIDATION_JSON=(\{[^\r\n]+\})\s*TOR_VALIDATION_END", data)
     if not match:
         raise Blocked("target produced no complete test result; see QEMU log")
     result = json.loads(match.group(1))
