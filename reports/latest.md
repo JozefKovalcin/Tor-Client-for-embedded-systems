@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261104T151222Z-e2c5aa16`
+Run: `20261104T151444Z-a17869fa`
 
-**INCOMPLETE** — Initial integration: Linux target build unavailable on Windows host
+**INCOMPLETE** — Committed implementation: target image requires Linux build runner
 
 Build: BLOCKED. Buildroot requires a Linux host; use native Linux, WSL2 Linux or a local Linux runner
 
-Commit: `None`; dirty: `True`.
+Commit: `17b6179edcbc8730cc7f0e048a970a9c19625ad9`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 
@@ -74,7 +74,6 @@ Null means unavailable; bytes use base 1024 for KiB conversions.
 - missing provenance: compiler
 - missing provenance: compiler_flags
 - missing provenance: source_provenance_sha256
-- missing Git commit
 - missing measurement environment
 
 Positive reduction means lower resource use. Throughput improvement has the opposite sign.
