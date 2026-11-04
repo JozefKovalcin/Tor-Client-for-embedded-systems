@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261104T165728Z-643dbbe1`
+Run: `20261104T171128Z-fixture-reference-546024`
 
-**REJECTED** — Iteration 2: -Os, upstream client modules, minimal kernel, 48 MiB rootfs
+**REFERENCE** — Reference: immutable original image under external validation fixture
 
-Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
+Build: PASS. Previously validated immutable baseline image; artifact hashes rechecked; no image rebuild claimed
 
-Commit: `c9f138fde715c6c5564780a938e2db771f314187`; dirty: `False`.
+Commit: `da7c5281145589821ceeb4f6b7aabd4d98833587`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 

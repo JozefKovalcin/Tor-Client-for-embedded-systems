@@ -116,3 +116,8 @@ files, using the unchanged baseline driver on a read-only external lab disk.
 A separate measurement of the original immutable image under this exact lab
 setup will be preserved for an equivalent-condition comparison. The production
 daemon starts under uid 905 with cookie-authenticated loopback control.
+
+The immutable original image also passed all nine tests using the read-only
+external test disk. That separately sealed reference is at
+reports/references/external-fixture/baseline; the original baseline is unchanged.
+Production candidates use this explicit equivalent-condition reference.
