@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261104T162447Z-cd6efe9f`
+Run: `20261104T163515Z-f2a9da00`
 
-**BASELINE** — Linux baseline with descriptor-aware authenticated restart recovery
+**REJECTED** — Iteration 1: remove unused GeoIP/helper files; 64 MiB filesystem
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `da7c5281145589821ceeb4f6b7aabd4d98833587`; dirty: `False`.
+Commit: `0e80161297bba3f386c311f45f17477348534fd2`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 

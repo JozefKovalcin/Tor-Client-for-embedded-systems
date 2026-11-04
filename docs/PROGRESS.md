@@ -12,11 +12,21 @@ bytes; peak guest used memory 160,100,352 bytes. CPU observation: 16.88% of
 one guest CPU averaged over the measured run. These are emulated observations,
 not hardware minimum claims.
 
-Iteration 1 is in progress: omit 26,375,711 bytes of unused GeoIP country data
+Iteration 1 was built and tested: omit 26,375,711 bytes of unused GeoIP country data
 and authority/diagnostic helper tools, then right-size the filesystem to 64 MiB.
 The Tor executable, cryptography, kernel and hardening are preserved. The exact
 baseline compiler is reused as a hash-recorded SDK in a fresh output directory.
-No size or RAM reduction is accepted until the image is built and all tests run.
+All nine functional tests passed. Complete image bytes fell 73.185%; combined
+idle Tor RSS fell 58.730% and peak sampled Tor RSS fell 56.576%. The candidate
+was REJECTED by the unchanged latency gate (3.197 s versus 2.283 s initial onion
+connection), so these are measured footprint reductions, not an automatic
+optimization acceptance or a causal performance claim. The image is preserved
+in `build/iterations/01-data/`.
+
+Iteration 2 is in progress: size compiler flags, upstream client-only Tor modules,
+and a uniprocessor kernel without unused display/audio/USB-host/storage drivers.
+ASLR, stack protection, seccomp, networking, entropy and ext4 are retained. The
+root filesystem is 48 MiB. No result is claimed until the build and tests finish.
 
 ## Earlier implementation and build history
 

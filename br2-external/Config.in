@@ -1,1 +1,9 @@
 # Packages are provided by the hash-pinned Buildroot release.
+
+config BR2_PACKAGE_TOR_CLIENT_ONLY
+    bool "Tor client and onion service only"
+    depends on BR2_PACKAGE_TOR
+    help
+      Use upstream's supported client build without relay, bridge-operator,
+      directory-cache-server or directory-authority modules. Onion-service
+      client/server functionality and cryptographic implementations remain.
