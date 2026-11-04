@@ -1,0 +1,32 @@
+{
+  "id": "qemu-x86_64-production",
+  "defconfig": "tor_qemu_x86_64_production_defconfig",
+  "architecture": "x86_64",
+  "environment": {
+    "kind": "qemu",
+    "machine": "pc-i440fx-8.2",
+    "cpu": "qemu64",
+    "accelerator": "tcg,thread=single",
+    "memory_mib": 512,
+    "cpus": 1,
+    "network": "user-mode-nat",
+    "measurement_protocol": "tor-two-node-v2-external-fixture"
+  },
+  "qemu": "qemu-system-x86_64",
+  "artifacts": {
+    "kernel": "bzImage",
+    "rootfs": "rootfs.ext2"
+  },
+  "timeout_seconds": 1800,
+  "bootstrap_timeout_seconds": 600,
+  "connection_timeout_seconds": 180,
+  "idle_seconds": 10,
+  "toolchain_archive": {
+    "path": "downloads/toolchains/x86_64-buildroot-linux-musl_sdk-buildroot.tar.gz",
+    "sha256": "5fd7659021ec80cf0bb47794be75776867270e672166210453acbaab89800e1e",
+    "source_baseline_commit": "da7c5281145589821ceeb4f6b7aabd4d98833587",
+    "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0"
+  },
+  "validation_fixture": "baseline",
+  "production_service": true
+}

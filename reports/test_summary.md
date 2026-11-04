@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261104T163515Z-f2a9da00`
+Run: `20261104T165728Z-643dbbe1`
 
-**REJECTED** — Iteration 1: remove unused GeoIP/helper files; 64 MiB filesystem
+**REJECTED** — Iteration 2: -Os, upstream client modules, minimal kernel, 48 MiB rootfs
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `0e80161297bba3f386c311f45f17477348534fd2`; dirty: `False`.
+Commit: `c9f138fde715c6c5564780a938e2db771f314187`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 

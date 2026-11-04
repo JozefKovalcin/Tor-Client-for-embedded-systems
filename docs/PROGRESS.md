@@ -104,3 +104,15 @@ Recovery now waits for an authenticated HS_DESC UPLOADED event and requests
 SIGNAL NEWNYM on the client before retrying the same onion identity and verifying
 payload integrity. This is Tor upstream control behavior, not a protocol change.
 The measured test protocol is versioned v2; no prior run qualified as a baseline.
+
+
+Iteration 2 built and passed all nine functional tests. Complete image:
+54,752,256 bytes; Tor: 2,592,728 bytes; kernel: 4,420,608 bytes; combined idle
+Tor RSS: 50,226,023 bytes. Policy rejected latency and throughput observations;
+no gate was relaxed. Image preserved in `build/iterations/02-tiny/`.
+
+Iteration 3 is in progress: a 32 MiB production root without Python or test
+files, using the unchanged baseline driver on a read-only external lab disk.
+A separate measurement of the original immutable image under this exact lab
+setup will be preserved for an equivalent-condition comparison. The production
+daemon starts under uid 905 with cookie-authenticated loopback control.

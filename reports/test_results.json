@@ -1,5 +1,5 @@
 {
-  "run_id": "20261104T163515Z-f2a9da00",
+  "run_id": "20261104T165728Z-643dbbe1",
   "tests": [
     {
       "detail": "see checks.log",
@@ -17,63 +17,63 @@
       "detail": "explicit assertions passed",
       "id": "security_config",
       "mode": "offline",
-      "seconds": 0.003956021000000032,
+      "seconds": 0.0036371879999999024,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "tor_config",
       "mode": "offline",
-      "seconds": 0.22356587900000013,
+      "seconds": 0.2015645949999998,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "tor_startup",
       "mode": "offline",
-      "seconds": 0.5365778160000003,
+      "seconds": 0.3700301330000002,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "socks5",
       "mode": "online",
-      "seconds": 0.007154952000000048,
+      "seconds": 0.005016493999999927,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "public_bootstrap",
       "mode": "online",
-      "seconds": 15.383448064,
+      "seconds": 16.42238895,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "onion_v3",
       "mode": "online",
-      "seconds": 3.198934529999999,
+      "seconds": 3.815501312000002,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "two_node",
       "mode": "online",
-      "seconds": 1.0767170279999974,
+      "seconds": 2.0739519840000042,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "bidirectional_integrity",
       "mode": "online",
-      "seconds": 6.896109129000003,
+      "seconds": 12.525573642000005,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "reconnection",
       "mode": "online",
-      "seconds": 134.701277701,
+      "seconds": 19.093517221,
       "status": "PASS"
     }
   ]

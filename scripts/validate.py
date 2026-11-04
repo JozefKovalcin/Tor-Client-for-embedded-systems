@@ -76,6 +76,70 @@ def check_resolved_config(requested, resolved):
                 raise ValueError("Kconfig enabled a disabled setting: " + key)
 
 
+def fixture_boot_script(profile, mode):
+    """Run the unchanged baseline test driver outside the deployed filesystem."""
+    import shlex
+    env = "PYTHONHOME=/mnt/validation/usr LD_LIBRARY_PATH=/mnt/validation/usr/lib PYTHONDONTWRITEBYTECODE=1"
+    python = "/mnt/validation/usr/bin/python3"
+    tests = "/mnt/validation/opt/tor-validation/tests/run_all.py"
+    command = [python, tests, "--mode", mode, "--tor", "/tmp/target-tor",
+               "--template", "/mnt/validation/opt/tor-validation/torrc.in",
+               "--output", "/tmp/tor-validation/result.json", "--work-dir", "/tmp/tor-validation/state",
+               "--bootstrap-timeout", str(profile["bootstrap_timeout_seconds"]),
+               "--connection-timeout", str(profile["connection_timeout_seconds"]),
+               "--idle-seconds", str(profile["idle_seconds"])]
+    post = r'''
+import contextlib,json,os,subprocess,sys,time
+from pathlib import Path
+sys.path.insert(0,"/mnt/validation/opt/tor-validation/tests")
+from run_all import Control,Blocked,wait_for
+r=json.loads(Path("/tmp/tor-validation/result.json").read_text())
+if PRODUCTION_SERVICE:
+    start=time.monotonic()
+    try:
+        clean={k:v for k,v in os.environ.items() if k not in ("LD_LIBRARY_PATH","PYTHONHOME","PYTHONPATH")}
+        clean["TOR_FORCE_START"]="1"
+        log=Path("/tmp/production-start.log")
+        with log.open("w") as f:
+            subprocess.run(["/etc/init.d/S50tor","start"],env=clean,stdout=f,stderr=subprocess.STDOUT,timeout=45,check=True)
+        cookie=Path("/var/lib/tor/control_auth_cookie")
+        wait_for(cookie.exists,30,"production control cookie was not created")
+        def bootstrapped():
+            with contextlib.closing(Control(9051)) as ctl:
+                ctl.authenticate(cookie)
+                return "PROGRESS=100" in ctl.command("GETINFO status/bootstrap-phase")
+        wait_for(bootstrapped,BOOTSTRAP_TIMEOUT,"production service bootstrap timed out")
+        pid=int(Path("/run/tor/tor.pid").read_text())
+        status=Path(f"/proc/{pid}/status").read_text()
+        uid=next(line for line in status.splitlines() if line.startswith("Uid:")).split()[1:]
+        if any(int(value)!=905 for value in uid):
+            raise AssertionError("production daemon did not drop to uid 905")
+        maps=Path(f"/proc/{pid}/maps").read_text()
+        if "/mnt/validation/" in maps or "libpython" in maps:
+            raise AssertionError("production Tor loaded development fixture libraries")
+        for name in ("/usr/bin/python3","/opt/tor-validation"):
+            if Path(name).exists():
+                raise AssertionError("development tooling remains in production root")
+        r["metrics"]["production_state_bytes"]=sum(p.stat().st_size for p in Path("/var/lib/tor").rglob("*") if p.is_file())
+        r["tests"].append({"id":"production_service","mode":"online","status":"PASS","detail":"native daemon bootstrapped as uid 905; no fixture libraries or Python in deployed root","seconds":time.monotonic()-start})
+    except Exception as exc:
+        r["tests"].append({"id":"production_service","mode":"online","status":"BLOCKED" if isinstance(exc,Blocked) else "FAIL","detail":type(exc).__name__+": "+str(exc),"seconds":time.monotonic()-start})
+    r["logs"]["production"]={"start.log":log.read_text()[-8192:] if log.exists() else ""}
+    print("TEST production_service:",r["tests"][-1]["status"],flush=True)
+print("\nTOR_"+"VALIDATION_JSON="+json.dumps(r,separators=(",",":"),allow_nan=False),flush=True)
+print("TOR_"+"VALIDATION_END",flush=True)
+'''
+    post = post.replace("PRODUCTION_SERVICE", repr(bool(profile.get("production_service"))))
+    post = post.replace("BOOTSTRAP_TIMEOUT", str(profile["bootstrap_timeout_seconds"]))
+    return "\n".join([
+        "#!/bin/sh", "set -eu", "mkdir -p /run/lock/subsys", "hostname -F /etc/hostname",
+        "/etc/init.d/rcS", "umask 077", "mkdir -p /mnt/validation /tmp/tor-validation",
+        "mount -t ext4 -o ro,noload /dev/vdb /mnt/validation",
+        "printf '%s\\n' '#!/bin/sh' 'unset LD_LIBRARY_PATH PYTHONHOME PYTHONPATH' 'exec /usr/bin/tor \"$@\"' > /tmp/target-tor",
+        "chmod 0755 /tmp/target-tor", env + " " + shlex.join(command) + " || true",
+        env + " " + python + " - <<'TOR_RESULT'", post, "TOR_RESULT", "sync", "poweroff -f", ""])
+
+
 def emulation(output, profile, mode, run):
     emulator = shutil.which(profile["qemu"])
     if not emulator:
@@ -92,6 +156,14 @@ def emulation(output, profile, mode, run):
     cpu = "\n".join(line for line in cpu.splitlines() if not line.startswith(("cpu MHz", "bogomips")))
     environment["host_cpu_sha256"] = hashlib.sha256(cpu.encode()).hexdigest()
     images = output / "images"
+    fixture = None
+    if profile.get("validation_fixture"):
+        baseline = resolve_result("baseline")
+        item = next(a for a in baseline["metadata"]["baseline_artifacts"] if a["role"] == "rootfs")
+        fixture = ROOT / item["path"]
+        if sha256(fixture) != item["sha256"]:
+            raise ValueError("immutable validation fixture checksum mismatch")
+        environment.update(validation_fixture_sha256=item["sha256"], validation_boot="external-fixture-v1", serial_baud=115200)
     command = [emulator, "-machine", environment["machine"], "-cpu", environment["cpu"],
                "-accel", environment["accelerator"], "-m", str(environment["memory_mib"]),
                "-smp", str(environment["cpus"]), "-nographic", "-monitor", "none", "-no-reboot",
@@ -103,10 +175,22 @@ def emulation(output, profile, mode, run):
                f" tor_idle_seconds={profile['idle_seconds']}",
                "-netdev", "user,id=net0,restrict=" + ("on" if mode == "offline" else "off"),
                "-device", "virtio-net-pci,netdev=net0", "-device", "virtio-rng-pci"]
+    if fixture:
+        append_index = command.index("-append") + 1
+        command[append_index] = profile.get("kernel_root", "root=/dev/vda rw") + " console=ttyS0,115200 init=/bin/sh tor_validation_external=1"
+        command.extend(["-drive", f"file={fixture},if=virtio,format=raw,readonly=on"])
+        script = fixture_boot_script(profile, mode)
+        (run / "qemu-boot-script.sh").write_text(script)
+        import base64,gzip
+        payload = base64.b64encode(gzip.compress(script.encode(),mtime=0)).decode()
+        fixture_command = "printf '%s' " + payload + " | base64 -d | gunzip > /tmp/tor-lab.sh && sh /tmp/tor-lab.sh\n"
+        if len(fixture_command) > 4000:
+            raise ValueError("fixture command exceeds safe serial input length")
     write_json(run / "qemu-command.json", command)
     log = run / "qemu.log"
     with log.open("wb") as f:
-        process = subprocess.Popen(command, stdout=f, stderr=subprocess.STDOUT)
+        process = subprocess.Popen(command, stdin=subprocess.PIPE if fixture else None, stdout=f, stderr=subprocess.STDOUT)
+        boot_stage = 0
         try:
             deadline = time.monotonic() + profile["timeout_seconds"]
             while time.monotonic() < deadline:
@@ -114,8 +198,17 @@ def emulation(output, profile, mode, run):
                     break
                 # Read only tail to avoid unbounded log processing.
                 with log.open("rb") as reader:
-                    reader.seek(max(0, log.stat().st_size - 128))
-                    if b"TOR_VALIDATION_END" in reader.read():
+                    reader.seek(max(0, log.stat().st_size - 4096))
+                    tail = reader.read()
+                    if fixture and boot_stage == 0 and (b"can't access tty" in tail or b"/ # " in tail):
+                        process.stdin.write(b"mount -t proc proc /proc && mkdir -p /dev/pts /dev/shm && mount -a && stty -echo && printf '\\nTOR_BOOTSTRAP_READY\\n'\n")
+                        process.stdin.flush()
+                        boot_stage = 1
+                    elif fixture and boot_stage == 1 and re.search(rb"(?:^|\n)TOR_BOOTSTRAP_READY\r?\n", tail):
+                        process.stdin.write(fixture_command.encode())
+                        process.stdin.flush()
+                        boot_stage = 2
+                    if re.search(rb"(?:^|\n)TOR_VALIDATION_END\r?\n", tail):
                         break
                 time.sleep(1)
             else:
@@ -128,6 +221,8 @@ def emulation(output, profile, mode, run):
                 except subprocess.TimeoutExpired:
                     process.kill()
                     process.wait(timeout=5)
+    if fixture and sha256(fixture) != environment["validation_fixture_sha256"]:
+        raise ValueError("immutable validation fixture changed")
     data = log.read_text(encoding="utf-8", errors="replace")
     match = re.search(r"TOR_VALIDATION_JSON=(\{[^\r\n]+\})\s*TOR_VALIDATION_END", data)
     if not match:
@@ -142,6 +237,7 @@ def main():
     parser.add_argument("--profile", default="qemu-x86_64")
     parser.add_argument("--mode", choices=("offline", "online"), default="online")
     parser.add_argument("--change", default="Configuration validation")
+    parser.add_argument("--baseline-ref", default="baseline", help="explicit measured reference under equivalent validation conditions")
     parser.add_argument("--record-baseline", action="store_true", help="seal first fully validated clean build; never replace")
     parser.add_argument("--checks-only", action="store_true", help="run fast checks and report INCOMPLETE; does not accept builds")
     parser.add_argument("--jobs", type=int, default=min(8, os.cpu_count() or 1))
@@ -321,7 +417,8 @@ def main():
                                    "status": "BLOCKED", "detail": result["build"]["detail"]})
     if comparison is None:
         try:
-            comparison = compare(resolve_result("baseline"), result, policy, sha256(ROOT / "config/policy.json"))
+            comparison = compare(resolve_result(args.baseline_ref), result, policy, sha256(ROOT / "config/policy.json"))
+            comparison["baseline_reference"] = args.baseline_ref
         except (OSError, ValueError) as exc:
             comparison = {"status": "INCOMPLETE", "reasons": ["no usable immutable baseline: " + str(exc),
                           *validate_result(result, policy)], "differences": []}

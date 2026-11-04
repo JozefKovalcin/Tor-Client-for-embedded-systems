@@ -1,0 +1,15 @@
+User tor
+DataDirectory /var/lib/tor
+PidFile /run/tor/tor.pid
+SocksPort 127.0.0.1:9050
+ControlPort 127.0.0.1:9051
+CookieAuthentication 1
+CookieAuthFileGroupReadable 0
+ClientOnly 1
+SafeLogging 1
+AvoidDiskWrites 1
+RunAsDaemon 1
+Log notice syslog
+GeoIPFile /dev/null
+GeoIPv6File /dev/null
+DisableNetwork 0

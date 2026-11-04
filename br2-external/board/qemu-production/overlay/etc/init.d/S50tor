@@ -1,0 +1,23 @@
+#!/bin/sh
+set -eu
+if [ "${1:-}" = start ] && [ "${TOR_FORCE_START:-0}" != 1 ]; then
+    case " $(cat /proc/cmdline) " in
+        *" tor_validation_external=1 "*) exit 0;;
+    esac
+fi
+case "${1:-}" in
+    start)
+        mkdir -p /run/tor /var/lib/tor
+        chown tor:tor /run/tor /var/lib/tor
+        chmod 0700 /run/tor /var/lib/tor
+        /usr/bin/tor --defaults-torrc /etc/tor/defaults-torrc -f /etc/tor/torrc
+        ;;
+    stop)
+        start-stop-daemon -K -q -p /run/tor/tor.pid -x /usr/bin/tor -u tor || true
+        ;;
+    restart)
+        "$0" stop
+        "$0" start
+        ;;
+    *) echo "Usage: $0 {start|stop|restart}" >&2; exit 2;;
+esac
