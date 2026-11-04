@@ -1,10 +1,12 @@
-# Tor and Nym Mixnet Clients for Embedded Systems
+# Tor Client for Embedded Systems
 
 **Work in progress.** The Tor optimization laboratory below is implemented;
-the complete embedded image still requires validation. Nym implementation and
-physical hardware validation remain pending.
+the complete embedded image and physical hardware still require validation.
 
-Repository: [JozefKovalcin/Tor-and-NymMixNet-Clients-for-embended-systems](https://github.com/JozefKovalcin/Tor-and-NymMixNet-Clients-for-embended-systems).
+Repository: [JozefKovalcin/Tor-Client-for-embedded-systems](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems).
+
+The separate [Nym mixnet client project](https://github.com/JozefKovalcin/Nym-MixNet-Client-for-embedded-systems)
+has its own repository and validation status.
 
 This repository implements reproducible Buildroot builds, real target Tor tests,
 resource measurements, immutable baseline storage, and regression decisions.

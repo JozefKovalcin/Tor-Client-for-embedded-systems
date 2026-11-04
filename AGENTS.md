@@ -1,5 +1,8 @@
 # Permanent project instructions
 
+This repository contains the Tor project only. Keep Nym implementation in the
+separate `JozefKovalcin/Nym-MixNet-Client-for-embedded-systems` repository.
+
 Build a small maintainable embedded Linux Tor runtime. Required functionality:
 public Tor bootstrap, SOCKS5, v3 Onion Services, two-node bidirectional TCP,
 payload integrity and reconnection. Preserve upstream routing and cryptography.
