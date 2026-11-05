@@ -51,7 +51,7 @@ def main():
         original=read_json(ROOT/'reports/benchmarks'/rid/'results.json')
         artifacts=read_json(ROOT/'reports/benchmarks'/rid/'artifacts.json')
         plan['images'][name]={'source_run':rid,'profile':profile_name,'artifacts':artifacts}
-        out=ROOT/'build/study-images'/name/'images';out.mkdir(parents=True,exist_ok=True)
+        out=ROOT/'build/study-images'/directory.name/name/'images';out.mkdir(parents=True,exist_ok=True)
         for item in artifacts:
             src=ROOT/source/Path(item['path']).name
             if sha256(src)!=item['sha256']:raise ValueError('immutable artifact digest mismatch: '+str(src))
@@ -75,7 +75,7 @@ def main():
             before=sha256(ROOT/source/Path(profile['artifacts']['rootfs']).name)
             print('START',run,flush=True)
             try:
-                target,environment=emulation(ROOT/'build/study-images'/name,profile,args.mode,run)
+                target,environment=emulation(ROOT/'build/study-images'/directory.name/name,profile,args.mode,run)
                 original=read_json(ROOT/'reports/benchmarks'/rid/'results.json')
                 result=copy.deepcopy(original)
                 result.update(run_id=run.name,timestamp=utcnow(),environment=environment,tests=target['tests'])
