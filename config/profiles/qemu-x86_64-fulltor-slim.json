@@ -1,0 +1,38 @@
+{
+  "architecture": "x86_64",
+  "artifacts": {
+    "kernel": "bzImage",
+    "rootfs": "disk.img"
+  },
+  "bootstrap_timeout_seconds": 600,
+  "connection_timeout_seconds": 180,
+  "defconfig": "tor_qemu_x86_64_fulltor_slim_defconfig",
+  "diagnostic_fixture": {
+    "path": "build/performance-probe-v2.ext4",
+    "sha256": "e5df718190c64b7ee66aed0529b3db71543584c30f1d4e2c1fd183ff0fcb54e0"
+  },
+  "environment": {
+    "accelerator": "tcg,thread=single",
+    "cpu": "qemu64",
+    "cpus": 1,
+    "kind": "qemu",
+    "machine": "pc-i440fx-8.2",
+    "measurement_protocol": "tor-two-node-v3-stage-profile",
+    "memory_mib": 128,
+    "network": "user-mode-nat"
+  },
+  "id": "qemu-x86_64-fulltor-slim",
+  "idle_seconds": 10,
+  "kernel_root": "root=/dev/vda1 ro",
+  "production_service": true,
+  "qemu": "qemu-system-x86_64",
+  "read_only_root": true,
+  "timeout_seconds": 1800,
+  "toolchain_archive": {
+    "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+    "path": "downloads/toolchains/x86_64-buildroot-linux-musl_sdk-buildroot.tar.gz",
+    "sha256": "5fd7659021ec80cf0bb47794be75776867270e672166210453acbaab89800e1e",
+    "source_baseline_commit": "da7c5281145589821ceeb4f6b7aabd4d98833587"
+  },
+  "validation_fixture": "baseline"
+}

@@ -122,3 +122,12 @@ smallest image. No XZ improvement is claimed for that attempt. The corrected
 defconfig explicitly selects BR2_LINUX_KERNEL_XZ; a fresh build follows.
 The study defaults now select the valid frozen v2 fixture, and report headers
 identify the actual control/reference rather than an ambiguous baseline label.
+
+The corrected full-Tor XZ build is 24.9893 MiB including 16 MiB state. The
+full-O2 libraries increase process RSS above the earlier compressed image.
+Next hypothesis: retain full upstream Tor at -O2 and its original linker/module
+settings, compile the other userland packages at -Os. The crossed crypto probe
+showed no clear bulk OpenSSL penalty from those library flags; Tor's isolated
+POLYVAL operation benefits from -O2. Keep kernel/XZ/root/service settings
+identical to fulltor so the comparison isolates userland compiler settings.
+This candidate is not accepted until it is actually built and measured.

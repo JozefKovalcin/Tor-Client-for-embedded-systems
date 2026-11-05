@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261105T103950Z-d842416e`
+Run: `20261105T105238Z-64e9527c`
 
-**ACCEPTED** — Restore upstream full Tor O2/module/link configuration; offset storage with XZ kernel compression
+**INCOMPLETE** — Original upstream full Tor O2/module/link settings with Buildroot-selected XZ kernel compression
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `0c2496e8dd22758782760ec4984b4b2ceb264bc1`; dirty: `False`.
+Commit: `0f33bfbf1a5079645273146bb0f53beeb537540d`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 
@@ -24,5 +24,5 @@ Hardware behavior: unverified. Measurements describe only the recorded test envi
 | onion_v3 | online | PASS | explicit assertions passed |
 | two_node | online | PASS | explicit assertions passed |
 | bidirectional_integrity | online | PASS | explicit assertions passed |
-| reconnection | online | PASS | explicit assertions passed |
+| reconnection | online | BLOCKED | reconnection after service crash timed out |
 | production_service | online | PASS | native daemon bootstrapped as uid 905; no fixture libraries or Python in deployed root |
