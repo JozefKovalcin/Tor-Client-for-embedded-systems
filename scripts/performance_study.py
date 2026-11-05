@@ -27,10 +27,11 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--rounds',type=int,default=3,choices=(1,2,3))
     parser.add_argument('--series',type=Path)
+    parser.add_argument('--fixture',type=Path,default=ROOT/'build/performance-probe.ext4')
     args=parser.parse_args()
     directory=args.series or ROOT/'reports/benchmarks'/('study-'+time.strftime('%Y%m%dT%H%M%SZ',time.gmtime()))
     directory.mkdir(parents=True,exist_ok=False)
-    fixture=ROOT/'build/performance-probe.ext4'
+    fixture=args.fixture.resolve()
     plan={'created':utcnow(),'git':git_metadata(),'orders':ORDERS[:args.rounds],'diagnostic_sha256':sha256(fixture),
           'aggregation':'all attempts retained; medians and ranges descriptive; existing 20% limits unchanged; no automatic acceptance from selected samples',
           'images':{},'results':[]}

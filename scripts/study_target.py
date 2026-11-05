@@ -34,7 +34,10 @@ def counters():
         pid=node.process.pid
         try:
             fields=Path(f'/proc/{pid}/stat').read_text().rsplit(')',1)[1].split()
-            io={k:int(v) for k,v in (line.split(':') for line in Path(f'/proc/{pid}/io').read_text().splitlines())}
+            try:
+                io={k:int(v) for k,v in (line.split(':') for line in Path(f'/proc/{pid}/io').read_text().splitlines())}
+            except OSError:
+                io={'io_accounting_available':False}
             processes[str(pid)]={'cpu_ticks':int(fields[11])+int(fields[12]),'minor_faults':int(fields[7]),'major_faults':int(fields[9]),**io}
         except OSError:
             pass
@@ -61,8 +64,8 @@ def profile(frame,event,arg):
             for pid in old:
                 values=[p['cpu_ticks'] for sample in sampler.samples for p in sample['processes'].values() if str(p['pid'])==pid and 'cpu_ticks' in p]
                 if values:cpu+=max(values)-a['processes'][pid]['cpu_ticks']
-        elapsed=b['time']-a['time'];seconds=cpu/os.sysconf('SC_CLK_TCK')
-        stages.append({'stage':name,'elapsed_seconds':elapsed,'tor_cpu_seconds':seconds,'tor_cpu_percent':100*seconds/elapsed if elapsed else None,'before':a,'after':b})
+        elapsed=b['time']-a['time'];seconds=cpu/os.sysconf('SC_CLK_TCK') if b['processes'] else None
+        stages.append({'stage':name,'elapsed_seconds':elapsed,'tor_cpu_seconds':seconds,'tor_cpu_percent':100*seconds/elapsed if seconds is not None and elapsed else None,'before':a,'after':b})
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--mode',default='online')
