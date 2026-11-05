@@ -6,7 +6,7 @@ import csv
 import json
 from pathlib import Path
 import statistics
-from common import ROOT,read_json,write_json,sha256,utcnow,seal_baseline
+from common import ROOT,read_json,write_json,sha256,utcnow,seal_baseline,resolve_result
 from compare import compare
 
 def main():
@@ -14,6 +14,7 @@ def main():
     parser.add_argument('series',type=Path)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--seal-reference',action='store_true')
+    parser.add_argument('--reference',type=Path,help='previously frozen matched repeated reference')
     args=parser.parse_args()
     plan=read_json(args.series/'plan.json')
     expected=len(plan['orders'])
@@ -58,9 +59,10 @@ def main():
         if any(d['environment']!=a['environment'] for d in runs):a['build']['status']='BLOCKED'
         aggregates[name]=a;write_json(output/('median-'+name+'.json'),a)
     comparisons={}
-    if 'baseline' in aggregates:
+    reference=resolve_result(args.reference) if args.reference else aggregates.get('baseline')
+    if reference:
         for name,a in aggregates.items():
-            if name!='baseline':comparisons[name]=compare(aggregates['baseline'],a,policy,sha256(ROOT/'config/policy.json'))
+            if name!='baseline':comparisons[name]=compare(reference,a,policy,sha256(ROOT/'config/policy.json'))
     write_json(output/'summary.json',summary);write_json(output/'comparisons.json',comparisons)
     if raw:
         keys=list(dict.fromkeys(k for row in raw for k in row))

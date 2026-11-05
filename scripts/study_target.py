@@ -81,16 +81,28 @@ clean={k:v for k,v in os.environ.items() if k not in ('LD_LIBRARY_PATH','PYTHONH
 crypto=subprocess.run(['/run/probe/crypto-probe'],env=clean,capture_output=True,text=True,timeout=120)
 if crypto.returncode:raise RuntimeError('candidate-library crypto probe failed: '+str(crypto.returncode))
 io=None
+upstream=[]
 if args.mode=='offline' and Path('/run/probe/io-probe').is_file():
     probe=subprocess.run(['/run/probe/io-probe'],env=clean,capture_output=True,text=True,timeout=60)
     if probe.returncode:raise RuntimeError('I/O probe failed: '+str(probe.returncode)+' '+probe.stderr)
     io=json.loads(probe.stdout)
+    for name in ('tor-bench-baseline','tor-bench-os','tor-bench-o2'):
+        binary=Path('/run/probe')/name
+        if not binary.is_file():continue
+        print('UPSTREAM_BENCH_START',name,flush=True)
+        try:
+            p=subprocess.run([str(binary),'cell_aes','polyval'],env=clean,capture_output=True,text=True,timeout=240)
+            upstream.append({'name':name,'returncode':p.returncode,'output':p.stdout,'stderr':p.stderr})
+        except subprocess.TimeoutExpired:
+            upstream.append({'name':name,'status':'BLOCKED','detail':'240-second diagnostic deadline exceeded'})
+        print('UPSTREAM_BENCH_END',name,flush=True)
 sys.setprofile(profile)
 try:result=suite.run(args)
 finally:sys.setprofile(None)
 result['diagnostics']={'crypto':json.loads(crypto.stdout),'stages':stages,'guest_cpuinfo':Path('/proc/cpuinfo').read_text(),
                        'functional_driver_sha256':__import__('hashlib').sha256(Path(suite.__file__).read_bytes()).hexdigest()}
 result['diagnostics']['io_probe']=io
+result['diagnostics']['upstream_benchmarks']=upstream
 args.output.parent.mkdir(parents=True,exist_ok=True)
 args.output.write_text(json.dumps(result,separators=(',',':'),allow_nan=False)+'\n')
 print('PROFILE',json.dumps([{k:v for k,v in row.items() if k not in ('before','after')} for row in stages]),flush=True)

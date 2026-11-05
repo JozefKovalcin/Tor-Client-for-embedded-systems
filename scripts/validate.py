@@ -389,6 +389,11 @@ def main():
             if len(configs) != 1:
                 raise ValueError("cannot identify resolved config: " + kind)
             shutil.copy2(configs[0], run / (kind.replace("-*", "") + ".config"))
+        tor_makefile = next((output / "build").glob("tor-*/Makefile"))
+        actual_flags = "\n".join(line for line in tor_makefile.read_text().splitlines()
+                                 if line.startswith(("CFLAGS =", "LDFLAGS ="))) + "\n"
+        (run / "tor-actual-flags.txt").write_text(actual_flags)
+        result["metadata"]["tor_actual_flags"] = actual_flags.strip()
         readelf = compiler.with_name(compiler.name[:-3] + "readelf")
         elf = subprocess.check_output([str(readelf), "-hlWd", str(output / "target/usr/bin/tor")], text=True)
         (run / "tor-elf.txt").write_text(elf, encoding="utf-8")

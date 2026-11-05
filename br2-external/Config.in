@@ -15,3 +15,14 @@ config BR2_PACKAGE_TOR_OPTIMIZE_O2
       Keep the small kernel and size-optimized libraries unchanged while
       measuring the performance/size effect of Tor's compiler optimization.
       Global Buildroot/toolchain hardening remains enabled.
+
+config BR2_PACKAGE_TOR_GC_SECTIONS
+    bool "Discard unreachable code and diagnostic executable symbol exports"
+    depends on BR2_PACKAGE_TOR
+    depends on BR2_TOOLCHAIN_USES_MUSL
+    help
+      Dedicated executable with network/control interfaces, not a shared
+      library or plugin API. Remove -rdynamic, which upstream adds for
+      diagnostic backtrace symbolization unavailable in this musl build,
+      and garbage-collect unreachable function/data sections. Preserve
+      unwind tables, CET, stack protection, PIE and full RELRO.

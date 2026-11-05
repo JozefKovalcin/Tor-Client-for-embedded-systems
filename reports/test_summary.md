@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261104T173443Z-2cd3ee20`
+Run: `20261105T080754Z-8e9862ab`
 
-**REJECTED** — Iteration 4: gzip SquashFS read-only production root, 16 MiB ext4 state, omit unused split libevent libraries
+**REJECTED** — Ablation: only Tor CFLAGS -Os to -O2; kernel, libraries and gzip filesystem unchanged
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `f33d5a3f345ebac146cf262e0c0c3c8043f3e4b9`; dirty: `False`.
+Commit: `ccc95611560be699a267014ade1bc5a1301b5a47`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 
