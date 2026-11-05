@@ -55,8 +55,12 @@ def main():
                     print('START CELL',library,binary,repeat,flush=True)
                     try:
                         command='LD_LIBRARY_PATH='+shlex.quote('/run/probe/openssl-'+library)+' '+shlex.join(['/run/probe/tor-bench-'+binary,*plan['operations']])
+                        # Verify the actual mapped DSO, and retain its address for
+                        # interpreting emulator/ASLR timing variation. No keys print.
+                        command+=' > /run/capacity/cell-output 2>&1 & cell_pid=$!; sleep 1; printf "CAPACITY_DSO_BEGIN\\n"; grep -E "libcrypto[.]so[.]3|libssl[.]so[.]3" /proc/$cell_pid/maps; printf "CAPACITY_DSO_END\\n"; wait $cell_pid; cell_status=$?; cat /run/capacity/cell-output; exit $cell_status'
                         text,code=vm.agent.execute(command,timeout=240,check=False)
-                        row.update(status='PASS' if code==0 else 'FAIL',returncode=code,output=text)
+                        mapped='/run/probe/openssl-'+library+'/libcrypto.so.3' in text
+                        row.update(status='PASS' if code==0 and mapped else 'FAIL',returncode=code,expected_crypto_mapping_verified=mapped,output=text)
                     except (OSError,RuntimeError) as exc:row.update(status='BLOCKED',detail=type(exc).__name__+': '+str(exc))
                     row['seconds']=time.monotonic()-begin;plan['rows'].append(row)
                     write_json(args.output/'plan.json',plan);print('DONE CELL',library,binary,repeat,row['status'],round(row['seconds'],2),flush=True)
