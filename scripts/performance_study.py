@@ -39,6 +39,8 @@ def main():
     parser.add_argument('--memory-mib',type=int,choices=(96,112,128,160,192,256,512),help='explicit capacity experiment; optimization comparisons require the same RAM')
     args=parser.parse_args()
     matrix=read_json(args.matrix) if args.matrix else {'images':IMAGES,'orders':ORDERS}
+    if len(matrix['orders']) < args.rounds:
+        parser.error('matrix must declare every requested round before measurements')
     images=matrix['images']
     orders=matrix['orders'][:args.rounds]
     directory=args.series or ROOT/'reports/benchmarks'/('study-'+time.strftime('%Y%m%dT%H%M%SZ',time.gmtime()))

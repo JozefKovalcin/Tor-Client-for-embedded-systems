@@ -1,0 +1,7 @@
+{
+  "images": {
+    "ram": ["qemu-x86_64-ram", "build/iterations/08-ram", "20261105T101727Z-3c2822d0"],
+    "slim": ["qemu-x86_64-fulltor-slim", "build/iterations/10-fulltor-slim", "20261105T110833Z-e46f667a"],
+    "selective": ["qemu-x86_64-selective", "build/iterations/11-selective", "20261105T130046Z-719a45c7"]
+  }
+}

@@ -77,7 +77,7 @@ def main():
     lines=['# Repeated embedded Tor performance study','',
         'Fixed interleaved order; all attempts retained. Values are median [min, max]. The original baseline and 20% thresholds are unchanged. '
         'Medians are a separate matched measurement reference, not edits to historical measurements. Any missing planned result, mandatory BLOCKED/FAIL, or unavailable required metric prevents aggregate acceptance. '
-        'Three repeats are descriptive evidence, not a tight statistical confidence bound.','',
+        f'{expected} planned repeats per image; ranges are descriptive. See a separately reported confidence interval where available.','',
         '| Image | Runs | Boot MiB | Idle A+B RSS MiB | CPU % | Bootstrap s | Onion s | Throughput KiB/s | Median gate |',
         '|---|---:|---:|---:|---:|---:|---:|---:|---|']
     if args.reference:

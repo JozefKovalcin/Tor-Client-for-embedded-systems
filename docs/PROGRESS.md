@@ -169,3 +169,8 @@ Selective compiler hypothesis: retain qualified client/GC Tor O2 and OpenSSL
 O2, use Os for remaining userland and XZ for the kernel. Keep the RAM profile's
 direct SquashFS decompression, one fragment buffer and production service.
 This is a new complete build; no size/performance acceptance is assumed.
+
+
+### 2026-11-05 — Native endpoint capacity measurements
+
+Added an additional host-controlled native workload with one production Tor endpoint, SAFECOOKIE control authentication and a test-only read-only C observer disk. The frozen two-node Python regression fixture and thresholds remain unchanged. The successful 128 MiB pilot used about 37 MiB at peak but did not execute all nine tests; it is not a device qualification. The first complete 256 MiB sample retained a public circuit timeout (BLOCKED), followed by successful large integrity and crash/reconnection assertions. A predeclared three-image six-RAM sweep is in progress. First sample persistent-state free space fell below 1 MiB transiently: partition headroom, not just final du size, must inform recommendations. The optional local Chutney network failed convergence; it is BLOCKED and supplies no claimed Tor performance evidence.
