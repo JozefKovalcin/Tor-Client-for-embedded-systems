@@ -111,7 +111,7 @@ class NativeVM:
         if self.reader:self.reader.join(timeout=2)
         if self.process and self.process.poll() is None:
             with contextlib.suppress(Exception):
-                text,_=self.agent.execute('tail -n 120 /run/tor/native.log 2>/dev/null || true',timeout=3,check=False)
+                text,_=self.agent.execute('cat /run/tor/native.log 2>/dev/null || true',timeout=3,check=False)
                 (self.run/'guest-notice.log').write_text(text)
             with contextlib.suppress(Exception):self.agent.execute('poweroff -f',timeout=3,check=False)
             try:self.process.wait(timeout=5)
@@ -341,7 +341,9 @@ def run_case(profile,images,fixture,memory,run,peer,origin,local_trials=3):
     result['native_summary']=summarize_samples(vm.samples);result['phases']={name:summarize_samples([x for x in vm.samples if x['phase']==name]) for name in {x['phase'] for x in vm.samples}}
     result['metrics'].update(peak_process_rss_bytes=result['native_summary'].get('peak_process_hwm_bytes'),peak_system_used_bytes=result['native_summary'].get('peak_system_used_bytes'),cpu_percent=result['native_summary'].get('tor_cpu_percent'),persistent_storage_bytes=result['metrics'].get('persistent_storage_allocated_bytes'))
     result['observer_errors']=vm.errors;result['phase_intervals']=phase
-    result['qualification']={'functional_pass':all(next(x['status'] for x in rows if x['id']==name)=='PASS' for name in required),'memory_margin_pass':bool(vm.samples) and result['native_summary'].get('min_available_fraction',0)>=.2 and result['native_summary'].get('min_available_bytes',0)>=16*1024**2,'performance':'UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate'}
+    notice=Path(run)/'guest-notice.log'
+    state_ok=notice.exists() and not re.search(r'No space left on device|Couldn.t (?:dump|write)|Unable to (?:write|save)',notice.read_text()) and result['native_summary'].get('state_available_min_bytes',0)>=4*1024**2
+    result['qualification']={'functional_pass':all(next(x['status'] for x in rows if x['id']==name)=='PASS' for name in required),'memory_margin_pass':bool(vm.samples) and result['native_summary'].get('min_available_fraction',0)>=.2 and result['native_summary'].get('min_available_bytes',0)>=16*1024**2,'state_capacity_pass':bool(state_ok),'performance':'UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate'}
     write_json(Path(run)/'results.json',result);return result
 
 
@@ -375,7 +377,7 @@ def main():
                 print('START NATIVE',name,memory,str(run),flush=True)
                 result=run_case(profile,source,args.fixture,memory,run,peer,read_json(ROOT/'reports/benchmarks'/rid/'results.json'))
                 plan['results'].append({'image':name,'memory_mib':memory,'directory':str(run),'qualification':result['qualification']})
-                failed=failed or not result['qualification']['functional_pass'] or not result['qualification']['memory_margin_pass']
+                failed=failed or not result['qualification']['functional_pass'] or not result['qualification']['memory_margin_pass'] or not result['qualification']['state_capacity_pass']
                 write_json(args.output/'plan.json',plan)
                 print('DONE NATIVE',name,memory,result['qualification'],flush=True)
     # Performance still requires explicit matched analysis, even if assertions passed.

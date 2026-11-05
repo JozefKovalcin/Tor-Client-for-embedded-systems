@@ -5,6 +5,7 @@ import csv
 import json
 from pathlib import Path
 import random
+import re
 import statistics as stats
 from common import ROOT,read_json,write_json,sha256
 from capacity_native import summarize_samples
@@ -53,21 +54,28 @@ def native(series,output):
              'tests':d['tests'],'summary':cpu_phase(samples),'metrics':d['metrics'],
              'phases':{phase:cpu_phase([s for s in samples if s['phase']==phase]) for phase in {s['phase'] for s in samples}},
              'local':{'tcp':distribution(d.get('local_tcp_trials_bytes_per_second',[]))}}
+        notice=path/'guest-notice.log'
+        row['state_capacity']={'minimum_free_bytes':row['summary'].get('state_available_min_bytes'),
+                               'notice_log_available':notice.exists(),
+                               'write_error_seen':bool(re.search(r'No space left on device|Couldn.t (?:dump|write)|Unable to (?:write|save)',notice.read_text())) if notice.exists() else None}
+        row['state_capacity']['pass']=notice.exists() and row['state_capacity']['write_error_seen'] is False and row['summary'].get('state_available_min_bytes',0)>=4*1024**2
         for group in ('crypto_capacity','crypto_bulk'):
             trials=d.get(group,{}).get('trials',[])
             for key in sorted({k for t in trials for k in t if k.endswith('_bytes_per_second') or k.endswith('_ops_per_second')}):
                 row['local'][key]=distribution([t.get(key) for t in trials])
-        if item['memory_mib']==256:references[item['image']]=row
+        if item['memory_mib']==256:references.setdefault(item['image'],[]).append(row)
         cases.append(row)
     for row in cases:
         reference=references.get(row['image']);scaling={}
         if reference:
             for key,value in row['local'].items():
-                a=reference['local'].get(key,{}).get('median');b=value.get('median')
+                reference_values=[r['local'].get(key,{}).get('median') for r in reference]
+                a=stats.median(reference_values) if all(v is not None for v in reference_values) else None;b=value.get('median')
                 scaling[key]={'reference_256_median':a,'candidate_median':b,'ratio':b/a if a and b else None,
-                              'within_unchanged_20_percent_limit':b>=a*.8 if a and b else None}
+                              'within_unchanged_20_percent_limit':b>=a*.8 if a and b else None,
+                              'reference_runs':[r['run'] for r in reference]}
         row['local_scaling']=scaling
-        row['capacity_screen']='PASS' if row['qualification']['functional_pass'] and row['qualification']['memory_margin_pass'] and scaling and all(x['within_unchanged_20_percent_limit'] for x in scaling.values()) else 'BLOCKED_OR_REJECTED'
+        row['capacity_screen']='PASS' if row['qualification']['functional_pass'] and row['qualification']['memory_margin_pass'] and row['state_capacity']['pass'] and scaling and all(x['within_unchanged_20_percent_limit'] for x in scaling.values()) else 'BLOCKED_OR_REJECTED'
     write_json(output/'native-analysis.json',{'plan':plan,'cases':cases,'note':'CPU counters recomputed from raw samples using per-PID differences. Original per-phase summaries accumulated earlier process CPU; they are not used. RAM scaling intentionally varies RAM and is not an equivalent-environment optimization acceptance.'})
     fields=['image','memory_mib','run','capacity_screen','functional_pass','memory_margin_pass','linux_memtotal_bytes','peak_system_used_bytes','peak_process_hwm_bytes','min_available_bytes','min_available_fraction','state_available_min_bytes','tor_cpu_seconds','tor_cpu_percent','tcp_bytes_per_second']
     with (output/'native-measurements.csv').open('w',newline='') as f:
