@@ -156,3 +156,11 @@ showed no clear bulk OpenSSL penalty from those library flags; Tor's isolated
 POLYVAL operation benefits from -O2. Keep kernel/XZ/root/service settings
 identical to fulltor so the comparison isolates userland compiler settings.
 This candidate is not accepted until it is actually built and measured.
+
+
+2026-11-05 capacity study continued from baa5458. Preserve both immutable
+25.8799 MiB RAM and 24.7354 MiB fulltor-slim images. Compare at 96, 112, 128,
+160, 192 and 256 MiB; separate the two-node/Python laboratory workload from
+a native single-endpoint workload. Offline diagnostics have a 180-second
+collection deadline and cannot qualify mandatory online requirements. Existing
+online timeouts and 20% performance/5% RSS thresholds remain unchanged.
