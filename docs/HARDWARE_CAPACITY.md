@@ -110,7 +110,8 @@ host bytes, compressed download bytes and installed files are different metrics.
 The 25.8799 MiB and 24.7354 MiB images each contain a 16 MiB state partition.
 During the native workload that partition reached zero available space and
 Tor logged failed microdescriptor writes despite passing functional assertions.
-The capacity32 experiment preserves the selective compilation/kernel design,
+The capacity32 experiment uses the qualified ram configuration's full O2 userspace,
+with XZ kernel compression and its direct SquashFS access settings. It
 allocates 32 MiB state, and sets the supported client `MaxMemInQueues 32 MB`
 option. Upstream's automatic limit has a 256 MiB floor; the explicit option
 limits queued data, not total process RSS, and upstream warns for client values
