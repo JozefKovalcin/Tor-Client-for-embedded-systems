@@ -34,5 +34,6 @@
   "diagnostic_fixture": {
     "path": "build/performance-probe-v2.ext4",
     "sha256": "e5df718190c64b7ee66aed0529b3db71543584c30f1d4e2c1fd183ff0fcb54e0"
-  }
+  },
+  "max_mem_in_queues_bytes": 33554432
 }

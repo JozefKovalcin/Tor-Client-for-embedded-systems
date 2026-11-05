@@ -177,3 +177,6 @@ Added an additional host-controlled native workload with one production Tor endp
 
 
 The native slim/192 MiB case exhausted its 16 MiB state partition and logged microdescriptor write failures despite nine functional PASS results. Preserved the case and logs. A new capacity32 profile changes only the state partition to 32 MiB relative to selective, to be built after timing cohorts finish; it is a reliability capacity experiment, not a storage reduction or an accepted optimization. No historical acceptance record is changed.
+
+
+Before the capacity32 build or measurements began, upstream `compute_real_max_mem_in_queues` showed that automatic detection has a 256 MiB minimum. Updated the unbuilt capacity32 experiment to also set supported client MaxMemInQueues 32 MB through production defaults. This is a queue bound, not a process RSS bound; upstream warns below 64 MiB on clients. The native suite verifies the effective setting through SAFECOOKIE control. This supersedes the preliminary state-only hypothesis; original ram/slim/selective images remain unchanged. Frozen legacy tests use their unchanged empty defaults, so the additional native tests, rather than legacy results alone, validate the new policy.

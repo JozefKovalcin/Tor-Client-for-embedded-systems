@@ -267,6 +267,10 @@ def run_case(profile,images,fixture,memory,run,peer,origin,local_trials=3):
             answer=c.command('GETCONF CookieAuthentication SafeLogging ClientOnly')
             for name in ('CookieAuthentication','SafeLogging','ClientOnly'):
                 if name+'=1' not in answer:raise AssertionError('effective security setting mismatch')
+            expected_queue=vm.profile.get('max_mem_in_queues_bytes')
+            if expected_queue is not None:
+                answer=c.command('GETCONF MaxMemInQueues')
+                if 'MaxMemInQueues='+str(expected_queue) not in answer:raise AssertionError('configured queue-memory budget not effective')
     def socks():
         with vm.agent.open('SOCKS') as s:socks_handshake(s)
     def bootstrap():

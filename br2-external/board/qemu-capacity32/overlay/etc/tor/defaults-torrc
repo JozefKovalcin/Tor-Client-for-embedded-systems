@@ -1,0 +1,2 @@
+# No inherited host defaults. Supported client queue budget; not a total RSS limit.
+MaxMemInQueues 32 MB

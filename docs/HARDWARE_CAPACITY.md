@@ -103,8 +103,13 @@ host bytes, compressed download bytes and installed files are different metrics.
 The 25.8799 MiB and 24.7354 MiB images each contain a 16 MiB state partition.
 During the native workload that partition reached zero available space and
 Tor logged failed microdescriptor writes despite passing functional assertions.
-The capacity32 experiment preserves the selective kernel/root/Tor design and
-allocates 32 MiB state. This increases total storage intentionally; it is not a
+The capacity32 experiment preserves the selective compilation/kernel design,
+allocates 32 MiB state, and sets the supported client `MaxMemInQueues 32 MB`
+option. Upstream's automatic limit has a 256 MiB floor; the explicit option
+limits queued data, not total process RSS, and upstream warns for client values
+below 64 MiB. This is tested with the production defaults and checked through
+authenticated control. It does not establish an unlimited-concurrency or total
+RSS bound. This increases total storage intentionally; it is not a
 claimed size reduction. Retain the smaller images and their historical gates.
 
 Physical flash also needs bootloader/firmware, erase alignment, reserved blocks,

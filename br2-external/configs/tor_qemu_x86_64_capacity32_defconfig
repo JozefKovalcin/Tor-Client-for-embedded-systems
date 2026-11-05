@@ -21,7 +21,7 @@ BR2_TARGET_GENERIC_ISSUE="Tor validation laboratory; no hardware verification"
 # BR2_TARGET_ENABLE_ROOT_LOGIN is not set
 # BR2_TARGET_GENERIC_GETTY is not set
 BR2_SYSTEM_DHCP="eth0"
-BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-production/overlay $(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-compressed/overlay"
+BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-production/overlay $(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-compressed/overlay $(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-capacity32/overlay"
 BR2_ROOTFS_POST_BUILD_SCRIPT="$(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-compressed/post-build.sh"
 BR2_PACKAGE_BUSYBOX_CONFIG="$(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-ram/busybox.config"
 BR2_LINUX_KERNEL=y

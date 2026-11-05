@@ -41,6 +41,13 @@ def cpu_phase(samples):
     result['system_busy_percent']=100*delta.get('busy',0)/total if total else None
     result['system_iowait_percent']=100*delta.get('iowait',0)/total if total else None
     result['vmstat_delta']={k:last['vmstat'][k]-v if v is not None and last['vmstat'].get(k) is not None else None for k,v in first['vmstat'].items()}
+    processes={}
+    for s in samples:
+        if s.get('tor'):processes.setdefault(s['tor']['pid'],[]).append(s['tor'])
+    result['tor_sampled_deltas']={}
+    for key in ('minor_faults','major_faults','read_bytes','write_bytes'):
+        groups=[[v.get(key) for v in values] for values in processes.values()]
+        result['tor_sampled_deltas'][key]=sum(max(g)-min(g) for g in groups) if groups and all(all(v is not None for v in g) for g in groups) else None
     result['elapsed_seconds']=dt
     return result
 
@@ -76,7 +83,8 @@ def native(series,output):
                               'reference_runs':[r['run'] for r in reference]}
         row['local_scaling']=scaling
         row['capacity_screen']='PASS' if row['qualification']['functional_pass'] and row['qualification']['memory_margin_pass'] and row['state_capacity']['pass'] and scaling and all(x['within_unchanged_20_percent_limit'] for x in scaling.values()) else 'BLOCKED_OR_REJECTED'
-    write_json(output/'native-analysis.json',{'plan':plan,'cases':cases,'note':'CPU counters recomputed from raw samples using per-PID differences. Original per-phase summaries accumulated earlier process CPU; they are not used. RAM scaling intentionally varies RAM and is not an equivalent-environment optimization acceptance.'})
+    expected=len(plan['images'])*len(plan['ram_order'])*plan['repeats']
+    write_json(output/'native-analysis.json',{'plan':plan,'cases':cases,'planned':expected,'completed':len(cases),'complete':len(cases)==expected,'note':'CPU counters recomputed from raw samples using per-PID differences. Original per-phase summaries accumulated earlier process CPU; they are not used. RAM scaling intentionally varies RAM and is not an equivalent-environment optimization acceptance.'})
     fields=['image','memory_mib','run','capacity_screen','functional_pass','memory_margin_pass','linux_memtotal_bytes','peak_system_used_bytes','peak_process_hwm_bytes','min_available_bytes','min_available_fraction','state_available_min_bytes','tor_cpu_seconds','tor_cpu_percent','tcp_bytes_per_second']
     with (output/'native-measurements.csv').open('w',newline='') as f:
         writer=csv.DictWriter(f,fieldnames=fields);writer.writeheader()
