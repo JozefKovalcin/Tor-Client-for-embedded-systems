@@ -1,0 +1,19 @@
+{
+  "disk_bytes": 21929984,
+  "image": "ram",
+  "kernel_bytes": 5207040,
+  "partitions": [
+    {
+      "bytes": 4104192,
+      "offset_bytes": 1048576,
+      "partition": 1,
+      "role": "read-only system"
+    },
+    {
+      "bytes": 16777216,
+      "offset_bytes": 5152768,
+      "partition": 2,
+      "role": "persistent state"
+    }
+  ]
+}

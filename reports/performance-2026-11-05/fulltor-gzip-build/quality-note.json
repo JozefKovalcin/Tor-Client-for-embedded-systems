@@ -1,0 +1,5 @@
+{
+  "actual_kernel_compression": "gzip",
+  "corrective_action": "Select BR2_LINUX_KERNEL_XZ in defconfig and build in a fresh input-hash directory.",
+  "issue": "Buildroot BR2_LINUX_KERNEL_GZIP overrode fragment CONFIG_KERNEL_XZ. Actual gzip image is retained as a valid full-Tor ablation but does not establish the intended XZ size optimization."
+}

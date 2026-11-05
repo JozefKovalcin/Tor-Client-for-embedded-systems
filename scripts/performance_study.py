@@ -33,7 +33,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--rounds',type=int,default=3,choices=(1,2,3))
     parser.add_argument('--series',type=Path)
-    parser.add_argument('--fixture',type=Path,default=ROOT/'build/performance-probe.ext4')
+    parser.add_argument('--fixture',type=Path,default=ROOT/'build/performance-probe-v2.ext4')
     parser.add_argument('--matrix',type=Path,help='explicit additional experiment image mapping and fixed orders')
     parser.add_argument('--mode',choices=('online','offline'),default='online')
     parser.add_argument('--memory-mib',type=int,choices=(128,512),help='explicit capacity experiment; comparisons require the same RAM')

@@ -113,3 +113,12 @@ libraries. Kernel XZ compression offsets executable growth without changing
 the running kernel's code/configuration. This tests whether client-module or
 symbol-GC changes explain remaining throughput loss. Hypothesis only: no
 performance or size improvement claimed until the complete build/tests run.
+
+The first full-Tor ablation resolved to gzip because Buildroot's compression
+choice overrides the kernel fragment. Run 20261105T103950Z-d842416e is retained
+with a quality note and actual configs: full functional/native PASS and a
+single-run original-reference ACCEPTED, but 26.196 MiB exceeds the prior
+smallest image. No XZ improvement is claimed for that attempt. The corrected
+defconfig explicitly selects BR2_LINUX_KERNEL_XZ; a fresh build follows.
+The study defaults now select the valid frozen v2 fixture, and report headers
+identify the actual control/reference rather than an ambiguous baseline label.

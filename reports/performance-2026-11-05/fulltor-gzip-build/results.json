@@ -1,0 +1,169 @@
+{
+  "build": {
+    "detail": "make all succeeded; all required boot artifacts and ELF hardening verified",
+    "output_directory": "build/embedded/qemu-x86_64-fulltor/13283b7a5f5218b19ece",
+    "seconds": 567.074482196,
+    "status": "PASS"
+  },
+  "change": "Restore upstream full Tor O2/module/link configuration; offset storage with XZ kernel compression",
+  "environment": {
+    "accelerator": "tcg,thread=single",
+    "cpu": "qemu64",
+    "cpus": 1,
+    "diagnostic_fixture_sha256": "e5df718190c64b7ee66aed0529b3db71543584c30f1d4e2c1fd183ff0fcb54e0",
+    "host_cpu_sha256": "945d7876e23adee4ff42b5f5e48f2ebb01ed0af7a15676221bad924b41f52c79",
+    "host_memory_bytes": 16284278784,
+    "host_platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "kind": "qemu",
+    "machine": "pc-i440fx-8.2",
+    "measurement_protocol": "tor-two-node-v3-stage-profile",
+    "memory_mib": 512,
+    "network": "user-mode-nat",
+    "qemu_version": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.3)",
+    "serial_baud": 115200,
+    "test_mode": "online",
+    "timeouts": {
+      "bootstrap_timeout_seconds": 600,
+      "connection_timeout_seconds": 180,
+      "idle_seconds": 10
+    },
+    "validation_boot": "external-fixture-v1",
+    "validation_fixture_sha256": "48521767cbdc5fc4a9a213bd5fe48da3c2b45fa95adc3e1c48503e672c6422fd"
+  },
+  "metadata": {
+    "architecture": "x86_64",
+    "buildroot_version": "2026.08.1",
+    "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+    "compiler_flags": "GNU_TARGET_NAME='x86_64-buildroot-linux-musl'\nTARGET_CFLAGS='-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -O2 -g0 '\nTARGET_LDFLAGS=' -ztext'\nTOR_CONF_ENV='ac_cv_prog_cc_c99='\\''-std=gnu99'\\'' LIBS=\"-latomic\" CFLAGS=\"-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -O2 -g0 -O2\"'\nTOR_CONF_OPTS='--disable-gcc-hardening --disable-unittests --with-libevent-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-fulltor/13283b7a5f5218b19ece/host/x86_64-buildroot-linux-musl/sysroot/usr --with-openssl-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-fulltor/13283b7a5f5218b19ece/host/x86_64-buildroot-linux-musl/sysroot/usr --with-zlib-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-fulltor/13283b7a5f5218b19ece/host/x86_64-buildroot-linux-musl/sysroot/usr --disable-systemd --disable-lzma --disable-zstd --enable-seccomp'",
+    "configuration_id": "qemu-x86_64-fulltor",
+    "git": {
+      "commit": "0c2496e8dd22758782760ec4984b4b2ceb264bc1",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dirty": false
+    },
+    "input_sha256": "13283b7a5f5218b19eceb38a6bb4836bb9bc8050310c8dd7fc17d0ba876f0478",
+    "kernel_version": "6.18.7",
+    "policy_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552",
+    "source_provenance_sha256": "a791b15b135cdafcc3edbc6ad7ba6364c168c6a7dca38f3729ccdf7f95eb744e",
+    "toolchain_archive": {
+      "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+      "path": "downloads/toolchains/x86_64-buildroot-linux-musl_sdk-buildroot.tar.gz",
+      "sha256": "5fd7659021ec80cf0bb47794be75776867270e672166210453acbaab89800e1e",
+      "source_baseline_commit": "da7c5281145589821ceeb4f6b7aabd4d98833587"
+    },
+    "tor_actual_flags": "CFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -O2 -g0 -O2 -fasynchronous-unwind-tables -fcf-protection=full -Wall -fno-strict-aliasing  -Waddress -Warray-bounds -Wcompare-distinct-pointer-types -Wdate-time -Wdouble-promotion -Wduplicate-decl-specifier -Wduplicated-cond -Wenum-conversion -Wextra -Wfloat-conversion -Wheader-guard -Wignored-attributes -Wimplicit-fallthrough -Winit-self -Wlogical-op -Wmissing-field-initializers -Wmissing-format-attribute -Wmissing-noreturn -Wmissing-variable-declarations -Wnormalized=nfkc -Wnull-dereference -Woverlength-strings -Woverride-init -Wshadow -Wshift-count-negative -Wshift-count-overflow -Wshift-negative-value -Wshift-overflow=2 -Wsizeof-array-argument -Wstrict-overflow=1 -Wstring-compare -Wsuggest-attribute=format -Wsuggest-attribute=noreturn -Wswitch-bool -Wsync-nand -Wtrampolines -Wunicode -Wunused-but-set-parameter -Wunused-but-set-variable -Wunused-const-variable=2 -Wunused-local-typedefs -Wvariadic-macros  -W -Wfloat-equal -Wundef -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wwrite-strings -Wredundant-decls -Wchar-subscripts -Wcomment -Wformat=2 -Wwrite-strings -Wnested-externs -Wbad-function-cast -Wswitch-enum -Waggregate-return -Wpacked -Wunused -Wunused-parameter  -Wold-style-definition -Wmissing-declarations\nLDFLAGS =  -ztext -z relro -z now -rdynamic",
+    "tor_version": "0.4.9.14"
+  },
+  "metrics": {
+    "bootstrap_seconds": 14.100062197000002,
+    "complete_image_bytes": 27468800,
+    "cpu_percent": 38.18305957110851,
+    "idle_pss_bytes": 49827164.595744684,
+    "idle_rss_bytes": 59678284.25531915,
+    "image_host_allocated_bytes": 10969088,
+    "installed_rootfs_bytes": 13177768,
+    "kernel_bytes": 5207040,
+    "library_bytes": 9003952,
+    "onion_connection_seconds": 3.814559156999998,
+    "peak_process_rss_bytes": 61288448,
+    "peak_system_used_bytes": 95571968,
+    "persistent_storage_bytes": 16648852,
+    "production_peak_rss_bytes": 27881472,
+    "production_pss_bytes": 26975232,
+    "production_rss_bytes": 27439104,
+    "production_state_bytes": 8320183,
+    "production_state_free_bytes": 4866048,
+    "production_state_volume_bytes": 14410752,
+    "rootfs_bytes": 22261760,
+    "startup_seconds": 0.4022768859999992,
+    "throughput_bytes_per_second": 271386.4183737183,
+    "tor_executable_bytes": 3397272
+  },
+  "run_id": "20261105T103950Z-d842416e",
+  "schema_version": 1,
+  "tests": [
+    {
+      "detail": "see checks.log",
+      "id": "repository_checks",
+      "mode": "offline",
+      "status": "PASS"
+    },
+    {
+      "detail": "PIE, RELRO, NOW and non-executable stack observed",
+      "id": "elf_hardening",
+      "mode": "offline",
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "security_config",
+      "mode": "offline",
+      "seconds": 0.006725877000000047,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "tor_config",
+      "mode": "offline",
+      "seconds": 0.49952651400000114,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "tor_startup",
+      "mode": "offline",
+      "seconds": 0.41697946900000105,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "socks5",
+      "mode": "online",
+      "seconds": 0.00635030199999953,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "public_bootstrap",
+      "mode": "online",
+      "seconds": 14.696961763,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "onion_v3",
+      "mode": "online",
+      "seconds": 3.8298703079999967,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "two_node",
+      "mode": "online",
+      "seconds": 1.9538695919999967,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "bidirectional_integrity",
+      "mode": "online",
+      "seconds": 8.963998470999996,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "reconnection",
+      "mode": "online",
+      "seconds": 17.085565930999998,
+      "status": "PASS"
+    },
+    {
+      "detail": "native daemon bootstrapped as uid 905; no fixture libraries or Python in deployed root",
+      "id": "production_service",
+      "mode": "online",
+      "seconds": 9.509300608999993,
+      "status": "PASS"
+    }
+  ],
+  "timestamp": "2026-11-05T10:39:50.726935+00:00"
+}

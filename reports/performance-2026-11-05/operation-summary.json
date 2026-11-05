@@ -1,0 +1,36 @@
+{
+  "01-baseline": {
+    "tor-bench-baseline": {
+      "aes_cell_ns_per_byte_median": 24.83,
+      "polyval_512_ns": 7855.18,
+      "returncode": 0
+    },
+    "tor-bench-o2": {
+      "aes_cell_ns_per_byte_median": 25.5,
+      "polyval_512_ns": 8890.3,
+      "returncode": 0
+    },
+    "tor-bench-os": {
+      "aes_cell_ns_per_byte_median": 25.08,
+      "polyval_512_ns": 13714.57,
+      "returncode": 0
+    }
+  },
+  "01-compressed": {
+    "tor-bench-baseline": {
+      "aes_cell_ns_per_byte_median": 26.4,
+      "polyval_512_ns": 7782.8,
+      "returncode": 0
+    },
+    "tor-bench-o2": {
+      "aes_cell_ns_per_byte_median": 27.435000000000002,
+      "polyval_512_ns": 9473.13,
+      "returncode": 0
+    },
+    "tor-bench-os": {
+      "aes_cell_ns_per_byte_median": 26.935000000000002,
+      "polyval_512_ns": 13657.56,
+      "returncode": 0
+    }
+  }
+}

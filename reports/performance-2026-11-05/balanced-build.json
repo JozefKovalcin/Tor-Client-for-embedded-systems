@@ -1,0 +1,332 @@
+{
+  "artifacts": [
+    {
+      "bytes": 5207040,
+      "path": "images/bzImage",
+      "role": "kernel",
+      "sha256": "a65bc9c01c0ebc57fbefe473de5b90ba2ca2879c3720859e96c2cd57ce7def65"
+    },
+    {
+      "bytes": 21934080,
+      "path": "images/disk.img",
+      "role": "rootfs",
+      "sha256": "9b60ee4e0e1d204972c6d151ae41286ceae16c0a5623b4e5bcb144035218b86a"
+    }
+  ],
+  "comparison": {
+    "baseline_reference": "reports/references/study-20261105T085017Z/baseline",
+    "differences": [
+      {
+        "baseline": 22.529744904,
+        "candidate": 14.960927134999999,
+        "delta": -7.5688177690000025,
+        "improvement_percent": 33.594777931356916,
+        "metric": "bootstrap_seconds",
+        "reduction_percent": 33.594777931356916
+      },
+      {
+        "baseline": 275092480,
+        "candidate": 27141120,
+        "delta": -247951360,
+        "improvement_percent": 90.13381972491578,
+        "metric": "complete_image_bytes",
+        "reduction_percent": 90.13381972491578
+      },
+      {
+        "baseline": 49.052049862876515,
+        "candidate": 36.19762894517375,
+        "delta": -12.854420917702768,
+        "improvement_percent": 26.20567530538867,
+        "metric": "cpu_percent",
+        "reduction_percent": 26.20567530538867
+      },
+      {
+        "baseline": 124722677.10638298,
+        "candidate": 48838568.85106383,
+        "delta": -75884108.25531915,
+        "improvement_percent": 60.84227023975225,
+        "metric": "idle_pss_bytes",
+        "reduction_percent": 60.84227023975225
+      },
+      {
+        "baseline": 134523185.0212766,
+        "candidate": 57737128.85106383,
+        "delta": -76786056.17021276,
+        "improvement_percent": 57.080165146304,
+        "metric": "idle_rss_bytes",
+        "reduction_percent": 57.080165146304
+      },
+      {
+        "baseline": 79142912,
+        "candidate": 10641408,
+        "delta": -68501504,
+        "improvement_percent": 86.55418693717006,
+        "metric": "image_host_allocated_bytes",
+        "reduction_percent": 86.55418693717006
+      },
+      {
+        "baseline": 63362683,
+        "candidate": 12209160,
+        "delta": -51153523,
+        "improvement_percent": 80.73130836331536,
+        "metric": "installed_rootfs_bytes",
+        "reduction_percent": 80.73130836331536
+      },
+      {
+        "baseline": 6657024,
+        "candidate": 5207040,
+        "delta": -1449984,
+        "improvement_percent": 21.781264420858328,
+        "metric": "kernel_bytes",
+        "reduction_percent": 21.781264420858328
+      },
+      {
+        "baseline": 18515107,
+        "candidate": 9003952,
+        "delta": -9511155,
+        "improvement_percent": 51.36970042895242,
+        "metric": "library_bytes",
+        "reduction_percent": 51.36970042895242
+      },
+      {
+        "baseline": 3.961948402999994,
+        "candidate": 3.4593593990000002,
+        "delta": -0.5025890039999936,
+        "improvement_percent": 12.685400032454547,
+        "metric": "onion_connection_seconds",
+        "reduction_percent": 12.685400032454547
+      },
+      {
+        "baseline": 136028160,
+        "candidate": 58830848,
+        "delta": -77197312,
+        "improvement_percent": 56.75097862089732,
+        "metric": "peak_process_rss_bytes",
+        "reduction_percent": 56.75097862089732
+      },
+      {
+        "baseline": 171220992,
+        "candidate": 97091584,
+        "delta": -74129408,
+        "improvement_percent": 43.29457920673652,
+        "metric": "peak_system_used_bytes",
+        "reduction_percent": 43.29457920673652
+      },
+      {
+        "baseline": 16651263,
+        "candidate": 16605141,
+        "delta": -46122,
+        "improvement_percent": 0.2769879978473705,
+        "metric": "persistent_storage_bytes",
+        "reduction_percent": 0.2769879978473705
+      },
+      {
+        "baseline": 268435456,
+        "candidate": 21934080,
+        "delta": -246501376,
+        "improvement_percent": 91.82891845703125,
+        "metric": "rootfs_bytes",
+        "reduction_percent": 91.82891845703125
+      },
+      {
+        "baseline": 6.65769389,
+        "candidate": 0.39424389100000035,
+        "delta": -6.263449999,
+        "improvement_percent": 94.07837161765332,
+        "metric": "startup_seconds",
+        "reduction_percent": 94.07837161765332
+      },
+      {
+        "baseline": 261955.94246885675,
+        "candidate": 183892.1303753186,
+        "delta": -78063.81209353814,
+        "improvement_percent": -29.80035931149718,
+        "metric": "throughput_bytes_per_second",
+        "reduction_percent": 29.80035931149718
+      },
+      {
+        "baseline": 3397272,
+        "candidate": 2428664,
+        "delta": -968608,
+        "improvement_percent": 28.511346751157987,
+        "metric": "tor_executable_bytes",
+        "reduction_percent": 28.511346751157987
+      }
+    ],
+    "functional_regressions": [],
+    "reasons": [
+      "test environment, architecture or validation policy differs; comparison refused",
+      "no measured improvement in a policy-controlled metric"
+    ],
+    "status": "NON_COMPARABLE"
+  },
+  "result": {
+    "build": {
+      "detail": "make all succeeded; all required boot artifacts and ELF hardening verified",
+      "output_directory": "build/embedded/qemu-x86_64-balanced/173c1d8a3174e7854684",
+      "seconds": 519.829702265,
+      "status": "PASS"
+    },
+    "change": "Restore SMP/-O2 kernel execution; offset footprint with XZ and removal of unused debug, initrd and applets",
+    "environment": {
+      "accelerator": "tcg,thread=single",
+      "cpu": "qemu64",
+      "cpus": 1,
+      "diagnostic_fixture_sha256": "e5df718190c64b7ee66aed0529b3db71543584c30f1d4e2c1fd183ff0fcb54e0",
+      "host_cpu_sha256": "945d7876e23adee4ff42b5f5e48f2ebb01ed0af7a15676221bad924b41f52c79",
+      "host_memory_bytes": 16284274688,
+      "host_platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+      "kind": "qemu",
+      "machine": "pc-i440fx-8.2",
+      "measurement_protocol": "tor-two-node-v3-stage-profile",
+      "memory_mib": 512,
+      "network": "user-mode-nat",
+      "qemu_version": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.3)",
+      "serial_baud": 115200,
+      "test_mode": "online",
+      "timeouts": {
+        "bootstrap_timeout_seconds": 600,
+        "connection_timeout_seconds": 180,
+        "idle_seconds": 10
+      },
+      "validation_boot": "external-fixture-v1",
+      "validation_fixture_sha256": "48521767cbdc5fc4a9a213bd5fe48da3c2b45fa95adc3e1c48503e672c6422fd"
+    },
+    "metadata": {
+      "architecture": "x86_64",
+      "buildroot_version": "2026.08.1",
+      "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+      "compiler_flags": "GNU_TARGET_NAME='x86_64-buildroot-linux-musl'\nTARGET_CFLAGS='-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -O2 -g0 '\nTARGET_LDFLAGS=' -ztext'\nTOR_CONF_ENV='ac_cv_prog_cc_c99='\\''-std=gnu99'\\'' LIBS=\"-latomic\" LDFLAGS=\" -ztext -Wl,--gc-sections\" CFLAGS=\"-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -O2 -g0 -O2 -ffunction-sections -fdata-sections\"'\nTOR_CONF_OPTS='--disable-gcc-hardening --disable-unittests --with-libevent-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-balanced/173c1d8a3174e7854684/host/x86_64-buildroot-linux-musl/sysroot/usr --with-openssl-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-balanced/173c1d8a3174e7854684/host/x86_64-buildroot-linux-musl/sysroot/usr --with-zlib-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-balanced/173c1d8a3174e7854684/host/x86_64-buildroot-linux-musl/sysroot/usr --disable-systemd --disable-lzma --disable-zstd --enable-seccomp --disable-module-relay --disable-module-dirauth'",
+      "configuration_id": "qemu-x86_64-balanced",
+      "git": {
+        "commit": "bc282a6b21bbaf0fd577fd4740fbd5116323cebc",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false
+      },
+      "input_sha256": "173c1d8a3174e785468411aac50b8e190553c073221cfd21858b1063f3d28bf6",
+      "kernel_version": "6.18.7",
+      "policy_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552",
+      "source_provenance_sha256": "a791b15b135cdafcc3edbc6ad7ba6364c168c6a7dca38f3729ccdf7f95eb744e",
+      "toolchain_archive": {
+        "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+        "path": "downloads/toolchains/x86_64-buildroot-linux-musl_sdk-buildroot.tar.gz",
+        "sha256": "5fd7659021ec80cf0bb47794be75776867270e672166210453acbaab89800e1e",
+        "source_baseline_commit": "da7c5281145589821ceeb4f6b7aabd4d98833587"
+      },
+      "tor_actual_flags": "CFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -O2 -g0 -O2 -ffunction-sections -fdata-sections -fasynchronous-unwind-tables -fcf-protection=full -Wall -fno-strict-aliasing  -Waddress -Warray-bounds -Wcompare-distinct-pointer-types -Wdate-time -Wdouble-promotion -Wduplicate-decl-specifier -Wduplicated-cond -Wenum-conversion -Wextra -Wfloat-conversion -Wheader-guard -Wignored-attributes -Wimplicit-fallthrough -Winit-self -Wlogical-op -Wmissing-field-initializers -Wmissing-format-attribute -Wmissing-noreturn -Wmissing-variable-declarations -Wnormalized=nfkc -Wnull-dereference -Woverlength-strings -Woverride-init -Wshadow -Wshift-count-negative -Wshift-count-overflow -Wshift-negative-value -Wshift-overflow=2 -Wsizeof-array-argument -Wstrict-overflow=1 -Wstring-compare -Wsuggest-attribute=format -Wsuggest-attribute=noreturn -Wswitch-bool -Wsync-nand -Wtrampolines -Wunicode -Wunused-but-set-parameter -Wunused-but-set-variable -Wunused-const-variable=2 -Wunused-local-typedefs -Wvariadic-macros  -W -Wfloat-equal -Wundef -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wwrite-strings -Wredundant-decls -Wchar-subscripts -Wcomment -Wformat=2 -Wwrite-strings -Wnested-externs -Wbad-function-cast -Wswitch-enum -Waggregate-return -Wpacked -Wunused -Wunused-parameter  -Wold-style-definition -Wmissing-declarations\nLDFLAGS =  -ztext -Wl,--gc-sections -z relro -z now",
+      "tor_version": "0.4.9.14"
+    },
+    "metrics": {
+      "bootstrap_seconds": 14.960927134999999,
+      "complete_image_bytes": 27141120,
+      "cpu_percent": 36.19762894517375,
+      "idle_pss_bytes": 48838568.85106383,
+      "idle_rss_bytes": 57737128.85106383,
+      "image_host_allocated_bytes": 10641408,
+      "installed_rootfs_bytes": 12209160,
+      "kernel_bytes": 5207040,
+      "library_bytes": 9003952,
+      "onion_connection_seconds": 3.4593593990000002,
+      "peak_process_rss_bytes": 58830848,
+      "peak_system_used_bytes": 97091584,
+      "persistent_storage_bytes": 16605141,
+      "production_peak_rss_bytes": 27308032,
+      "production_pss_bytes": 26294272,
+      "production_rss_bytes": 26755072,
+      "production_state_bytes": 8298312,
+      "production_state_free_bytes": 4887552,
+      "production_state_volume_bytes": 14410752,
+      "rootfs_bytes": 21934080,
+      "startup_seconds": 0.39424389100000035,
+      "throughput_bytes_per_second": 183892.1303753186,
+      "tor_executable_bytes": 2428664
+    },
+    "run_id": "20261105T093316Z-b835cc6d",
+    "schema_version": 1,
+    "tests": [
+      {
+        "detail": "see checks.log",
+        "id": "repository_checks",
+        "mode": "offline",
+        "status": "PASS"
+      },
+      {
+        "detail": "PIE, RELRO, NOW and non-executable stack observed",
+        "id": "elf_hardening",
+        "mode": "offline",
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "security_config",
+        "mode": "offline",
+        "seconds": 0.006968057999999999,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "tor_config",
+        "mode": "offline",
+        "seconds": 0.4182553130000004,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "tor_startup",
+        "mode": "offline",
+        "seconds": 0.40488442600000063,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "socks5",
+        "mode": "online",
+        "seconds": 0.00562888900000047,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "public_bootstrap",
+        "mode": "online",
+        "seconds": 15.564533567000002,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "onion_v3",
+        "mode": "online",
+        "seconds": 3.4759040530000007,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "two_node",
+        "mode": "online",
+        "seconds": 1.7843555269999953,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "seconds": 13.459673117000001,
+        "status": "PASS"
+      },
+      {
+        "detail": "explicit assertions passed",
+        "id": "reconnection",
+        "mode": "online",
+        "seconds": 16.093391461000003,
+        "status": "PASS"
+      },
+      {
+        "detail": "native daemon bootstrapped as uid 905; no fixture libraries or Python in deployed root",
+        "id": "production_service",
+        "mode": "online",
+        "seconds": 9.86428956799999,
+        "status": "PASS"
+      }
+    ],
+    "timestamp": "2026-11-05T09:33:16.952135+00:00"
+  }
+}

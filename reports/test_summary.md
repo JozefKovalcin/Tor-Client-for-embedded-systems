@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261105T101727Z-3c2822d0`
+Run: `20261105T103950Z-d842416e`
 
-**ACCEPTED** — Reduce SquashFS buffer RAM and unused archive codec storage while keeping qualified performance flags
+**ACCEPTED** — Restore upstream full Tor O2/module/link configuration; offset storage with XZ kernel compression
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `6247a1393d289ece4918826b4e9ea1835909b760`; dirty: `False`.
+Commit: `0c2496e8dd22758782760ec4984b4b2ceb264bc1`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 

@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261105T101727Z-3c2822d0`
+Run: `20261105T103950Z-d842416e`
 
-**ACCEPTED** — Reduce SquashFS buffer RAM and unused archive codec storage while keeping qualified performance flags
+**ACCEPTED** — Restore upstream full Tor O2/module/link configuration; offset storage with XZ kernel compression
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `6247a1393d289ece4918826b4e9ea1835909b760`; dirty: `False`.
+Commit: `0c2496e8dd22758782760ec4984b4b2ceb264bc1`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 
@@ -33,29 +33,29 @@ Null means unavailable; bytes use base 1024 for KiB conversions.
 
 | Metric | Candidate | Baseline | Delta | Reduction % |
 |---|---:|---:|---:|---:|
-| bootstrap_seconds | 15.689931228 | 16.241655212 | -0.5517239840000006 | 3.3969689468125406 |
-| complete_image_bytes | 27137024 | 27141120 | -4096 | 0.015091492171288436 |
-| cpu_percent | 42.75315887617588 | 36.44993240938906 | 6.303226466786818 | -17.29283444477165 |
-| idle_pss_bytes | 48945463.652173914 | 49077248.0 | -131784.34782608598 | 0.2685243227698627 |
-| idle_rss_bytes | 57838191.30434783 | 57931776.0 | -93584.69565217197 | 0.1615429426022982 |
-| image_host_allocated_bytes | 10637312 | 10641408 | -4096 | 0.03849114703618168 |
-| installed_rootfs_bytes | 12209160 | 12209160 | 0 | 0.0 |
-| kernel_bytes | 5207040 | 5207040 | 0 | 0.0 |
-| library_bytes | 9003952 | 9003952 | 0 | 0.0 |
-| onion_connection_seconds | 2.2031843460000005 | 3.2507847729999995 | -1.047600426999999 | 32.22607770594473 |
-| peak_process_rss_bytes | 60518400 | 60489728 | 28672 | -0.04739978331527627 |
-| peak_system_used_bytes | 89636864 | 89772032 | -135168 | 0.15056805219692476 |
-| persistent_storage_bytes | 16648867 | 16605192 | 43675 | -0.26302014454274303 |
-| production_peak_rss_bytes | 27574272 | 27578368 | -4096 | 0.014852220406950839 |
-| production_pss_bytes | 26602496 | 26575872 | 26624 | -0.10018109659769583 |
-| production_rss_bytes | 27070464 | 27074560 | -4096 | 0.015128593040847202 |
-| production_state_bytes | 8320183 | 8298312 | 21871 | -0.2635596251382209 |
-| production_state_free_bytes | 4866048 | 4887552 | -21504 | 0.43997485857950974 |
-| production_state_volume_bytes | 14410752 | 14410752 | 0 | 0.0 |
-| rootfs_bytes | 21929984 | 21934080 | -4096 | 0.018674136321195144 |
-| startup_seconds | 0.4270389169999991 | 0.4394667390000002 | -0.012427822000001143 | 2.8279323318712266 |
-| throughput_bytes_per_second | 275884.4981868447 | 233216.21054444314 | 42668.287642401556 | -18.29559255027447 |
-| tor_executable_bytes | 2428664 | 2428664 | 0 | 0.0 |
+| bootstrap_seconds | 14.100062197000002 | 22.529744904 | -8.429682707 | 37.41579295690724 |
+| complete_image_bytes | 27468800 | 275092480 | -247623680 | 90.01470341901022 |
+| cpu_percent | 38.18305957110851 | 49.052049862876515 | -10.868990291768007 | 22.158075599596618 |
+| idle_pss_bytes | 49827164.595744684 | 124722677.10638298 | -74895512.5106383 | 60.04963511708116 |
+| idle_rss_bytes | 59678284.25531915 | 134523185.0212766 | -74844900.76595744 | 55.63717566910101 |
+| image_host_allocated_bytes | 10969088 | 79142912 | -68173824 | 86.14015112307214 |
+| installed_rootfs_bytes | 13177768 | 63362683 | -50184915 | 79.20263572172283 |
+| kernel_bytes | 5207040 | 6657024 | -1449984 | 21.781264420858328 |
+| library_bytes | 9003952 | 18515107 | -9511155 | 51.36970042895242 |
+| onion_connection_seconds | 3.814559156999998 | 3.961948402999994 | -0.14738924599999592 | 3.7201202794158688 |
+| peak_process_rss_bytes | 61288448 | 136028160 | -74739712 | 54.94429388738332 |
+| peak_system_used_bytes | 95571968 | 171220992 | -75649024 | 44.18209655040429 |
+| persistent_storage_bytes | 16648852 | 16651263 | -2411 | 0.0144793821345564 |
+| production_peak_rss_bytes | 27881472 | None | None | None |
+| production_pss_bytes | 26975232 | None | None | None |
+| production_rss_bytes | 27439104 | None | None | None |
+| production_state_bytes | 8320183 | None | None | None |
+| production_state_free_bytes | 4866048 | None | None | None |
+| production_state_volume_bytes | 14410752 | None | None | None |
+| rootfs_bytes | 22261760 | 268435456 | -246173696 | 91.70684814453125 |
+| startup_seconds | 0.4022768859999992 | 6.65769389 | -6.255417004000001 | 93.95771429797594 |
+| throughput_bytes_per_second | 271386.4183737183 | 261955.94246885675 | 9430.475904861523 | -3.6000236589336727 |
+| tor_executable_bytes | 3397272 | 3397272 | 0 | 0.0 |
 
 ## Decision
 

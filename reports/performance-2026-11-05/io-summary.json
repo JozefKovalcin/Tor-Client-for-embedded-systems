@@ -1,0 +1,74 @@
+[
+  {
+    "checksum": 27756,
+    "environment": "01-baseline",
+    "persistent_write_fsync_bytes": 1048576,
+    "persistent_write_fsync_seconds": 0.006598,
+    "reads": [
+      {
+        "bytes": 3397272,
+        "cache": "cold",
+        "file": "/usr/bin/tor",
+        "primary_disk_read_bytes": 3422208,
+        "seconds": 0.005763
+      },
+      {
+        "bytes": 3397272,
+        "cache": "warm",
+        "file": "/usr/bin/tor",
+        "primary_disk_read_bytes": 0,
+        "seconds": 0.001455
+      },
+      {
+        "bytes": 6192128,
+        "cache": "cold",
+        "file": "/usr/lib/libcrypto.so.3",
+        "primary_disk_read_bytes": 6253568,
+        "seconds": 0.007329
+      },
+      {
+        "bytes": 6192128,
+        "cache": "warm",
+        "file": "/usr/lib/libcrypto.so.3",
+        "primary_disk_read_bytes": 0,
+        "seconds": 0.00245
+      }
+    ]
+  },
+  {
+    "checksum": 25332,
+    "environment": "01-compressed",
+    "persistent_write_fsync_bytes": 1048576,
+    "persistent_write_fsync_seconds": 0.024144,
+    "reads": [
+      {
+        "bytes": 2592728,
+        "cache": "cold",
+        "file": "/usr/bin/tor",
+        "primary_disk_read_bytes": 1180672,
+        "seconds": 0.047088
+      },
+      {
+        "bytes": 2592728,
+        "cache": "warm",
+        "file": "/usr/bin/tor",
+        "primary_disk_read_bytes": 0,
+        "seconds": 0.001118
+      },
+      {
+        "bytes": 5570168,
+        "cache": "cold",
+        "file": "/usr/lib/libcrypto.so.3",
+        "primary_disk_read_bytes": 2073600,
+        "seconds": 0.083086
+      },
+      {
+        "bytes": 5570168,
+        "cache": "warm",
+        "file": "/usr/lib/libcrypto.so.3",
+        "primary_disk_read_bytes": 0,
+        "seconds": 0.002576
+      }
+    ]
+  }
+]

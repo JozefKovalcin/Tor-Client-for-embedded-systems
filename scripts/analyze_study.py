@@ -80,6 +80,11 @@ def main():
         'Three repeats are descriptive evidence, not a tight statistical confidence bound.','',
         '| Image | Runs | Boot MiB | Idle A+B RSS MiB | CPU % | Bootstrap s | Onion s | Throughput KiB/s | Median gate |',
         '|---|---:|---:|---:|---:|---:|---:|---:|---|']
+    if args.reference:
+        lines[2:2]=['Explicit frozen measurement reference: `'+str(args.reference)+'`. This does not replace the project baseline.','']
+    elif 'baseline' in plan['images']:
+        control=plan['images']['baseline']
+        lines[2:2]=['Study control labeled baseline: `'+control['profile']+'`, source build `'+control['source_run']+'`. The label does not replace the original project baseline.','']
     for name in plan['images']:
         if name not in summary:continue
         lines.append('| '+ ' | '.join([name,f"{summary[name]['completed']}/{expected}",val(name,'complete_image_bytes',1048576),val(name,'idle_rss_bytes',1048576),val(name,'cpu_percent'),val(name,'bootstrap_seconds'),val(name,'onion_connection_seconds'),val(name,'throughput_bytes_per_second',1024),comparisons.get(name,{}).get('status','REFERENCE')])+' |')

@@ -1,0 +1,317 @@
+{
+  "build": {
+    "detail": "Previously built immutable image; hashes verified before/after measurement; no rebuild claimed",
+    "output_directory": "build/embedded/qemu-x86_64-compressed/83a757f26babd886a89c",
+    "seconds": 513.334995251,
+    "status": "PASS"
+  },
+  "change": "Iteration 4: gzip SquashFS read-only production root, 16 MiB ext4 state, omit unused split libevent libraries",
+  "diagnostics": {
+    "crypto": {
+      "maxrss_kib": 19932,
+      "openssl": "OpenSSL 3.6.5 29 Sep 2026",
+      "trials": [
+        {
+          "aes128ctr_bytes_per_second": 37205679.644,
+          "aes_cpu_seconds": 0.900862,
+          "sha256_bytes_per_second": 100153193.252,
+          "sha_cpu_seconds": 0.334113,
+          "x25519_cpu_seconds": 0.133377,
+          "x25519_ops_per_second": 3665.126
+        },
+        {
+          "aes128ctr_bytes_per_second": 38873209.614,
+          "aes_cpu_seconds": 0.862791,
+          "sha256_bytes_per_second": 98342327.097,
+          "sha_cpu_seconds": 0.341092,
+          "x25519_cpu_seconds": 0.117627,
+          "x25519_ops_per_second": 4250.024
+        },
+        {
+          "aes128ctr_bytes_per_second": 38930909.496,
+          "aes_cpu_seconds": 0.861715,
+          "sha256_bytes_per_second": 104137246.22,
+          "sha_cpu_seconds": 0.322194,
+          "x25519_cpu_seconds": 0.114124,
+          "x25519_ops_per_second": 4377.503
+        }
+      ]
+    },
+    "functional_driver_sha256": "a8a834192b16beba4c12f1db339117c711ef261f433c6afd8a35870297d73506",
+    "guest_cpuinfo": "processor\t: 0\nvendor_id\t: AuthenticAMD\ncpu family\t: 15\nmodel\t\t: 107\nmodel name\t: QEMU Virtual CPU version 2.5+\nstepping\t: 1\nmicrocode\t: 0x1000065\ncpu MHz\t\t: 4188.284\ncache size\t: 512 KB\nfpu\t\t: yes\nfpu_exception\t: yes\ncpuid level\t: 13\nwp\t\t: yes\nflags\t\t: fpu de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx lm rep_good nopl cpuid extd_apicid pni cx16 hypervisor lahf_lm svm 3dnowprefetch vmmcall\nbugs\t\t: fxsave_leak sysret_ss_attrs null_seg swapgs_fence amd_e400 spectre_v1 spectre_v2 spectre_v2_user\nbogomips\t: 8376.56\nTLB size\t: 1024 4K pages\nclflush size\t: 64\ncache_alignment\t: 64\naddress sizes\t: 40 bits physical, 48 bits virtual\npower management:\n\n",
+    "io_probe": {
+      "checksum": 25332,
+      "persistent_write_fsync_bytes": 1048576,
+      "persistent_write_fsync_seconds": 0.024144,
+      "reads": [
+        {
+          "bytes": 2592728,
+          "cache": "cold",
+          "file": "/usr/bin/tor",
+          "primary_disk_read_bytes": 1180672,
+          "seconds": 0.047088
+        },
+        {
+          "bytes": 2592728,
+          "cache": "warm",
+          "file": "/usr/bin/tor",
+          "primary_disk_read_bytes": 0,
+          "seconds": 0.001118
+        },
+        {
+          "bytes": 5570168,
+          "cache": "cold",
+          "file": "/usr/lib/libcrypto.so.3",
+          "primary_disk_read_bytes": 2073600,
+          "seconds": 0.083086
+        },
+        {
+          "bytes": 5570168,
+          "cache": "warm",
+          "file": "/usr/lib/libcrypto.so.3",
+          "primary_disk_read_bytes": 0,
+          "seconds": 0.002576
+        }
+      ]
+    },
+    "stages": [
+      {
+        "after": {
+          "memory": {
+            "Dirty": "0 kB",
+            "MemAvailable": "466876 kB",
+            "SwapFree": "0 kB",
+            "SwapTotal": "0 kB",
+            "Writeback": "0 kB"
+          },
+          "pressure": {
+            "cpu": null,
+            "io": null,
+            "memory": null
+          },
+          "processes": {
+            "118": {
+              "cpu_ticks": 15,
+              "io_accounting_available": false,
+              "major_faults": 1,
+              "minor_faults": 608
+            },
+            "119": {
+              "cpu_ticks": 13,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 614
+            }
+          },
+          "time": 120.496888371,
+          "vmstat": {
+            "allocstall_dma32": 0,
+            "allocstall_normal": 0,
+            "oom_kill": 0,
+            "pgmajfault": 32,
+            "pgscan_direct": 0,
+            "pgscan_kswapd": 0,
+            "pswpin": 0,
+            "pswpout": 0
+          }
+        },
+        "before": {
+          "memory": {
+            "Dirty": "0 kB",
+            "MemAvailable": "469016 kB",
+            "SwapFree": "0 kB",
+            "SwapTotal": "0 kB",
+            "Writeback": "0 kB"
+          },
+          "pressure": {
+            "cpu": null,
+            "io": null,
+            "memory": null
+          },
+          "processes": {},
+          "time": 120.074132552,
+          "vmstat": {
+            "allocstall_dma32": 0,
+            "allocstall_normal": 0,
+            "oom_kill": 0,
+            "pgmajfault": 31,
+            "pgscan_direct": 0,
+            "pgscan_kswapd": 0,
+            "pswpin": 0,
+            "pswpout": 0
+          }
+        },
+        "elapsed_seconds": 0.4227558190000025,
+        "stage": "startup",
+        "tor_cpu_percent": 66.23208656531784,
+        "tor_cpu_seconds": 0.28
+      }
+    ],
+    "upstream_benchmarks": [
+      {
+        "name": "tor-bench-baseline",
+        "output": "===== polyval =====\npolyval (add 16): 238.01 ns; 62.37 cpb\npolyval (add 512): 7782.80 ns; 63.75 cpb\npolyval (add 512, pre-expanded key): 7777.96 ns; 63.70 cpb\n===== cell_aes =====\n509 bytes, misaligned by 0: 25.14 nsec per byte\n509 bytes, misaligned by 1: 25.73 nsec per byte\n509 bytes, misaligned by 2: 25.03 nsec per byte\n509 bytes, misaligned by 3: 26.52 nsec per byte\n509 bytes, misaligned by 4: 26.45 nsec per byte\n509 bytes, misaligned by 5: 26.87 nsec per byte\n509 bytes, misaligned by 6: 26.55 nsec per byte\n509 bytes, misaligned by 7: 27.30 nsec per byte\n509 bytes, misaligned by 8: 25.16 nsec per byte\n509 bytes, misaligned by 9: 26.35 nsec per byte\n509 bytes, misaligned by 10: 26.67 nsec per byte\n509 bytes, misaligned by 11: 25.77 nsec per byte\n509 bytes, misaligned by 12: 25.50 nsec per byte\n509 bytes, misaligned by 13: 27.58 nsec per byte\n509 bytes, misaligned by 14: 26.11 nsec per byte\n509 bytes, misaligned by 15: 26.79 nsec per byte\n",
+        "returncode": 0,
+        "stderr": ""
+      },
+      {
+        "name": "tor-bench-os",
+        "output": "===== polyval =====\npolyval (add 16): 442.18 ns; 115.90 cpb\npolyval (add 512): 13657.56 ns; 111.85 cpb\npolyval (add 512, pre-expanded key): 15149.79 ns; 124.06 cpb\n===== cell_aes =====\n509 bytes, misaligned by 0: 27.84 nsec per byte\n509 bytes, misaligned by 1: 26.82 nsec per byte\n509 bytes, misaligned by 2: 26.75 nsec per byte\n509 bytes, misaligned by 3: 25.76 nsec per byte\n509 bytes, misaligned by 4: 25.91 nsec per byte\n509 bytes, misaligned by 5: 27.05 nsec per byte\n509 bytes, misaligned by 6: 26.71 nsec per byte\n509 bytes, misaligned by 7: 26.17 nsec per byte\n509 bytes, misaligned by 8: 25.90 nsec per byte\n509 bytes, misaligned by 9: 28.68 nsec per byte\n509 bytes, misaligned by 10: 29.65 nsec per byte\n509 bytes, misaligned by 11: 26.08 nsec per byte\n509 bytes, misaligned by 12: 27.07 nsec per byte\n509 bytes, misaligned by 13: 29.44 nsec per byte\n509 bytes, misaligned by 14: 27.85 nsec per byte\n509 bytes, misaligned by 15: 28.41 nsec per byte\n",
+        "returncode": 0,
+        "stderr": ""
+      },
+      {
+        "name": "tor-bench-o2",
+        "output": "===== polyval =====\npolyval (add 16): 291.43 ns; 76.36 cpb\npolyval (add 512): 9473.13 ns; 77.58 cpb\npolyval (add 512, pre-expanded key): 9404.52 ns; 77.02 cpb\n===== cell_aes =====\n509 bytes, misaligned by 0: 26.82 nsec per byte\n509 bytes, misaligned by 1: 26.77 nsec per byte\n509 bytes, misaligned by 2: 26.72 nsec per byte\n509 bytes, misaligned by 3: 27.52 nsec per byte\n509 bytes, misaligned by 4: 27.56 nsec per byte\n509 bytes, misaligned by 5: 27.46 nsec per byte\n509 bytes, misaligned by 6: 28.35 nsec per byte\n509 bytes, misaligned by 7: 27.71 nsec per byte\n509 bytes, misaligned by 8: 26.62 nsec per byte\n509 bytes, misaligned by 9: 28.53 nsec per byte\n509 bytes, misaligned by 10: 27.41 nsec per byte\n509 bytes, misaligned by 11: 26.76 nsec per byte\n509 bytes, misaligned by 12: 27.23 nsec per byte\n509 bytes, misaligned by 13: 27.71 nsec per byte\n509 bytes, misaligned by 14: 26.43 nsec per byte\n509 bytes, misaligned by 15: 28.20 nsec per byte\n",
+        "returncode": 0,
+        "stderr": ""
+      }
+    ]
+  },
+  "environment": {
+    "accelerator": "tcg,thread=single",
+    "cpu": "qemu64",
+    "cpus": 1,
+    "diagnostic_fixture_sha256": "3de4d1dba6f7a37e5f81f45290799950bbefcafb5883567f5dd821531587cc8e",
+    "host_cpu_sha256": "945d7876e23adee4ff42b5f5e48f2ebb01ed0af7a15676221bad924b41f52c79",
+    "host_memory_bytes": 16284282880,
+    "host_platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "kind": "qemu",
+    "machine": "pc-i440fx-8.2",
+    "measurement_protocol": "tor-two-node-v3-stage-profile",
+    "memory_mib": 512,
+    "network": "user-mode-nat",
+    "qemu_version": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.3)",
+    "serial_baud": 115200,
+    "test_mode": "offline",
+    "timeouts": {
+      "bootstrap_timeout_seconds": 600,
+      "connection_timeout_seconds": 180,
+      "idle_seconds": 10
+    },
+    "validation_boot": "external-fixture-v1",
+    "validation_fixture_sha256": "48521767cbdc5fc4a9a213bd5fe48da3c2b45fa95adc3e1c48503e672c6422fd"
+  },
+  "metadata": {
+    "architecture": "x86_64",
+    "buildroot_version": "2026.08.1",
+    "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+    "compiler_flags": "GNU_TARGET_NAME='x86_64-buildroot-linux-musl'\nTARGET_CFLAGS='-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -Os -g0 '\nTARGET_LDFLAGS=' -ztext'\nTOR_CONF_OPTS='--disable-gcc-hardening --disable-unittests --with-libevent-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-compressed/83a757f26babd886a89c/host/x86_64-buildroot-linux-musl/sysroot/usr --with-openssl-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-compressed/83a757f26babd886a89c/host/x86_64-buildroot-linux-musl/sysroot/usr --with-zlib-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-compressed/83a757f26babd886a89c/host/x86_64-buildroot-linux-musl/sysroot/usr --disable-systemd --disable-lzma --disable-zstd --enable-seccomp --disable-module-relay --disable-module-dirauth'",
+    "configuration_id": "qemu-x86_64-compressed",
+    "git": {
+      "commit": "f33d5a3f345ebac146cf262e0c0c3c8043f3e4b9",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dirty": false
+    },
+    "image_origin_run": "20261104T173443Z-2cd3ee20",
+    "input_sha256": "83a757f26babd886a89c147869ce7da442fd8a80637094269a4ae90019c2d538",
+    "kernel_version": "6.18.7",
+    "policy_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552",
+    "repeated_measurement_git": {
+      "commit": "ccc95611560be699a267014ade1bc5a1301b5a47",
+      "diff_sha256": "a5b20f11a20cdd80a250d48b6415d10ad1451c43bea83f1d527d507b2538d4e5",
+      "dirty": true
+    },
+    "source_provenance_sha256": "a791b15b135cdafcc3edbc6ad7ba6364c168c6a7dca38f3729ccdf7f95eb744e",
+    "toolchain_archive": {
+      "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+      "path": "downloads/toolchains/x86_64-buildroot-linux-musl_sdk-buildroot.tar.gz",
+      "sha256": "5fd7659021ec80cf0bb47794be75776867270e672166210453acbaab89800e1e",
+      "source_baseline_commit": "da7c5281145589821ceeb4f6b7aabd4d98833587"
+    },
+    "tor_version": "0.4.9.14"
+  },
+  "metrics": {
+    "bootstrap_seconds": null,
+    "complete_image_bytes": 27145216,
+    "cpu_percent": 2.832649429541468,
+    "idle_pss_bytes": 10186752.0,
+    "idle_rss_bytes": 17846272.0,
+    "image_host_allocated_bytes": 10645504,
+    "installed_rootfs_bytes": 11542400,
+    "kernel_bytes": 4445184,
+    "library_bytes": 8111688,
+    "onion_connection_seconds": null,
+    "peak_process_rss_bytes": 17846272,
+    "peak_system_used_bytes": 35753984,
+    "persistent_storage_bytes": 629,
+    "production_peak_rss_bytes": null,
+    "production_pss_bytes": null,
+    "production_rss_bytes": null,
+    "production_state_bytes": null,
+    "production_state_free_bytes": null,
+    "production_state_volume_bytes": null,
+    "rootfs_bytes": 22700032,
+    "startup_seconds": 0.4147435990000048,
+    "throughput_bytes_per_second": null,
+    "tor_executable_bytes": 2592728
+  },
+  "run_id": "01-compressed",
+  "schema_version": 1,
+  "tests": [
+    {
+      "detail": "explicit assertions passed",
+      "id": "security_config",
+      "mode": "offline",
+      "seconds": 0.008668600999996556,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "tor_config",
+      "mode": "offline",
+      "seconds": 0.2770638580000053,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "tor_startup",
+      "mode": "offline",
+      "seconds": 0.4272099629999957,
+      "status": "PASS"
+    },
+    {
+      "detail": "offline mode selected; public Tor behavior remains unverified",
+      "id": "socks5",
+      "mode": "online",
+      "seconds": 0,
+      "status": "SKIPPED"
+    },
+    {
+      "detail": "offline mode selected; public Tor behavior remains unverified",
+      "id": "public_bootstrap",
+      "mode": "online",
+      "seconds": 0,
+      "status": "SKIPPED"
+    },
+    {
+      "detail": "offline mode selected; public Tor behavior remains unverified",
+      "id": "onion_v3",
+      "mode": "online",
+      "seconds": 0,
+      "status": "SKIPPED"
+    },
+    {
+      "detail": "offline mode selected; public Tor behavior remains unverified",
+      "id": "two_node",
+      "mode": "online",
+      "seconds": 0,
+      "status": "SKIPPED"
+    },
+    {
+      "detail": "offline mode selected; public Tor behavior remains unverified",
+      "id": "bidirectional_integrity",
+      "mode": "online",
+      "seconds": 0,
+      "status": "SKIPPED"
+    },
+    {
+      "detail": "offline mode selected; public Tor behavior remains unverified",
+      "id": "reconnection",
+      "mode": "online",
+      "seconds": 0,
+      "status": "SKIPPED"
+    }
+  ],
+  "timestamp": "2026-11-05T08:30:32.963799+00:00"
+}
