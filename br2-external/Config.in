@@ -7,3 +7,11 @@ config BR2_PACKAGE_TOR_CLIENT_ONLY
       Use upstream's supported client build without relay, bridge-operator,
       directory-cache-server or directory-authority modules. Onion-service
       client/server functionality and cryptographic implementations remain.
+
+config BR2_PACKAGE_TOR_OPTIMIZE_O2
+    bool "Compile only Tor with -O2 for measured CPU ablation"
+    depends on BR2_PACKAGE_TOR
+    help
+      Keep the small kernel and size-optimized libraries unchanged while
+      measuring the performance/size effect of Tor's compiler optimization.
+      Global Buildroot/toolchain hardening remains enabled.

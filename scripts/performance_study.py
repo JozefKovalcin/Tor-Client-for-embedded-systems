@@ -23,19 +23,30 @@ ORDERS=[['baseline','compressed','small','production','tiny'],
         ['tiny','production','small','compressed','baseline'],
         ['compressed','baseline','tiny','small','production']]
 
+def measured_metrics(previous, fresh):
+    static={'tor_executable_bytes','library_bytes','kernel_bytes','rootfs_bytes','complete_image_bytes','installed_rootfs_bytes','image_host_allocated_bytes'}
+    result={k:v if k in static else None for k,v in previous.items()}
+    result.update({k:v for k,v in fresh.items() if not isinstance(v,dict)})
+    return result
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--rounds',type=int,default=3,choices=(1,2,3))
     parser.add_argument('--series',type=Path)
     parser.add_argument('--fixture',type=Path,default=ROOT/'build/performance-probe.ext4')
+    parser.add_argument('--matrix',type=Path,help='explicit additional experiment image mapping and fixed orders')
+    parser.add_argument('--mode',choices=('online','offline'),default='online')
     args=parser.parse_args()
+    matrix=read_json(args.matrix) if args.matrix else {'images':IMAGES,'orders':ORDERS}
+    images=matrix['images']
+    orders=matrix['orders'][:args.rounds]
     directory=args.series or ROOT/'reports/benchmarks'/('study-'+time.strftime('%Y%m%dT%H%M%SZ',time.gmtime()))
     directory.mkdir(parents=True,exist_ok=False)
     fixture=args.fixture.resolve()
-    plan={'created':utcnow(),'git':git_metadata(),'orders':ORDERS[:args.rounds],'diagnostic_sha256':sha256(fixture),
+    plan={'created':utcnow(),'git':git_metadata(),'orders':orders,'mode':args.mode,'diagnostic_sha256':sha256(fixture),
           'aggregation':'all attempts retained; medians and ranges descriptive; existing 20% limits unchanged; no automatic acceptance from selected samples',
           'images':{},'results':[]}
-    for name,(profile_name,source,rid) in IMAGES.items():
+    for name,(profile_name,source,rid) in images.items():
         original=read_json(ROOT/'reports/benchmarks'/rid/'results.json')
         artifacts=read_json(ROOT/'reports/benchmarks'/rid/'artifacts.json')
         plan['images'][name]={'source_run':rid,'profile':profile_name,'artifacts':artifacts}
@@ -52,7 +63,7 @@ def main():
     for round_index,order in enumerate(plan['orders'],1):
         for name in order:
             run=directory/(f'{round_index:02d}-'+name);run.mkdir()
-            profile_name,source,rid=IMAGES[name]
+            profile_name,source,rid=images[name]
             profile=read_json(ROOT/'config/profiles'/(profile_name+'.json'))
             profile['validation_fixture']='baseline'
             profile['diagnostic_fixture']={'path':str(fixture),'sha256':plan['diagnostic_sha256']}
@@ -61,11 +72,11 @@ def main():
             before=sha256(ROOT/source/Path(profile['artifacts']['rootfs']).name)
             print('START',run,flush=True)
             try:
-                target,environment=emulation(ROOT/'build/study-images'/name,profile,'online',run)
+                target,environment=emulation(ROOT/'build/study-images'/name,profile,args.mode,run)
                 original=read_json(ROOT/'reports/benchmarks'/rid/'results.json')
                 result=copy.deepcopy(original)
                 result.update(run_id=run.name,timestamp=utcnow(),environment=environment,tests=target['tests'])
-                result['metrics'].update({k:v for k,v in target['metrics'].items() if not isinstance(v,dict)})
+                result['metrics']=measured_metrics(original['metrics'],target['metrics'])
                 result['metadata']['repeated_measurement_git']=git_metadata()
                 result['metadata']['image_origin_run']=rid
                 result['diagnostics']=target.get('diagnostics',{})

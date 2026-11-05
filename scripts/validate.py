@@ -380,7 +380,7 @@ def main():
         if not compiler.is_file():
             raise ValueError("configured target compiler is missing")
         result["metadata"]["compiler"] = subprocess.check_output([str(compiler), "--version"], text=True).splitlines()[0]
-        vars_cmd = [*base, "-s", "printvars", "VARS=TARGET_CFLAGS TARGET_LDFLAGS TOR_CONF_OPTS GNU_TARGET_NAME", "QUOTED_VARS=YES"]
+        vars_cmd = [*base, "-s", "printvars", "VARS=TARGET_CFLAGS TARGET_LDFLAGS TOR_CONF_OPTS TOR_CONF_ENV GNU_TARGET_NAME", "QUOTED_VARS=YES"]
         flags = subprocess.check_output(vars_cmd, env=env, text=True)
         result["metadata"]["compiler_flags"] = flags.strip()
         (run / "compiler-flags.txt").write_text(flags, encoding="utf-8")

@@ -97,3 +97,5 @@ reports/references/external-fixture/baseline; the original baseline is unchanged
 Production candidates use this explicit equivalent-condition reference.
 
 Iteration 4 begins: gzip SquashFS immutable root and a separate 16 MiB ext4 Tor-state partition. The reported disk image includes both partitions and alignment overhead; the auxiliary test fixture is excluded consistently from reference and candidate deployment sizes. No outcome is claimed before build and regression execution.
+
+2026-11-05: isolated Tor -O2 ablation prepared. Hypothesis: compiler-size optimization adds CPU work per identical payload even though OpenSSL bulk crypto is unchanged. Kernel, libraries, filesystem and security configuration stay the same. No improvement claimed before build and matched repeat measurements.
