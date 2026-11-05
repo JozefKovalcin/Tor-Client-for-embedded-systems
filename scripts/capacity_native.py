@@ -214,9 +214,10 @@ def summarize_samples(samples):
     cpu={}
     for row in samples:
         p=row.get('tor')
-        if p:cpu[p['pid']]=max(cpu.get(p['pid'],0),p['cpu_ticks'])
+        if p:cpu.setdefault(p['pid'],[]).append(p['cpu_ticks'])
     elapsed=samples[-1]['time']-samples[0]['time']
-    return {'samples':len(samples),'linux_memtotal_bytes':extrema(totals),'min_available_bytes':available,'min_available_fraction':available/extrema(totals) if available is not None else None,'peak_system_used_bytes':extrema(used),'peak_process_hwm_bytes':extrema([p.get('hwm_bytes') for p in tor]),'peak_rss_bytes':extrema([p.get('rss_bytes') for p in tor]),'peak_pss_bytes':extrema([p.get('pss_bytes') for p in tor]),'tor_cpu_seconds':sum(cpu.values())/samples[-1]['hz'],'tor_cpu_percent':100*sum(cpu.values())/samples[-1]['hz']/elapsed if elapsed>0 else None,'vmstat_start':samples[0]['vmstat'],'vmstat_end':samples[-1]['vmstat'],'state_available_min_bytes':extrema([x.get('state_available_bytes') for x in samples],min)}
+    cpu_seconds=sum(max(v)-min(v) for v in cpu.values())/samples[-1]['hz']
+    return {'samples':len(samples),'linux_memtotal_bytes':extrema(totals),'min_available_bytes':available,'min_available_fraction':available/extrema(totals) if available is not None else None,'peak_system_used_bytes':extrema(used),'peak_process_hwm_bytes':extrema([p.get('hwm_bytes') for p in tor]),'peak_rss_bytes':extrema([p.get('rss_bytes') for p in tor]),'peak_pss_bytes':extrema([p.get('pss_bytes') for p in tor]),'tor_cpu_seconds':cpu_seconds,'tor_cpu_percent':100*cpu_seconds/elapsed if elapsed>0 else None,'cpu_accounting':'sampled per-PID counter differences; excludes intervals outside first/last sample','vmstat_start':samples[0]['vmstat'],'vmstat_end':samples[-1]['vmstat'],'state_available_min_bytes':extrema([x.get('state_available_bytes') for x in samples],min)}
 
 
 def run_case(profile,images,fixture,memory,run,peer,origin,local_trials=3):
