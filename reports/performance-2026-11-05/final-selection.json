@@ -1,0 +1,201 @@
+{
+  "candidates": {
+    "fulltor": {
+      "complete_image_bytes": 26203136,
+      "direct128_automatic_status": "REJECTED",
+      "direct128_reasons": [
+        "rootfs_bytes exceeds regression limit 0%",
+        "tor_executable_bytes exceeds regression limit 0%"
+      ],
+      "fresh128_runtime": {
+        "bootstrap_seconds": {
+          "boundary": 19.203614058,
+          "candidate": 15.481150636000002,
+          "control": 16.003011715,
+          "limit_percent": 20,
+          "pass": true
+        },
+        "idle_rss_bytes": {
+          "boundary": 60756120.510638304,
+          "candidate": 59760117.10638298,
+          "control": 57862971.91489362,
+          "limit_percent": 5,
+          "pass": true
+        },
+        "onion_connection_seconds": {
+          "boundary": 5.713750888800001,
+          "candidate": 3.639886223000005,
+          "control": 4.761459074000001,
+          "limit_percent": 20,
+          "pass": true
+        },
+        "peak_process_rss_bytes": {
+          "boundary": 62774476.800000004,
+          "candidate": 61874176,
+          "control": 59785216,
+          "limit_percent": 5,
+          "pass": true
+        },
+        "throughput_bytes_per_second": {
+          "boundary": 250997.70304181555,
+          "candidate": 344593.0551496495,
+          "control": 313747.1288022694,
+          "limit_percent": 20,
+          "pass": true
+        }
+      },
+      "gates": {
+        "complete_image_budget": true,
+        "frozen_data_only128": true,
+        "frozen_original512": false,
+        "paired_original512": false,
+        "preserve_fresh128_runtime": true,
+        "preserve_old_compressed512_ram": false
+      },
+      "old_compressed512_ram": {
+        "idle_rss_bytes": {
+          "boundary": 58176652.800000004,
+          "candidate": 59665299.06382979,
+          "control": 55406336.0,
+          "limit_percent": 5,
+          "pass": false
+        },
+        "peak_process_rss_bytes": {
+          "boundary": 60821913.6,
+          "candidate": 60874752,
+          "control": 57925632,
+          "limit_percent": 5,
+          "pass": false
+        }
+      },
+      "qualified": false
+    },
+    "fulltor-slim": {
+      "complete_image_bytes": 25936896,
+      "direct128_automatic_status": "REJECTED",
+      "direct128_reasons": [
+        "rootfs_bytes exceeds regression limit 0%",
+        "throughput_bytes_per_second exceeds regression limit 20%",
+        "tor_executable_bytes exceeds regression limit 0%"
+      ],
+      "fresh128_runtime": {
+        "bootstrap_seconds": {
+          "boundary": 19.203614058,
+          "candidate": 15.966137452999998,
+          "control": 16.003011715,
+          "limit_percent": 20,
+          "pass": true
+        },
+        "idle_rss_bytes": {
+          "boundary": 60756120.510638304,
+          "candidate": 57907200.0,
+          "control": 57862971.91489362,
+          "limit_percent": 5,
+          "pass": true
+        },
+        "onion_connection_seconds": {
+          "boundary": 5.713750888800001,
+          "candidate": 3.466445176999997,
+          "control": 4.761459074000001,
+          "limit_percent": 20,
+          "pass": true
+        },
+        "peak_process_rss_bytes": {
+          "boundary": 62774476.800000004,
+          "candidate": 60514304,
+          "control": 59785216,
+          "limit_percent": 5,
+          "pass": true
+        },
+        "throughput_bytes_per_second": {
+          "boundary": 250997.70304181555,
+          "candidate": 178191.5529819057,
+          "control": 313747.1288022694,
+          "limit_percent": 20,
+          "pass": false
+        }
+      },
+      "gates": {
+        "complete_image_budget": true,
+        "frozen_data_only128": true,
+        "frozen_original512": true,
+        "paired_original512": true,
+        "preserve_fresh128_runtime": false,
+        "preserve_old_compressed512_ram": true
+      },
+      "old_compressed512_ram": {
+        "idle_rss_bytes": {
+          "boundary": 58176652.800000004,
+          "candidate": 58018445.61702128,
+          "control": 55406336.0,
+          "limit_percent": 5,
+          "pass": true
+        },
+        "peak_process_rss_bytes": {
+          "boundary": 60821913.6,
+          "candidate": 60551168,
+          "control": 57925632,
+          "limit_percent": 5,
+          "pass": true
+        }
+      },
+      "qualified": false
+    }
+  },
+  "original_reference_recovery_qualified": false,
+  "plan": {
+    "controls": {
+      "128": "preserved RAM iteration",
+      "512": "immutable original baseline"
+    },
+    "created_before_measurements": "2026-11-05T11:21:31.240464+00:00",
+    "images": {
+      "fulltor": [
+        "qemu-x86_64-fulltor",
+        "build/iterations/09-fulltor",
+        "20261105T105238Z-64e9527c"
+      ],
+      "fulltor-slim": [
+        "qemu-x86_64-fulltor-slim",
+        "build/iterations/10-fulltor-slim",
+        "20261105T110833Z-e46f667a"
+      ]
+    },
+    "limitations": "Public circuits are not identical; three medians are descriptive, not a tight confidence interval. Earlier incomplete attempts remain visible.",
+    "memory_mib": [
+      512,
+      128
+    ],
+    "orders": [
+      [
+        "baseline",
+        "fulltor-slim",
+        "fulltor"
+      ],
+      [
+        "fulltor",
+        "fulltor-slim",
+        "baseline"
+      ],
+      [
+        "fulltor-slim",
+        "baseline",
+        "fulltor"
+      ]
+    ],
+    "policy_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552",
+    "rounds": 3,
+    "selection_requirements": [
+      "All planned mandatory assertions must pass and every required metric must be measured.",
+      "Pass original-image 512 MiB comparison against both fresh paired medians and the frozen original-image median reference.",
+      "Pass 128 MiB comparison against the frozen previously accepted data-only control.",
+      "Complete image no larger than the previous qualified RAM iteration.",
+      "512 MiB idle/peak-process RSS within the unchanged 5% allowance of the old compressed image repeated under the same apparatus.",
+      "128 MiB bootstrap/onion/throughput and RSS/peak-process within existing 20%/5% limits of the freshly interleaved RAM control.",
+      "Preserve the full direct per-artifact comparison against RAM, even when only executable/root size growth rejects it; do not override that automatic status.",
+      "Select the smallest complete boot set satisfying these requirements; otherwise retain the qualified RAM image and explicitly report unresolved original-reference performance."
+    ]
+  },
+  "recommended": "ram",
+  "scope": "Original policy comparisons retained. Engineering selection additionally protects the old compressed RAM and fresh 128 MiB runtime budgets. No threshold or reference overwritten."
+}

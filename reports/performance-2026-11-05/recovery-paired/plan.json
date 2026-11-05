@@ -1,0 +1,164 @@
+{
+  "aggregation": "all attempts retained; medians and ranges descriptive; existing 20% limits unchanged; no automatic acceptance from selected samples",
+  "created": "2026-11-05T08:50:17.648093+00:00",
+  "diagnostic_sha256": "e5df718190c64b7ee66aed0529b3db71543584c30f1d4e2c1fd183ff0fcb54e0",
+  "git": {
+    "commit": "f7b48b660ad35299f270fd3f411fa0ce4ba4f737",
+    "diff_sha256": "1a88e99bfd6d843480685ab4360904b9992276be5aedee7105709aeee62e1cf1",
+    "dirty": true
+  },
+  "images": {
+    "baseline": {
+      "artifacts": [
+        {
+          "bytes": 6657024,
+          "path": "images/bzImage",
+          "role": "kernel",
+          "sha256": "d49916853b8095195ca0b1bc241a6617ccde3b1779573dcc877a8bbd44b0a16d"
+        },
+        {
+          "bytes": 268435456,
+          "path": "images/rootfs.ext2",
+          "role": "rootfs",
+          "sha256": "48521767cbdc5fc4a9a213bd5fe48da3c2b45fa95adc3e1c48503e672c6422fd"
+        }
+      ],
+      "profile": "qemu-x86_64",
+      "source_run": "20261104T162447Z-cd6efe9f"
+    },
+    "fast": {
+      "artifacts": [
+        {
+          "bytes": 4445184,
+          "path": "images/bzImage",
+          "role": "kernel",
+          "sha256": "a556d4eb559cd1324e11fb6189a07597a7a0facb7151718ed7afdd63836b3e3e"
+        },
+        {
+          "bytes": 22986752,
+          "path": "images/disk.img",
+          "role": "rootfs",
+          "sha256": "ebcc79bfa462669df01f4efe4a150f6b373b9e683527ef655fea95fb24dbe530"
+        }
+      ],
+      "profile": "qemu-x86_64-fast",
+      "source_run": "20261105T083655Z-9a24cdbe"
+    }
+  },
+  "mode": "online",
+  "orders": [
+    [
+      "baseline",
+      "fast"
+    ],
+    [
+      "fast",
+      "baseline"
+    ],
+    [
+      "baseline",
+      "fast"
+    ]
+  ],
+  "results": [
+    {
+      "directory": "reports/benchmarks/study-20261105T085017Z/01-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 1
+    },
+    {
+      "directory": "reports/benchmarks/study-20261105T085017Z/01-fast",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "fast",
+      "round": 1
+    },
+    {
+      "directory": "reports/benchmarks/study-20261105T085017Z/02-fast",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "fast",
+      "round": 2
+    },
+    {
+      "directory": "reports/benchmarks/study-20261105T085017Z/02-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 2
+    },
+    {
+      "directory": "reports/benchmarks/study-20261105T085017Z/03-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 3
+    },
+    {
+      "directory": "reports/benchmarks/study-20261105T085017Z/03-fast",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "fast",
+      "round": 3
+    }
+  ]
+}

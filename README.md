@@ -4,6 +4,15 @@
 
 See [actual measured builds and decisions](reports/measured/2026-11-04/README.md). The production variants omit Python and development test files; the compressed variant separates immutable system files from writable Tor state.
 
+The [2026-11-05 performance investigation](reports/performance-2026-11-05/README.md)
+compares all five configurations, identifies a compiler-level crypto cost,
+retains every failed experiment and records repeated 128 MiB QEMU qualification.
+The complete 25.8799 MiB boot set includes 16 MiB persistent state.
+Original-image and device-budget performance decisions have separate explicit
+references; consult the report before selecting a configuration.
+
+The smaller 24.7354 MiB fulltor-slim candidate passes the original-image performance comparisons at 512 MiB. Its fresh 128 MiB throughput-preservation comparison remains rejected; retain the qualified 25.8799 MiB RAM option for that scope. All statuses and component-size tradeoffs remain in the report.
+
 Repository: [JozefKovalcin/Tor-Client-for-embedded-systems](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems).
 
 The separate [Nym mixnet client project](https://github.com/JozefKovalcin/Nym-MixNet-Client-for-embedded-systems)
@@ -26,7 +35,7 @@ On a Linux host, in a path **without spaces**, install prerequisites (Debian/Ubu
 ```sh
 sudo apt-get update
 sudo apt-get install build-essential bc bison flex cpio rsync unzip wget file \
-  python3 git patch libncurses-dev libssl-dev qemu-system-x86 shellcheck cmake cmake
+  python3 git patch libncurses-dev libssl-dev qemu-system-x86 shellcheck cmake
 python3 scripts/check.py
 python3 scripts/check_buildroot.py
 ```

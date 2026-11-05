@@ -1,0 +1,14 @@
+[
+  {
+    "bytes": 3941376,
+    "path": "images/bzImage",
+    "role": "kernel",
+    "sha256": "0e88e44ddff67c5f7ab0e25f70779736841be29d9f2c769864b1cf684d3c6741"
+  },
+  {
+    "bytes": 22261760,
+    "path": "images/disk.img",
+    "role": "rootfs",
+    "sha256": "92a6c3b55bb7db3894738d816e5f898d39baf7ae61314fa08dc668fad0b86e7f"
+  }
+]

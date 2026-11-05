@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261105T105238Z-64e9527c`
+Run: `20261105-device128-fulltor-slim`
 
-**INCOMPLETE** — Original upstream full Tor O2/module/link settings with Buildroot-selected XZ kernel compression
+**REJECTED** — All mandatory tests passed in three 128 MiB repeats; throughput preservation versus fresh RAM control rejected. Original-image 512 MiB comparison accepted. Preserve the earlier qualified RAM option.
 
-Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
+Build: PASS. Aggregate of repeated measurements of the same hash-verified previously built image; no rebuild claimed
 
-Commit: `0f33bfbf1a5079645273146bb0f53beeb537540d`; dirty: `False`.
+Commit: `d4b5c60711507a8bb59a676461fc6f1fcafdfd88`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 
@@ -14,15 +14,13 @@ Hardware behavior: unverified. Measurements describe only the recorded test envi
 
 | Test | Mode | Status | Detail |
 |---|---|---|---|
-| repository_checks | offline | PASS | see checks.log |
-| elf_hardening | offline | PASS | PIE, RELRO, NOW and non-executable stack observed |
-| security_config | offline | PASS | explicit assertions passed |
-| tor_config | offline | PASS | explicit assertions passed |
-| tor_startup | offline | PASS | explicit assertions passed |
-| socks5 | online | PASS | explicit assertions passed |
-| public_bootstrap | online | PASS | explicit assertions passed |
-| onion_v3 | online | PASS | explicit assertions passed |
-| two_node | online | PASS | explicit assertions passed |
-| bidirectional_integrity | online | PASS | explicit assertions passed |
-| reconnection | online | BLOCKED | reconnection after service crash timed out |
-| production_service | online | PASS | native daemon bootstrapped as uid 905; no fixture libraries or Python in deployed root |
+| bidirectional_integrity | online | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| onion_v3 | online | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| production_service | online | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| public_bootstrap | online | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| reconnection | online | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| security_config | offline | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| socks5 | online | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| tor_config | offline | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| tor_startup | offline | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| two_node | online | PASS | All planned repeats required; statuses: PASS, PASS, PASS |

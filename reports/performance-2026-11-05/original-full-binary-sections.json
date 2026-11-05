@@ -37,6 +37,82 @@
       "sha256": "aa5c5784eb169421caaa9dda5bad751060d5428cb57503a4718dcaa31b4c0ae1"
     }
   },
+  "fulltor-slim": {
+    "usr/bin/tor": {
+      ".rodata": {
+        "bytes": 614155,
+        "sha256": "1e55fa66834b017958d21c8c15dbd5e88fe851cd4d71b359556942e1b284347d"
+      },
+      ".text": {
+        "bytes": 1885936,
+        "sha256": "c041a59b18e0878b80bc39fe9602bc3f9576e3c5f3d1608e34cb68ba889e1de5"
+      },
+      "bytes": 3397272,
+      "sha256": "8fb08c9bf9eec4d1d109d986f4dd500b98b1a80f30fd2551d144ccfb8def1c24"
+    },
+    "usr/lib/libcrypto.so.3": {
+      ".rodata": {
+        "bytes": 604875,
+        "sha256": "8bf9ec30a94b7d9723c9d92a7ac2c90aa46720eea4e8b27bdfc9a0dcf22cae19"
+      },
+      ".text": {
+        "bytes": 2859329,
+        "sha256": "887fb1a65deae3bc9d0cd4576648ed913da17ed3c5f2363f4d8f7a387dfcadef"
+      },
+      "bytes": 5570168,
+      "sha256": "15523cecdd832645bafacbe9d9448fe34ab1a3a911948b4b74edc3075e562dfd"
+    },
+    "usr/lib/libssl.so.3": {
+      ".rodata": {
+        "bytes": 67747,
+        "sha256": "31741c099341e285c6c9ba41312970aef8cd17b4e4c5d07a9c6150076659839b"
+      },
+      ".text": {
+        "bytes": 500496,
+        "sha256": "5732d01e78689bf32ea0c6a9396805f6898ef70dc982140e79c18973c4bf04ca"
+      },
+      "bytes": 913120,
+      "sha256": "9fda6eb729788f1b0027800a14d4985ab85e67ec92b74bedc71c802fae20ad4e"
+    }
+  },
+  "old-compressed": {
+    "usr/bin/tor": {
+      ".rodata": {
+        "bytes": 518635,
+        "sha256": "12f4c1f5db93983a2b61b3cd8d0dccf94feb172f74e14ce8adc8e5aac94bb2ae"
+      },
+      ".text": {
+        "bytes": 1236844,
+        "sha256": "6fc58373e211d0b2273cc2134377bb2a43e9083807ec7629e84e0f8f246b0baa"
+      },
+      "bytes": 2592728,
+      "sha256": "9d1a20bf5c530bdbd4981a991d11f6a18c7e2ace979fcaa4f0666ca0b60bce7f"
+    },
+    "usr/lib/libcrypto.so.3": {
+      ".rodata": {
+        "bytes": 604875,
+        "sha256": "8bf9ec30a94b7d9723c9d92a7ac2c90aa46720eea4e8b27bdfc9a0dcf22cae19"
+      },
+      ".text": {
+        "bytes": 2859329,
+        "sha256": "887fb1a65deae3bc9d0cd4576648ed913da17ed3c5f2363f4d8f7a387dfcadef"
+      },
+      "bytes": 5570168,
+      "sha256": "15523cecdd832645bafacbe9d9448fe34ab1a3a911948b4b74edc3075e562dfd"
+    },
+    "usr/lib/libssl.so.3": {
+      ".rodata": {
+        "bytes": 67747,
+        "sha256": "31741c099341e285c6c9ba41312970aef8cd17b4e4c5d07a9c6150076659839b"
+      },
+      ".text": {
+        "bytes": 500496,
+        "sha256": "5732d01e78689bf32ea0c6a9396805f6898ef70dc982140e79c18973c4bf04ca"
+      },
+      "bytes": 913120,
+      "sha256": "9fda6eb729788f1b0027800a14d4985ab85e67ec92b74bedc71c802fae20ad4e"
+    }
+  },
   "original": {
     "usr/bin/tor": {
       ".rodata": {

@@ -1,0 +1,776 @@
+{
+  "baseline": {
+    "completed": 3,
+    "crypto": {
+      "aes128ctr_bytes_per_second": {
+        "max": 38682430.17,
+        "median": 38268335.083,
+        "min": 32356154.56
+      },
+      "sha256_bytes_per_second": {
+        "max": 103901560.828,
+        "median": 97176473.056,
+        "min": 92827609.95
+      },
+      "x25519_ops_per_second": {
+        "max": 4003.684,
+        "median": 4002.546,
+        "min": 3630.499
+      }
+    },
+    "functional_attempts": [
+      {
+        "run": "01-baseline",
+        "tests": {
+          "bidirectional_integrity": "PASS",
+          "onion_v3": "PASS",
+          "production_service": "PASS",
+          "public_bootstrap": "PASS",
+          "reconnection": "PASS",
+          "security_config": "PASS",
+          "socks5": "PASS",
+          "tor_config": "PASS",
+          "tor_startup": "PASS",
+          "two_node": "PASS"
+        }
+      },
+      {
+        "run": "02-baseline",
+        "tests": {
+          "bidirectional_integrity": "PASS",
+          "onion_v3": "PASS",
+          "production_service": "PASS",
+          "public_bootstrap": "PASS",
+          "reconnection": "PASS",
+          "security_config": "PASS",
+          "socks5": "PASS",
+          "tor_config": "PASS",
+          "tor_startup": "PASS",
+          "two_node": "PASS"
+        }
+      },
+      {
+        "run": "03-baseline",
+        "tests": {
+          "bidirectional_integrity": "PASS",
+          "onion_v3": "PASS",
+          "production_service": "PASS",
+          "public_bootstrap": "PASS",
+          "reconnection": "PASS",
+          "security_config": "PASS",
+          "socks5": "PASS",
+          "tor_config": "PASS",
+          "tor_startup": "PASS",
+          "two_node": "PASS"
+        }
+      }
+    ],
+    "metrics": {
+      "bootstrap_seconds": {
+        "max": 16.384740321000002,
+        "median": 16.003011715,
+        "min": 15.811540032,
+        "n": 3,
+        "stdev": 0.2918152113179515
+      },
+      "complete_image_bytes": {
+        "max": 27137024,
+        "median": 27137024,
+        "min": 27137024,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "cpu_percent": {
+        "max": 46.0147222209376,
+        "median": 44.5449750122731,
+        "min": 35.467513777875446,
+        "n": 3,
+        "stdev": 5.712618565666286
+      },
+      "idle_pss_bytes": {
+        "max": 49326036.42553192,
+        "median": 48997833.5319149,
+        "min": 48926523.91489362,
+        "n": 3,
+        "stdev": 213077.6255322696
+      },
+      "idle_rss_bytes": {
+        "max": 58111259.234042555,
+        "median": 57862971.91489362,
+        "min": 57783753.5319149,
+        "n": 3,
+        "stdev": 170871.3599846675
+      },
+      "image_host_allocated_bytes": {
+        "max": 10637312,
+        "median": 10637312,
+        "min": 10637312,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "installed_rootfs_bytes": {
+        "max": 12209160,
+        "median": 12209160,
+        "min": 12209160,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "kernel_bytes": {
+        "max": 5207040,
+        "median": 5207040,
+        "min": 5207040,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "library_bytes": {
+        "max": 9003952,
+        "median": 9003952,
+        "min": 9003952,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "onion_connection_seconds": {
+        "max": 6.150958101999997,
+        "median": 4.761459074000001,
+        "min": 3.540806125000003,
+        "n": 3,
+        "stdev": 1.3059858673145677
+      },
+      "peak_process_rss_bytes": {
+        "max": 60289024,
+        "median": 59785216,
+        "min": 59117568,
+        "n": 3,
+        "stdev": 587634.4545015492
+      },
+      "peak_system_used_bytes": {
+        "max": 89735168,
+        "median": 89694208,
+        "min": 89251840,
+        "n": 3,
+        "stdev": 268009.05600619793
+      },
+      "persistent_storage_bytes": {
+        "max": 16625463,
+        "median": 16599379,
+        "min": 16599230,
+        "n": 3,
+        "stdev": 15102.80076674522
+      },
+      "production_peak_rss_bytes": {
+        "max": 27627520,
+        "median": 27508736,
+        "min": 27353088,
+        "n": 3,
+        "stdev": 137628.03807364253
+      },
+      "production_pss_bytes": {
+        "max": 26544128,
+        "median": 26541056,
+        "min": 26411008,
+        "n": 3,
+        "stdev": 75985.58403627186
+      },
+      "production_rss_bytes": {
+        "max": 27045888,
+        "median": 27021312,
+        "min": 26894336,
+        "n": 3,
+        "stdev": 81337.66353500285
+      },
+      "production_state_bytes": {
+        "max": 8295368,
+        "median": 8295368,
+        "min": 8295368,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "production_state_free_bytes": {
+        "max": 4890624,
+        "median": 4890624,
+        "min": 4890624,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "production_state_volume_bytes": {
+        "max": 14410752,
+        "median": 14410752,
+        "min": 14410752,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "rootfs_bytes": {
+        "max": 21929984,
+        "median": 21929984,
+        "min": 21929984,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "startup_seconds": {
+        "max": 0.5139221130000013,
+        "median": 0.4786876239999991,
+        "min": 0.4713061300000003,
+        "n": 3,
+        "stdev": 0.022774538692070412
+      },
+      "throughput_bytes_per_second": {
+        "max": 389715.31441832584,
+        "median": 313747.1288022694,
+        "min": 165814.6409812132,
+        "n": 3,
+        "stdev": 113861.537070481
+      },
+      "tor_executable_bytes": {
+        "max": 2428664,
+        "median": 2428664,
+        "min": 2428664,
+        "n": 3,
+        "stdev": 0.0
+      }
+    },
+    "phases": {
+      "bootstrap": {
+        "max": 13.17,
+        "median_tor_cpu_seconds": 12.98,
+        "min": 12.86
+      },
+      "integrity": {
+        "max": 2.4,
+        "median_tor_cpu_seconds": 2.24,
+        "min": 2.04
+      },
+      "onion": {
+        "max": 0.67,
+        "median_tor_cpu_seconds": 0.6,
+        "min": 0.57
+      },
+      "reconnect": {
+        "max": 6.49,
+        "median_tor_cpu_seconds": 6.37,
+        "min": 6.26
+      },
+      "startup": {
+        "max": 0.37,
+        "median_tor_cpu_seconds": 0.34,
+        "min": 0.34
+      }
+    },
+    "planned": 3
+  },
+  "fulltor": {
+    "completed": 3,
+    "crypto": {
+      "aes128ctr_bytes_per_second": {
+        "max": 39842829.861,
+        "median": 38665307.1,
+        "min": 36213594.975
+      },
+      "sha256_bytes_per_second": {
+        "max": 107662211.718,
+        "median": 105512178.099,
+        "min": 98470256.065
+      },
+      "x25519_ops_per_second": {
+        "max": 3981.666,
+        "median": 3827.584,
+        "min": 3618.336
+      }
+    },
+    "functional_attempts": [
+      {
+        "run": "01-fulltor",
+        "tests": {
+          "bidirectional_integrity": "PASS",
+          "onion_v3": "PASS",
+          "production_service": "PASS",
+          "public_bootstrap": "PASS",
+          "reconnection": "PASS",
+          "security_config": "PASS",
+          "socks5": "PASS",
+          "tor_config": "PASS",
+          "tor_startup": "PASS",
+          "two_node": "PASS"
+        }
+      },
+      {
+        "run": "02-fulltor",
+        "tests": {
+          "bidirectional_integrity": "PASS",
+          "onion_v3": "PASS",
+          "production_service": "PASS",
+          "public_bootstrap": "PASS",
+          "reconnection": "PASS",
+          "security_config": "PASS",
+          "socks5": "PASS",
+          "tor_config": "PASS",
+          "tor_startup": "PASS",
+          "two_node": "PASS"
+        }
+      },
+      {
+        "run": "03-fulltor",
+        "tests": {
+          "bidirectional_integrity": "PASS",
+          "onion_v3": "PASS",
+          "production_service": "PASS",
+          "public_bootstrap": "PASS",
+          "reconnection": "PASS",
+          "security_config": "PASS",
+          "socks5": "PASS",
+          "tor_config": "PASS",
+          "tor_startup": "PASS",
+          "two_node": "PASS"
+        }
+      }
+    ],
+    "metrics": {
+      "bootstrap_seconds": {
+        "max": 15.951010143000001,
+        "median": 15.481150636000002,
+        "min": 14.96616177,
+        "n": 3,
+        "stdev": 0.4925964890629723
+      },
+      "complete_image_bytes": {
+        "max": 26203136,
+        "median": 26203136,
+        "min": 26203136,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "cpu_percent": {
+        "max": 46.38745462155926,
+        "median": 45.566896016696674,
+        "min": 32.22755290259244,
+        "n": 3,
+        "stdev": 7.948943408095332
+      },
+      "idle_pss_bytes": {
+        "max": 50062662.80851064,
+        "median": 49994643.06382979,
+        "min": 49931547.234042555,
+        "n": 3,
+        "stdev": 65573.19481704294
+      },
+      "idle_rss_bytes": {
+        "max": 59762905.872340426,
+        "median": 59760117.10638298,
+        "min": 59666780.595744684,
+        "n": 3,
+        "stdev": 54710.67877831845
+      },
+      "image_host_allocated_bytes": {
+        "max": 9703424,
+        "median": 9703424,
+        "min": 9703424,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "installed_rootfs_bytes": {
+        "max": 13177768,
+        "median": 13177768,
+        "min": 13177768,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "kernel_bytes": {
+        "max": 3941376,
+        "median": 3941376,
+        "min": 3941376,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "library_bytes": {
+        "max": 9003952,
+        "median": 9003952,
+        "min": 9003952,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "onion_connection_seconds": {
+        "max": 6.001089786000001,
+        "median": 3.639886223000005,
+        "min": 2.543769018000006,
+        "n": 3,
+        "stdev": 1.7668155009255573
+      },
+      "peak_process_rss_bytes": {
+        "max": 62005248,
+        "median": 61874176,
+        "min": 61865984,
+        "n": 3,
+        "stdev": 78146.69938007618
+      },
+      "peak_system_used_bytes": {
+        "max": 89075712,
+        "median": 88891392,
+        "min": 88887296,
+        "n": 3,
+        "stdev": 107619.10353340309
+      },
+      "persistent_storage_bytes": {
+        "max": 16599283,
+        "median": 16599237,
+        "min": 16599166,
+        "n": 3,
+        "stdev": 58.943475748663936
+      },
+      "production_peak_rss_bytes": {
+        "max": 28049408,
+        "median": 27967488,
+        "min": 27840512,
+        "n": 3,
+        "stdev": 105254.71469408547
+      },
+      "production_pss_bytes": {
+        "max": 27139072,
+        "median": 26952704,
+        "min": 26887168,
+        "n": 3,
+        "stdev": 130692.78476386267
+      },
+      "production_rss_bytes": {
+        "max": 27639808,
+        "median": 27451392,
+        "min": 27353088,
+        "n": 3,
+        "stdev": 145700.96308993065
+      },
+      "production_state_bytes": {
+        "max": 8295368,
+        "median": 8295368,
+        "min": 8293135,
+        "n": 3,
+        "stdev": 1289.2231511004343
+      },
+      "production_state_free_bytes": {
+        "max": 4892672,
+        "median": 4890624,
+        "min": 4890624,
+        "n": 3,
+        "stdev": 1182.4133513003535
+      },
+      "production_state_volume_bytes": {
+        "max": 14410752,
+        "median": 14410752,
+        "min": 14410752,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "rootfs_bytes": {
+        "max": 22261760,
+        "median": 22261760,
+        "min": 22261760,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "startup_seconds": {
+        "max": 0.4427416070000003,
+        "median": 0.4179399420000003,
+        "min": 0.3956817420000007,
+        "n": 3,
+        "stdev": 0.023541385359370823
+      },
+      "throughput_bytes_per_second": {
+        "max": 380472.10785937164,
+        "median": 344593.0551496495,
+        "min": 114463.05590229415,
+        "n": 3,
+        "stdev": 144342.15063524005
+      },
+      "tor_executable_bytes": {
+        "max": 3397272,
+        "median": 3397272,
+        "min": 3397272,
+        "n": 3,
+        "stdev": 0.0
+      }
+    },
+    "phases": {
+      "bootstrap": {
+        "max": 13.04,
+        "median_tor_cpu_seconds": 12.79,
+        "min": 12.76
+      },
+      "integrity": {
+        "max": 2.72,
+        "median_tor_cpu_seconds": 2.08,
+        "min": 1.99
+      },
+      "onion": {
+        "max": 0.65,
+        "median_tor_cpu_seconds": 0.63,
+        "min": 0.61
+      },
+      "reconnect": {
+        "max": 6.22,
+        "median_tor_cpu_seconds": 6.21,
+        "min": 5.96
+      },
+      "startup": {
+        "max": 0.32,
+        "median_tor_cpu_seconds": 0.3,
+        "min": 0.28
+      }
+    },
+    "planned": 3
+  },
+  "fulltor-slim": {
+    "completed": 3,
+    "crypto": {
+      "aes128ctr_bytes_per_second": {
+        "max": 38525274.775,
+        "median": 37885511.904,
+        "min": 37138338.074
+      },
+      "sha256_bytes_per_second": {
+        "max": 106409574.668,
+        "median": 102603295.304,
+        "min": 98088911.803
+      },
+      "x25519_ops_per_second": {
+        "max": 4514.742,
+        "median": 4370.919,
+        "min": 4362.428
+      }
+    },
+    "functional_attempts": [
+      {
+        "run": "01-fulltor-slim",
+        "tests": {
+          "bidirectional_integrity": "PASS",
+          "onion_v3": "PASS",
+          "production_service": "PASS",
+          "public_bootstrap": "PASS",
+          "reconnection": "PASS",
+          "security_config": "PASS",
+          "socks5": "PASS",
+          "tor_config": "PASS",
+          "tor_startup": "PASS",
+          "two_node": "PASS"
+        }
+      },
+      {
+        "run": "02-fulltor-slim",
+        "tests": {
+          "bidirectional_integrity": "PASS",
+          "onion_v3": "PASS",
+          "production_service": "PASS",
+          "public_bootstrap": "PASS",
+          "reconnection": "PASS",
+          "security_config": "PASS",
+          "socks5": "PASS",
+          "tor_config": "PASS",
+          "tor_startup": "PASS",
+          "two_node": "PASS"
+        }
+      },
+      {
+        "run": "03-fulltor-slim",
+        "tests": {
+          "bidirectional_integrity": "PASS",
+          "onion_v3": "PASS",
+          "production_service": "PASS",
+          "public_bootstrap": "PASS",
+          "reconnection": "PASS",
+          "security_config": "PASS",
+          "socks5": "PASS",
+          "tor_config": "PASS",
+          "tor_startup": "PASS",
+          "two_node": "PASS"
+        }
+      }
+    ],
+    "metrics": {
+      "bootstrap_seconds": {
+        "max": 16.223163266,
+        "median": 15.966137452999998,
+        "min": 15.330049614000002,
+        "n": 3,
+        "stdev": 0.45976842048665684
+      },
+      "complete_image_bytes": {
+        "max": 25936896,
+        "median": 25936896,
+        "min": 25936896,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "cpu_percent": {
+        "max": 42.64357155656543,
+        "median": 25.386880096684255,
+        "min": 20.80502172896376,
+        "n": 3,
+        "stdev": 11.515996735092939
+      },
+      "idle_pss_bytes": {
+        "max": 49016564.86956522,
+        "median": 48969728.0,
+        "min": 48952987.82608695,
+        "n": 3,
+        "stdev": 32954.42871285944
+      },
+      "idle_rss_bytes": {
+        "max": 57990989.91304348,
+        "median": 57907200.0,
+        "min": 57844602.43478261,
+        "n": 3,
+        "stdev": 73448.96015891437
+      },
+      "image_host_allocated_bytes": {
+        "max": 9437184,
+        "median": 9437184,
+        "min": 9437184,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "installed_rootfs_bytes": {
+        "max": 12285504,
+        "median": 12285504,
+        "min": 12285504,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "kernel_bytes": {
+        "max": 3941376,
+        "median": 3941376,
+        "min": 3941376,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "library_bytes": {
+        "max": 8111688,
+        "median": 8111688,
+        "min": 8111688,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "onion_connection_seconds": {
+        "max": 5.4133067409999995,
+        "median": 3.466445176999997,
+        "min": 2.988017888999998,
+        "n": 3,
+        "stdev": 1.2846003681378277
+      },
+      "peak_process_rss_bytes": {
+        "max": 60518400,
+        "median": 60514304,
+        "min": 60162048,
+        "n": 3,
+        "stdev": 204567.76165694665
+      },
+      "peak_system_used_bytes": {
+        "max": 89686016,
+        "median": 89653248,
+        "min": 89550848,
+        "n": 3,
+        "stdev": 70509.91661697901
+      },
+      "persistent_storage_bytes": {
+        "max": 16599393,
+        "median": 16599369,
+        "min": 16599008,
+        "n": 3,
+        "stdev": 215.6857281633009
+      },
+      "production_peak_rss_bytes": {
+        "max": 27348992,
+        "median": 27279360,
+        "min": 27103232,
+        "n": 3,
+        "stdev": 126667.32373162912
+      },
+      "production_pss_bytes": {
+        "max": 26381312,
+        "median": 26338304,
+        "min": 26283008,
+        "n": 3,
+        "stdev": 49279.83376595339
+      },
+      "production_rss_bytes": {
+        "max": 26869760,
+        "median": 26832896,
+        "min": 26767360,
+        "n": 3,
+        "stdev": 51864.69864303979
+      },
+      "production_state_bytes": {
+        "max": 8295368,
+        "median": 8295368,
+        "min": 8272818,
+        "n": 3,
+        "stdev": 13019.24857022606
+      },
+      "production_state_free_bytes": {
+        "max": 4913152,
+        "median": 4890624,
+        "min": 4890624,
+        "n": 3,
+        "stdev": 13006.54686430389
+      },
+      "production_state_volume_bytes": {
+        "max": 14410752,
+        "median": 14410752,
+        "min": 14410752,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "rootfs_bytes": {
+        "max": 21995520,
+        "median": 21995520,
+        "min": 21995520,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "startup_seconds": {
+        "max": 0.5378704269999997,
+        "median": 0.44194007599999985,
+        "min": 0.3996991769999987,
+        "n": 3,
+        "stdev": 0.0708028014015856
+      },
+      "throughput_bytes_per_second": {
+        "max": 230557.72580955445,
+        "median": 178191.5529819057,
+        "min": 97839.71914196112,
+        "n": 3,
+        "stdev": 66848.96228548427
+      },
+      "tor_executable_bytes": {
+        "max": 3397272,
+        "median": 3397272,
+        "min": 3397272,
+        "n": 3,
+        "stdev": 0.0
+      }
+    },
+    "phases": {
+      "bootstrap": {
+        "max": 13.04,
+        "median_tor_cpu_seconds": 13.02,
+        "min": 12.97
+      },
+      "integrity": {
+        "max": 2.9,
+        "median_tor_cpu_seconds": 2.49,
+        "min": 2.28
+      },
+      "onion": {
+        "max": 0.53,
+        "median_tor_cpu_seconds": 0.5,
+        "min": 0.49
+      },
+      "reconnect": {
+        "max": 7.3,
+        "median_tor_cpu_seconds": 7.11,
+        "min": 5.41
+      },
+      "startup": {
+        "max": 0.38,
+        "median_tor_cpu_seconds": 0.33,
+        "min": 0.29
+      }
+    },
+    "planned": 3
+  }
+}

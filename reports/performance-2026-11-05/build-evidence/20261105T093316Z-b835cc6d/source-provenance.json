@@ -1,0 +1,2651 @@
+{
+  "downloads": [
+    {
+      "bytes": 384828,
+      "path": "acl/acl-2.4.0.tar.xz",
+      "sha256": "e661131456d2708a01c614a0f400e11d7d1bfaeb6f3e74b75bb980b72f0161a3"
+    },
+    {
+      "bytes": 343608,
+      "path": "attr/attr-2.6.0.tar.xz",
+      "sha256": "6c8a2148a7b85043b68492bce43316b0e2e214fc4e628c7ede078e76e216330b"
+    },
+    {
+      "bytes": 1417428,
+      "path": "autoconf/autoconf-2.73.tar.xz",
+      "sha256": "9fd672b1c8425fac2fa67fa0477b990987268b90ff36d5f016dae57be0d6b52e"
+    },
+    {
+      "bytes": 677768,
+      "path": "autoconf-archive/autoconf-archive-2024.10.16.tar.xz",
+      "sha256": "7bcd5d001916f3a50ed7436f4f700e3d2b1bade3ed803219c592d62502a57363"
+    },
+    {
+      "bytes": 1601740,
+      "path": "automake/automake-1.16.5.tar.xz",
+      "sha256": "f01d58cd6d9d77fbdca9eb4bbd5ead1988228fdb73d6f7a201f5f8d6b118b469"
+    },
+    {
+      "bytes": 27962312,
+      "path": "binutils/binutils-2.45.1.tar.xz",
+      "sha256": "5fe101e6fe9d18fdec95962d81ed670fdee5f37e3f48f0bef87bddf862513aa5"
+    },
+    {
+      "bytes": 2695723,
+      "path": "busybox/busybox-1.38.0.tar.bz2",
+      "sha256": "34f9ea6ff8636f2c9241153b9114eefa9e65674a45318ae1ef95bb5f31c53bb2"
+    },
+    {
+      "bytes": 810029,
+      "path": "bzip2/bzip2-1.0.8.tar.gz",
+      "sha256": "ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269"
+    },
+    {
+      "bytes": 13275398,
+      "path": "cmake/cmake-4.4.0.tar.gz",
+      "sha256": "65757f442fdd242e27f1728fc26dc0cba4164f7a0791a5c788631c00080369bc"
+    },
+    {
+      "bytes": 7337236,
+      "path": "e2fsprogs/e2fsprogs-1.47.4.tar.xz",
+      "sha256": "fd5bf388cbdbe006a3d3b318d983b2948382440acc85a87f1e7d108653e8db0b"
+    },
+    {
+      "bytes": 12032640,
+      "path": "elfutils/elfutils-0.195.tar.bz2",
+      "sha256": "37629fdf7f1f3dc2818e138fca2b8094177d6c2d0f701d3bb650a561218dc026"
+    },
+    {
+      "bytes": 534052,
+      "path": "expat/expat-2.9.0.tar.xz",
+      "sha256": "1e6371862cc31999b368c3b89b49994f0677e1bab5f1b2b85ae3741f5d803051"
+    },
+    {
+      "bytes": 595964,
+      "path": "fakeroot/fakeroot_1.37.2.orig.tar.gz",
+      "sha256": "0eea60fbe89771b88fcf415c8f2f0a6ccfe9edebbcf3ba5dc0212718d98884db"
+    },
+    {
+      "bytes": 101253696,
+      "path": "gcc/gcc-15.3.0.tar.xz",
+      "sha256": "fa59c1beef8995f27c4d71c1df227587189315d3e6faff1bb4306e61b0c530eb"
+    },
+    {
+      "bytes": 340784,
+      "path": "genimage/genimage-20.tar.xz",
+      "sha256": "397545be2fa52d482c5fba9a11897c61324bfc559ea0efb700b9edba7a807b55"
+    },
+    {
+      "bytes": 2094196,
+      "path": "gmp/gmp-6.3.0.tar.xz",
+      "sha256": "a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898"
+    },
+    {
+      "bytes": 1831294,
+      "path": "gperf/gperf-3.3.tar.gz",
+      "sha256": "fd87e0aba7e43ae054837afd6cd4db03a3f2693deb3619085e6ed9d8d9604ad8"
+    },
+    {
+      "bytes": 443748,
+      "path": "kmod/kmod-34.2.tar.xz",
+      "sha256": "5a5d5073070cc7e0c7a7a3c6ec2a0e1780850c8b47b3e3892226b93ffcb9cb54"
+    },
+    {
+      "bytes": 6617696,
+      "path": "libarchive/libarchive-3.8.9.tar.xz",
+      "sha256": "888c934f9d95648ecb9163dc8e23ab80a476ecb81a8f1154704a227b5b676dde"
+    },
+    {
+      "bytes": 485140,
+      "path": "libconfuse/confuse-3.3.tar.xz",
+      "sha256": "1dd50a0320e135a55025b23fcdbb3f0a81913b6d0b0a9df8cc2fdf3b3dc67010"
+    },
+    {
+      "bytes": 1126525,
+      "path": "libevent/libevent-2.1.13-stable.tar.gz",
+      "sha256": "f7e9383b8c0baa81b687e5b5eecc01beefaf1b19b64151d95ed61647fe7a315c"
+    },
+    {
+      "bytes": 1581626,
+      "path": "libffi/libffi-3.8.0.tar.gz",
+      "sha256": "7da3e2d9a171eb0a038f592ecad3ff2bb2550f3496d87b3b29ad0cf4430c0db4"
+    },
+    {
+      "bytes": 55078161,
+      "path": "libopenssl/openssl-3.6.5.tar.gz",
+      "sha256": "a2157c2830efdec3788939b00c9b0638306d3f0bbb76dc4832ee503bb397df98"
+    },
+    {
+      "bytes": 656231,
+      "path": "libseccomp/libseccomp-2.6.1.tar.gz",
+      "sha256": "501f66c667225d53791b97e1d7cf85ab764c297d04881f60f38f451c4b0ee1be"
+    },
+    {
+      "bytes": 1056924,
+      "path": "libtool/libtool-2.5.4.tar.xz",
+      "sha256": "f81f5860666b0bc7d84baddefa60d1cb9fa6fceb2398cc3baca6afaa60266675"
+    },
+    {
+      "bytes": 669820,
+      "path": "libxcrypt/libxcrypt-4.5.2.tar.xz",
+      "sha256": "71513a31c01a428bccd5367a32fd95f115d6dac50fb5b60c779d5c7942aec071"
+    },
+    {
+      "bytes": 1320064,
+      "path": "libzlib/zlib-1.3.2.tar.xz",
+      "sha256": "d7a0654783a4da529d1bb793b7ad9c3318020af77667bcae35f95d0e42a792f3"
+    },
+    {
+      "bytes": 154327332,
+      "path": "linux/linux-6.18.7.tar.xz",
+      "sha256": "b726a4d15cf9ae06219b56d87820776e34d89fbc137e55fb54a9b9c3015b8f1e"
+    },
+    {
+      "bytes": 387114,
+      "path": "lz4/lz4-1.10.0.tar.gz",
+      "sha256": "537512904744b35e232912055ccf8ec66d768639ff3abe5788d90d792ec5f48b"
+    },
+    {
+      "bytes": 600622,
+      "path": "lzo/lzo-2.10.tar.gz",
+      "sha256": "c0f892943208266f9b6543b3ae308fab6284c5c90e627931446fb49b4221a072"
+    },
+    {
+      "bytes": 2080016,
+      "path": "m4/m4-1.4.21.tar.xz",
+      "sha256": "f25c6ab51548a73a75558742fb031e0625d6485fe5f9155949d6486a2408ab66"
+    },
+    {
+      "bytes": 5190321,
+      "path": "meson/meson-1.11.1.tar.gz",
+      "sha256": "6788ae299979643f8d841bcaf64352558436cae45a0355148a3aeeccf7913866"
+    },
+    {
+      "bytes": 531992,
+      "path": "mpc/mpc-1.4.1.tar.xz",
+      "sha256": "91204cd32f164bd3b7c992d4a6a8ce6519511aadab30f78b6982d0bf8d73e931"
+    },
+    {
+      "bytes": 1505596,
+      "path": "mpfr/mpfr-4.2.2.tar.xz",
+      "sha256": "b67ba0383ef7e8a8563734e2e889ef5ec3c3b898a01d00fa0a6869ad81c6ce01"
+    },
+    {
+      "bytes": 1082499,
+      "path": "musl/musl-1.2.6.tar.gz",
+      "sha256": "d585fd3b613c66151fc3249e8ed44f77020cb5e6c1e635a616d3f9f82460512a"
+    },
+    {
+      "bytes": 30075,
+      "path": "musl-compat-headers/queue.h",
+      "sha256": "c13407edd0e33be73cae72514cb234f8612e1c0e54401c9448daffd3a240158b"
+    },
+    {
+      "bytes": 292385,
+      "path": "ninja/ninja-1.13.2.tar.gz",
+      "sha256": "974d6b2f4eeefa25625d34da3cb36bdcebe7fbce40f4c16ac0835fd1c0cbae17"
+    },
+    {
+      "bytes": 172499,
+      "path": "patchelf/patchelf-0.13.tar.bz2",
+      "sha256": "4c7ed4bcfc1a114d6286e4a0d3c1a90db147a4c3adda1814ee0eee0f9ee917ed"
+    },
+    {
+      "bytes": 316160,
+      "path": "pkgconf/pkgconf-2.3.0.tar.xz",
+      "sha256": "3a9080ac51d03615e7c1910a0a2a8df08424892b5f13b0628a204d3fcce0ea8b"
+    },
+    {
+      "bytes": 53690,
+      "path": "python-flit-core/flit_core-3.12.0.tar.gz",
+      "sha256": "18f63100d6f94385c6ed57a72073443e1a71a4acb4339491615d0f16d6ff01b2"
+    },
+    {
+      "bytes": 462685,
+      "path": "python-installer/installer-1.0.0.tar.gz",
+      "sha256": "c6d691331621cf3fec4822f5c6f83cab3705f79b316225dc454127411677c71f"
+    },
+    {
+      "bytes": 228134,
+      "path": "python-packaging/packaging-26.2.tar.gz",
+      "sha256": "ff452ff5a3e828ce110190feff1178bb1f2ea2281fa2075aadb987c2fb221661"
+    },
+    {
+      "bytes": 48544,
+      "path": "python-pypa-build/build-1.3.0.tar.gz",
+      "sha256": "698edd0ea270bde950f53aed21f3a0135672206f3911e0176261a31e0e07b397"
+    },
+    {
+      "bytes": 19228,
+      "path": "python-pyproject-hooks/pyproject_hooks-1.2.0.tar.gz",
+      "sha256": "1e859bd5c40fae9448642dd871adf459e5e2084186e8d2c2a79a824c970da1f8"
+    },
+    {
+      "bytes": 1319958,
+      "path": "python-setuptools/setuptools-80.9.0.tar.gz",
+      "sha256": "f36b47402ecde768dbfafc46e8e4207b4360c654f1f3bb84475f0a28628fb19c"
+    },
+    {
+      "bytes": 63854,
+      "path": "python-wheel/wheel-0.47.0.tar.gz",
+      "sha256": "cc72bd1009ba0cf63922e28f94d9d83b920aa2bb28f798a31d0691b02fa3c9b3"
+    },
+    {
+      "bytes": 24130644,
+      "path": "python3/Python-3.14.8.tar.xz",
+      "sha256": "c2215904f02b175596dc49351585104f4bc20341e1c47378b26a2c274360ce73"
+    },
+    {
+      "bytes": 412571,
+      "path": "squashfs/squashfs-tools-4.7.5.tar.gz",
+      "sha256": "547b7b7f4d2e44bf91b6fc554664850c69563701deab9fd9cd7e21f694c88ea6"
+    },
+    {
+      "bytes": 11082552,
+      "path": "tor/tor-0.4.9.14.tar.gz",
+      "sha256": "182449ac1c8ff43278da27b69b02040e11d03d0327db6d9126e4190ec6235e4a"
+    },
+    {
+      "bytes": 9474992,
+      "path": "util-linux/util-linux-2.41.5.tar.xz",
+      "sha256": "f586e35d320ff537aab3ffeca37e9ecd482ccbe013590db4429a414d8aa6a728"
+    },
+    {
+      "bytes": 2061621,
+      "path": "xz/xz-5.8.4.tar.bz2",
+      "sha256": "3340ae48f88665abc78d71dc43446fb3f7e70b48fd59844ac0e14958cef6e00b"
+    },
+    {
+      "bytes": 2434947,
+      "path": "zstd/zstd-1.5.7.tar.gz",
+      "sha256": "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3"
+    }
+  ],
+  "packages": {
+    "busybox": {
+      "build_dir": "build/busybox-1.38.0/",
+      "cpe-id": "cpe:2.3:a:busybox:busybox:1.38.0:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "skeleton",
+        "toolchain"
+      ],
+      "dl_dir": "busybox",
+      "downloads": [
+        {
+          "source": "busybox-1.38.0.tar.bz2",
+          "uris": [
+            "https+https://www.busybox.net/downloads",
+            "https|urlencode+https://sources.buildroot.net/busybox",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/busybox/busybox.hash"
+      ],
+      "ignore_cves": [
+        "CVE-2022-28391",
+        "CVE-2023-42366",
+        "CVE-2024-58251",
+        "CVE-2025-46394",
+        "CVE-2025-60876"
+      ],
+      "install_images": false,
+      "install_staging": false,
+      "install_target": true,
+      "license_files": [
+        "LICENSE",
+        "archival/libarchive/bz/LICENSE"
+      ],
+      "licenses": "GPL-2.0, bzip2-1.0.6",
+      "name": "busybox",
+      "package_dir": "package/busybox",
+      "patches": [
+        "package/busybox/0001-networking-libiproute-use-linux-if_packet.h-instead-.patch",
+        "package/busybox/0002-Makefile.flags-strip-non-l-arguments-returned-by-pkg.patch",
+        "package/busybox/0003-libbb-sockaddr2str-ensure-only-printable-characters-.patch",
+        "package/busybox/0004-nslookup-sanitize-all-printed-strings-with-printable.patch",
+        "package/busybox/0005-seedrng-fix-getrandom-detection-for-non-glibc-libc.patch",
+        "package/busybox/0006-tc-Fix-compilation-with-Linux-v6.8-rc1.patch",
+        "package/busybox/0007-awk.c-fix-CVE-2023-42366-bug-15874.patch",
+        "package/busybox/0008-hwclock-Check-for-SYS_settimeofday-before-calling-sy.patch",
+        "package/busybox/0009-syslogd-fix-wrong-OPT_locallog-flag-detection.patch",
+        "package/busybox/0010-testsuite-tar-tests-fix-test-after-cve-2025-46394.patch",
+        "package/busybox/0011-wget-dont-allow-control-characters-or-spaces-in-the-URL.patch",
+        "package/busybox/0012-netstat-sanitize-argv0-for-p-CVE-2024-58251.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/busybox-1.38.0",
+      "stamp_dir": "build/busybox-1.38.0",
+      "type": "target",
+      "version": "1.38.0",
+      "virtual": false
+    },
+    "host-acl": {
+      "build_dir": "build/host-acl-2.4.0/",
+      "cpe-id": "cpe:2.3:a:acl_project:acl:2.4.0:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-attr",
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "acl",
+      "downloads": [
+        {
+          "source": "acl-2.4.0.tar.xz",
+          "uris": [
+            "https+https://download.savannah.nongnu.org/releases/acl",
+            "https|urlencode+https://sources.buildroot.net/acl",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/acl/acl.hash"
+      ],
+      "license_files": [
+        "doc/COPYING",
+        "doc/COPYING.LGPL"
+      ],
+      "licenses": "GPL-2.0+ (programs), LGPL-2.1+ (libraries)",
+      "name": "acl",
+      "package_dir": "package/acl",
+      "patches": [
+        "package/acl/0001-Build-with-old-GCC-versions.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-acl-2.4.0",
+      "stamp_dir": "build/host-acl-2.4.0",
+      "type": "host",
+      "version": "2.4.0",
+      "virtual": false
+    },
+    "host-attr": {
+      "build_dir": "build/host-attr-2.6.0/",
+      "cpe-id": "cpe:2.3:a:attr_project:attr:2.6.0:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "attr",
+      "downloads": [
+        {
+          "source": "attr-2.6.0.tar.xz",
+          "uris": [
+            "http+http://download.savannah.gnu.org/releases/attr",
+            "https|urlencode+https://sources.buildroot.net/attr",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/attr/attr.hash"
+      ],
+      "license_files": [
+        "doc/COPYING",
+        "doc/COPYING.LGPL"
+      ],
+      "licenses": "GPL-2.0+ (programs), LGPL-2.1+ (libraries)",
+      "name": "attr",
+      "package_dir": "package/attr",
+      "patches": [
+        "package/attr/0001-build-with-older-GCCs.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-attr-2.6.0",
+      "stamp_dir": "build/host-attr-2.6.0",
+      "type": "host",
+      "version": "2.6.0",
+      "virtual": false
+    },
+    "host-autoconf": {
+      "build_dir": "build/host-autoconf-2.73/",
+      "dependencies": [
+        "host-fakedate",
+        "host-libtool",
+        "host-m4",
+        "host-skeleton"
+      ],
+      "dl_dir": "autoconf",
+      "downloads": [
+        {
+          "source": "autoconf-2.73.tar.xz",
+          "uris": [
+            "https+https://ftpmirror.gnu.org/autoconf",
+            "https|urlencode+https://sources.buildroot.net/autoconf",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/autoconf/autoconf.hash"
+      ],
+      "license_files": [
+        "COPYINGv3",
+        "COPYING.EXCEPTION"
+      ],
+      "licenses": "GPL-3.0+ with exceptions",
+      "name": "autoconf",
+      "package_dir": "package/autoconf",
+      "patches": [
+        "package/autoconf/0001-dont-add-dirty-to-version.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "host-util-linux"
+      ],
+      "source_dir": "build/host-autoconf-2.73",
+      "stamp_dir": "build/host-autoconf-2.73",
+      "type": "host",
+      "version": "2.73",
+      "virtual": false
+    },
+    "host-autoconf-archive": {
+      "build_dir": "build/host-autoconf-archive-2024.10.16/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "autoconf-archive",
+      "downloads": [
+        {
+          "source": "autoconf-archive-2024.10.16.tar.xz",
+          "uris": [
+            "https+https://ftpmirror.gnu.org/autoconf-archive",
+            "https|urlencode+https://sources.buildroot.net/autoconf-archive",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/autoconf-archive/autoconf-archive.hash"
+      ],
+      "license_files": [
+        "COPYING",
+        "COPYING.EXCEPTION"
+      ],
+      "licenses": "GPL-3.0+ with exception",
+      "name": "autoconf-archive",
+      "package_dir": "package/autoconf-archive",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-autoconf-archive-2024.10.16",
+      "stamp_dir": "build/host-autoconf-archive-2024.10.16",
+      "type": "host",
+      "version": "2024.10.16",
+      "virtual": false
+    },
+    "host-automake": {
+      "build_dir": "build/host-automake-1.16.5/",
+      "cpe-id": "cpe:2.3:a:gnu:automake:1.16.5:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-autoconf",
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "automake",
+      "downloads": [
+        {
+          "source": "automake-1.16.5.tar.xz",
+          "uris": [
+            "https+https://ftpmirror.gnu.org/automake",
+            "https|urlencode+https://sources.buildroot.net/automake",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/automake/automake.hash"
+      ],
+      "license_files": [
+        "COPYING"
+      ],
+      "licenses": "GPL-2.0+",
+      "name": "automake",
+      "package_dir": "package/automake",
+      "patches": [
+        "package/automake/0001-noman.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "host-util-linux"
+      ],
+      "source_dir": "build/host-automake-1.16.5",
+      "stamp_dir": "build/host-automake-1.16.5",
+      "type": "host",
+      "version": "1.16.5",
+      "virtual": false
+    },
+    "host-bzip2": {
+      "build_dir": "build/host-bzip2-1.0.8/",
+      "cpe-id": "cpe:2.3:a:bzip:bzip2:1.0.8:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "bzip2",
+      "downloads": [
+        {
+          "source": "bzip2-1.0.8.tar.gz",
+          "uris": [
+            "https+https://sourceware.org/pub/bzip2",
+            "https|urlencode+https://sources.buildroot.net/bzip2",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/bzip2/bzip2.hash"
+      ],
+      "license_files": [
+        "LICENSE"
+      ],
+      "licenses": "bzip2 license",
+      "name": "bzip2",
+      "package_dir": "package/bzip2",
+      "patches": [
+        "package/bzip2/0001-build-objects-twice.patch",
+        "package/bzip2/0002-improve-build-system.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-bzip2-1.0.8",
+      "stamp_dir": "build/host-bzip2-1.0.8",
+      "type": "host",
+      "version": "1.0.8",
+      "virtual": false
+    },
+    "host-e2fsprogs": {
+      "build_dir": "build/host-e2fsprogs-1.47.4/",
+      "cpe-id": "cpe:2.3:a:e2fsprogs_project:e2fsprogs:1.47.4:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-libarchive",
+        "host-pkgconf",
+        "host-skeleton",
+        "host-util-linux"
+      ],
+      "dl_dir": "e2fsprogs",
+      "downloads": [
+        {
+          "source": "e2fsprogs-1.47.4.tar.xz",
+          "uris": [
+            "https+https://cdn.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.47.4",
+            "https|urlencode+https://sources.buildroot.net/e2fsprogs",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/e2fsprogs/e2fsprogs.hash"
+      ],
+      "license_files": [
+        "NOTICE",
+        "lib/ss/mit-sipb-copyright.h",
+        "lib/et/internal.h"
+      ],
+      "licenses": "GPL-2.0, MIT-like with advertising clause (libss and libet)",
+      "name": "e2fsprogs",
+      "package_dir": "package/e2fsprogs",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-e2fsprogs-1.47.4",
+      "stamp_dir": "build/host-e2fsprogs-1.47.4",
+      "type": "host",
+      "version": "1.47.4",
+      "virtual": false
+    },
+    "host-elfutils": {
+      "build_dir": "build/host-elfutils-0.195/",
+      "cpe-id": "cpe:2.3:a:elfutils_project:elfutils:0.195:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-autoconf",
+        "host-automake",
+        "host-bzip2",
+        "host-fakedate",
+        "host-libtool",
+        "host-pkgconf",
+        "host-skeleton",
+        "host-xz",
+        "host-zlib",
+        "host-zstd"
+      ],
+      "dl_dir": "elfutils",
+      "downloads": [
+        {
+          "source": "elfutils-0.195.tar.bz2",
+          "uris": [
+            "https+https://sourceware.org/elfutils/ftp/0.195",
+            "https|urlencode+https://sources.buildroot.net/elfutils",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/elfutils/elfutils.hash"
+      ],
+      "license_files": [
+        "COPYING",
+        "COPYING-GPLV2",
+        "COPYING-LGPLV3"
+      ],
+      "licenses": "GPL-2.0+ or LGPL-3.0+ (library)",
+      "name": "elfutils",
+      "package_dir": "package/elfutils",
+      "patches": [
+        "package/elfutils/0001-Add-a-enable-disable-progs-configure-option.patch",
+        "package/elfutils/0002-Really-make-Werror-conditional-to-BUILD_WERROR.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "linux"
+      ],
+      "source_dir": "build/host-elfutils-0.195",
+      "stamp_dir": "build/host-elfutils-0.195",
+      "type": "host",
+      "version": "0.195",
+      "virtual": false
+    },
+    "host-expat": {
+      "build_dir": "build/host-expat-2.9.0/",
+      "cpe-id": "cpe:2.3:a:libexpat_project:libexpat:2.9.0:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "expat",
+      "downloads": [
+        {
+          "source": "expat-2.9.0.tar.xz",
+          "uris": [
+            "https+https://github.com/libexpat/libexpat/releases/download/R_2_9_0",
+            "https|urlencode+https://sources.buildroot.net/expat",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/expat/expat.hash"
+      ],
+      "license_files": [
+        "COPYING"
+      ],
+      "licenses": "MIT",
+      "name": "expat",
+      "package_dir": "package/expat",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-expat-2.9.0",
+      "stamp_dir": "build/host-expat-2.9.0",
+      "type": "host",
+      "version": "2.9.0",
+      "virtual": false
+    },
+    "host-fakedate": {
+      "build_dir": "build/host-fakedate/",
+      "dependencies": [
+        "host-skeleton"
+      ],
+      "dl_dir": "fakedate",
+      "downloads": [],
+      "hashes": [],
+      "license_files": [],
+      "licenses": "GPL-2.0+",
+      "name": "fakedate",
+      "package_dir": "package/fakedate",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "busybox",
+        "host-e2fsprogs",
+        "host-genimage",
+        "host-kmod",
+        "host-patchelf",
+        "host-util-linux",
+        "ifupdown-scripts",
+        "initscripts",
+        "libevent",
+        "libopenssl",
+        "libseccomp",
+        "libzlib",
+        "linux",
+        "musl-compat-headers",
+        "openssl",
+        "skeleton",
+        "skeleton-init-common",
+        "skeleton-init-sysv",
+        "toolchain",
+        "toolchain-external",
+        "toolchain-external-custom",
+        "tor",
+        "urandom-scripts",
+        "zlib"
+      ],
+      "source_dir": "build/host-fakedate",
+      "stamp_dir": "build/host-fakedate",
+      "type": "host",
+      "version": "",
+      "virtual": false
+    },
+    "host-fakeroot": {
+      "build_dir": "build/host-fakeroot-1.37.2/",
+      "dependencies": [
+        "host-acl",
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "fakeroot",
+      "downloads": [
+        {
+          "source": "fakeroot_1.37.2.orig.tar.gz",
+          "uris": [
+            "https+https://snapshot.debian.org/archive/debian/20260401T000000Z/pool/main/f/fakeroot",
+            "https|urlencode+https://sources.buildroot.net/fakeroot",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/fakeroot/fakeroot.hash"
+      ],
+      "license_files": [
+        "COPYING"
+      ],
+      "licenses": "GPL-3.0+",
+      "name": "fakeroot",
+      "package_dir": "package/fakeroot",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-fakeroot-1.37.2",
+      "stamp_dir": "build/host-fakeroot-1.37.2",
+      "type": "host",
+      "version": "1.37.2",
+      "virtual": false
+    },
+    "host-genimage": {
+      "build_dir": "build/host-genimage-20/",
+      "dependencies": [
+        "host-fakedate",
+        "host-libconfuse",
+        "host-pkgconf",
+        "host-skeleton"
+      ],
+      "dl_dir": "genimage",
+      "downloads": [
+        {
+          "source": "genimage-20.tar.xz",
+          "uris": [
+            "https+https://github.com/pengutronix/genimage/releases/download/v20",
+            "https|urlencode+https://sources.buildroot.net/genimage",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/genimage/genimage.hash"
+      ],
+      "license_files": [
+        "COPYING"
+      ],
+      "licenses": "GPL-2.0",
+      "name": "genimage",
+      "package_dir": "package/genimage",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-genimage-20",
+      "stamp_dir": "build/host-genimage-20",
+      "type": "host",
+      "version": "20",
+      "virtual": false
+    },
+    "host-gperf": {
+      "build_dir": "build/host-gperf-3.3/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "gperf",
+      "downloads": [
+        {
+          "source": "gperf-3.3.tar.gz",
+          "uris": [
+            "https+https://ftpmirror.gnu.org/gperf",
+            "https|urlencode+https://sources.buildroot.net/gperf",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/gperf/gperf.hash"
+      ],
+      "license_files": [
+        "COPYING"
+      ],
+      "licenses": "GPL-3.0+",
+      "name": "gperf",
+      "package_dir": "package/gperf",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "libseccomp"
+      ],
+      "source_dir": "build/host-gperf-3.3",
+      "stamp_dir": "build/host-gperf-3.3",
+      "type": "host",
+      "version": "3.3",
+      "virtual": false
+    },
+    "host-kmod": {
+      "build_dir": "build/host-kmod-34.2/",
+      "cpe-id": "cpe:2.3:a:kernel:kmod:34.2:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-meson",
+        "host-pkgconf",
+        "host-skeleton"
+      ],
+      "dl_dir": "kmod",
+      "downloads": [
+        {
+          "source": "kmod-34.2.tar.xz",
+          "uris": [
+            "https+https://cdn.kernel.org/pub/linux/utils/kernel/kmod",
+            "https|urlencode+https://sources.buildroot.net/kmod",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/kmod/kmod.hash"
+      ],
+      "license_files": [
+        "libkmod/COPYING"
+      ],
+      "licenses": "LGPL-2.1+ (library)",
+      "name": "kmod",
+      "package_dir": "package/kmod",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "linux"
+      ],
+      "source_dir": "build/host-kmod-34.2",
+      "stamp_dir": "build/host-kmod-34.2",
+      "type": "host",
+      "version": "34.2",
+      "virtual": false
+    },
+    "host-libarchive": {
+      "build_dir": "build/host-libarchive-3.8.9/",
+      "cpe-id": "cpe:2.3:a:libarchive:libarchive:3.8.9:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "host-zlib"
+      ],
+      "dl_dir": "libarchive",
+      "downloads": [
+        {
+          "source": "libarchive-3.8.9.tar.xz",
+          "uris": [
+            "https+https://www.libarchive.de/downloads",
+            "https|urlencode+https://sources.buildroot.net/libarchive",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/libarchive/libarchive.hash"
+      ],
+      "license_files": [
+        "COPYING"
+      ],
+      "licenses": "BSD-2-Clause, BSD-3-Clause, CC0-1.0, OpenSSL, Apache-2.0",
+      "name": "libarchive",
+      "package_dir": "package/libarchive",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "host-e2fsprogs"
+      ],
+      "source_dir": "build/host-libarchive-3.8.9",
+      "stamp_dir": "build/host-libarchive-3.8.9",
+      "type": "host",
+      "version": "3.8.9",
+      "virtual": false
+    },
+    "host-libconfuse": {
+      "build_dir": "build/host-libconfuse-3.3/",
+      "cpe-id": "cpe:2.3:a:libconfuse_project:libconfuse:3.3:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "libconfuse",
+      "downloads": [
+        {
+          "source": "confuse-3.3.tar.xz",
+          "uris": [
+            "https+https://github.com/libconfuse/libconfuse/releases/download/v3.3",
+            "https|urlencode+https://sources.buildroot.net/libconfuse",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/libconfuse/libconfuse.hash"
+      ],
+      "ignore_cves": [
+        "CVE-2022-40320"
+      ],
+      "license_files": [
+        "LICENSE"
+      ],
+      "licenses": "ISC",
+      "name": "libconfuse",
+      "package_dir": "package/libconfuse",
+      "patches": [
+        "package/libconfuse/0001-Fix-163-unterminated-username-used-with-getpwnam.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "host-genimage"
+      ],
+      "source_dir": "build/host-libconfuse-3.3",
+      "stamp_dir": "build/host-libconfuse-3.3",
+      "type": "host",
+      "version": "3.3",
+      "virtual": false
+    },
+    "host-libffi": {
+      "build_dir": "build/host-libffi-3.8.0/",
+      "cpe-id": "cpe:2.3:a:libffi_project:libffi:3.8.0:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-autoconf",
+        "host-automake",
+        "host-fakedate",
+        "host-libtool",
+        "host-skeleton"
+      ],
+      "dl_dir": "libffi",
+      "downloads": [
+        {
+          "source": "libffi-3.8.0.tar.gz",
+          "uris": [
+            "https+https://github.com/libffi/libffi/releases/download/v3.8.0",
+            "https|urlencode+https://sources.buildroot.net/libffi",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/libffi/libffi.hash"
+      ],
+      "license_files": [
+        "LICENSE"
+      ],
+      "licenses": "MIT",
+      "name": "libffi",
+      "package_dir": "package/libffi",
+      "patches": [
+        "package/libffi/0001-Fix-use-of-compact-eh-frames-on-MIPS.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-libffi-3.8.0",
+      "stamp_dir": "build/host-libffi-3.8.0",
+      "type": "host",
+      "version": "3.8.0",
+      "virtual": false
+    },
+    "host-libtool": {
+      "build_dir": "build/host-libtool-2.5.4/.",
+      "cpe-id": "cpe:2.3:a:gnu:libtool:2.5.4:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-m4",
+        "host-skeleton"
+      ],
+      "dl_dir": "libtool",
+      "downloads": [
+        {
+          "source": "libtool-2.5.4.tar.xz",
+          "uris": [
+            "https+https://ftpmirror.gnu.org/libtool",
+            "https|urlencode+https://sources.buildroot.net/libtool",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/libtool/libtool.hash"
+      ],
+      "license_files": [
+        "COPYING",
+        "libltdl/COPYING.LIB"
+      ],
+      "licenses": "GPL-2.0+ (libtool), LGPL-2.1+ (libltdl)",
+      "name": "libtool",
+      "package_dir": "package/libtool",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "host-util-linux"
+      ],
+      "source_dir": "build/host-libtool-2.5.4",
+      "stamp_dir": "build/host-libtool-2.5.4",
+      "type": "host",
+      "version": "2.5.4",
+      "virtual": false
+    },
+    "host-libxcrypt": {
+      "build_dir": "build/host-libxcrypt-4.5.2/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "libxcrypt",
+      "downloads": [
+        {
+          "source": "libxcrypt-4.5.2.tar.xz",
+          "uris": [
+            "https+https://github.com/besser82/libxcrypt/releases/download/v4.5.2",
+            "https|urlencode+https://sources.buildroot.net/libxcrypt",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/libxcrypt/libxcrypt.hash"
+      ],
+      "license_files": [
+        "LICENSING",
+        "COPYING.LIB"
+      ],
+      "licenses": "LGPL-2.1+",
+      "name": "libxcrypt",
+      "package_dir": "package/libxcrypt",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-libxcrypt-4.5.2",
+      "stamp_dir": "build/host-libxcrypt-4.5.2",
+      "type": "host",
+      "version": "4.5.2",
+      "virtual": false
+    },
+    "host-libzlib": {
+      "build_dir": "build/host-libzlib-1.3.2/",
+      "cpe-id": "cpe:2.3:a:zlib:zlib:1.3.2:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "libzlib",
+      "downloads": [
+        {
+          "source": "zlib-1.3.2.tar.xz",
+          "uris": [
+            "https+https://www.zlib.net",
+            "https|urlencode+https://sources.buildroot.net/libzlib",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/libzlib/libzlib.hash"
+      ],
+      "license_files": [
+        "LICENSE"
+      ],
+      "licenses": "Zlib",
+      "name": "libzlib",
+      "package_dir": "package/libzlib",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-libzlib-1.3.2",
+      "stamp_dir": "build/host-libzlib-1.3.2",
+      "type": "host",
+      "version": "1.3.2",
+      "virtual": false
+    },
+    "host-lz4": {
+      "build_dir": "build/host-lz4-1.10.0/",
+      "cpe-id": "cpe:2.3:a:lz4_project:lz4:1.10.0:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "lz4",
+      "downloads": [
+        {
+          "source": "lz4-1.10.0.tar.gz",
+          "uris": [
+            "https+https://github.com/lz4/lz4/archive/v1.10.0",
+            "https|urlencode+https://sources.buildroot.net/lz4",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/lz4/lz4.hash"
+      ],
+      "license_files": [
+        "lib/LICENSE",
+        "programs/COPYING"
+      ],
+      "licenses": "BSD-2-Clause (library), GPL-2.0+ (programs)",
+      "name": "lz4",
+      "package_dir": "package/lz4",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-lz4-1.10.0",
+      "stamp_dir": "build/host-lz4-1.10.0",
+      "type": "host",
+      "version": "1.10.0",
+      "virtual": false
+    },
+    "host-lzo": {
+      "build_dir": "build/host-lzo-2.10//buildroot-build",
+      "cpe-id": "cpe:2.3:a:lzo_project:lzo:2.10:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-pkgconf",
+        "host-skeleton"
+      ],
+      "dl_dir": "lzo",
+      "downloads": [
+        {
+          "source": "lzo-2.10.tar.gz",
+          "uris": [
+            "http+http://www.oberhumer.com/opensource/lzo/download",
+            "https|urlencode+https://sources.buildroot.net/lzo",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/lzo/lzo.hash"
+      ],
+      "license_files": [
+        "COPYING"
+      ],
+      "licenses": "GPL-2.0+",
+      "name": "lzo",
+      "package_dir": "package/lzo",
+      "patches": [
+        "package/lzo/0001-cmake-bump-compatibility-level-up-to-3.10.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-lzo-2.10",
+      "stamp_dir": "build/host-lzo-2.10",
+      "type": "host",
+      "version": "2.10",
+      "virtual": false
+    },
+    "host-m4": {
+      "build_dir": "build/host-m4-1.4.21/",
+      "cpe-id": "cpe:2.3:a:gnu:m4:1.4.21:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "m4",
+      "downloads": [
+        {
+          "source": "m4-1.4.21.tar.xz",
+          "uris": [
+            "https+https://ftpmirror.gnu.org/m4",
+            "https|urlencode+https://sources.buildroot.net/m4",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/m4/m4.hash"
+      ],
+      "license_files": [
+        "COPYING"
+      ],
+      "licenses": "GPL-3.0+",
+      "name": "m4",
+      "package_dir": "package/m4",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-m4-1.4.21",
+      "stamp_dir": "build/host-m4-1.4.21",
+      "type": "host",
+      "version": "1.4.21",
+      "virtual": false
+    },
+    "host-makedevs": {
+      "build_dir": "build/host-makedevs/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "makedevs",
+      "downloads": [],
+      "hashes": [],
+      "license_files": [],
+      "licenses": "GPL-2.0",
+      "name": "makedevs",
+      "package_dir": "package/makedevs",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-makedevs",
+      "stamp_dir": "build/host-makedevs",
+      "type": "host",
+      "version": "",
+      "virtual": false
+    },
+    "host-meson": {
+      "build_dir": "build/host-meson-1.11.1/",
+      "dependencies": [
+        "host-fakedate",
+        "host-ninja",
+        "host-python-installer",
+        "host-python-pypa-build",
+        "host-python-setuptools",
+        "host-python3",
+        "host-skeleton"
+      ],
+      "dl_dir": "meson",
+      "downloads": [
+        {
+          "source": "meson-1.11.1.tar.gz",
+          "uris": [
+            "https+https://github.com/mesonbuild/meson/releases/download/1.11.1",
+            "https|urlencode+https://sources.buildroot.net/meson",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/meson/meson.hash"
+      ],
+      "license_files": [
+        "COPYING"
+      ],
+      "licenses": "Apache-2.0",
+      "name": "meson",
+      "package_dir": "package/meson",
+      "patches": [
+        "package/meson/0001-Prefer-ext-static-libs-when-default-library-static.patch",
+        "package/meson/0002-mesonbuild-dependencies-base.py-add-pkg_config_stati.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "host-kmod"
+      ],
+      "source_dir": "build/host-meson-1.11.1",
+      "stamp_dir": "build/host-meson-1.11.1",
+      "type": "host",
+      "version": "1.11.1",
+      "virtual": false
+    },
+    "host-mkpasswd": {
+      "build_dir": "build/host-mkpasswd/",
+      "dependencies": [
+        "host-fakedate",
+        "host-libxcrypt",
+        "host-skeleton"
+      ],
+      "dl_dir": "mkpasswd",
+      "downloads": [],
+      "hashes": [],
+      "license_files": [],
+      "licenses": "GPL-2.0+",
+      "name": "mkpasswd",
+      "package_dir": "package/mkpasswd",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-mkpasswd",
+      "stamp_dir": "build/host-mkpasswd",
+      "type": "host",
+      "version": "",
+      "virtual": false
+    },
+    "host-ninja": {
+      "build_dir": "build/host-ninja-1.13.2/",
+      "dependencies": [
+        "host-fakedate",
+        "host-pkgconf",
+        "host-skeleton"
+      ],
+      "dl_dir": "ninja",
+      "downloads": [
+        {
+          "source": "ninja-1.13.2.tar.gz",
+          "uris": [
+            "https+https://github.com/ninja-build/ninja/archive/v1.13.2",
+            "https|urlencode+https://sources.buildroot.net/ninja",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/ninja/ninja.hash"
+      ],
+      "ignore_cves": [
+        "CVE-2021-4336"
+      ],
+      "license_files": [
+        "COPYING"
+      ],
+      "licenses": "Apache-2.0",
+      "name": "ninja",
+      "package_dir": "package/ninja",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-ninja-1.13.2",
+      "stamp_dir": "build/host-ninja-1.13.2",
+      "type": "host",
+      "version": "1.13.2",
+      "virtual": false
+    },
+    "host-patchelf": {
+      "build_dir": "build/host-patchelf-0.13/",
+      "cpe-id": "cpe:2.3:a:patchelf_project:patchelf:0.13:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "patchelf",
+      "downloads": [
+        {
+          "source": "patchelf-0.13.tar.bz2",
+          "uris": [
+            "https+https://github.com/NixOS/patchelf/releases/download/0.13",
+            "https|urlencode+https://sources.buildroot.net/patchelf",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/patchelf/patchelf.hash"
+      ],
+      "license_files": [
+        "COPYING"
+      ],
+      "licenses": "GPL-3.0+",
+      "name": "patchelf",
+      "package_dir": "package/patchelf",
+      "patches": [
+        "package/patchelf/0001-Add-option-to-make-the-rpath-relative-under-a-specif.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-patchelf-0.13",
+      "stamp_dir": "build/host-patchelf-0.13",
+      "type": "host",
+      "version": "0.13",
+      "virtual": false
+    },
+    "host-pkgconf": {
+      "build_dir": "build/host-pkgconf-2.3.0/",
+      "cpe-id": "cpe:2.3:a:pkgconf:pkgconf:2.3.0:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "pkgconf",
+      "downloads": [
+        {
+          "source": "pkgconf-2.3.0.tar.xz",
+          "uris": [
+            "https+https://distfiles.ariadne.space/pkgconf",
+            "https|urlencode+https://sources.buildroot.net/pkgconf",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/pkgconf/pkgconf.hash"
+      ],
+      "license_files": [
+        "COPYING"
+      ],
+      "licenses": "pkgconf license",
+      "name": "pkgconf",
+      "package_dir": "package/pkgconf",
+      "patches": [
+        "package/pkgconf/0001-Only-prefix-with-the-sysroot-a-subset-of-variables.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "host-e2fsprogs",
+        "host-genimage",
+        "host-kmod",
+        "host-util-linux",
+        "libevent",
+        "linux"
+      ],
+      "source_dir": "build/host-pkgconf-2.3.0",
+      "stamp_dir": "build/host-pkgconf-2.3.0",
+      "type": "host",
+      "version": "2.3.0",
+      "virtual": false
+    },
+    "host-python-flit-core": {
+      "build_dir": "build/host-python-flit-core-3.12.0/",
+      "dependencies": [
+        "host-fakedate",
+        "host-python3",
+        "host-skeleton"
+      ],
+      "dl_dir": "python-flit-core",
+      "downloads": [
+        {
+          "source": "flit_core-3.12.0.tar.gz",
+          "uris": [
+            "https+https://files.pythonhosted.org/packages/69/59/b6fc2188dfc7ea4f936cd12b49d707f66a1cb7a1d2c16172963534db741b",
+            "https|urlencode+https://sources.buildroot.net/python-flit-core",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/python-flit-core/python-flit-core.hash"
+      ],
+      "license_files": [
+        "LICENSE"
+      ],
+      "licenses": "BSD-3-Clause",
+      "name": "python-flit-core",
+      "package_dir": "package/python-flit-core",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-python-flit-core-3.12.0",
+      "stamp_dir": "build/host-python-flit-core-3.12.0",
+      "type": "host",
+      "version": "3.12.0",
+      "virtual": false
+    },
+    "host-python-installer": {
+      "build_dir": "build/host-python-installer-1.0.0/",
+      "dependencies": [
+        "host-fakedate",
+        "host-python-flit-core",
+        "host-python3",
+        "host-skeleton"
+      ],
+      "dl_dir": "python-installer",
+      "downloads": [
+        {
+          "source": "installer-1.0.0.tar.gz",
+          "uris": [
+            "https+https://files.pythonhosted.org/packages/5f/ef/230b70e66db6ab01d5cbb93329688ed1f06b2b0618a74925e36384ff0fba",
+            "https|urlencode+https://sources.buildroot.net/python-installer",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/python-installer/python-installer.hash"
+      ],
+      "license_files": [
+        "LICENSE"
+      ],
+      "licenses": "MIT",
+      "name": "python-installer",
+      "package_dir": "package/python-installer",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-python-installer-1.0.0",
+      "stamp_dir": "build/host-python-installer-1.0.0",
+      "type": "host",
+      "version": "1.0.0",
+      "virtual": false
+    },
+    "host-python-packaging": {
+      "build_dir": "build/host-python-packaging-26.2/",
+      "dependencies": [
+        "host-fakedate",
+        "host-python-installer",
+        "host-python3",
+        "host-skeleton"
+      ],
+      "dl_dir": "python-packaging",
+      "downloads": [
+        {
+          "source": "packaging-26.2.tar.gz",
+          "uris": [
+            "https+https://files.pythonhosted.org/packages/d7/f1/e7a6dd94a8d4a5626c03e4e99c87f241ba9e350cd9e6d75123f992427270",
+            "https|urlencode+https://sources.buildroot.net/python-packaging",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/python-packaging/python-packaging.hash"
+      ],
+      "license_files": [
+        "LICENSE",
+        "LICENSE.APACHE",
+        "LICENSE.BSD"
+      ],
+      "licenses": "Apache-2.0 or BSD-2-Clause",
+      "name": "python-packaging",
+      "package_dir": "package/python-packaging",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-python-packaging-26.2",
+      "stamp_dir": "build/host-python-packaging-26.2",
+      "type": "host",
+      "version": "26.2",
+      "virtual": false
+    },
+    "host-python-pypa-build": {
+      "build_dir": "build/host-python-pypa-build-1.3.0/",
+      "dependencies": [
+        "host-fakedate",
+        "host-python-installer",
+        "host-python-packaging",
+        "host-python-pyproject-hooks",
+        "host-python3",
+        "host-skeleton"
+      ],
+      "dl_dir": "python-pypa-build",
+      "downloads": [
+        {
+          "source": "build-1.3.0.tar.gz",
+          "uris": [
+            "https+https://files.pythonhosted.org/packages/25/1c/23e33405a7c9eac261dff640926b8b5adaed6a6eb3e1767d441ed611d0c0",
+            "https|urlencode+https://sources.buildroot.net/python-pypa-build",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/python-pypa-build/python-pypa-build.hash"
+      ],
+      "license_files": [
+        "LICENSE"
+      ],
+      "licenses": "MIT",
+      "name": "python-pypa-build",
+      "package_dir": "package/python-pypa-build",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-python-pypa-build-1.3.0",
+      "stamp_dir": "build/host-python-pypa-build-1.3.0",
+      "type": "host",
+      "version": "1.3.0",
+      "virtual": false
+    },
+    "host-python-pyproject-hooks": {
+      "build_dir": "build/host-python-pyproject-hooks-1.2.0/",
+      "dependencies": [
+        "host-fakedate",
+        "host-python-installer",
+        "host-python3",
+        "host-skeleton"
+      ],
+      "dl_dir": "python-pyproject-hooks",
+      "downloads": [
+        {
+          "source": "pyproject_hooks-1.2.0.tar.gz",
+          "uris": [
+            "https+https://files.pythonhosted.org/packages/e7/82/28175b2414effca1cdac8dc99f76d660e7a4fb0ceefa4b4ab8f5f6742925",
+            "https|urlencode+https://sources.buildroot.net/python-pyproject-hooks",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/python-pyproject-hooks/python-pyproject-hooks.hash"
+      ],
+      "license_files": [
+        "LICENSE"
+      ],
+      "licenses": "MIT",
+      "name": "python-pyproject-hooks",
+      "package_dir": "package/python-pyproject-hooks",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-python-pyproject-hooks-1.2.0",
+      "stamp_dir": "build/host-python-pyproject-hooks-1.2.0",
+      "type": "host",
+      "version": "1.2.0",
+      "virtual": false
+    },
+    "host-python-setuptools": {
+      "build_dir": "build/host-python-setuptools-80.9.0/",
+      "cpe-id": "cpe:2.3:a:python:setuptools:80.9.0:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-python-installer",
+        "host-python-pypa-build",
+        "host-python-wheel",
+        "host-python3",
+        "host-skeleton"
+      ],
+      "dl_dir": "python-setuptools",
+      "downloads": [
+        {
+          "source": "setuptools-80.9.0.tar.gz",
+          "uris": [
+            "https+https://files.pythonhosted.org/packages/18/5d/3bf57dcd21979b887f014ea83c24ae194cfcd12b9e0fda66b957c69d1fca",
+            "https|urlencode+https://sources.buildroot.net/python-setuptools",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/python-setuptools/python-setuptools.hash"
+      ],
+      "license_files": [
+        "LICENSE"
+      ],
+      "licenses": "MIT",
+      "name": "python-setuptools",
+      "package_dir": "package/python-setuptools",
+      "patches": [
+        "package/python-setuptools/0001-add-executable.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-python-setuptools-80.9.0",
+      "stamp_dir": "build/host-python-setuptools-80.9.0",
+      "type": "host",
+      "version": "80.9.0",
+      "virtual": false
+    },
+    "host-python-wheel": {
+      "build_dir": "build/host-python-wheel-0.47.0/",
+      "cpe-id": "cpe:2.3:a:wheel_project:wheel:0.47.0:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-python-flit-core",
+        "host-python-installer",
+        "host-python-pypa-build",
+        "host-python3",
+        "host-skeleton"
+      ],
+      "dl_dir": "python-wheel",
+      "downloads": [
+        {
+          "source": "wheel-0.47.0.tar.gz",
+          "uris": [
+            "https+https://files.pythonhosted.org/packages/39/62/75f18a0f03b4219c456652c7780e4d749b929eb605c098ce3a5b6b6bc081",
+            "https|urlencode+https://sources.buildroot.net/python-wheel",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/python-wheel/python-wheel.hash"
+      ],
+      "license_files": [
+        "LICENSE.txt"
+      ],
+      "licenses": "MIT",
+      "name": "python-wheel",
+      "package_dir": "package/python-wheel",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-python-wheel-0.47.0",
+      "stamp_dir": "build/host-python-wheel-0.47.0",
+      "type": "host",
+      "version": "0.47.0",
+      "virtual": false
+    },
+    "host-python3": {
+      "build_dir": "build/host-python3-3.14.8/",
+      "cpe-id": "cpe:2.3:a:python:python:3.14.8:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-autoconf",
+        "host-autoconf-archive",
+        "host-automake",
+        "host-expat",
+        "host-fakedate",
+        "host-libffi",
+        "host-libtool",
+        "host-pkgconf",
+        "host-skeleton",
+        "host-zlib"
+      ],
+      "dl_dir": "python3",
+      "downloads": [
+        {
+          "source": "Python-3.14.8.tar.xz",
+          "uris": [
+            "https+https://python.org/ftp/python/3.14.8",
+            "https|urlencode+https://sources.buildroot.net/python3",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/python3/python3.hash"
+      ],
+      "license_files": [
+        "LICENSE"
+      ],
+      "licenses": "Python-2.0, others",
+      "name": "python3",
+      "package_dir": "package/python3",
+      "patches": [
+        "package/python3/0001-Make-the-build-of-pyc-files-conditional.patch",
+        "package/python3/0002-Add-an-option-to-disable-pydoc.patch",
+        "package/python3/0003-Add-an-option-to-disable-IDLE.patch",
+        "package/python3/0004-configure.ac-move-PY_STDLIB_MOD_SET_NA-further-up.patch",
+        "package/python3/0005-Add-option-to-disable-the-sqlite3-module.patch",
+        "package/python3/0006-Add-an-option-to-disable-the-tk-module.patch",
+        "package/python3/0007-Add-an-option-to-disable-the-curses-module.patch",
+        "package/python3/0008-Add-an-option-to-disable-expat.patch",
+        "package/python3/0009-configure.ac-detect-unusable-termio-operations.patch",
+        "package/python3/0010-gh-139275-Fix-compilation-of-Modules-_remote_debuggi.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-python3-3.14.8",
+      "stamp_dir": "build/host-python3-3.14.8",
+      "type": "host",
+      "version": "3.14.8",
+      "virtual": false
+    },
+    "host-skeleton": {
+      "build_dir": "build/host-skeleton/",
+      "dependencies": [],
+      "dl_dir": "skeleton",
+      "downloads": [],
+      "hashes": [],
+      "license_files": [],
+      "licenses": "GPL-2.0-or-later",
+      "name": "skeleton",
+      "package_dir": "package/skeleton",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "busybox",
+        "host-e2fsprogs",
+        "host-genimage",
+        "host-kmod",
+        "host-patchelf",
+        "host-util-linux",
+        "ifupdown-scripts",
+        "initscripts",
+        "libevent",
+        "libopenssl",
+        "libseccomp",
+        "libzlib",
+        "linux",
+        "musl-compat-headers",
+        "openssl",
+        "skeleton",
+        "skeleton-init-common",
+        "skeleton-init-sysv",
+        "toolchain",
+        "toolchain-external",
+        "toolchain-external-custom",
+        "tor",
+        "urandom-scripts",
+        "zlib"
+      ],
+      "source_dir": "build/host-skeleton",
+      "stamp_dir": "build/host-skeleton",
+      "type": "host",
+      "version": "",
+      "virtual": false
+    },
+    "host-squashfs": {
+      "build_dir": "build/host-squashfs-4.7.5/",
+      "cpe-id": "cpe:2.3:a:squashfs_project:squashfs:4.7.5:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-lz4",
+        "host-lzo",
+        "host-skeleton",
+        "host-xz",
+        "host-zlib",
+        "host-zstd"
+      ],
+      "dl_dir": "squashfs",
+      "downloads": [
+        {
+          "source": "squashfs-tools-4.7.5.tar.gz",
+          "uris": [
+            "https+https://github.com/plougher/squashfs-tools/releases/download/4.7.5",
+            "https|urlencode+https://sources.buildroot.net/squashfs",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/squashfs/squashfs.hash"
+      ],
+      "license_files": [
+        "COPYING"
+      ],
+      "licenses": "GPL-2.0+",
+      "name": "squashfs",
+      "package_dir": "package/squashfs",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-squashfs-4.7.5",
+      "stamp_dir": "build/host-squashfs-4.7.5",
+      "type": "host",
+      "version": "4.7.5",
+      "virtual": false
+    },
+    "host-util-linux": {
+      "build_dir": "build/host-util-linux-2.41.5/",
+      "cpe-id": "cpe:2.3:a:kernel:util-linux:2.41.5:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-autoconf",
+        "host-automake",
+        "host-fakedate",
+        "host-libtool",
+        "host-pkgconf",
+        "host-skeleton",
+        "host-zlib"
+      ],
+      "dl_dir": "util-linux",
+      "downloads": [
+        {
+          "source": "util-linux-2.41.5.tar.xz",
+          "uris": [
+            "https+https://cdn.kernel.org/pub/linux/utils/util-linux/v2.41",
+            "https|urlencode+https://sources.buildroot.net/util-linux",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/util-linux/util-linux.hash"
+      ],
+      "ignore_cves": [
+        "CVE-2026-27456"
+      ],
+      "license_files": [
+        "README.licensing",
+        "Documentation/licenses/COPYING.BSD-2-Clause",
+        "Documentation/licenses/COPYING.BSD-3-Clause",
+        "Documentation/licenses/COPYING.BSD-4-Clause-UC",
+        "Documentation/licenses/COPYING.EUPL-1.2",
+        "Documentation/licenses/COPYING.GPL-2.0-only",
+        "Documentation/licenses/COPYING.GPL-2.0-or-later",
+        "Documentation/licenses/COPYING.GPL-3.0-or-later",
+        "Documentation/licenses/COPYING.ISC",
+        "Documentation/licenses/COPYING.LGPL-2.1-or-later",
+        "Documentation/licenses/COPYING.MIT"
+      ],
+      "licenses": "GPL-2.0+, BSD-4-Clause, LGPL-2.1+ (libblkid, libfdisk, libmount), BSD-3-Clause (libuuid), BSD-2-Clause (xxhash), ISC (rfkill), MIT (hardlink, flock)",
+      "name": "util-linux",
+      "package_dir": "package/util-linux",
+      "patches": [
+        "package/util-linux/0001-include-mount-api-utils.h-fix-LSMT_ROOT-definition.patch",
+        "package/util-linux/0002-autotools-optionally-add-libpthread-to-uuid.pc.patch",
+        "package/util-linux/0003-loopdev-use-openat2-RESOLVE_NO_SYMLINKS-for-backing-.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "host-e2fsprogs"
+      ],
+      "source_dir": "build/host-util-linux-2.41.5",
+      "stamp_dir": "build/host-util-linux-2.41.5",
+      "type": "host",
+      "version": "2.41.5",
+      "virtual": false
+    },
+    "host-xz": {
+      "build_dir": "build/host-xz-5.8.4/",
+      "cpe-id": "cpe:2.3:a:tukaani:xz:5.8.4:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "xz",
+      "downloads": [
+        {
+          "source": "xz-5.8.4.tar.bz2",
+          "uris": [
+            "https+https://github.com/tukaani-project/xz/releases/download/v5.8.4",
+            "https|urlencode+https://sources.buildroot.net/xz",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/xz/xz.hash"
+      ],
+      "license_files": [
+        "COPYING",
+        "COPYING.0BSD",
+        "COPYING.GPLv2",
+        "COPYING.GPLv3",
+        "COPYING.LGPLv2.1"
+      ],
+      "licenses": "0BSD, GPL-2.0+, GPL-3.0+, LGPL-2.1+, FSFUL, FSFULLR, Public Domain",
+      "name": "xz",
+      "package_dir": "package/xz",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-xz-5.8.4",
+      "stamp_dir": "build/host-xz-5.8.4",
+      "type": "host",
+      "version": "5.8.4",
+      "virtual": false
+    },
+    "host-zlib": {
+      "build_dir": "build/host-zlib/",
+      "dependencies": [
+        "host-fakedate",
+        "host-libzlib",
+        "host-skeleton"
+      ],
+      "name": "zlib",
+      "package_dir": "package/zlib",
+      "reverse_dependencies": [
+        "host-util-linux"
+      ],
+      "source_dir": "build/host-zlib",
+      "stamp_dir": "build/host-zlib",
+      "type": "host",
+      "virtual": true
+    },
+    "host-zstd": {
+      "build_dir": "build/host-zstd-1.5.7/",
+      "cpe-id": "cpe:2.3:a:facebook:zstandard:1.5.7:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "zstd",
+      "downloads": [
+        {
+          "source": "zstd-1.5.7.tar.gz",
+          "uris": [
+            "https+https://github.com/facebook/zstd/releases/download/v1.5.7",
+            "https|urlencode+https://sources.buildroot.net/zstd",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/zstd/zstd.hash"
+      ],
+      "license_files": [
+        "LICENSE",
+        "COPYING"
+      ],
+      "licenses": "BSD-3-Clause or GPL-2.0",
+      "name": "zstd",
+      "package_dir": "package/zstd",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/host-zstd-1.5.7",
+      "stamp_dir": "build/host-zstd-1.5.7",
+      "type": "host",
+      "version": "1.5.7",
+      "virtual": false
+    },
+    "ifupdown-scripts": {
+      "build_dir": "build/ifupdown-scripts/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "skeleton",
+        "toolchain"
+      ],
+      "dl_dir": "ifupdown-scripts",
+      "downloads": [],
+      "hashes": [],
+      "install_images": false,
+      "install_staging": false,
+      "install_target": true,
+      "license_files": [],
+      "licenses": "GPL-2.0-or-later",
+      "name": "ifupdown-scripts",
+      "package_dir": "package/ifupdown-scripts",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/ifupdown-scripts",
+      "stamp_dir": "build/ifupdown-scripts",
+      "type": "target",
+      "version": "",
+      "virtual": false
+    },
+    "initscripts": {
+      "build_dir": "build/initscripts/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "skeleton",
+        "toolchain"
+      ],
+      "dl_dir": "initscripts",
+      "downloads": [],
+      "hashes": [],
+      "install_images": false,
+      "install_staging": false,
+      "install_target": true,
+      "license_files": [],
+      "licenses": "GPL-2.0-or-later",
+      "name": "initscripts",
+      "package_dir": "package/initscripts",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/initscripts",
+      "stamp_dir": "build/initscripts",
+      "type": "target",
+      "version": "",
+      "virtual": false
+    },
+    "libevent": {
+      "build_dir": "build/libevent-2.1.13/",
+      "cpe-id": "cpe:2.3:a:libevent_project:libevent:2.1.13:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-pkgconf",
+        "host-skeleton",
+        "openssl",
+        "skeleton",
+        "toolchain"
+      ],
+      "dl_dir": "libevent",
+      "downloads": [
+        {
+          "source": "libevent-2.1.13-stable.tar.gz",
+          "uris": [
+            "https+https://github.com/libevent/libevent/releases/download/release-2.1.13-stable",
+            "https|urlencode+https://sources.buildroot.net/libevent",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/libevent/libevent.hash"
+      ],
+      "install_images": false,
+      "install_staging": true,
+      "install_target": true,
+      "license_files": [
+        "LICENSE"
+      ],
+      "licenses": "BSD-3-Clause, OpenBSD",
+      "name": "libevent",
+      "package_dir": "package/libevent",
+      "patches": [
+        "package/libevent/0001-Don-t-define-BIO_get_init-for-LibreSSL-3-5.patch"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "tor"
+      ],
+      "source_dir": "build/libevent-2.1.13",
+      "stamp_dir": "build/libevent-2.1.13",
+      "type": "target",
+      "version": "2.1.13",
+      "virtual": false
+    },
+    "libopenssl": {
+      "build_dir": "build/libopenssl-3.6.5/",
+      "cpe-id": "cpe:2.3:a:openssl:openssl:3.6.5:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "skeleton",
+        "toolchain",
+        "zlib"
+      ],
+      "dl_dir": "libopenssl",
+      "downloads": [
+        {
+          "source": "openssl-3.6.5.tar.gz",
+          "uris": [
+            "https+https://github.com/openssl/openssl/releases/download/openssl-3.6.5",
+            "https|urlencode+https://sources.buildroot.net/libopenssl",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/libopenssl/libopenssl.hash"
+      ],
+      "install_images": false,
+      "install_staging": true,
+      "install_target": true,
+      "license_files": [
+        "LICENSE.txt"
+      ],
+      "licenses": "Apache-2.0",
+      "name": "libopenssl",
+      "package_dir": "package/libopenssl",
+      "patches": [
+        "package/libopenssl/0001-Reproducible-build-do-not-leak-compiler-path.patch",
+        "package/libopenssl/0002-Revert-Fix-static-builds.patch"
+      ],
+      "provides": [
+        "openssl"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "openssl"
+      ],
+      "source_dir": "build/libopenssl-3.6.5",
+      "stamp_dir": "build/libopenssl-3.6.5",
+      "type": "target",
+      "version": "3.6.5",
+      "virtual": false
+    },
+    "libseccomp": {
+      "build_dir": "build/libseccomp-2.6.1/",
+      "cpe-id": "cpe:2.3:a:libseccomp_project:libseccomp:2.6.1:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-gperf",
+        "host-skeleton",
+        "skeleton",
+        "toolchain"
+      ],
+      "dl_dir": "libseccomp",
+      "downloads": [
+        {
+          "source": "libseccomp-2.6.1.tar.gz",
+          "uris": [
+            "https+https://github.com/seccomp/libseccomp/releases/download/v2.6.1",
+            "https|urlencode+https://sources.buildroot.net/libseccomp",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/libseccomp/libseccomp.hash"
+      ],
+      "install_images": false,
+      "install_staging": true,
+      "install_target": true,
+      "license_files": [
+        "LICENSE"
+      ],
+      "licenses": "LGPL-2.1",
+      "name": "libseccomp",
+      "package_dir": "package/libseccomp",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "tor"
+      ],
+      "source_dir": "build/libseccomp-2.6.1",
+      "stamp_dir": "build/libseccomp-2.6.1",
+      "type": "target",
+      "version": "2.6.1",
+      "virtual": false
+    },
+    "libzlib": {
+      "build_dir": "build/libzlib-1.3.2/",
+      "cpe-id": "cpe:2.3:a:zlib:zlib:1.3.2:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "skeleton",
+        "toolchain"
+      ],
+      "dl_dir": "libzlib",
+      "downloads": [
+        {
+          "source": "zlib-1.3.2.tar.xz",
+          "uris": [
+            "https+https://www.zlib.net",
+            "https|urlencode+https://sources.buildroot.net/libzlib",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/libzlib/libzlib.hash"
+      ],
+      "install_images": false,
+      "install_staging": true,
+      "install_target": true,
+      "license_files": [
+        "LICENSE"
+      ],
+      "licenses": "Zlib",
+      "name": "libzlib",
+      "package_dir": "package/libzlib",
+      "patches": [],
+      "provides": [
+        "zlib"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "zlib"
+      ],
+      "source_dir": "build/libzlib-1.3.2",
+      "stamp_dir": "build/libzlib-1.3.2",
+      "type": "target",
+      "version": "1.3.2",
+      "virtual": false
+    },
+    "linux": {
+      "build_dir": "build/linux-6.18.7/",
+      "cpe-id": "cpe:2.3:o:linux:linux_kernel:6.18.7:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-elfutils",
+        "host-fakedate",
+        "host-kmod",
+        "host-pkgconf",
+        "host-skeleton",
+        "skeleton",
+        "toolchain"
+      ],
+      "dl_dir": "linux",
+      "downloads": [
+        {
+          "source": "linux-6.18.7.tar.xz",
+          "uris": [
+            "https+https://cdn.kernel.org/pub/linux/kernel/v6.x",
+            "https|urlencode+https://sources.buildroot.net/linux",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "/home/jozef/embedded-tor/br2-external/patches/linux/linux.hash"
+      ],
+      "install_images": true,
+      "install_staging": false,
+      "install_target": true,
+      "license_files": [
+        "COPYING",
+        "LICENSES/preferred/GPL-2.0",
+        "LICENSES/exceptions/Linux-syscall-note"
+      ],
+      "licenses": "GPL-2.0",
+      "name": "linux",
+      "package_dir": "linux",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/linux-6.18.7",
+      "stamp_dir": "build/linux-6.18.7",
+      "type": "target",
+      "version": "6.18.7",
+      "virtual": false
+    },
+    "musl-compat-headers": {
+      "build_dir": "build/musl-compat-headers/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "skeleton"
+      ],
+      "dl_dir": "musl-compat-headers",
+      "downloads": [
+        {
+          "source": "queue.h",
+          "uris": [
+            "https://raw.githubusercontent.com/NetBSD/src/03be82a6b173b3c62116b7a186067fed3004dd44/sys/sys",
+            "https|urlencode+https://sources.buildroot.net/musl-compat-headers",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/musl-compat-headers//musl-compat-headers.hash"
+      ],
+      "install_images": false,
+      "install_staging": true,
+      "install_target": false,
+      "license_files": [
+        "queue.h",
+        "cdefs.h"
+      ],
+      "licenses": "BSD-3-Clause, Public Domain or CC0",
+      "name": "musl-compat-headers",
+      "package_dir": "package/musl-compat-headers",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "toolchain-external"
+      ],
+      "source_dir": "build/musl-compat-headers",
+      "stamp_dir": "build/musl-compat-headers",
+      "type": "target",
+      "version": "",
+      "virtual": false
+    },
+    "openssl": {
+      "build_dir": "build/openssl/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "libopenssl",
+        "skeleton",
+        "toolchain"
+      ],
+      "install_images": false,
+      "install_staging": false,
+      "install_target": true,
+      "name": "openssl",
+      "package_dir": "package/openssl",
+      "reverse_dependencies": [
+        "libevent",
+        "tor"
+      ],
+      "source_dir": "build/openssl",
+      "stamp_dir": "build/openssl",
+      "type": "target",
+      "virtual": true
+    },
+    "rootfs-common": {
+      "dependencies": [
+        "host-fakeroot",
+        "host-makedevs",
+        "host-mkpasswd"
+      ],
+      "image_name": null,
+      "type": "rootfs"
+    },
+    "rootfs-squashfs": {
+      "dependencies": [
+        "host-squashfs",
+        "rootfs-common"
+      ],
+      "image_name": "rootfs.squashfs",
+      "type": "rootfs"
+    },
+    "skeleton": {
+      "build_dir": "build/skeleton/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "skeleton-init-sysv"
+      ],
+      "install_images": false,
+      "install_staging": false,
+      "install_target": true,
+      "name": "skeleton",
+      "package_dir": "package/skeleton",
+      "reverse_dependencies": [
+        "busybox",
+        "ifupdown-scripts",
+        "initscripts",
+        "libevent",
+        "libopenssl",
+        "libseccomp",
+        "libzlib",
+        "linux",
+        "musl-compat-headers",
+        "openssl",
+        "toolchain",
+        "toolchain-external",
+        "toolchain-external-custom",
+        "tor",
+        "urandom-scripts",
+        "zlib"
+      ],
+      "source_dir": "build/skeleton",
+      "stamp_dir": "build/skeleton",
+      "type": "target",
+      "virtual": true
+    },
+    "skeleton-init-common": {
+      "build_dir": "build/skeleton-init-common/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton"
+      ],
+      "dl_dir": "skeleton-init-common",
+      "downloads": [],
+      "hashes": [],
+      "install_images": false,
+      "install_staging": true,
+      "install_target": true,
+      "license_files": [],
+      "licenses": "GPL-2.0-or-later",
+      "name": "skeleton-init-common",
+      "package_dir": "package/skeleton-init-common",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "skeleton-init-sysv"
+      ],
+      "source_dir": "build/skeleton-init-common",
+      "stamp_dir": "build/skeleton-init-common",
+      "type": "target",
+      "version": "",
+      "virtual": false
+    },
+    "skeleton-init-sysv": {
+      "build_dir": "build/skeleton-init-sysv/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "skeleton-init-common"
+      ],
+      "dl_dir": "skeleton-init-sysv",
+      "downloads": [],
+      "hashes": [],
+      "install_images": false,
+      "install_staging": false,
+      "install_target": true,
+      "license_files": [],
+      "licenses": "GPL-2.0-or-later",
+      "name": "skeleton-init-sysv",
+      "package_dir": "package/skeleton-init-sysv",
+      "patches": [],
+      "provides": [
+        "skeleton"
+      ],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "skeleton"
+      ],
+      "source_dir": "build/skeleton-init-sysv",
+      "stamp_dir": "build/skeleton-init-sysv",
+      "type": "target",
+      "version": "",
+      "virtual": false
+    },
+    "toolchain": {
+      "build_dir": "build/toolchain/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "skeleton",
+        "toolchain-external"
+      ],
+      "install_images": false,
+      "install_staging": true,
+      "install_target": true,
+      "name": "toolchain",
+      "package_dir": "toolchain/toolchain",
+      "reverse_dependencies": [
+        "busybox",
+        "ifupdown-scripts",
+        "initscripts",
+        "libevent",
+        "libopenssl",
+        "libseccomp",
+        "libzlib",
+        "linux",
+        "openssl",
+        "tor",
+        "urandom-scripts",
+        "zlib"
+      ],
+      "source_dir": "build/toolchain",
+      "stamp_dir": "build/toolchain",
+      "type": "target",
+      "virtual": true
+    },
+    "toolchain-external": {
+      "build_dir": "build/toolchain-external/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "musl-compat-headers",
+        "skeleton",
+        "toolchain-external-custom"
+      ],
+      "install_images": false,
+      "install_staging": false,
+      "install_target": true,
+      "name": "toolchain-external",
+      "package_dir": "toolchain/toolchain-external",
+      "reverse_dependencies": [
+        "toolchain"
+      ],
+      "source_dir": "build/toolchain-external",
+      "stamp_dir": "build/toolchain-external",
+      "type": "target",
+      "virtual": true
+    },
+    "toolchain-external-custom": {
+      "build_dir": "build/toolchain-external-custom/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "skeleton"
+      ],
+      "dl_dir": "toolchain-external-custom",
+      "downloads": [],
+      "hashes": [],
+      "install_images": false,
+      "install_staging": true,
+      "install_target": true,
+      "license_files": [],
+      "licenses": "unknown",
+      "name": "toolchain-external-custom",
+      "package_dir": "toolchain/toolchain-external/toolchain-external-custom",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [
+        "toolchain-external"
+      ],
+      "source_dir": "build/toolchain-external-custom",
+      "stamp_dir": "build/toolchain-external-custom",
+      "type": "target",
+      "version": "",
+      "virtual": false
+    },
+    "tor": {
+      "build_dir": "build/tor-0.4.9.14/",
+      "cpe-id": "cpe:2.3:a:torproject:tor:0.4.9.14:-:*:*:*:*:*:*",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "libevent",
+        "libseccomp",
+        "openssl",
+        "skeleton",
+        "toolchain",
+        "zlib"
+      ],
+      "dl_dir": "tor",
+      "downloads": [
+        {
+          "source": "tor-0.4.9.14.tar.gz",
+          "uris": [
+            "https+https://dist.torproject.org",
+            "https|urlencode+https://sources.buildroot.net/tor",
+            "https|urlencode+https://sources.buildroot.net"
+          ]
+        }
+      ],
+      "hashes": [
+        "package/tor/tor.hash"
+      ],
+      "install_images": false,
+      "install_staging": false,
+      "install_target": true,
+      "license_files": [
+        "LICENSE"
+      ],
+      "licenses": "BSD-3-Clause",
+      "name": "tor",
+      "package_dir": "package/tor",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/tor-0.4.9.14",
+      "stamp_dir": "build/tor-0.4.9.14",
+      "type": "target",
+      "version": "0.4.9.14",
+      "virtual": false
+    },
+    "urandom-scripts": {
+      "build_dir": "build/urandom-scripts/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "skeleton",
+        "toolchain"
+      ],
+      "dl_dir": "urandom-scripts",
+      "downloads": [],
+      "hashes": [],
+      "install_images": false,
+      "install_staging": false,
+      "install_target": true,
+      "license_files": [],
+      "licenses": "GPL-2.0-or-later",
+      "name": "urandom-scripts",
+      "package_dir": "package/urandom-scripts",
+      "patches": [],
+      "redistributable": true,
+      "reverse_dependencies": [],
+      "source_dir": "build/urandom-scripts",
+      "stamp_dir": "build/urandom-scripts",
+      "type": "target",
+      "version": "",
+      "virtual": false
+    },
+    "zlib": {
+      "build_dir": "build/zlib/",
+      "dependencies": [
+        "host-fakedate",
+        "host-skeleton",
+        "libzlib",
+        "skeleton",
+        "toolchain"
+      ],
+      "install_images": false,
+      "install_staging": false,
+      "install_target": true,
+      "name": "zlib",
+      "package_dir": "package/zlib",
+      "reverse_dependencies": [
+        "libopenssl",
+        "tor"
+      ],
+      "source_dir": "build/zlib",
+      "stamp_dir": "build/zlib",
+      "type": "target",
+      "virtual": true
+    }
+  }
+}

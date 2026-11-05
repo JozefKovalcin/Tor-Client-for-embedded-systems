@@ -1,0 +1,9 @@
+{
+  "selected_differences": [
+    "-CONFIG_SCHED_MM_CID=y"
+  ],
+  "source_configs": [
+    "/home/jozef/embedded-tor/build/embedded/qemu-x86_64/34b2e7eb0bd6128a8973/build/linux-6.18.7/.config",
+    "/home/jozef/embedded-tor/build/embedded/qemu-x86_64-fulltor/190f8d9b05e2c3b823a6/build/linux-6.18.7/.config"
+  ]
+}

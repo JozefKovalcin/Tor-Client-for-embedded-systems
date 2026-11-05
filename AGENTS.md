@@ -38,3 +38,11 @@ validation. Unavailable metrics are null. Preserve failure logs and update
 claims, hardware measurements or successful public-network tests.
 
 Current state on 2026-11-04: the original Linux baseline is fully validated under Ubuntu WSL2/QEMU and sealed with tag `baseline`. Smaller data/tiny/production/compressed candidates have actual build and test evidence. Consult `reports/measured/2026-11-04/README.md` and `docs/PROGRESS.md` for measured outcomes and acceptance decisions. Do not confuse functional PASS with automatic optimization acceptance or physical hardware verification.
+
+Performance work on 2026-11-05: consult `reports/performance-2026-11-05/README.md`.
+Repeated 128 MiB device-budget qualifications and original-image 512 MiB gates
+have separate named references. Never equate a PASS against the data-only
+128 MiB control with repairing a rejected original-reference performance gate.
+Keep all failed attempts and the original `baseline` tag/results immutable.
+Current selected 128 MiB configuration: ram, 25.8799 MiB including state. Consult final-selection.json for the original-reference recovery decision and every preservation gate.
+The 24.7354 MiB fulltor-slim candidate is ACCEPTED against both original-image 512 MiB references, but its 128 MiB throughput-preservation gate is REJECTED. Do not describe combined device qualification as complete or overwrite that rejection.

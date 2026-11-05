@@ -309,3 +309,89 @@ The partition generator follows the upstream
 [genimage configuration format](https://github.com/pengutronix/genimage/blob/v20/README.rst).
 Run Buildroot `legal-info` before distributing binaries and preserve its source
 and license obligations. No generated compiler or Linux/Tor image is committed.
+
+## Performance recovery and 128 MiB qualification (2026-11-05)
+
+Read `reports/performance-2026-11-05/README.md` before using a new reference.
+The original baseline/tag and its historical failures remain immutable.
+`qemu-x86_64-balanced` defaults to 512 MiB; the capacity study explicitly used
+`--memory-mib 128`. `qemu-x86_64-ram` defaults to 128 MiB. Never compare runtime
+measurements across these RAM settings. The matched 128 MiB initial control is
+the accepted data-only image, not the original two-process baseline, whose RSS
+alone exceeds that budget. This control substitution cannot repair a rejected
+original-image performance gate; both results are reported separately.
+
+All online profiles reuse diagnostic fixture v2 (SHA-256 pinned in profiles).
+Its measurement wrapper is `scripts/study_target.py` at commit `2dc10ad`; the
+functional driver comes unchanged from the read-only original baseline. The
+native fixture directory `build/performance-probe-v2/` and ext4 disk are preserved.
+On another host, compile `tests/crypto_probe.c` with the pinned SDK against
+candidate OpenSSL, install it as `crypto-probe` beside the frozen wrapper, and
+create a fresh read-only ext4 lab disk with `mke2fs -d`. Record its actual hash,
+update the profile and remeasure both controls and candidates. Do not assume
+ext4 UUID/time metadata regenerates byte-identical disks. The newer wrapper and
+`tests/io_probe.c` support separate offline I/O/upstream-operation diagnostics;
+that fixture is a different experiment and does not replace online fixture v2.
+
+```sh
+cd /home/jozef/embedded-tor
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+python3 scripts/check.py
+python3 scripts/check_buildroot.py
+./scripts/validate.sh --profile qemu-x86_64-ram \
+  --baseline-ref reports/references/device128-balanced/baseline \
+  --change "Describe the next actual measured change"
+# Fixed images/orders are saved in each study's plan.json and build/*-matrix.json.
+python3 scripts/performance_study.py --rounds 3 \
+  --matrix build/ram-matrix.json --fixture build/performance-probe-v2.ext4 \
+  --memory-mib 128
+python3 scripts/analyze_study.py reports/benchmarks/<study-directory> \
+  --output reports/<new-study> \
+  --reference reports/references/device128-balanced/baseline
+```
+
+Every planned attempt contributes to the summary. Medians are component-wise,
+not a fabricated single run. Any missing/blocked mandatory assertion or missing
+required metric blocks acceptance. Three rounds describe observed variation;
+they do not establish a tight confidence interval or a per-boot latency SLA.
+The policy file still uses its original 20% performance limits and no size
+growth. Host physical capacity alone tolerates <=1 MiB WSL page-reservation
+noise; raw values remain recorded and guest RAM/CPU/protocol must match exactly.
+
+Balanced/RAM candidates use upstream `-O2`, function/data section GC and linker GC with
+the diagnostic `-rdynamic` export removed on musl. PIE, RELRO, SSP, CET/unwind,
+TLS authentication and upstream crypto remain intact. Balanced restores kernel
+SMP/`-O2`, retains trimmed devices and uses XZ SquashFS. The further RAM variant
+decompresses files directly to page cache, uses one fragment buffer and removes
+unused BusyBox archive codecs. Kernel XZ filesystem decoding and validation
+gzip/base64 remain. Full-Tor candidates restore the original upstream modules
+and linker exports; fulltor-slim retains Tor O2 with other userland at Os.
+
+`reports/latest.md` describes the most recent published scoped qualification;
+the investigation report also retains original-reference failures. Production
+state was tested on disposable VM snapshots and is not bundled into artifacts.
+Sixteen MiB is only the current tested state allocation; long-term growth,
+power-loss recovery, physical bootloader/flash geometry and endurance require
+separate deployment testing. The QEMU boot set includes kernel plus disk;
+it is not a board-specific flash/firmware image.
+
+### Final recovered and unresolved scopes
+
+`qemu-x86_64-fulltor-slim` is 24.7354 MiB, including the same 16 MiB state.
+Its original-image 512 MiB performance comparisons pass both the freshly
+interleaved control and the earlier frozen original-image repeated reference.
+At 128 MiB all nine mandatory tests/native probes passed in all three repeats,
+but throughput preservation against the fresh RAM control is rejected. The
+predeclared combined selector therefore retains qemu-x86_64-ram; it does not
+silently promote a favorable reference or remove a rejection.
+
+After a full build, the recorded 512/128 matrices can be remeasured using
+`scripts/performance_study.py --rounds 3 --matrix
+reports/performance-2026-11-05/final512/matrix.json --memory-mib 512` (or the
+final128 matrix/128 override). Frozen fixture v2 is the script default.
+The run IDs/artifact locations refer to preserved native builds; a fresh host
+must build the profiles, update its matrix to its new IDs and remeasure controls.
+Use analyze_study.py on the new study directory and compare.py for the explicit
+matched reference; benchmark collection exiting zero is not an acceptance gate.
+`reports/latest.md` intentionally shows the rejected final 128 MiB aggregate;
+the accepted 512 MiB aggregate is also in optimization-history.csv.

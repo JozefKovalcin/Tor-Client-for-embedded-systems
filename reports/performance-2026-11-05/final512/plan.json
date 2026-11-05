@@ -1,0 +1,237 @@
+{
+  "aggregation": "all attempts retained; medians and ranges descriptive; existing 20% limits unchanged; no automatic acceptance from selected samples",
+  "created": "2026-11-05T11:21:31.284311+00:00",
+  "diagnostic_sha256": "e5df718190c64b7ee66aed0529b3db71543584c30f1d4e2c1fd183ff0fcb54e0",
+  "git": {
+    "commit": "d4b5c60711507a8bb59a676461fc6f1fcafdfd88",
+    "diff_sha256": "325cbb45faea73ce80cb9d1d3729368013fd08ccf15a080f5b63c2a5dcb84863",
+    "dirty": true
+  },
+  "images": {
+    "baseline": {
+      "artifacts": [
+        {
+          "bytes": 6657024,
+          "path": "images/bzImage",
+          "role": "kernel",
+          "sha256": "d49916853b8095195ca0b1bc241a6617ccde3b1779573dcc877a8bbd44b0a16d"
+        },
+        {
+          "bytes": 268435456,
+          "path": "images/rootfs.ext2",
+          "role": "rootfs",
+          "sha256": "48521767cbdc5fc4a9a213bd5fe48da3c2b45fa95adc3e1c48503e672c6422fd"
+        }
+      ],
+      "profile": "qemu-x86_64",
+      "source_run": "20261104T162447Z-cd6efe9f"
+    },
+    "fulltor": {
+      "artifacts": [
+        {
+          "bytes": 3941376,
+          "path": "images/bzImage",
+          "role": "kernel",
+          "sha256": "0e88e44ddff67c5f7ab0e25f70779736841be29d9f2c769864b1cf684d3c6741"
+        },
+        {
+          "bytes": 22261760,
+          "path": "images/disk.img",
+          "role": "rootfs",
+          "sha256": "92a6c3b55bb7db3894738d816e5f898d39baf7ae61314fa08dc668fad0b86e7f"
+        }
+      ],
+      "profile": "qemu-x86_64-fulltor",
+      "source_run": "20261105T105238Z-64e9527c"
+    },
+    "fulltor-slim": {
+      "artifacts": [
+        {
+          "bytes": 3941376,
+          "path": "images/bzImage",
+          "role": "kernel",
+          "sha256": "0e88e44ddff67c5f7ab0e25f70779736841be29d9f2c769864b1cf684d3c6741"
+        },
+        {
+          "bytes": 21995520,
+          "path": "images/disk.img",
+          "role": "rootfs",
+          "sha256": "e506c56b217aaaf4ed53117f52de5c0ff6d822a50c821088ee27f91a09054402"
+        }
+      ],
+      "profile": "qemu-x86_64-fulltor-slim",
+      "source_run": "20261105T110833Z-e46f667a"
+    }
+  },
+  "memory_mib_override": 512,
+  "mode": "online",
+  "orders": [
+    [
+      "baseline",
+      "fulltor-slim",
+      "fulltor"
+    ],
+    [
+      "fulltor",
+      "fulltor-slim",
+      "baseline"
+    ],
+    [
+      "fulltor-slim",
+      "baseline",
+      "fulltor"
+    ]
+  ],
+  "results": [
+    {
+      "directory": "reports/benchmarks/study-final512-20261105T112131Z/01-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 1
+    },
+    {
+      "directory": "reports/benchmarks/study-final512-20261105T112131Z/01-fulltor-slim",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "fulltor-slim",
+      "round": 1
+    },
+    {
+      "directory": "reports/benchmarks/study-final512-20261105T112131Z/01-fulltor",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "fulltor",
+      "round": 1
+    },
+    {
+      "directory": "reports/benchmarks/study-final512-20261105T112131Z/02-fulltor",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "fulltor",
+      "round": 2
+    },
+    {
+      "directory": "reports/benchmarks/study-final512-20261105T112131Z/02-fulltor-slim",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "fulltor-slim",
+      "round": 2
+    },
+    {
+      "directory": "reports/benchmarks/study-final512-20261105T112131Z/02-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 2
+    },
+    {
+      "directory": "reports/benchmarks/study-final512-20261105T112131Z/03-fulltor-slim",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "fulltor-slim",
+      "round": 3
+    },
+    {
+      "directory": "reports/benchmarks/study-final512-20261105T112131Z/03-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 3
+    },
+    {
+      "directory": "reports/benchmarks/study-final512-20261105T112131Z/03-fulltor",
+      "functional_status": {
+        "bidirectional_integrity": "FAIL",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "FAIL",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "FAIL"
+      },
+      "image": "fulltor",
+      "round": 3
+    }
+  ]
+}

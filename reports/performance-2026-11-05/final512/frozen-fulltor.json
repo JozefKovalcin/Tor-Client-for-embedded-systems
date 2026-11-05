@@ -1,0 +1,150 @@
+{
+  "baseline_reference": "reports/references/study-20261105T085017Z/baseline",
+  "differences": [
+    {
+      "baseline": 22.529744904,
+      "candidate": 16.220315868999997,
+      "delta": -6.309429035000004,
+      "improvement_percent": 28.00488448442134,
+      "metric": "bootstrap_seconds",
+      "reduction_percent": 28.00488448442134
+    },
+    {
+      "baseline": 275092480,
+      "candidate": 26203136,
+      "delta": -248889344,
+      "improvement_percent": 90.47479015057046,
+      "metric": "complete_image_bytes",
+      "reduction_percent": 90.47479015057046
+    },
+    {
+      "baseline": 49.052049862876515,
+      "candidate": 14.04293105680465,
+      "delta": -35.00911880607187,
+      "improvement_percent": 71.37136756555287,
+      "metric": "cpu_percent",
+      "reduction_percent": 71.37136756555287
+    },
+    {
+      "baseline": 124722677.10638298,
+      "candidate": 49923328.0,
+      "delta": -74799349.10638298,
+      "improvement_percent": 59.97253333696679,
+      "metric": "idle_pss_bytes",
+      "reduction_percent": 59.97253333696679
+    },
+    {
+      "baseline": 134523185.0212766,
+      "candidate": 59665299.06382979,
+      "delta": -74857885.95744681,
+      "improvement_percent": 55.646828422629945,
+      "metric": "idle_rss_bytes",
+      "reduction_percent": 55.646828422629945
+    },
+    {
+      "baseline": 79142912,
+      "candidate": 9703424,
+      "delta": -69439488,
+      "improvement_percent": 87.73936445502535,
+      "metric": "image_host_allocated_bytes",
+      "reduction_percent": 87.73936445502535
+    },
+    {
+      "baseline": 63362683,
+      "candidate": 13177768,
+      "delta": -50184915,
+      "improvement_percent": 79.20263572172283,
+      "metric": "installed_rootfs_bytes",
+      "reduction_percent": 79.20263572172283
+    },
+    {
+      "baseline": 6657024,
+      "candidate": 3941376,
+      "delta": -2715648,
+      "improvement_percent": 40.793724042455004,
+      "metric": "kernel_bytes",
+      "reduction_percent": 40.793724042455004
+    },
+    {
+      "baseline": 18515107,
+      "candidate": 9003952,
+      "delta": -9511155,
+      "improvement_percent": 51.36970042895242,
+      "metric": "library_bytes",
+      "reduction_percent": 51.36970042895242
+    },
+    {
+      "baseline": 3.961948402999994,
+      "candidate": 6.301263474999999,
+      "delta": 2.339315072000005,
+      "improvement_percent": -59.04456176735346,
+      "metric": "onion_connection_seconds",
+      "reduction_percent": -59.04456176735346
+    },
+    {
+      "baseline": 136028160,
+      "candidate": 60874752,
+      "delta": -75153408,
+      "improvement_percent": 55.248419150858176,
+      "metric": "peak_process_rss_bytes",
+      "reduction_percent": 55.248419150858176
+    },
+    {
+      "baseline": 171220992,
+      "candidate": 96473088,
+      "delta": -74747904,
+      "improvement_percent": 43.65580594229941,
+      "metric": "peak_system_used_bytes",
+      "reduction_percent": 43.65580594229941
+    },
+    {
+      "baseline": 16651263,
+      "candidate": 16600786,
+      "delta": -50477,
+      "improvement_percent": 0.30314217005640953,
+      "metric": "persistent_storage_bytes",
+      "reduction_percent": 0.30314217005640953
+    },
+    {
+      "baseline": 268435456,
+      "candidate": 22261760,
+      "delta": -246173696,
+      "improvement_percent": 91.70684814453125,
+      "metric": "rootfs_bytes",
+      "reduction_percent": 91.70684814453125
+    },
+    {
+      "baseline": 6.65769389,
+      "candidate": 0.4384286599999996,
+      "delta": -6.21926523,
+      "improvement_percent": 93.41470684528575,
+      "metric": "startup_seconds",
+      "reduction_percent": 93.41470684528575
+    },
+    {
+      "baseline": 3397272,
+      "candidate": 3397272,
+      "delta": 0,
+      "improvement_percent": 0.0,
+      "metric": "tor_executable_bytes",
+      "reduction_percent": 0.0
+    }
+  ],
+  "functional_regressions": [
+    "bidirectional_integrity",
+    "reconnection",
+    "two_node"
+  ],
+  "reasons": [
+    "failed test: bidirectional_integrity",
+    "failed test: reconnection",
+    "failed test: two_node",
+    "mandatory test not passed: two_node",
+    "mandatory test not passed: bidirectional_integrity",
+    "mandatory test not passed: reconnection",
+    "missing/invalid measurement: throughput_bytes_per_second",
+    "functional regressions: bidirectional_integrity, reconnection, two_node",
+    "onion_connection_seconds exceeds regression limit 20%"
+  ],
+  "status": "INCOMPLETE"
+}

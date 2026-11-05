@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261105T105238Z-64e9527c`
+Run: `20261105-device128-fulltor-slim`
 
-**INCOMPLETE** — Original upstream full Tor O2/module/link settings with Buildroot-selected XZ kernel compression
+**REJECTED** — All mandatory tests passed in three 128 MiB repeats; throughput preservation versus fresh RAM control rejected. Original-image 512 MiB comparison accepted. Preserve the earlier qualified RAM option.
 
-Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
+Build: PASS. Aggregate of repeated measurements of the same hash-verified previously built image; no rebuild claimed
 
-Commit: `0f33bfbf1a5079645273146bb0f53beeb537540d`; dirty: `False`.
+Commit: `d4b5c60711507a8bb59a676461fc6f1fcafdfd88`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 
@@ -14,18 +14,16 @@ Hardware behavior: unverified. Measurements describe only the recorded test envi
 
 | Test | Mode | Status | Detail |
 |---|---|---|---|
-| repository_checks | offline | PASS | see checks.log |
-| elf_hardening | offline | PASS | PIE, RELRO, NOW and non-executable stack observed |
-| security_config | offline | PASS | explicit assertions passed |
-| tor_config | offline | PASS | explicit assertions passed |
-| tor_startup | offline | PASS | explicit assertions passed |
-| socks5 | online | PASS | explicit assertions passed |
-| public_bootstrap | online | PASS | explicit assertions passed |
-| onion_v3 | online | PASS | explicit assertions passed |
-| two_node | online | PASS | explicit assertions passed |
-| bidirectional_integrity | online | PASS | explicit assertions passed |
-| reconnection | online | BLOCKED | reconnection after service crash timed out |
-| production_service | online | PASS | native daemon bootstrapped as uid 905; no fixture libraries or Python in deployed root |
+| bidirectional_integrity | online | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| onion_v3 | online | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| production_service | online | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| public_bootstrap | online | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| reconnection | online | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| security_config | offline | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| socks5 | online | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| tor_config | offline | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| tor_startup | offline | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
+| two_node | online | PASS | All planned repeats required; statuses: PASS, PASS, PASS |
 
 ## Measurements
 
@@ -33,35 +31,35 @@ Null means unavailable; bytes use base 1024 for KiB conversions.
 
 | Metric | Candidate | Baseline | Delta | Reduction % |
 |---|---:|---:|---:|---:|
-| bootstrap_seconds | 15.935308701 | 22.529744904 | -6.594436203000001 | 29.269910649672752 |
-| complete_image_bytes | 26203136 | 275092480 | -248889344 | 90.47479015057046 |
-| cpu_percent | 9.730613681346089 | 49.052049862876515 | -39.32143618153043 | 80.16267677182154 |
-| idle_pss_bytes | 49977032.347826086 | 124722677.10638298 | -74745644.7585569 | 59.92947432871581 |
-| idle_rss_bytes | 59737399.652173914 | 134523185.0212766 | -74785785.36910269 | 55.59323127628471 |
-| image_host_allocated_bytes | 9703424 | 79142912 | -69439488 | 87.73936445502535 |
-| installed_rootfs_bytes | 13177768 | 63362683 | -50184915 | 79.20263572172283 |
-| kernel_bytes | 3941376 | 6657024 | -2715648 | 40.793724042455004 |
-| library_bytes | 9003952 | 18515107 | -9511155 | 51.36970042895242 |
-| onion_connection_seconds | 2.6624040999999963 | 3.961948402999994 | -1.2995443029999976 | 32.80063672752478 |
-| peak_process_rss_bytes | 60760064 | 136028160 | -75268096 | 55.332731105088826 |
-| peak_system_used_bytes | 96169984 | 171220992 | -75051008 | 43.8328309650256 |
-| persistent_storage_bytes | 16649802 | 16651263 | -1461 | 0.00877410920721149 |
-| production_peak_rss_bytes | 27856896 | None | None | None |
-| production_pss_bytes | 26902528 | None | None | None |
-| production_rss_bytes | 27369472 | None | None | None |
-| production_state_bytes | 8320183 | None | None | None |
-| production_state_free_bytes | 4866048 | None | None | None |
-| production_state_volume_bytes | 14410752 | None | None | None |
-| rootfs_bytes | 22261760 | 268435456 | -246173696 | 91.70684814453125 |
-| startup_seconds | 0.4630577450000004 | 6.65769389 | -6.194636145 | 93.04477266977499 |
-| throughput_bytes_per_second | 161076.04782617363 | 261955.94246885675 | -100879.89464268312 | 38.51025240806532 |
-| tor_executable_bytes | 3397272 | 3397272 | 0 | 0.0 |
+| bootstrap_seconds | 15.966137452999998 | 16.003011715 | -0.03687426200000132 | 0.2304207648953866 |
+| complete_image_bytes | 25936896 | 27137024 | -1200128 | 4.4224746235991095 |
+| cpu_percent | 25.386880096684255 | 44.5449750122731 | -19.158094915588844 | 43.00843116493022 |
+| idle_pss_bytes | 48969728.0 | 48997833.5319149 | -28105.531914897263 | 0.057360764525620576 |
+| idle_rss_bytes | 57907200.0 | 57862971.91489362 | 44228.085106380284 | -0.07643590303559263 |
+| image_host_allocated_bytes | 9437184 | 10637312 | -1200128 | 11.282248748556027 |
+| installed_rootfs_bytes | 12285504 | 12209160 | 76344 | -0.6253010035088409 |
+| kernel_bytes | 3941376 | 5207040 | -1265664 | 24.30678466076696 |
+| library_bytes | 8111688 | 9003952 | -892264 | 9.90969298814565 |
+| onion_connection_seconds | 3.466445176999997 | 4.761459074000001 | -1.295013897000004 | 27.197837403905066 |
+| peak_process_rss_bytes | 60514304 | 59785216 | 729088 | -1.2195121951219512 |
+| peak_system_used_bytes | 89653248 | 89694208 | -40960 | 0.045666270892318936 |
+| persistent_storage_bytes | 16599369 | 16599379 | -10 | 6.024321753241492e-05 |
+| production_peak_rss_bytes | 27279360 | 27508736 | -229376 | 0.8338296605122096 |
+| production_pss_bytes | 26338304 | 26541056 | -202752 | 0.7639183610478799 |
+| production_rss_bytes | 26832896 | 27021312 | -188416 | 0.6972866454448992 |
+| production_state_bytes | 8295368 | 8295368 | 0 | 0.0 |
+| production_state_free_bytes | 4890624 | 4890624 | 0 | 0.0 |
+| production_state_volume_bytes | 14410752 | 14410752 | 0 | 0.0 |
+| rootfs_bytes | 21995520 | 21929984 | 65536 | -0.2988419872992155 |
+| startup_seconds | 0.44194007599999985 | 0.4786876239999991 | -0.03674754799999924 | 7.676728237285556 |
+| throughput_bytes_per_second | 178191.5529819057 | 313747.1288022694 | -135555.5758203637 | 43.205359786987536 |
+| tor_executable_bytes | 3397272 | 2428664 | 968608 | -39.882338602622674 |
 
 ## Decision
 
-- mandatory test not passed: reconnection
-- functional regressions: reconnection
+- rootfs_bytes exceeds regression limit 0%
 - throughput_bytes_per_second exceeds regression limit 20%
+- tor_executable_bytes exceeds regression limit 0%
 
 Positive reduction means lower resource use. Throughput improvement has the opposite sign.
 Public Tor timing varies with network conditions; one run does not establish a causal speedup.

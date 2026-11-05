@@ -1,0 +1,96 @@
+{
+  "aggregation": "all attempts retained; medians and ranges descriptive; existing 20% limits unchanged; no automatic acceptance from selected samples",
+  "created": "2026-11-05T10:33:23.490242+00:00",
+  "diagnostic_sha256": "e5df718190c64b7ee66aed0529b3db71543584c30f1d4e2c1fd183ff0fcb54e0",
+  "git": {
+    "commit": "6247a1393d289ece4918826b4e9ea1835909b760",
+    "diff_sha256": "6a42c46dde98be4f950f292c84afad205e79d8ac2a670734d67ba1909bc4d37e",
+    "dirty": true
+  },
+  "images": {
+    "ram": {
+      "artifacts": [
+        {
+          "bytes": 5207040,
+          "path": "images/bzImage",
+          "role": "kernel",
+          "sha256": "db93194c6eabccd5a9c399dd56162c391648987ac5a80b96f4a8227b5ea00bda"
+        },
+        {
+          "bytes": 21929984,
+          "path": "images/disk.img",
+          "role": "rootfs",
+          "sha256": "c71ab1f79fcaace510d0ad768fa229b75c39b8e4d96e9b942ded985c58733811"
+        }
+      ],
+      "profile": "qemu-x86_64-ram",
+      "source_run": "20261105T101727Z-3c2822d0"
+    }
+  },
+  "memory_mib_override": 128,
+  "mode": "online",
+  "orders": [
+    [
+      "ram"
+    ],
+    [
+      "ram"
+    ],
+    [
+      "ram"
+    ]
+  ],
+  "results": [
+    {
+      "directory": "reports/benchmarks/study-ram-20261105T103323Z/01-ram",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "ram",
+      "round": 1
+    },
+    {
+      "directory": "reports/benchmarks/study-ram-20261105T103323Z/02-ram",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "ram",
+      "round": 2
+    },
+    {
+      "directory": "reports/benchmarks/study-ram-20261105T103323Z/03-ram",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "ram",
+      "round": 3
+    }
+  ]
+}

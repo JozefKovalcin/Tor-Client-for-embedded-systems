@@ -1,0 +1,36 @@
+{
+  "images": {
+    "baseline": [
+      "qemu-x86_64",
+      "build/baseline",
+      "20261104T162447Z-cd6efe9f"
+    ],
+    "fulltor": [
+      "qemu-x86_64-fulltor",
+      "build/iterations/09-fulltor",
+      "20261105T105238Z-64e9527c"
+    ],
+    "fulltor-slim": [
+      "qemu-x86_64-fulltor-slim",
+      "build/iterations/10-fulltor-slim",
+      "20261105T110833Z-e46f667a"
+    ]
+  },
+  "orders": [
+    [
+      "baseline",
+      "fulltor-slim",
+      "fulltor"
+    ],
+    [
+      "fulltor",
+      "fulltor-slim",
+      "baseline"
+    ],
+    [
+      "fulltor-slim",
+      "baseline",
+      "fulltor"
+    ]
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "controls": {
+    "128": "preserved RAM iteration",
+    "512": "immutable original baseline"
+  },
+  "created_before_measurements": "2026-11-05T11:21:31.240464+00:00",
+  "images": {
+    "fulltor": [
+      "qemu-x86_64-fulltor",
+      "build/iterations/09-fulltor",
+      "20261105T105238Z-64e9527c"
+    ],
+    "fulltor-slim": [
+      "qemu-x86_64-fulltor-slim",
+      "build/iterations/10-fulltor-slim",
+      "20261105T110833Z-e46f667a"
+    ]
+  },
+  "limitations": "Public circuits are not identical; three medians are descriptive, not a tight confidence interval. Earlier incomplete attempts remain visible.",
+  "memory_mib": [
+    512,
+    128
+  ],
+  "orders": [
+    [
+      "baseline",
+      "fulltor-slim",
+      "fulltor"
+    ],
+    [
+      "fulltor",
+      "fulltor-slim",
+      "baseline"
+    ],
+    [
+      "fulltor-slim",
+      "baseline",
+      "fulltor"
+    ]
+  ],
+  "policy_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552",
+  "rounds": 3,
+  "selection_requirements": [
+    "All planned mandatory assertions must pass and every required metric must be measured.",
+    "Pass original-image 512 MiB comparison against both fresh paired medians and the frozen original-image median reference.",
+    "Pass 128 MiB comparison against the frozen previously accepted data-only control.",
+    "Complete image no larger than the previous qualified RAM iteration.",
+    "512 MiB idle/peak-process RSS within the unchanged 5% allowance of the old compressed image repeated under the same apparatus.",
+    "128 MiB bootstrap/onion/throughput and RSS/peak-process within existing 20%/5% limits of the freshly interleaved RAM control.",
+    "Preserve the full direct per-artifact comparison against RAM, even when only executable/root size growth rejects it; do not override that automatic status.",
+    "Select the smallest complete boot set satisfying these requirements; otherwise retain the qualified RAM image and explicitly report unresolved original-reference performance."
+  ]
+}

@@ -1,3 +1,28 @@
+# Measured performance recovery — 2026-11-05
+
+Continued from `e1abc78` without replacing the original baseline. Executed three
+interleaved rounds of all five original images, crossed offline crypto/I/O
+probes, complete Tor-O2/fast/balanced/RAM builds, three original-image/fast pairs,
+three matched 128 MiB control/balanced pairs and the final fixed repeats.
+See [the investigation](../reports/performance-2026-11-05/README.md) for all
+metrics, source runs, failures, acceptance scopes and partition geometry.
+
+Original-image performance lineage for `fulltor-slim` at 512 MiB: **ACCEPTED**.
+Further RAM iteration versus frozen balanced 128 MiB reference: **ACCEPTED**.
+Combined new-candidate preservation qualification: **NOT QUALIFIED**; selected 128 MiB option remains `ram`. See final-selection.json for the failing gate; the smaller fulltor-slim candidate passes 512 MiB original-reference comparisons but fails fresh 128 MiB throughput preservation.
+The matched 128 MiB balanced qualification passed all nine functional tests
+and the native deployed-service probe in every planned run. Device-budget
+acceptance does not erase historical or original-image rejections. Thresholds
+remain unchanged; host page-reservation tolerance applies only to capacity
+metadata, not performance percentages or guest RAM.
+
+The 25.89 MiB historical boot set includes its 16 MiB persistent-state partition.
+The new complete images preserve that partition. Read-only roots contain no
+Python/test harness. Full logs and immutable images remain in native ignored
+directories. This verifies QEMU behavior, not physical hardware or minimum RAM.
+
+## Previous stages (retained)
+
 # Current measured Ubuntu WSL2 state
 
 The complete original baseline and four smaller candidates were built and tested. See [the measured results](../reports/measured/2026-11-04/README.md) for all successful and incomplete runs, precise image/RAM reductions and conservative acceptance decisions. The original baseline remains immutable. Production images omit Python and test files. Physical hardware and minimum RAM have not been verified.
