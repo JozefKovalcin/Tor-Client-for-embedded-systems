@@ -1,0 +1,140 @@
+{
+  "created_before_measurements": "2026-11-05T17:31:15.599028+00:00",
+  "fixture_sha256": "4b531e68d242c3bdaee1f3de6d6ec3b8bb9af61e0ead3c137e3907658cbcbdfb",
+  "git": {
+    "commit": "62a99ece3177a97515a3807e1ece72201c3fc8fe",
+    "diff_sha256": "48c63961501ffdce372523676e831e50025a4eea41382e3f2313cae26d50065a",
+    "dirty": true
+  },
+  "images": {
+    "capacity32-tcp": [
+      "qemu-x86_64-capacity32-tcp",
+      "build/iterations/12-capacity32",
+      "20261105T160654Z-f407769f"
+    ]
+  },
+  "local_tcp_trials": 3,
+  "margin": {
+    "minimum_available_bytes": 16777216,
+    "minimum_available_fraction": 0.2
+  },
+  "performance_limits": "Existing limits unchanged; intentional RAM scaling must be reported separately from equivalent-environment optimization comparisons.",
+  "protocol": "per-result; v2 additionally holds the explicitly configured resident queue reservation",
+  "ram_order": [
+    128,
+    112,
+    256
+  ],
+  "repeats": 3,
+  "results": [
+    {
+      "directory": "reports/benchmarks/capacity32-tcp-native-20261105/01-01-capacity32-tcp-128",
+      "image": "capacity32-tcp",
+      "memory_mib": 128,
+      "qualification": {
+        "functional_pass": false,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "reports/benchmarks/capacity32-tcp-native-20261105/01-02-capacity32-tcp-112",
+      "image": "capacity32-tcp",
+      "memory_mib": 112,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "reports/benchmarks/capacity32-tcp-native-20261105/01-03-capacity32-tcp-256",
+      "image": "capacity32-tcp",
+      "memory_mib": 256,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "reports/benchmarks/capacity32-tcp-native-20261105/02-01-capacity32-tcp-128",
+      "image": "capacity32-tcp",
+      "memory_mib": 128,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "reports/benchmarks/capacity32-tcp-native-20261105/02-02-capacity32-tcp-112",
+      "image": "capacity32-tcp",
+      "memory_mib": 112,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "reports/benchmarks/capacity32-tcp-native-20261105/02-03-capacity32-tcp-256",
+      "image": "capacity32-tcp",
+      "memory_mib": 256,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "reports/benchmarks/capacity32-tcp-native-20261105/03-01-capacity32-tcp-128",
+      "image": "capacity32-tcp",
+      "memory_mib": 128,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "reports/benchmarks/capacity32-tcp-native-20261105/03-02-capacity32-tcp-112",
+      "image": "capacity32-tcp",
+      "memory_mib": 112,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "reports/benchmarks/capacity32-tcp-native-20261105/03-03-capacity32-tcp-256",
+      "image": "capacity32-tcp",
+      "memory_mib": 256,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    }
+  ],
+  "small_buffer_crypto_trials": 5
+}

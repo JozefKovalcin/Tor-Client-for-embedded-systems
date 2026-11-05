@@ -1,0 +1,38 @@
+{
+  "by_memory": {
+    "112": {
+      "capacity_screen": "BLOCKED_OR_REJECTED",
+      "direct_scan_pages": 0,
+      "functional_pass_count": 3,
+      "min_available_bytes": 32374784,
+      "minimum_state_free_bytes": 13524992,
+      "peak_system_bytes": 67809280,
+      "peak_tor_hwm_bytes": 29847552,
+      "reservation_integrity_pass_count": 3,
+      "unreserved_peak_bytes": 38608896
+    },
+    "128": {
+      "capacity_screen": "BLOCKED_OR_REJECTED",
+      "direct_scan_pages": 0,
+      "functional_pass_count": 2,
+      "min_available_bytes": 47923200,
+      "minimum_state_free_bytes": 12081152,
+      "peak_system_bytes": 69038080,
+      "peak_tor_hwm_bytes": 29835264,
+      "reservation_integrity_pass_count": 3,
+      "unreserved_peak_bytes": 38842368
+    },
+    "256": {
+      "capacity_screen": "PASS",
+      "direct_scan_pages": 0,
+      "functional_pass_count": 3,
+      "min_available_bytes": 176709632,
+      "minimum_state_free_bytes": 11074560,
+      "peak_system_bytes": 72175616,
+      "peak_tor_hwm_bytes": 29790208,
+      "reservation_integrity_pass_count": 3,
+      "unreserved_peak_bytes": 41517056
+    }
+  },
+  "smallest_full_screen_pass_mib": 256
+}

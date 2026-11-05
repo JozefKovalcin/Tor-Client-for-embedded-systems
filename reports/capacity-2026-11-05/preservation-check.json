@@ -1,0 +1,9 @@
+{
+  "baseline_results_sha256": "775a44badfd40adae1bf09588fb7f54a3c7b453042c4bf34dc7d01de3a2293aa",
+  "baseline_tag": "da7c5281145589821ceeb4f6b7aabd4d98833587",
+  "verified_sha256": {
+    "build/baseline/bzImage": "d49916853b8095195ca0b1bc241a6617ccde3b1779573dcc877a8bbd44b0a16d",
+    "build/baseline/rootfs.ext2": "48521767cbdc5fc4a9a213bd5fe48da3c2b45fa95adc3e1c48503e672c6422fd",
+    "config/policy.json": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "etc/tor/defaults-torrc": {
+    "capacity32": {
+      "bytes": 105,
+      "sha256": "0ef1d60c629630e2e259f042eb715f38bcf15ce71ef4d1ed7837402cb334386a"
+    },
+    "ram": {
+      "bytes": 30,
+      "sha256": "565a866a4fbeab2c3b1e793cef8807c044fe112bbc881f3e222ad46d588681fa"
+    }
+  },
+  "usr/lib/os-release": {
+    "capacity32": {
+      "bytes": 101,
+      "sha256": "75c8e40b013fd18b28abb4dc1b0954538a74860b96758dfe3f04dead2818cf96"
+    },
+    "ram": {
+      "bytes": 101,
+      "sha256": "08cabc81cb41fdf8e31b7c785b49ab995971169e5e68dfa6819e8bb1148233a4"
+    }
+  }
+}

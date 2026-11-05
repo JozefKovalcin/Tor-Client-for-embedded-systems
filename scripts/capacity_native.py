@@ -322,6 +322,16 @@ def run_case(profile,images,fixture,memory,run,peer,origin,local_trials=3):
         with vm.agent.socks(peer.hostname) as s:exchange(s,[b'restarted client payload'])
     try:
         with vm:
+            expected_tcp = selected.get('expected_tcp_buffers')
+            if expected_tcp is not None:
+                names = ('tcp_rmem', 'tcp_wmem', 'tcp_mem')
+                command = 'cat ' + ' '.join('/proc/sys/net/ipv4/' + name for name in names)
+                text, _ = vm.agent.execute(command)
+                observed = dict(zip(names, (list(map(int, line.split())) for line in text.splitlines()), strict=True))
+                result['metadata']['effective_tcp_buffers'] = observed
+                for name, values in expected_tcp.items():
+                    if observed[name] != values:
+                        raise AssertionError(f'{name} boot setting is {observed[name]}, expected {values}')
             result['metrics']['linux_boot_seconds']=vm.boot_seconds;install_config(vm)
             clock,_=vm.agent.execute('date -u +%s');result['metadata']['guest_clock_offset_seconds']=int(clock.strip())-time.time()
             for name,function in [('security_config',security),('tor_config',verify),('tor_startup',startup),('socks5',socks),('public_bootstrap',bootstrap)]:

@@ -1,0 +1,92 @@
+{
+  "112": {
+    "crossed": {
+      "cold_boot_medians": [
+        36.811994607745845,
+        40.65885029667712,
+        45.72475141152886
+      ],
+      "median_mib_per_s": 40.65885029667712,
+      "per_socket_max_receive_bytes": 1895552,
+      "per_socket_max_send_bytes": 1895552,
+      "trial_range_mib_per_s": [
+        33.0110165529764,
+        49.281631361885644
+      ]
+    },
+    "default": {
+      "cold_boot_medians": [
+        39.34661504256965,
+        35.58365881492931,
+        33.706125244901244
+      ],
+      "median_mib_per_s": 35.58365881492931,
+      "per_socket_max_receive_bytes": 742528,
+      "per_socket_max_send_bytes": 742528,
+      "trial_range_mib_per_s": [
+        32.30684599725806,
+        41.79818427250157
+      ]
+    }
+  },
+  "128": {
+    "crossed": {
+      "cold_boot_medians": [
+        47.904101203076266,
+        45.45525574611707,
+        47.5639424106425
+      ],
+      "median_mib_per_s": 47.5639424106425,
+      "per_socket_max_receive_bytes": 1895552,
+      "per_socket_max_send_bytes": 1895552,
+      "trial_range_mib_per_s": [
+        43.178808790609075,
+        52.62939361554345
+      ]
+    },
+    "default": {
+      "cold_boot_medians": [
+        42.5744183479769,
+        36.07300440956388,
+        34.97204890006009
+      ],
+      "median_mib_per_s": 36.07300440956388,
+      "per_socket_max_receive_bytes": 872384,
+      "per_socket_max_send_bytes": 872384,
+      "trial_range_mib_per_s": [
+        33.05909396106689,
+        45.769568749406005
+      ]
+    }
+  },
+  "256": {
+    "crossed": {
+      "cold_boot_medians": [
+        30.405268979017485,
+        34.21373006235707,
+        45.026142430377064
+      ],
+      "median_mib_per_s": 34.21373006235707,
+      "per_socket_max_receive_bytes": 872384,
+      "per_socket_max_send_bytes": 872384,
+      "trial_range_mib_per_s": [
+        28.371526619947055,
+        48.41741622868584
+      ]
+    },
+    "default": {
+      "cold_boot_medians": [
+        36.547712578403676,
+        49.045758558978164,
+        39.842294349604224
+      ],
+      "median_mib_per_s": 39.842294349604224,
+      "per_socket_max_receive_bytes": 1895552,
+      "per_socket_max_send_bytes": 1895552,
+      "trial_range_mib_per_s": [
+        33.23219122854748,
+        49.20611931182483
+      ]
+    }
+  }
+}

@@ -1,0 +1,68 @@
+--- ram/buildroot
++++ capacity32/buildroot
+@@ -1,11 +1,11 @@
+ #
+ # Automatically generated file; DO NOT EDIT.
+-# Buildroot -g6247a13 Configuration
++# Buildroot -g62a99ec Configuration
+ #
+ BR2_HAVE_DOT_CONFIG=y
+ BR2_EXTERNAL_NAMES="EMBEDDED_TOR"
+ BR2_EXTERNAL_EMBEDDED_TOR_PATH="/home/jozef/embedded-tor/br2-external"
+-BR2_EXTERNAL_EMBEDDED_TOR_VERSION="-g6247a13"
++BR2_EXTERNAL_EMBEDDED_TOR_VERSION="-g62a99ec"
+ BR2_HOST_GCC_AT_LEAST_4_9=y
+ BR2_HOST_GCC_AT_LEAST_5=y
+ BR2_HOST_GCC_AT_LEAST_6=y
+@@ -407,7 +407,7 @@
+ BR2_LZCAT="lzip -d -c"
+ BR2_ZSTDCAT="zstdcat"
+ BR2_TAR_OPTIONS=""
+-BR2_DEFCONFIG="/home/jozef/embedded-tor/br2-external/configs/tor_qemu_x86_64_ram_defconfig"
++BR2_DEFCONFIG="/home/jozef/embedded-tor/br2-external/configs/tor_qemu_x86_64_capacity32_defconfig"
+ BR2_DL_DIR="$(TOPDIR)/dl"
+ BR2_HOST_DIR="$(BASE_DIR)/host"
+ 
+@@ -520,11 +520,11 @@
+ # BR2_SYSTEM_ENABLE_NLS is not set
+ # BR2_TARGET_TZ_INFO is not set
+ BR2_ROOTFS_USERS_TABLES="$(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-production/users.txt"
+-BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-production/overlay $(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-compressed/overlay"
++BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-production/overlay $(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-compressed/overlay $(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-capacity32/overlay"
+ BR2_ROOTFS_PRE_BUILD_SCRIPT=""
+ BR2_ROOTFS_POST_BUILD_SCRIPT="$(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-compressed/post-build.sh"
+ BR2_ROOTFS_POST_FAKEROOT_SCRIPT=""
+-BR2_ROOTFS_POST_IMAGE_SCRIPT="$(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-compressed/post-image.sh"
++BR2_ROOTFS_POST_IMAGE_SCRIPT="$(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-capacity32/post-image.sh"
+ BR2_ROOTFS_POST_SCRIPT_ARGS=""
+ BR2_ROOTFS_POST_BUILD_SCRIPT_ARGS=""
+ BR2_ROOTFS_POST_IMAGE_SCRIPT_ARGS=""
+@@ -548,17 +548,17 @@
+ # BR2_LINUX_KERNEL_USE_DEFCONFIG is not set
+ # BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG is not set
+ BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
+-BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="$(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-ram/linux.config"
++BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="$(BR2_EXTERNAL_EMBEDDED_TOR_PATH)/board/qemu-capacity32/linux.config"
+ BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES=""
+ BR2_LINUX_KERNEL_CUSTOM_LOGO_PATH=""
+ BR2_LINUX_KERNEL_BZIMAGE=y
+ # BR2_LINUX_KERNEL_VMLINUX is not set
+ # BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM is not set
+-BR2_LINUX_KERNEL_GZIP=y
++# BR2_LINUX_KERNEL_GZIP is not set
+ # BR2_LINUX_KERNEL_LZ4 is not set
+ # BR2_LINUX_KERNEL_LZMA is not set
+ # BR2_LINUX_KERNEL_LZO is not set
+-# BR2_LINUX_KERNEL_XZ is not set
++BR2_LINUX_KERNEL_XZ=y
+ # BR2_LINUX_KERNEL_ZSTD is not set
+ # BR2_LINUX_KERNEL_DTS_SUPPORT is not set
+ # BR2_LINUX_KERNEL_INSTALL_TARGET is not set
+@@ -5324,6 +5324,7 @@
+ #
+ # Reproducible Tor QEMU validation platform (in /home/jozef/embedded-tor/br2-external)
+ #
++# BR2_PACKAGE_EMBEDDED_OPENSSL_O2 is not set
+ BR2_PACKAGE_TOR_CLIENT_ONLY=y
+ BR2_PACKAGE_TOR_OPTIMIZE_O2=y
+ BR2_PACKAGE_TOR_GC_SECTIONS=y

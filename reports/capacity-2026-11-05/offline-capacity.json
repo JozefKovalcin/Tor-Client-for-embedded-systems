@@ -1,0 +1,1169 @@
+{
+  "runs": [
+    {
+      "image": "baseline",
+      "io_probe": null,
+      "memory_mib": 256,
+      "metrics": {
+        "bootstrap_seconds": null,
+        "complete_image_bytes": 27137024,
+        "cpu_percent": 3.1066931094196906,
+        "idle_pss_bytes": 10664960.0,
+        "idle_rss_bytes": 18771968.0,
+        "image_host_allocated_bytes": 10637312,
+        "installed_rootfs_bytes": 12209160,
+        "kernel_bytes": 5207040,
+        "library_bytes": 9003952,
+        "onion_connection_seconds": null,
+        "peak_process_rss_bytes": 18771968,
+        "peak_system_used_bytes": 32411648,
+        "persistent_storage_bytes": 629,
+        "production_peak_rss_bytes": null,
+        "production_pss_bytes": null,
+        "production_rss_bytes": null,
+        "production_state_bytes": null,
+        "production_state_free_bytes": null,
+        "production_state_volume_bytes": null,
+        "rootfs_bytes": 21929984,
+        "startup_seconds": 0.4201941229999999,
+        "throughput_bytes_per_second": null,
+        "tor_executable_bytes": 2428664
+      },
+      "run": "/home/jozef/embedded-tor/reports/benchmarks/study-20261105T125303Z/01-baseline",
+      "sha256": "8b21be5d9601ee54623514b62cdad97700fc6277fb40f1a6f828932f3c409494",
+      "tests": [
+        {
+          "detail": "explicit assertions passed",
+          "id": "security_config",
+          "mode": "offline",
+          "seconds": 0.007232157999998989,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_config",
+          "mode": "offline",
+          "seconds": 0.43121564199999973,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_startup",
+          "mode": "offline",
+          "seconds": 0.4358793470000002,
+          "status": "PASS"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "socks5",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "public_bootstrap",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "onion_v3",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "two_node",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "bidirectional_integrity",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "reconnection",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        }
+      ]
+    },
+    {
+      "image": "slim",
+      "io_probe": null,
+      "memory_mib": 256,
+      "metrics": {
+        "bootstrap_seconds": null,
+        "complete_image_bytes": 25936896,
+        "cpu_percent": 3.4662203653756753,
+        "idle_pss_bytes": 11118592.0,
+        "idle_rss_bytes": 19304448.0,
+        "image_host_allocated_bytes": 9437184,
+        "installed_rootfs_bytes": 12285504,
+        "kernel_bytes": 3941376,
+        "library_bytes": 8111688,
+        "onion_connection_seconds": null,
+        "peak_process_rss_bytes": 19304448,
+        "peak_system_used_bytes": 32763904,
+        "persistent_storage_bytes": 629,
+        "production_peak_rss_bytes": null,
+        "production_pss_bytes": null,
+        "production_rss_bytes": null,
+        "production_state_bytes": null,
+        "production_state_free_bytes": null,
+        "production_state_volume_bytes": null,
+        "rootfs_bytes": 21995520,
+        "startup_seconds": 0.4922164589999998,
+        "throughput_bytes_per_second": null,
+        "tor_executable_bytes": 3397272
+      },
+      "run": "/home/jozef/embedded-tor/reports/benchmarks/study-20261105T125303Z/01-slim",
+      "sha256": "3d15294ea2f04d71a62255f4c2b529266325d0b5f96e47544d8c8b7c49bb81b2",
+      "tests": [
+        {
+          "detail": "explicit assertions passed",
+          "id": "security_config",
+          "mode": "offline",
+          "seconds": 0.0073813699999991655,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_config",
+          "mode": "offline",
+          "seconds": 0.4892444729999994,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_startup",
+          "mode": "offline",
+          "seconds": 0.51480134,
+          "status": "PASS"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "socks5",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "public_bootstrap",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "onion_v3",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "two_node",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "bidirectional_integrity",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "reconnection",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        }
+      ]
+    },
+    {
+      "image": "baseline",
+      "io_probe": null,
+      "memory_mib": 192,
+      "metrics": {
+        "bootstrap_seconds": null,
+        "complete_image_bytes": 27137024,
+        "cpu_percent": 3.5733419218445475,
+        "idle_pss_bytes": 10814464.0,
+        "idle_rss_bytes": 18694144.0,
+        "image_host_allocated_bytes": 10637312,
+        "installed_rootfs_bytes": 12209160,
+        "kernel_bytes": 5207040,
+        "library_bytes": 9003952,
+        "onion_connection_seconds": null,
+        "peak_process_rss_bytes": 18694144,
+        "peak_system_used_bytes": 31944704,
+        "persistent_storage_bytes": 629,
+        "production_peak_rss_bytes": null,
+        "production_pss_bytes": null,
+        "production_rss_bytes": null,
+        "production_state_bytes": null,
+        "production_state_free_bytes": null,
+        "production_state_volume_bytes": null,
+        "rootfs_bytes": 21929984,
+        "startup_seconds": 0.49931555100000047,
+        "throughput_bytes_per_second": null,
+        "tor_executable_bytes": 2428664
+      },
+      "run": "/home/jozef/embedded-tor/reports/benchmarks/study-20261105T125348Z/01-baseline",
+      "sha256": "c003922edef7c534f274560d029b6ab8f8ca06624cce8d13b05f2303c3b3d154",
+      "tests": [
+        {
+          "detail": "explicit assertions passed",
+          "id": "security_config",
+          "mode": "offline",
+          "seconds": 0.0072559810000001335,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_config",
+          "mode": "offline",
+          "seconds": 0.46158900499999866,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_startup",
+          "mode": "offline",
+          "seconds": 0.5109623030000012,
+          "status": "PASS"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "socks5",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "public_bootstrap",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "onion_v3",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "two_node",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "bidirectional_integrity",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "reconnection",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        }
+      ]
+    },
+    {
+      "image": "slim",
+      "io_probe": null,
+      "memory_mib": 192,
+      "metrics": {
+        "bootstrap_seconds": null,
+        "complete_image_bytes": 25936896,
+        "cpu_percent": 2.8176973670393837,
+        "idle_pss_bytes": 11124736.0,
+        "idle_rss_bytes": 19215701.333333332,
+        "image_host_allocated_bytes": 9437184,
+        "installed_rootfs_bytes": 12285504,
+        "kernel_bytes": 3941376,
+        "library_bytes": 8111688,
+        "onion_connection_seconds": null,
+        "peak_process_rss_bytes": 19222528,
+        "peak_system_used_bytes": 31449088,
+        "persistent_storage_bytes": 629,
+        "production_peak_rss_bytes": null,
+        "production_pss_bytes": null,
+        "production_rss_bytes": null,
+        "production_state_bytes": null,
+        "production_state_free_bytes": null,
+        "production_state_volume_bytes": null,
+        "rootfs_bytes": 21995520,
+        "startup_seconds": 0.38551099900000096,
+        "throughput_bytes_per_second": null,
+        "tor_executable_bytes": 3397272
+      },
+      "run": "/home/jozef/embedded-tor/reports/benchmarks/study-20261105T125348Z/01-slim",
+      "sha256": "248c9cd27da25305f803443b485cf20e787d030e48c64541f58feeab3a196dbe",
+      "tests": [
+        {
+          "detail": "explicit assertions passed",
+          "id": "security_config",
+          "mode": "offline",
+          "seconds": 0.006945888000000622,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_config",
+          "mode": "offline",
+          "seconds": 0.4603311689999998,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_startup",
+          "mode": "offline",
+          "seconds": 0.3969466320000006,
+          "status": "PASS"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "socks5",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "public_bootstrap",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "onion_v3",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "two_node",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "bidirectional_integrity",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "reconnection",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        }
+      ]
+    },
+    {
+      "image": "baseline",
+      "io_probe": null,
+      "memory_mib": 160,
+      "metrics": {
+        "bootstrap_seconds": null,
+        "complete_image_bytes": 27137024,
+        "cpu_percent": 3.8120169633737073,
+        "idle_pss_bytes": 10760192.0,
+        "idle_rss_bytes": 18681856.0,
+        "image_host_allocated_bytes": 10637312,
+        "installed_rootfs_bytes": 12209160,
+        "kernel_bytes": 5207040,
+        "library_bytes": 9003952,
+        "onion_connection_seconds": null,
+        "peak_process_rss_bytes": 18681856,
+        "peak_system_used_bytes": 30658560,
+        "persistent_storage_bytes": 629,
+        "production_peak_rss_bytes": null,
+        "production_pss_bytes": null,
+        "production_rss_bytes": null,
+        "production_state_bytes": null,
+        "production_state_free_bytes": null,
+        "production_state_volume_bytes": null,
+        "rootfs_bytes": 21929984,
+        "startup_seconds": 0.5415744499999988,
+        "throughput_bytes_per_second": null,
+        "tor_executable_bytes": 2428664
+      },
+      "run": "/home/jozef/embedded-tor/reports/benchmarks/study-20261105T125432Z/01-baseline",
+      "sha256": "0f0c289564c18b65d1571a4df5a57ebe5547abb405e4cd653e4c1cd8b533e1ca",
+      "tests": [
+        {
+          "detail": "explicit assertions passed",
+          "id": "security_config",
+          "mode": "offline",
+          "seconds": 0.006935022999998708,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_config",
+          "mode": "offline",
+          "seconds": 0.4943182610000001,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_startup",
+          "mode": "offline",
+          "seconds": 0.556598975,
+          "status": "PASS"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "socks5",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "public_bootstrap",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "onion_v3",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "two_node",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "bidirectional_integrity",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "reconnection",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        }
+      ]
+    },
+    {
+      "image": "slim",
+      "io_probe": null,
+      "memory_mib": 160,
+      "metrics": {
+        "bootstrap_seconds": null,
+        "complete_image_bytes": 25936896,
+        "cpu_percent": 3.382840394164159,
+        "idle_pss_bytes": 11118592.0,
+        "idle_rss_bytes": 19398656.0,
+        "image_host_allocated_bytes": 9437184,
+        "installed_rootfs_bytes": 12285504,
+        "kernel_bytes": 3941376,
+        "library_bytes": 8111688,
+        "onion_connection_seconds": null,
+        "peak_process_rss_bytes": 19398656,
+        "peak_system_used_bytes": 30912512,
+        "persistent_storage_bytes": 629,
+        "production_peak_rss_bytes": null,
+        "production_pss_bytes": null,
+        "production_rss_bytes": null,
+        "production_state_bytes": null,
+        "production_state_free_bytes": null,
+        "production_state_volume_bytes": null,
+        "rootfs_bytes": 21995520,
+        "startup_seconds": 0.482364102,
+        "throughput_bytes_per_second": null,
+        "tor_executable_bytes": 3397272
+      },
+      "run": "/home/jozef/embedded-tor/reports/benchmarks/study-20261105T125432Z/01-slim",
+      "sha256": "051dac32001984d7dc6e8f360eebfc5abda848a42f3c753ac1e03957adec3c20",
+      "tests": [
+        {
+          "detail": "explicit assertions passed",
+          "id": "security_config",
+          "mode": "offline",
+          "seconds": 0.008575912999999602,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_config",
+          "mode": "offline",
+          "seconds": 0.4890596039999995,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_startup",
+          "mode": "offline",
+          "seconds": 0.5074074609999997,
+          "status": "PASS"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "socks5",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "public_bootstrap",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "onion_v3",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "two_node",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "bidirectional_integrity",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "reconnection",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        }
+      ]
+    },
+    {
+      "image": "baseline",
+      "io_probe": null,
+      "memory_mib": 128,
+      "metrics": {
+        "bootstrap_seconds": null,
+        "complete_image_bytes": 27137024,
+        "cpu_percent": 4.090991372681257,
+        "idle_pss_bytes": 10786816.0,
+        "idle_rss_bytes": 18731008.0,
+        "image_host_allocated_bytes": 10637312,
+        "installed_rootfs_bytes": 12209160,
+        "kernel_bytes": 5207040,
+        "library_bytes": 9003952,
+        "onion_connection_seconds": null,
+        "peak_process_rss_bytes": 18731008,
+        "peak_system_used_bytes": 29495296,
+        "persistent_storage_bytes": 629,
+        "production_peak_rss_bytes": null,
+        "production_pss_bytes": null,
+        "production_rss_bytes": null,
+        "production_state_bytes": null,
+        "production_state_free_bytes": null,
+        "production_state_volume_bytes": null,
+        "rootfs_bytes": 21929984,
+        "startup_seconds": 0.5490318989999992,
+        "throughput_bytes_per_second": null,
+        "tor_executable_bytes": 2428664
+      },
+      "run": "/home/jozef/embedded-tor/reports/benchmarks/study-20261105T125517Z/01-baseline",
+      "sha256": "67072307f3904df0c184c1915a1748c8bdcb9a78c7e51974d68b850647793799",
+      "tests": [
+        {
+          "detail": "explicit assertions passed",
+          "id": "security_config",
+          "mode": "offline",
+          "seconds": 0.007006406000000354,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_config",
+          "mode": "offline",
+          "seconds": 0.5270516389999997,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_startup",
+          "mode": "offline",
+          "seconds": 0.5663756700000011,
+          "status": "PASS"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "socks5",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "public_bootstrap",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "onion_v3",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "two_node",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "bidirectional_integrity",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "reconnection",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        }
+      ]
+    },
+    {
+      "image": "slim",
+      "io_probe": null,
+      "memory_mib": 128,
+      "metrics": {
+        "bootstrap_seconds": null,
+        "complete_image_bytes": 25936896,
+        "cpu_percent": 3.394345598609809,
+        "idle_pss_bytes": 11240448.0,
+        "idle_rss_bytes": 19610166.468085106,
+        "image_host_allocated_bytes": 9437184,
+        "installed_rootfs_bytes": 12285504,
+        "kernel_bytes": 3941376,
+        "library_bytes": 8111688,
+        "onion_connection_seconds": null,
+        "peak_process_rss_bytes": 19615744,
+        "peak_system_used_bytes": 29483008,
+        "persistent_storage_bytes": 629,
+        "production_peak_rss_bytes": null,
+        "production_pss_bytes": null,
+        "production_rss_bytes": null,
+        "production_state_bytes": null,
+        "production_state_free_bytes": null,
+        "production_state_volume_bytes": null,
+        "rootfs_bytes": 21995520,
+        "startup_seconds": 0.4638486359999998,
+        "throughput_bytes_per_second": null,
+        "tor_executable_bytes": 3397272
+      },
+      "run": "/home/jozef/embedded-tor/reports/benchmarks/study-20261105T125517Z/01-slim",
+      "sha256": "3e37d868aa022b96f598c8d0915e303e2101b4aeafb0bd9a06571d2884ae01f0",
+      "tests": [
+        {
+          "detail": "explicit assertions passed",
+          "id": "security_config",
+          "mode": "offline",
+          "seconds": 0.0120883230000004,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_config",
+          "mode": "offline",
+          "seconds": 0.5214130840000006,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_startup",
+          "mode": "offline",
+          "seconds": 0.47722196299999986,
+          "status": "PASS"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "socks5",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "public_bootstrap",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "onion_v3",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "two_node",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "bidirectional_integrity",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "reconnection",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        }
+      ]
+    },
+    {
+      "image": "baseline",
+      "io_probe": null,
+      "memory_mib": 112,
+      "metrics": {
+        "bootstrap_seconds": null,
+        "complete_image_bytes": 27137024,
+        "cpu_percent": 3.553762132441629,
+        "idle_pss_bytes": 10860544.0,
+        "idle_rss_bytes": 18825216.0,
+        "image_host_allocated_bytes": 10637312,
+        "installed_rootfs_bytes": 12209160,
+        "kernel_bytes": 5207040,
+        "library_bytes": 9003952,
+        "onion_connection_seconds": null,
+        "peak_process_rss_bytes": 18825216,
+        "peak_system_used_bytes": 29093888,
+        "persistent_storage_bytes": 629,
+        "production_peak_rss_bytes": null,
+        "production_pss_bytes": null,
+        "production_rss_bytes": null,
+        "production_state_bytes": null,
+        "production_state_free_bytes": null,
+        "production_state_volume_bytes": null,
+        "rootfs_bytes": 21929984,
+        "startup_seconds": 0.5083641419999996,
+        "throughput_bytes_per_second": null,
+        "tor_executable_bytes": 2428664
+      },
+      "run": "/home/jozef/embedded-tor/reports/benchmarks/study-20261105T125603Z/01-baseline",
+      "sha256": "a9ccdd828c628ee5b4ebd0a2e46ceb9c025b82b55f26a6ef85463bcb318d61bf",
+      "tests": [
+        {
+          "detail": "explicit assertions passed",
+          "id": "security_config",
+          "mode": "offline",
+          "seconds": 0.007283128000000971,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_config",
+          "mode": "offline",
+          "seconds": 0.5386990980000004,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_startup",
+          "mode": "offline",
+          "seconds": 0.5200402460000006,
+          "status": "PASS"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "socks5",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "public_bootstrap",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "onion_v3",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "two_node",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "bidirectional_integrity",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "reconnection",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        }
+      ]
+    },
+    {
+      "image": "slim",
+      "io_probe": null,
+      "memory_mib": 112,
+      "metrics": {
+        "bootstrap_seconds": null,
+        "complete_image_bytes": 25936896,
+        "cpu_percent": 3.2959702839910285,
+        "idle_pss_bytes": 11153408.0,
+        "idle_rss_bytes": 19390464.0,
+        "image_host_allocated_bytes": 9437184,
+        "installed_rootfs_bytes": 12285504,
+        "kernel_bytes": 3941376,
+        "library_bytes": 8111688,
+        "onion_connection_seconds": null,
+        "peak_process_rss_bytes": 19390464,
+        "peak_system_used_bytes": 29143040,
+        "persistent_storage_bytes": 629,
+        "production_peak_rss_bytes": null,
+        "production_pss_bytes": null,
+        "production_rss_bytes": null,
+        "production_state_bytes": null,
+        "production_state_free_bytes": null,
+        "production_state_volume_bytes": null,
+        "rootfs_bytes": 21995520,
+        "startup_seconds": 0.4469871320000003,
+        "throughput_bytes_per_second": null,
+        "tor_executable_bytes": 3397272
+      },
+      "run": "/home/jozef/embedded-tor/reports/benchmarks/study-20261105T125603Z/01-slim",
+      "sha256": "75ade4754d5ecdac888595b95f708e1754a15f9fd78628e42afe80493ebdab3c",
+      "tests": [
+        {
+          "detail": "explicit assertions passed",
+          "id": "security_config",
+          "mode": "offline",
+          "seconds": 0.006969047000000117,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_config",
+          "mode": "offline",
+          "seconds": 0.5015040549999998,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_startup",
+          "mode": "offline",
+          "seconds": 0.46394440999999986,
+          "status": "PASS"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "socks5",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "public_bootstrap",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "onion_v3",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "two_node",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "bidirectional_integrity",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "reconnection",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        }
+      ]
+    },
+    {
+      "image": "baseline",
+      "io_probe": null,
+      "memory_mib": 96,
+      "metrics": {
+        "bootstrap_seconds": null,
+        "complete_image_bytes": 27137024,
+        "cpu_percent": 3.2067340117560255,
+        "idle_pss_bytes": 10715136.0,
+        "idle_rss_bytes": 18530304.0,
+        "image_host_allocated_bytes": 10637312,
+        "installed_rootfs_bytes": 12209160,
+        "kernel_bytes": 5207040,
+        "library_bytes": 9003952,
+        "onion_connection_seconds": null,
+        "peak_process_rss_bytes": 18530304,
+        "peak_system_used_bytes": 28569600,
+        "persistent_storage_bytes": 629,
+        "production_peak_rss_bytes": null,
+        "production_pss_bytes": null,
+        "production_rss_bytes": null,
+        "production_state_bytes": null,
+        "production_state_free_bytes": null,
+        "production_state_volume_bytes": null,
+        "rootfs_bytes": 21929984,
+        "startup_seconds": 0.4529410330000001,
+        "throughput_bytes_per_second": null,
+        "tor_executable_bytes": 2428664
+      },
+      "run": "/home/jozef/embedded-tor/reports/benchmarks/study-20261105T125647Z/01-baseline",
+      "sha256": "567bc9cffd686d140da89d774e0ca31c88ebfddb710ce6551e05f47599de584d",
+      "tests": [
+        {
+          "detail": "explicit assertions passed",
+          "id": "security_config",
+          "mode": "offline",
+          "seconds": 0.008029183999999745,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_config",
+          "mode": "offline",
+          "seconds": 0.43324661900000017,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_startup",
+          "mode": "offline",
+          "seconds": 0.47263204300000083,
+          "status": "PASS"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "socks5",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "public_bootstrap",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "onion_v3",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "two_node",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "bidirectional_integrity",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "reconnection",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        }
+      ]
+    },
+    {
+      "image": "slim",
+      "io_probe": null,
+      "memory_mib": 96,
+      "metrics": {
+        "bootstrap_seconds": null,
+        "complete_image_bytes": 25936896,
+        "cpu_percent": 3.022798589452616,
+        "idle_pss_bytes": 11134976.0,
+        "idle_rss_bytes": 19259392.0,
+        "image_host_allocated_bytes": 9437184,
+        "installed_rootfs_bytes": 12285504,
+        "kernel_bytes": 3941376,
+        "library_bytes": 8111688,
+        "onion_connection_seconds": null,
+        "peak_process_rss_bytes": 19259392,
+        "peak_system_used_bytes": 28737536,
+        "persistent_storage_bytes": 629,
+        "production_peak_rss_bytes": null,
+        "production_pss_bytes": null,
+        "production_rss_bytes": null,
+        "production_state_bytes": null,
+        "production_state_free_bytes": null,
+        "production_state_volume_bytes": null,
+        "rootfs_bytes": 21995520,
+        "startup_seconds": 0.421459295,
+        "throughput_bytes_per_second": null,
+        "tor_executable_bytes": 3397272
+      },
+      "run": "/home/jozef/embedded-tor/reports/benchmarks/study-20261105T125647Z/01-slim",
+      "sha256": "7ca366b77efd8cfc79d63e268d07bf93708a8bbd79ffeaabd4d740b679d113e1",
+      "tests": [
+        {
+          "detail": "explicit assertions passed",
+          "id": "security_config",
+          "mode": "offline",
+          "seconds": 0.006545905999999491,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_config",
+          "mode": "offline",
+          "seconds": 0.5600840409999996,
+          "status": "PASS"
+        },
+        {
+          "detail": "explicit assertions passed",
+          "id": "tor_startup",
+          "mode": "offline",
+          "seconds": 0.4414526290000005,
+          "status": "PASS"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "socks5",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "public_bootstrap",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "onion_v3",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "two_node",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "bidirectional_integrity",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        },
+        {
+          "detail": "offline mode selected; public Tor behavior remains unverified",
+          "id": "reconnection",
+          "mode": "online",
+          "seconds": 0,
+          "status": "SKIPPED"
+        }
+      ]
+    }
+  ],
+  "scope": "Frozen offline smoke and I/O diagnostics only; mandatory online assertions SKIPPED, no qualification"
+}

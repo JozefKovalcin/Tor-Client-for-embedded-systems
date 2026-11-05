@@ -197,3 +197,19 @@ Effective-config audit: all three preserved kernels resolve SQUASHFS_FRAGMENT_CA
 
 
 The queued offline cell-operation control now isolates all three unchanged upstream Tor benchmark binaries against the O2 and Os builds of the same OpenSSL 3.6.5 in one fixed ram/128 MiB VM (two fixed reversed blocks, 12 processes). Only each diagnostic process selects those pinned shared objects; no production Tor service or image is altered. API/configure options/source version are identical and both builds have complete public-image regression evidence. This avoids confounding library flags with different kernel/root settings. It measures upstream Tor1/CGO/POLYVAL execution, not end-to-end local Tor throughput, and cannot qualify missing online tests. No local cell measurements have started yet.
+
+
+### 2026-11-05 16:24 UTC — Public repetitions and practical capacity build
+
+All 27 frozen public regression attempts completed at 128 MiB (nine per preserved image); all mandatory functions and daemon assertions passed. Fresh median throughput is 191.97 KiB/s for ram, 203.21 for slim, 226.97 for selective. The earlier 43% slim loss did not reproduce against fresh ram, but the paired intervals cross the 0.80 boundary and both candidates still fail the older frozen throughput reference. Slim also fails the unchanged direct artifact limits; selective fails the fresh Onion latency limit (4.61 s versus 4.15 s). No rejection or threshold was removed.
+
+Built capacity32 completely from the qualified O2 userland and XZ kernel: 42,652,672 logical boot-set bytes = 40.6768 MiB including 32 MiB state. Its non-state footprint is 8.6768 MiB, 12.18% below ram's 9.8799 MiB. All installed programs and libraries match ram; only Tor defaults (75 extra bytes) and the same-length build version string differ in the installed files. The frozen full validation, hardening and daemon tests passed. The default original 512 MiB comparison is NON_COMPARABLE; matched 128 MiB comparisons fail only intentional complete-image/root-disk growth. Build 20261105T160654Z-f407769f and both comparisons are archived.
+
+The first stressed 128 and 112 MiB cold starts passed functions, reservation integrity, state and memory margins, retaining 46.06 and 31.22 MiB MemAvailable. The first 96 MiB cold start passed functions and integrity but failed the margin at 15.41 MiB, with direct reclaim observed. No OOM or swap. Three cold starts per RAM, including 256 MiB controls, remain required before the group conclusion. The 32 MiB reserve is a resident planning stress, not observed Tor queue occupancy.
+
+
+### Completed capacity characterization
+
+All twelve cold starts passed the nine public Tor functions, the 32 MiB resident reservation integrity check and the state checks. The lowest sampled available RAM was 30.73 MiB at 112 MiB and 45.61 MiB at 128 MiB. The 96 MiB runs missed the 16 MiB absolute margin and scanned 3319 pages in direct reclaim across all three boots. Public timings passed at 112 and 128 MiB. The local TCP floor was 37.19 MiB/s and both groups fell below it. The smallest full QEMU screen pass was 256 MiB.
+
+The TCP buffer crossover completed 36 transfers in nine cold boots. The fixed-VM cell benchmark verified the selected OpenSSL library and completed 12 of 12 planned processes. The full findings, source and artifact provenance, archived failures and separate flash budget are in `reports/capacity-2026-11-05/README.md`.

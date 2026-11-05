@@ -1,0 +1,53 @@
+{
+  "id": "qemu-x86_64-capacity32-tcp",
+  "defconfig": "tor_qemu_x86_64_capacity32_defconfig",
+  "architecture": "x86_64",
+  "environment": {
+    "kind": "qemu",
+    "machine": "pc-i440fx-8.2",
+    "cpu": "qemu64",
+    "accelerator": "tcg,thread=single",
+    "memory_mib": 128,
+    "cpus": 1,
+    "network": "user-mode-nat",
+    "measurement_protocol": "tor-two-node-v3-stage-profile",
+    "tcp_autotuning_ceiling_bytes": 1895552
+  },
+  "qemu": "qemu-system-x86_64",
+  "artifacts": {
+    "kernel": "bzImage",
+    "rootfs": "disk.img"
+  },
+  "timeout_seconds": 1800,
+  "bootstrap_timeout_seconds": 600,
+  "connection_timeout_seconds": 180,
+  "idle_seconds": 10,
+  "toolchain_archive": {
+    "path": "downloads/toolchains/x86_64-buildroot-linux-musl_sdk-buildroot.tar.gz",
+    "sha256": "5fd7659021ec80cf0bb47794be75776867270e672166210453acbaab89800e1e",
+    "source_baseline_commit": "da7c5281145589821ceeb4f6b7aabd4d98833587",
+    "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0"
+  },
+  "validation_fixture": "baseline",
+  "production_service": true,
+  "kernel_root": "root=/dev/vda1 ro sysctl.net.ipv4.tcp_rmem=\"4096 131072 1895552\" sysctl.net.ipv4.tcp_wmem=\"4096 16384 1895552\"",
+  "read_only_root": true,
+  "diagnostic_fixture": {
+    "path": "build/performance-probe-v2.ext4",
+    "sha256": "e5df718190c64b7ee66aed0529b3db71543584c30f1d4e2c1fd183ff0fcb54e0"
+  },
+  "max_mem_in_queues_bytes": 33554432,
+  "queue_reserve_test_bytes": 33554432,
+  "expected_tcp_buffers": {
+    "tcp_rmem": [
+      4096,
+      131072,
+      1895552
+    ],
+    "tcp_wmem": [
+      4096,
+      16384,
+      1895552
+    ]
+  }
+}

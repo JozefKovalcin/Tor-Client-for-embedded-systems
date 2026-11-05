@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261105T130046Z-719a45c7`
+Run: `20261105T160654Z-f407769f`
 
-**REJECTED** — Selective Tor/OpenSSL O2 with Os userland and XZ kernel at 128 MiB
+**NON_COMPARABLE** — Configuration validation
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `b9d2bdecd79e1c94e7fc953c199c166809131a4f`; dirty: `False`.
+Commit: `62a99ece3177a97515a3807e1ece72201c3fc8fe`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 

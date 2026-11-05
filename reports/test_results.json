@@ -1,5 +1,5 @@
 {
-  "run_id": "20261105T130046Z-719a45c7",
+  "run_id": "20261105T160654Z-f407769f",
   "tests": [
     {
       "detail": "see checks.log",
@@ -17,70 +17,70 @@
       "detail": "explicit assertions passed",
       "id": "security_config",
       "mode": "offline",
-      "seconds": 0.007931427000000824,
+      "seconds": 0.007630081999998595,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "tor_config",
       "mode": "offline",
-      "seconds": 0.47356706800000126,
+      "seconds": 0.4383189260000009,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "tor_startup",
       "mode": "offline",
-      "seconds": 0.47053377800000007,
+      "seconds": 0.40441157400000094,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "socks5",
       "mode": "online",
-      "seconds": 0.008101020999999875,
+      "seconds": 0.006102120999999627,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "public_bootstrap",
       "mode": "online",
-      "seconds": 17.228821345,
+      "seconds": 17.188229504,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "onion_v3",
       "mode": "online",
-      "seconds": 4.330816693000003,
+      "seconds": 3.1852679759999987,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "two_node",
       "mode": "online",
-      "seconds": 1.6847868199999994,
+      "seconds": 1.1888212189999976,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "bidirectional_integrity",
       "mode": "online",
-      "seconds": 14.778785712999998,
+      "seconds": 8.539365760999999,
       "status": "PASS"
     },
     {
       "detail": "explicit assertions passed",
       "id": "reconnection",
       "mode": "online",
-      "seconds": 21.63621472799999,
+      "seconds": 178.796886679,
       "status": "PASS"
     },
     {
       "detail": "native daemon bootstrapped as uid 905; no fixture libraries or Python in deployed root",
       "id": "production_service",
       "mode": "online",
-      "seconds": 8.860678422999996,
+      "seconds": 8.656006357000024,
       "status": "PASS"
     }
   ]

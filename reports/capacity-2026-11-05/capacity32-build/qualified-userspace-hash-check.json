@@ -1,0 +1,12 @@
+{
+  "bin/busybox": true,
+  "lib/libatomic.so.1.2.0": true,
+  "lib/libc.so": true,
+  "lib/libgcc_s.so.1": true,
+  "usr/bin/tor": true,
+  "usr/lib/libcrypto.so.3": true,
+  "usr/lib/libevent-2.1.so.7.0.2": true,
+  "usr/lib/libseccomp.so.2.6.1": true,
+  "usr/lib/libssl.so.3": true,
+  "usr/lib/libz.so.1.3.2": true
+}

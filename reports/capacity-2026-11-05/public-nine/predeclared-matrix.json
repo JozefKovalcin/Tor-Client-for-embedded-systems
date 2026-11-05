@@ -1,0 +1,68 @@
+{
+  "images": {
+    "baseline": [
+      "qemu-x86_64-ram",
+      "build/iterations/08-ram",
+      "20261105T101727Z-3c2822d0"
+    ],
+    "selective": [
+      "qemu-x86_64-selective",
+      "build/iterations/11-selective",
+      "20261105T130046Z-719a45c7"
+    ],
+    "slim": [
+      "qemu-x86_64-fulltor-slim",
+      "build/iterations/10-fulltor-slim",
+      "20261105T110833Z-e46f667a"
+    ]
+  },
+  "orders": [
+    [
+      "baseline",
+      "slim",
+      "selective"
+    ],
+    [
+      "slim",
+      "selective",
+      "baseline"
+    ],
+    [
+      "selective",
+      "baseline",
+      "slim"
+    ],
+    [
+      "selective",
+      "slim",
+      "baseline"
+    ],
+    [
+      "baseline",
+      "selective",
+      "slim"
+    ],
+    [
+      "slim",
+      "baseline",
+      "selective"
+    ],
+    [
+      "baseline",
+      "slim",
+      "selective"
+    ],
+    [
+      "slim",
+      "selective",
+      "baseline"
+    ],
+    [
+      "selective",
+      "baseline",
+      "slim"
+    ]
+  ],
+  "predeclared": "2026-11-05T14:08:20.173421+00:00",
+  "reason": "Nine fixed interleaved public trials per image, retain every attempt; no stopping on a passing median. Original frozen nine assertions and performance thresholds unchanged."
+}

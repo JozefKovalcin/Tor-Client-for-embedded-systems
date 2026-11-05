@@ -1,0 +1,245 @@
+{
+  "control_image": "ram",
+  "created_before_measurements": "2026-11-05T16:55:45.578656+00:00",
+  "fixture_manifest": {
+    "binaries": {
+      "ram": {
+        "compiler_flags": "GNU_TARGET_NAME='x86_64-buildroot-linux-musl'\nTARGET_CFLAGS='-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -O2 -g0 '\nTARGET_LDFLAGS=' -ztext'\nTOR_CONF_ENV='ac_cv_prog_cc_c99='\\''-std=gnu99'\\'' LIBS=\"-latomic\" LDFLAGS=\" -ztext -Wl,--gc-sections\" CFLAGS=\"-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -O2 -g0 -O2 -ffunction-sections -fdata-sections\"'\nTOR_CONF_OPTS='--disable-gcc-hardening --disable-unittests --with-libevent-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-ram/a2bae7b5c98ae3145a27/host/x86_64-buildroot-linux-musl/sysroot/usr --with-openssl-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-ram/a2bae7b5c98ae3145a27/host/x86_64-buildroot-linux-musl/sysroot/usr --with-zlib-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-ram/a2bae7b5c98ae3145a27/host/x86_64-buildroot-linux-musl/sysroot/usr --disable-systemd --disable-lzma --disable-zstd --enable-seccomp --disable-module-relay --disable-module-dirauth'",
+        "sha256": "7e92577d0589934a1b45a0f3961d1fee6d9eb7d545f6626c9a6d6284829674da",
+        "source_path": "/home/jozef/embedded-tor/build/embedded/qemu-x86_64-ram/a2bae7b5c98ae3145a27/build/tor-0.4.9.14/src/test/bench",
+        "source_run": "20261105T101727Z-3c2822d0"
+      },
+      "selective": {
+        "compiler_flags": "GNU_TARGET_NAME='x86_64-buildroot-linux-musl'\nTARGET_CFLAGS='-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -Os -g0 '\nTARGET_LDFLAGS=' -ztext'\nTOR_CONF_ENV='ac_cv_prog_cc_c99='\\''-std=gnu99'\\'' LIBS=\"-latomic\" LDFLAGS=\" -ztext -Wl,--gc-sections\" CFLAGS=\"-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -g0 -O2 -ffunction-sections -fdata-sections\"'\nTOR_CONF_OPTS='--disable-gcc-hardening --disable-unittests --with-libevent-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-selective/80671752a38bb101ab45/host/x86_64-buildroot-linux-musl/sysroot/usr --with-openssl-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-selective/80671752a38bb101ab45/host/x86_64-buildroot-linux-musl/sysroot/usr --with-zlib-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-selective/80671752a38bb101ab45/host/x86_64-buildroot-linux-musl/sysroot/usr --disable-systemd --disable-lzma --disable-zstd --enable-seccomp --disable-module-relay --disable-module-dirauth'",
+        "sha256": "1340b2376b84ee4153c8486b609141b8587806d3c56010101542ccea5e024f70",
+        "source_path": "/home/jozef/embedded-tor/build/embedded/qemu-x86_64-selective/80671752a38bb101ab45/build/tor-0.4.9.14/src/test/bench",
+        "source_run": "20261105T130046Z-719a45c7"
+      },
+      "slim": {
+        "compiler_flags": "GNU_TARGET_NAME='x86_64-buildroot-linux-musl'\nTARGET_CFLAGS='-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -Os -g0 '\nTARGET_LDFLAGS=' -ztext'\nTOR_CONF_ENV='ac_cv_prog_cc_c99='\\''-std=gnu99'\\'' LIBS=\"-latomic\" CFLAGS=\"-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -g0 -O2\"'\nTOR_CONF_OPTS='--disable-gcc-hardening --disable-unittests --with-libevent-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-fulltor-slim/a37d79406d038c933cdc/host/x86_64-buildroot-linux-musl/sysroot/usr --with-openssl-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-fulltor-slim/a37d79406d038c933cdc/host/x86_64-buildroot-linux-musl/sysroot/usr --with-zlib-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-fulltor-slim/a37d79406d038c933cdc/host/x86_64-buildroot-linux-musl/sysroot/usr --disable-systemd --disable-lzma --disable-zstd --enable-seccomp'",
+        "sha256": "608531130946e096dd73a3ada27d29e482c5c89a83cf415e0e48117609dbdb1b",
+        "source_path": "/home/jozef/embedded-tor/build/embedded/qemu-x86_64-fulltor-slim/a37d79406d038c933cdc/build/tor-0.4.9.14/src/test/bench",
+        "source_run": "20261105T110833Z-e46f667a"
+      }
+    },
+    "created": "2026-11-05T16:55:45.467460+00:00",
+    "git": {
+      "commit": "62a99ece3177a97515a3807e1ece72201c3fc8fe",
+      "diff_sha256": "ddba282e6400d950c74658250dee401435122eb6aef926363575a2ca05413e58",
+      "dirty": true
+    },
+    "openssl_builds": {
+      "ram": {
+        "libcrypto.so.3": "79b14e95985359bde37f06355d1f4136183e702c7051d549dfb5e657ebb94dd2",
+        "libssl.so.3": "aa5c5784eb169421caaa9dda5bad751060d5428cb57503a4718dcaa31b4c0ae1"
+      },
+      "slim": {
+        "libcrypto.so.3": "15523cecdd832645bafacbe9d9448fe34ab1a3a911948b4b74edc3075e562dfd",
+        "libssl.so.3": "9fda6eb729788f1b0027800a14d4985ab85e67ec92b74bedc71c802fae20ad4e"
+      }
+    },
+    "purpose": "test-only unchanged upstream built-in benchmarks; no production installation"
+  },
+  "fixture_sha256": "bf11a42c78e7fc667bfc0960e06a4046b2cefb19382f6164b70ff41def9a383f",
+  "git": {
+    "commit": "62a99ece3177a97515a3807e1ece72201c3fc8fe",
+    "diff_sha256": "ddba282e6400d950c74658250dee401435122eb6aef926363575a2ca05413e58",
+    "dirty": true
+  },
+  "images": {
+    "ram": [
+      "qemu-x86_64-ram",
+      "build/iterations/08-ram",
+      "20261105T101727Z-3c2822d0"
+    ],
+    "selective": [
+      "qemu-x86_64-selective",
+      "build/iterations/11-selective",
+      "20261105T130046Z-719a45c7"
+    ],
+    "slim": [
+      "qemu-x86_64-fulltor-slim",
+      "build/iterations/10-fulltor-slim",
+      "20261105T110833Z-e46f667a"
+    ]
+  },
+  "library_orders": [
+    [
+      "ram",
+      "slim"
+    ],
+    [
+      "slim",
+      "ram"
+    ]
+  ],
+  "memory_mib": 128,
+  "operations": [
+    "cell_ops_tor1",
+    "cell_ops_cgo",
+    "polyval"
+  ],
+  "orders": [
+    [
+      "ram",
+      "slim",
+      "selective"
+    ],
+    [
+      "selective",
+      "slim",
+      "ram"
+    ]
+  ],
+  "rows": [
+    {
+      "benchmark_binary": "ram",
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "ram",
+      "output": "CAPACITY_DSO_BEGIN\n7fcfd74cc000-7fcfd75b8000 r--p 00000000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7fcfd75b8000-7fcfd7909000 r-xp 000ec000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7fcfd7909000-7fcfd7a34000 r--p 0043d000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7fcfd7a34000-7fcfd7ab2000 r--p 00567000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7fcfd7ab2000-7fcfd7ab5000 rw-p 005e5000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7fcfd7ab8000-7fcfd7adc000 r--p 00000000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7fcfd7adc000-7fcfd7b81000 r-xp 00024000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7fcfd7b81000-7fcfd7bb2000 r--p 000c9000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7fcfd7bb2000-7fcfd7bbc000 r--p 000fa000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7fcfd7bbc000-7fcfd7bc0000 rw-p 00104000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\nCAPACITY_DSO_END\n===== polyval =====\npolyval (add 16): 194.62 ns; 55.87 cpb\npolyval (add 512): 5864.89 ns; 51.11 cpb\npolyval (add 512, pre-expanded key): 6094.31 ns; 52.81 cpb\n===== cell_ops_tor1 =====\n Inbound cells: 12276.39 ns per cell. (24.65 ns per byte of payload, 109.70 cpb)\nOutbound cells: 14142.77 ns per cell. (28.40 ns per byte of payload, 126.10 cpb)\noriginate inbound : 17875.22 ns per cell. (35.89 ns per payload byte, 159.27 cpb)\n===== cell_ops_cgo =====\nCGO outbound at relay: 19970.17 per cell (181.63 cpb)\nCGO inbound at relay: 18929.14 per cell (172.31 cpb)\nCGO originate at relay: 36890.58 per cell (338.92 cpb)\n",
+      "repeat": 1,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 147.49829246300033,
+      "started": "2026-11-05T16:55:48.113864+00:00",
+      "status": "PASS"
+    },
+    {
+      "benchmark_binary": "slim",
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "ram",
+      "output": "CAPACITY_DSO_BEGIN\n7f160728f000-7f160737b000 r--p 00000000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f160737b000-7f16076cc000 r-xp 000ec000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f16076cc000-7f16077f7000 r--p 0043d000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f16077f7000-7f1607875000 r--p 00567000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f1607875000-7f1607878000 rw-p 005e5000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f160787b000-7f160789f000 r--p 00000000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f160789f000-7f1607944000 r-xp 00024000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f1607944000-7f1607975000 r--p 000c9000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f1607975000-7f160797f000 r--p 000fa000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f160797f000-7f1607983000 rw-p 00104000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\nCAPACITY_DSO_END\n===== polyval =====\npolyval (add 16): 221.46 ns; 61.85 cpb\npolyval (add 512): 6917.87 ns; 59.99 cpb\npolyval (add 512, pre-expanded key): 7178.98 ns; 62.33 cpb\n===== cell_ops_tor1 =====\n Inbound cells: 12642.23 ns per cell. (25.39 ns per byte of payload, 112.76 cpb)\nOutbound cells: 12500.22 ns per cell. (25.10 ns per byte of payload, 111.50 cpb)\noriginate inbound : 18213.77 ns per cell. (36.57 ns per payload byte, 162.49 cpb)\n===== cell_ops_cgo =====\nCGO outbound at relay: 21300.60 per cell (193.76 cpb)\nCGO inbound at relay: 21603.66 per cell (196.86 cpb)\nCGO originate at relay: 30808.86 per cell (280.71 cpb)\n",
+      "repeat": 1,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 146.1076850139998,
+      "started": "2026-11-05T16:58:15.612556+00:00",
+      "status": "PASS"
+    },
+    {
+      "benchmark_binary": "selective",
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "ram",
+      "output": "CAPACITY_DSO_BEGIN\n7f7d05aa3000-7f7d05b8f000 r--p 00000000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f7d05b8f000-7f7d05ee0000 r-xp 000ec000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f7d05ee0000-7f7d0600b000 r--p 0043d000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f7d0600b000-7f7d06089000 r--p 00567000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f7d06089000-7f7d0608c000 rw-p 005e5000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f7d0608f000-7f7d060b3000 r--p 00000000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f7d060b3000-7f7d06158000 r-xp 00024000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f7d06158000-7f7d06189000 r--p 000c9000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f7d06189000-7f7d06193000 r--p 000fa000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f7d06193000-7f7d06197000 rw-p 00104000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\nCAPACITY_DSO_END\n===== polyval =====\npolyval (add 16): 198.28 ns; 55.74 cpb\npolyval (add 512): 5913.63 ns; 51.38 cpb\npolyval (add 512, pre-expanded key): 6167.05 ns; 53.47 cpb\n===== cell_ops_tor1 =====\n Inbound cells: 12122.76 ns per cell. (24.34 ns per byte of payload, 108.25 cpb)\nOutbound cells: 13766.44 ns per cell. (27.64 ns per byte of payload, 123.84 cpb)\noriginate inbound : 18607.64 ns per cell. (37.36 ns per payload byte, 166.00 cpb)\n===== cell_ops_cgo =====\nCGO outbound at relay: 19101.78 per cell (173.95 cpb)\nCGO inbound at relay: 19638.93 per cell (179.18 cpb)\nCGO originate at relay: 37582.42 per cell (345.15 cpb)\n",
+      "repeat": 1,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 148.54340357100045,
+      "started": "2026-11-05T17:00:41.720718+00:00",
+      "status": "PASS"
+    },
+    {
+      "benchmark_binary": "ram",
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "slim",
+      "output": "CAPACITY_DSO_BEGIN\n7efd27b5c000-7efd27c48000 r--p 00000000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7efd27c48000-7efd27f03000 r-xp 000ec000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7efd27f03000-7efd2802b000 r--p 003a7000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7efd2802b000-7efd280a9000 r--p 004cf000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7efd280a9000-7efd280ac000 rw-p 0054d000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7efd280af000-7efd280d3000 r--p 00000000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7efd280d3000-7efd28150000 r-xp 00024000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7efd28150000-7efd28180000 r--p 000a1000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7efd28180000-7efd2818a000 r--p 000d1000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7efd2818a000-7efd2818e000 rw-p 000db000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\nCAPACITY_DSO_END\n===== polyval =====\npolyval (add 16): 208.64 ns; 58.57 cpb\npolyval (add 512): 6390.27 ns; 55.59 cpb\npolyval (add 512, pre-expanded key): 6883.99 ns; 59.92 cpb\n===== cell_ops_tor1 =====\n Inbound cells: 13221.19 ns per cell. (26.55 ns per byte of payload, 118.03 cpb)\nOutbound cells: 13002.90 ns per cell. (26.11 ns per byte of payload, 116.24 cpb)\noriginate inbound : 20011.54 ns per cell. (40.18 ns per payload byte, 178.95 cpb)\n===== cell_ops_cgo =====\nCGO outbound at relay: 38263.84 per cell (349.14 cpb)\nCGO inbound at relay: 37944.03 per cell (345.94 cpb)\nCGO originate at relay: 58943.91 per cell (537.56 cpb)\n",
+      "repeat": 1,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 217.06051491200014,
+      "started": "2026-11-05T17:03:10.266293+00:00",
+      "status": "PASS"
+    },
+    {
+      "benchmark_binary": "slim",
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "slim",
+      "output": "CAPACITY_DSO_BEGIN\n7ff273c9e000-7ff273d8a000 r--p 00000000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7ff273d8a000-7ff274045000 r-xp 000ec000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7ff274045000-7ff27416d000 r--p 003a7000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7ff27416d000-7ff2741eb000 r--p 004cf000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7ff2741eb000-7ff2741ee000 rw-p 0054d000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7ff2741f1000-7ff274215000 r--p 00000000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7ff274215000-7ff274292000 r-xp 00024000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7ff274292000-7ff2742c2000 r--p 000a1000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7ff2742c2000-7ff2742cc000 r--p 000d1000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7ff2742cc000-7ff2742d0000 rw-p 000db000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\nCAPACITY_DSO_END\n===== polyval =====\npolyval (add 16): 234.89 ns; 65.28 cpb\npolyval (add 512): 8343.63 ns; 72.77 cpb\npolyval (add 512, pre-expanded key): 8448.62 ns; 73.48 cpb\n===== cell_ops_tor1 =====\n Inbound cells: 13555.90 ns per cell. (27.22 ns per byte of payload, 121.35 cpb)\nOutbound cells: 13434.54 ns per cell. (26.98 ns per byte of payload, 120.24 cpb)\noriginate inbound : 19942.89 ns per cell. (40.05 ns per payload byte, 178.61 cpb)\n===== cell_ops_cgo =====\nCGO outbound at relay: 24119.99 per cell (219.93 cpb)\nCGO inbound at relay: 23949.19 per cell (218.46 cpb)\nCGO originate at relay: 35578.27 per cell (324.63 cpb)\n",
+      "repeat": 1,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 164.51803402900077,
+      "started": "2026-11-05T17:06:47.327258+00:00",
+      "status": "PASS"
+    },
+    {
+      "benchmark_binary": "selective",
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "slim",
+      "output": "CAPACITY_DSO_BEGIN\n7f1196957000-7f1196a43000 r--p 00000000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f1196a43000-7f1196cfe000 r-xp 000ec000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f1196cfe000-7f1196e26000 r--p 003a7000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f1196e26000-7f1196ea4000 r--p 004cf000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f1196ea4000-7f1196ea7000 rw-p 0054d000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f1196eaa000-7f1196ece000 r--p 00000000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7f1196ece000-7f1196f4b000 r-xp 00024000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7f1196f4b000-7f1196f7b000 r--p 000a1000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7f1196f7b000-7f1196f85000 r--p 000d1000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7f1196f85000-7f1196f89000 rw-p 000db000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\nCAPACITY_DSO_END\n===== polyval =====\npolyval (add 16): 207.20 ns; 58.70 cpb\npolyval (add 512): 6143.09 ns; 53.49 cpb\npolyval (add 512, pre-expanded key): 6559.40 ns; 57.07 cpb\n===== cell_ops_tor1 =====\n Inbound cells: 13394.27 ns per cell. (26.90 ns per byte of payload, 119.61 cpb)\nOutbound cells: 12998.82 ns per cell. (26.10 ns per byte of payload, 115.86 cpb)\noriginate inbound : 19826.72 ns per cell. (39.81 ns per payload byte, 177.21 cpb)\n===== cell_ops_cgo =====\nCGO outbound at relay: 22399.16 per cell (204.36 cpb)\nCGO inbound at relay: 20948.60 per cell (191.02 cpb)\nCGO originate at relay: 33112.03 per cell (302.13 cpb)\n",
+      "repeat": 1,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 150.99232748899885,
+      "started": "2026-11-05T17:09:31.845816+00:00",
+      "status": "PASS"
+    },
+    {
+      "benchmark_binary": "selective",
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "slim",
+      "output": "CAPACITY_DSO_BEGIN\n7fb726477000-7fb726563000 r--p 00000000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7fb726563000-7fb72681e000 r-xp 000ec000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7fb72681e000-7fb726946000 r--p 003a7000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7fb726946000-7fb7269c4000 r--p 004cf000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7fb7269c4000-7fb7269c7000 rw-p 0054d000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7fb7269ca000-7fb7269ee000 r--p 00000000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7fb7269ee000-7fb726a6b000 r-xp 00024000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7fb726a6b000-7fb726a9b000 r--p 000a1000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7fb726a9b000-7fb726aa5000 r--p 000d1000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7fb726aa5000-7fb726aa9000 rw-p 000db000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\nCAPACITY_DSO_END\n===== polyval =====\npolyval (add 16): 249.59 ns; 69.86 cpb\npolyval (add 512): 6177.26 ns; 53.92 cpb\npolyval (add 512, pre-expanded key): 6120.04 ns; 53.29 cpb\n===== cell_ops_tor1 =====\n Inbound cells: 13479.21 ns per cell. (27.07 ns per byte of payload, 120.50 cpb)\nOutbound cells: 13524.85 ns per cell. (27.16 ns per byte of payload, 120.90 cpb)\noriginate inbound : 20459.95 ns per cell. (41.08 ns per payload byte, 183.27 cpb)\n===== cell_ops_cgo =====\nCGO outbound at relay: 21636.48 per cell (197.57 cpb)\nCGO inbound at relay: 21239.26 per cell (193.83 cpb)\nCGO originate at relay: 36153.03 per cell (330.11 cpb)\n",
+      "repeat": 2,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 155.0523603799993,
+      "started": "2026-11-05T17:12:02.838756+00:00",
+      "status": "PASS"
+    },
+    {
+      "benchmark_binary": "slim",
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "slim",
+      "output": "CAPACITY_DSO_BEGIN\n7f7ec8eaa000-7f7ec8f96000 r--p 00000000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f7ec8f96000-7f7ec9251000 r-xp 000ec000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f7ec9251000-7f7ec9379000 r--p 003a7000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f7ec9379000-7f7ec93f7000 r--p 004cf000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f7ec93f7000-7f7ec93fa000 rw-p 0054d000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f7ec93fd000-7f7ec9421000 r--p 00000000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7f7ec9421000-7f7ec949e000 r-xp 00024000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7f7ec949e000-7f7ec94ce000 r--p 000a1000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7f7ec94ce000-7f7ec94d8000 r--p 000d1000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7f7ec94d8000-7f7ec94dc000 rw-p 000db000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\nCAPACITY_DSO_END\n===== polyval =====\npolyval (add 16): 229.65 ns; 64.21 cpb\npolyval (add 512): 7695.69 ns; 66.96 cpb\npolyval (add 512, pre-expanded key): 7812.74 ns; 67.89 cpb\n===== cell_ops_tor1 =====\n Inbound cells: 13960.88 ns per cell. (28.03 ns per byte of payload, 125.02 cpb)\nOutbound cells: 13373.85 ns per cell. (26.86 ns per byte of payload, 119.67 cpb)\noriginate inbound : 19745.60 ns per cell. (39.65 ns per payload byte, 176.63 cpb)\n===== cell_ops_cgo =====\nCGO outbound at relay: 23058.71 per cell (210.83 cpb)\nCGO inbound at relay: 22798.47 per cell (208.46 cpb)\nCGO originate at relay: 34207.86 per cell (312.72 cpb)\n",
+      "repeat": 2,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 159.42819635600063,
+      "started": "2026-11-05T17:14:37.891600+00:00",
+      "status": "PASS"
+    },
+    {
+      "benchmark_binary": "ram",
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "slim",
+      "output": "CAPACITY_DSO_BEGIN\n7f7c247a8000-7f7c24894000 r--p 00000000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f7c24894000-7f7c24b4f000 r-xp 000ec000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f7c24b4f000-7f7c24c77000 r--p 003a7000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f7c24c77000-7f7c24cf5000 r--p 004cf000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f7c24cf5000-7f7c24cf8000 rw-p 0054d000 fe:10 20                         /run/probe/openssl-slim/libcrypto.so.3\n7f7c24cfb000-7f7c24d1f000 r--p 00000000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7f7c24d1f000-7f7c24d9c000 r-xp 00024000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7f7c24d9c000-7f7c24dcc000 r--p 000a1000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7f7c24dcc000-7f7c24dd6000 r--p 000d1000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\n7f7c24dd6000-7f7c24dda000 rw-p 000db000 fe:10 21                         /run/probe/openssl-slim/libssl.so.3\nCAPACITY_DSO_END\n===== polyval =====\npolyval (add 16): 217.34 ns; 61.19 cpb\npolyval (add 512): 6408.89 ns; 55.87 cpb\npolyval (add 512, pre-expanded key): 6864.32 ns; 60.00 cpb\n===== cell_ops_tor1 =====\n Inbound cells: 14083.68 ns per cell. (28.28 ns per byte of payload, 126.33 cpb)\nOutbound cells: 14264.07 ns per cell. (28.64 ns per byte of payload, 127.89 cpb)\noriginate inbound : 21189.35 ns per cell. (42.55 ns per payload byte, 189.97 cpb)\n===== cell_ops_cgo =====\nCGO outbound at relay: 22455.03 per cell (205.70 cpb)\nCGO inbound at relay: 22318.75 per cell (204.48 cpb)\nCGO originate at relay: 34653.98 per cell (316.99 cpb)\n",
+      "repeat": 2,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 159.22386576499957,
+      "started": "2026-11-05T17:17:17.320330+00:00",
+      "status": "PASS"
+    },
+    {
+      "benchmark_binary": "selective",
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "ram",
+      "output": "CAPACITY_DSO_BEGIN\n7f5d8269a000-7f5d82786000 r--p 00000000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f5d82786000-7f5d82ad7000 r-xp 000ec000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f5d82ad7000-7f5d82c02000 r--p 0043d000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f5d82c02000-7f5d82c80000 r--p 00567000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f5d82c80000-7f5d82c83000 rw-p 005e5000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f5d82c86000-7f5d82caa000 r--p 00000000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f5d82caa000-7f5d82d4f000 r-xp 00024000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f5d82d4f000-7f5d82d80000 r--p 000c9000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f5d82d80000-7f5d82d8a000 r--p 000fa000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f5d82d8a000-7f5d82d8e000 rw-p 00104000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\nCAPACITY_DSO_END\n===== polyval =====\npolyval (add 16): 217.15 ns; 61.51 cpb\npolyval (add 512): 6223.85 ns; 54.22 cpb\npolyval (add 512, pre-expanded key): 7023.40 ns; 61.30 cpb\n===== cell_ops_tor1 =====\n Inbound cells: 13253.72 ns per cell. (26.61 ns per byte of payload, 118.60 cpb)\nOutbound cells: 13670.69 ns per cell. (27.45 ns per byte of payload, 122.71 cpb)\noriginate inbound : 19642.95 ns per cell. (39.44 ns per payload byte, 175.66 cpb)\n===== cell_ops_cgo =====\nCGO outbound at relay: 20970.81 per cell (191.98 cpb)\nCGO inbound at relay: 20637.63 per cell (188.80 cpb)\nCGO originate at relay: 39115.04 per cell (360.59 cpb)\n",
+      "repeat": 2,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 157.5327282369999,
+      "started": "2026-11-05T17:19:56.544791+00:00",
+      "status": "PASS"
+    },
+    {
+      "benchmark_binary": "slim",
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "ram",
+      "output": "CAPACITY_DSO_BEGIN\n7fdbef5a7000-7fdbef693000 r--p 00000000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7fdbef693000-7fdbef9e4000 r-xp 000ec000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7fdbef9e4000-7fdbefb0f000 r--p 0043d000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7fdbefb0f000-7fdbefb8d000 r--p 00567000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7fdbefb8d000-7fdbefb90000 rw-p 005e5000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7fdbefb93000-7fdbefbb7000 r--p 00000000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7fdbefbb7000-7fdbefc5c000 r-xp 00024000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7fdbefc5c000-7fdbefc8d000 r--p 000c9000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7fdbefc8d000-7fdbefc97000 r--p 000fa000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7fdbefc97000-7fdbefc9b000 rw-p 00104000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\nCAPACITY_DSO_END\n===== polyval =====\npolyval (add 16): 239.84 ns; 67.16 cpb\npolyval (add 512): 7448.54 ns; 64.93 cpb\npolyval (add 512, pre-expanded key): 7604.12 ns; 66.21 cpb\n===== cell_ops_tor1 =====\n Inbound cells: 12942.00 ns per cell. (25.99 ns per byte of payload, 115.66 cpb)\nOutbound cells: 13157.36 ns per cell. (26.42 ns per byte of payload, 117.88 cpb)\noriginate inbound : 20865.04 ns per cell. (41.90 ns per payload byte, 187.37 cpb)\n===== cell_ops_cgo =====\nCGO outbound at relay: 23855.83 per cell (218.38 cpb)\nCGO inbound at relay: 23274.36 per cell (213.15 cpb)\nCGO originate at relay: 35388.73 per cell (323.33 cpb)\n",
+      "repeat": 2,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 161.69056597999952,
+      "started": "2026-11-05T17:22:34.078107+00:00",
+      "status": "PASS"
+    },
+    {
+      "benchmark_binary": "ram",
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "ram",
+      "output": "CAPACITY_DSO_BEGIN\n7f61f6e19000-7f61f6f05000 r--p 00000000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f61f6f05000-7f61f7256000 r-xp 000ec000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f61f7256000-7f61f7381000 r--p 0043d000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f61f7381000-7f61f73ff000 r--p 00567000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f61f73ff000-7f61f7402000 rw-p 005e5000 fe:10 17                         /run/probe/openssl-ram/libcrypto.so.3\n7f61f7405000-7f61f7429000 r--p 00000000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f61f7429000-7f61f74ce000 r-xp 00024000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f61f74ce000-7f61f74ff000 r--p 000c9000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f61f74ff000-7f61f7509000 r--p 000fa000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\n7f61f7509000-7f61f750d000 rw-p 00104000 fe:10 18                         /run/probe/openssl-ram/libssl.so.3\nCAPACITY_DSO_END\n===== polyval =====\npolyval (add 16): 271.59 ns; 80.62 cpb\npolyval (add 512): 6942.67 ns; 60.63 cpb\npolyval (add 512, pre-expanded key): 7036.96 ns; 61.60 cpb\n===== cell_ops_tor1 =====\n Inbound cells: 14503.55 ns per cell. (29.12 ns per byte of payload, 130.24 cpb)\nOutbound cells: 13757.83 ns per cell. (27.63 ns per byte of payload, 123.44 cpb)\noriginate inbound : 20611.86 ns per cell. (41.39 ns per payload byte, 184.83 cpb)\n===== cell_ops_cgo =====\nCGO outbound at relay: 21298.45 per cell (194.75 cpb)\nCGO inbound at relay: 21186.09 per cell (193.89 cpb)\nCGO originate at relay: 42172.24 per cell (389.20 cpb)\n",
+      "repeat": 2,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 165.60515216299973,
+      "started": "2026-11-05T17:25:15.769582+00:00",
+      "status": "PASS"
+    }
+  ],
+  "scope": "Offline cell-operation controls in one fixed 128 MiB VM. Only the benchmark process selects the pinned O2/Os OpenSSL 3.6.5 build through LD_LIBRARY_PATH; production images and Tor services are not modified. Same version/configure options/API/ABI, different optimization flags. No private/public Tor network throughput or functional qualification claimed; every attempt retained.",
+  "verified_image_hashes": {
+    "kernel": "db93194c6eabccd5a9c399dd56162c391648987ac5a80b96f4a8227b5ea00bda",
+    "rootfs": "c71ab1f79fcaace510d0ad768fa229b75c39b8e4d96e9b942ded985c58733811"
+  }
+}

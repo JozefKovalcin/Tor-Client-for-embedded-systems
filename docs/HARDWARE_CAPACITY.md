@@ -135,3 +135,33 @@ Physical flash also needs bootloader/firmware, erase alignment, reserved blocks,
 update slots and ongoing state headroom. Short runs cannot establish flash
 endurance or bound future consensus/cache sizes. Consult the measured report
 for the tested trade-off and qualification status before choosing a board.
+
+## Boot-configured TCP ceilings
+
+The `qemu-x86_64-capacity32-tcp` profile boots the preserved `capacity32`
+kernel and disk with 1,895,552-byte receive and send autotuning ceilings.
+That value is the measured 256 MiB default for this kernel. The initial
+socket buffers and the kernel's RAM-dependent global `tcp_mem` limits stay
+at their defaults. Each native run checks the effective receive and send
+settings and records all three sysctls before starting Tor.
+
+Run the three cold-start blocks with the existing peer and the pinned v2
+fixture. The experiment matrix records the build run and preserved image
+directory. For a rebuilt image, record its digests and use the new build
+run and image directory in the matrix.
+
+```sh
+python3 scripts/capacity_native.py --fixture build/capacity-fixture-v2.ext4 \
+  --peer-session runtime/capacity-peer-new/session.json \
+  --matrix config/experiments/capacity32-tcp-2026-11-05.json \
+  --output reports/benchmarks/capacity32-tcp-replay \
+  --memory-mib 128 112 256 --rounds 3
+python3 scripts/analyze_capacity.py \
+  --native reports/benchmarks/capacity32-tcp-replay \
+  --output reports/benchmarks/capacity32-tcp-replay-analysis
+```
+
+The offline crossover varies the same two ceilings in fresh guests and
+uses the direct framed TCP path. Its raw results and reproduction script
+are in the capacity report. The online confirmation uses the native Tor
+suite, which includes the separate 32 MiB resident memory reservation.

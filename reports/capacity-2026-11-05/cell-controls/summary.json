@@ -1,0 +1,303 @@
+{
+  "completed": 12,
+  "expected": 12,
+  "mapping_and_execution_pass": 12,
+  "rows": [
+    {
+      "benchmark_binary": "ram",
+      "cgo_outbound_ns_per_cell": 19970.17,
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "ram",
+      "polyval_add512_ns": 5864.89,
+      "repeat": 1,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 147.49829246300033,
+      "started": "2026-11-05T16:55:48.113864+00:00",
+      "status": "PASS",
+      "tor1_outbound_ns_per_cell": 14142.77
+    },
+    {
+      "benchmark_binary": "slim",
+      "cgo_outbound_ns_per_cell": 21300.6,
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "ram",
+      "polyval_add512_ns": 6917.87,
+      "repeat": 1,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 146.1076850139998,
+      "started": "2026-11-05T16:58:15.612556+00:00",
+      "status": "PASS",
+      "tor1_outbound_ns_per_cell": 12500.22
+    },
+    {
+      "benchmark_binary": "selective",
+      "cgo_outbound_ns_per_cell": 19101.78,
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "ram",
+      "polyval_add512_ns": 5913.63,
+      "repeat": 1,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 148.54340357100045,
+      "started": "2026-11-05T17:00:41.720718+00:00",
+      "status": "PASS",
+      "tor1_outbound_ns_per_cell": 13766.44
+    },
+    {
+      "benchmark_binary": "ram",
+      "cgo_outbound_ns_per_cell": 38263.84,
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "slim",
+      "polyval_add512_ns": 6390.27,
+      "repeat": 1,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 217.06051491200014,
+      "started": "2026-11-05T17:03:10.266293+00:00",
+      "status": "PASS",
+      "tor1_outbound_ns_per_cell": 13002.9
+    },
+    {
+      "benchmark_binary": "slim",
+      "cgo_outbound_ns_per_cell": 24119.99,
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "slim",
+      "polyval_add512_ns": 8343.63,
+      "repeat": 1,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 164.51803402900077,
+      "started": "2026-11-05T17:06:47.327258+00:00",
+      "status": "PASS",
+      "tor1_outbound_ns_per_cell": 13434.54
+    },
+    {
+      "benchmark_binary": "selective",
+      "cgo_outbound_ns_per_cell": 22399.16,
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "slim",
+      "polyval_add512_ns": 6143.09,
+      "repeat": 1,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 150.99232748899885,
+      "started": "2026-11-05T17:09:31.845816+00:00",
+      "status": "PASS",
+      "tor1_outbound_ns_per_cell": 12998.82
+    },
+    {
+      "benchmark_binary": "selective",
+      "cgo_outbound_ns_per_cell": 21636.48,
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "slim",
+      "polyval_add512_ns": 6177.26,
+      "repeat": 2,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 155.0523603799993,
+      "started": "2026-11-05T17:12:02.838756+00:00",
+      "status": "PASS",
+      "tor1_outbound_ns_per_cell": 13524.85
+    },
+    {
+      "benchmark_binary": "slim",
+      "cgo_outbound_ns_per_cell": 23058.71,
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "slim",
+      "polyval_add512_ns": 7695.69,
+      "repeat": 2,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 159.42819635600063,
+      "started": "2026-11-05T17:14:37.891600+00:00",
+      "status": "PASS",
+      "tor1_outbound_ns_per_cell": 13373.85
+    },
+    {
+      "benchmark_binary": "ram",
+      "cgo_outbound_ns_per_cell": 22455.03,
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "slim",
+      "polyval_add512_ns": 6408.89,
+      "repeat": 2,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 159.22386576499957,
+      "started": "2026-11-05T17:17:17.320330+00:00",
+      "status": "PASS",
+      "tor1_outbound_ns_per_cell": 14264.07
+    },
+    {
+      "benchmark_binary": "selective",
+      "cgo_outbound_ns_per_cell": 20970.81,
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "ram",
+      "polyval_add512_ns": 6223.85,
+      "repeat": 2,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 157.5327282369999,
+      "started": "2026-11-05T17:19:56.544791+00:00",
+      "status": "PASS",
+      "tor1_outbound_ns_per_cell": 13670.69
+    },
+    {
+      "benchmark_binary": "slim",
+      "cgo_outbound_ns_per_cell": 23855.83,
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "ram",
+      "polyval_add512_ns": 7448.54,
+      "repeat": 2,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 161.69056597999952,
+      "started": "2026-11-05T17:22:34.078107+00:00",
+      "status": "PASS",
+      "tor1_outbound_ns_per_cell": 13157.36
+    },
+    {
+      "benchmark_binary": "ram",
+      "cgo_outbound_ns_per_cell": 21298.45,
+      "expected_crypto_mapping_verified": true,
+      "openssl_build": "ram",
+      "polyval_add512_ns": 6942.67,
+      "repeat": 2,
+      "returncode": 0,
+      "root_image": "ram",
+      "seconds": 165.60515216299973,
+      "started": "2026-11-05T17:25:15.769582+00:00",
+      "status": "PASS",
+      "tor1_outbound_ns_per_cell": 13757.83
+    }
+  ],
+  "summary": {
+    "ram": {
+      "ram": {
+        "cgo_outbound_ns_per_cell": {
+          "max": 21298.45,
+          "median": 20634.309999999998,
+          "min": 19970.17,
+          "n": 2
+        },
+        "polyval_add512_ns": {
+          "max": 6942.67,
+          "median": 6403.780000000001,
+          "min": 5864.89,
+          "n": 2
+        },
+        "tor1_outbound_ns_per_cell": {
+          "max": 14142.77,
+          "median": 13950.3,
+          "min": 13757.83,
+          "n": 2
+        }
+      },
+      "slim": {
+        "cgo_outbound_ns_per_cell": {
+          "max": 38263.84,
+          "median": 30359.434999999998,
+          "min": 22455.03,
+          "n": 2
+        },
+        "polyval_add512_ns": {
+          "max": 6408.89,
+          "median": 6399.58,
+          "min": 6390.27,
+          "n": 2
+        },
+        "tor1_outbound_ns_per_cell": {
+          "max": 14264.07,
+          "median": 13633.485,
+          "min": 13002.9,
+          "n": 2
+        }
+      }
+    },
+    "selective": {
+      "ram": {
+        "cgo_outbound_ns_per_cell": {
+          "max": 20970.81,
+          "median": 20036.295,
+          "min": 19101.78,
+          "n": 2
+        },
+        "polyval_add512_ns": {
+          "max": 6223.85,
+          "median": 6068.74,
+          "min": 5913.63,
+          "n": 2
+        },
+        "tor1_outbound_ns_per_cell": {
+          "max": 13766.44,
+          "median": 13718.565,
+          "min": 13670.69,
+          "n": 2
+        }
+      },
+      "slim": {
+        "cgo_outbound_ns_per_cell": {
+          "max": 22399.16,
+          "median": 22017.82,
+          "min": 21636.48,
+          "n": 2
+        },
+        "polyval_add512_ns": {
+          "max": 6177.26,
+          "median": 6160.175,
+          "min": 6143.09,
+          "n": 2
+        },
+        "tor1_outbound_ns_per_cell": {
+          "max": 13524.85,
+          "median": 13261.835,
+          "min": 12998.82,
+          "n": 2
+        }
+      }
+    },
+    "slim": {
+      "ram": {
+        "cgo_outbound_ns_per_cell": {
+          "max": 23855.83,
+          "median": 22578.215,
+          "min": 21300.6,
+          "n": 2
+        },
+        "polyval_add512_ns": {
+          "max": 7448.54,
+          "median": 7183.205,
+          "min": 6917.87,
+          "n": 2
+        },
+        "tor1_outbound_ns_per_cell": {
+          "max": 13157.36,
+          "median": 12828.79,
+          "min": 12500.22,
+          "n": 2
+        }
+      },
+      "slim": {
+        "cgo_outbound_ns_per_cell": {
+          "max": 24119.99,
+          "median": 23589.35,
+          "min": 23058.71,
+          "n": 2
+        },
+        "polyval_add512_ns": {
+          "max": 8343.63,
+          "median": 8019.66,
+          "min": 7695.69,
+          "n": 2
+        },
+        "tor1_outbound_ns_per_cell": {
+          "max": 13434.54,
+          "median": 13404.195,
+          "min": 13373.85,
+          "n": 2
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "created_before_measurements": "2026-11-05T16:23:25.547042+00:00",
+  "fixture_sha256": "4b531e68d242c3bdaee1f3de6d6ec3b8bb9af61e0ead3c137e3907658cbcbdfb",
+  "git": {
+    "commit": "62a99ece3177a97515a3807e1ece72201c3fc8fe",
+    "diff_sha256": "203f49284e6847e70f94a18d887cc48dfec2c6081f956e4885e053ccc851de79",
+    "dirty": true
+  },
+  "images": {
+    "capacity32": [
+      "qemu-x86_64-capacity32",
+      "build/iterations/12-capacity32",
+      "20261105T160654Z-f407769f"
+    ]
+  },
+  "local_tcp_trials": 3,
+  "margin": {
+    "minimum_available_bytes": 16777216,
+    "minimum_available_fraction": 0.2
+  },
+  "performance_limits": "Existing limits unchanged; intentional RAM scaling must be reported separately from equivalent-environment optimization comparisons.",
+  "protocol": "per-result; v2 additionally holds the explicitly configured resident queue reservation",
+  "ram_order": [
+    128,
+    96,
+    112,
+    256
+  ],
+  "repeats": 3,
+  "results": [
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity32-native-20261105T162325Z/01-01-capacity32-128",
+      "image": "capacity32",
+      "memory_mib": 128,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity32-native-20261105T162325Z/01-02-capacity32-96",
+      "image": "capacity32",
+      "memory_mib": 96,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": false,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity32-native-20261105T162325Z/01-03-capacity32-112",
+      "image": "capacity32",
+      "memory_mib": 112,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity32-native-20261105T162325Z/01-04-capacity32-256",
+      "image": "capacity32",
+      "memory_mib": 256,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity32-native-20261105T162325Z/02-01-capacity32-128",
+      "image": "capacity32",
+      "memory_mib": 128,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity32-native-20261105T162325Z/02-02-capacity32-96",
+      "image": "capacity32",
+      "memory_mib": 96,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": false,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity32-native-20261105T162325Z/02-03-capacity32-112",
+      "image": "capacity32",
+      "memory_mib": 112,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity32-native-20261105T162325Z/02-04-capacity32-256",
+      "image": "capacity32",
+      "memory_mib": 256,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity32-native-20261105T162325Z/03-01-capacity32-128",
+      "image": "capacity32",
+      "memory_mib": 128,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity32-native-20261105T162325Z/03-02-capacity32-96",
+      "image": "capacity32",
+      "memory_mib": 96,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": false,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity32-native-20261105T162325Z/03-03-capacity32-112",
+      "image": "capacity32",
+      "memory_mib": 112,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity32-native-20261105T162325Z/03-04-capacity32-256",
+      "image": "capacity32",
+      "memory_mib": 256,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate",
+        "queue_reserve_integrity_pass": true,
+        "state_capacity_pass": true
+      }
+    }
+  ],
+  "small_buffer_crypto_trials": 5
+}

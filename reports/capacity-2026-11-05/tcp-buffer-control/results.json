@@ -1,0 +1,893 @@
+{
+  "control_defaults": {
+    "128": {
+      "tcp_mem": [
+        1275,
+        1703,
+        2550
+      ],
+      "tcp_rmem": [
+        4096,
+        131072,
+        872384
+      ],
+      "tcp_wmem": [
+        4096,
+        16384,
+        872384
+      ]
+    },
+    "256": {
+      "tcp_mem": [
+        2775,
+        3702,
+        5550
+      ],
+      "tcp_rmem": [
+        4096,
+        131072,
+        1895552
+      ],
+      "tcp_wmem": [
+        4096,
+        16384,
+        1895552
+      ]
+    }
+  },
+  "fixture_sha256": "4b531e68d242c3bdaee1f3de6d6ec3b8bb9af61e0ead3c137e3907658cbcbdfb",
+  "image_sha256": {
+    "bzImage": "34fc79461775223b9c59dcd7cfc2d1cb9a5ac1e788268c50e63a1056d18b88a7",
+    "disk.img": "5922f87495afc00acba6a2b9b10a07625168d5a82960f5c886185784e350fb6c"
+  },
+  "orders": [
+    [
+      256,
+      128,
+      112
+    ],
+    [
+      112,
+      128,
+      256
+    ],
+    [
+      128,
+      256,
+      112
+    ]
+  ],
+  "profile": "qemu-x86_64-capacity32",
+  "rows": [
+    {
+      "block": 1,
+      "bytes_per_second": 34846478.1496654,
+      "ram_mib": 256,
+      "tcp_buffers": {
+        "tcp_mem": [
+          2775,
+          3702,
+          5550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 1,
+      "bytes_per_second": 30709310.726962797,
+      "ram_mib": 256,
+      "tcp_buffers": {
+        "tcp_mem": [
+          2775,
+          3702,
+          5550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          872384
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          872384
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 1,
+      "bytes_per_second": 33055159.922921684,
+      "ram_mib": 256,
+      "tcp_buffers": {
+        "tcp_mem": [
+          2775,
+          3702,
+          5550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          872384
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          872384
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 1,
+      "bytes_per_second": 41799630.37955903,
+      "ram_mib": 256,
+      "tcp_buffers": {
+        "tcp_mem": [
+          2775,
+          3702,
+          5550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 1,
+      "bytes_per_second": 41292155.26631931,
+      "ram_mib": 128,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1275,
+          1703,
+          2550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          872384
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          872384
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 1,
+      "bytes_per_second": 45276262.6064217,
+      "ram_mib": 128,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1275,
+          1703,
+          2550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 1,
+      "bytes_per_second": 55185919.03981209,
+      "ram_mib": 128,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1275,
+          1703,
+          2550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 1,
+      "bytes_per_second": 47992871.32097715,
+      "ram_mib": 128,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1275,
+          1703,
+          2550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          872384
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          872384
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 1,
+      "bytes_per_second": 43828572.87172261,
+      "ram_mib": 112,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1086,
+          1450,
+          2172
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          742528
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          742528
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 1,
+      "bytes_per_second": 42585788.42256964,
+      "ram_mib": 112,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1086,
+          1450,
+          2172
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 1,
+      "bytes_per_second": 34614559.69305378,
+      "ram_mib": 112,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1086,
+          1450,
+          2172
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 1,
+      "bytes_per_second": 38687259.55803242,
+      "ram_mib": 112,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1086,
+          1450,
+          2172
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          742528
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          742528
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 2,
+      "bytes_per_second": 45712588.12809493,
+      "ram_mib": 112,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1086,
+          1450,
+          2172
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 2,
+      "bytes_per_second": 35009374.73655245,
+      "ram_mib": 112,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1086,
+          1450,
+          2172
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          742528
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          742528
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 2,
+      "bytes_per_second": 39614966.51449418,
+      "ram_mib": 112,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1086,
+          1450,
+          2172
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          742528
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          742528
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 2,
+      "bytes_per_second": 39555201.089282095,
+      "ram_mib": 112,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1086,
+          1450,
+          2172
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 2,
+      "bytes_per_second": 47000466.70416989,
+      "ram_mib": 128,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1275,
+          1703,
+          2550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 2,
+      "bytes_per_second": 40379463.00141338,
+      "ram_mib": 128,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1275,
+          1703,
+          2550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          872384
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          872384
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 2,
+      "bytes_per_second": 35271110.34211233,
+      "ram_mib": 128,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1275,
+          1703,
+          2550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          872384
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          872384
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 2,
+      "bytes_per_second": 48326113.79431101,
+      "ram_mib": 128,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1275,
+          1703,
+          2550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 2,
+      "bytes_per_second": 29749701.897037603,
+      "ram_mib": 256,
+      "tcp_buffers": {
+        "tcp_mem": [
+          2775,
+          3702,
+          5550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          872384
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          872384
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 2,
+      "bytes_per_second": 51260054.88996214,
+      "ram_mib": 256,
+      "tcp_buffers": {
+        "tcp_mem": [
+          2775,
+          3702,
+          5550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 2,
+      "bytes_per_second": 51596355.76351603,
+      "ram_mib": 256,
+      "tcp_buffers": {
+        "tcp_mem": [
+          2775,
+          3702,
+          5550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 2,
+      "bytes_per_second": 42001690.530694656,
+      "ram_mib": 256,
+      "tcp_buffers": {
+        "tcp_mem": [
+          2775,
+          3702,
+          5550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          872384
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          872384
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 3,
+      "bytes_per_second": 38676729.78553913,
+      "ram_mib": 128,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1275,
+          1703,
+          2550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          872384
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          872384
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 3,
+      "bytes_per_second": 48161295.691857174,
+      "ram_mib": 128,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1275,
+          1703,
+          2550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 3,
+      "bytes_per_second": 51587521.26250657,
+      "ram_mib": 128,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1275,
+          1703,
+          2550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 3,
+      "bytes_per_second": 34664972.50931968,
+      "ram_mib": 128,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1275,
+          1703,
+          2550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          872384
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          872384
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 3,
+      "bytes_per_second": 42837968.48149851,
+      "ram_mib": 256,
+      "tcp_buffers": {
+        "tcp_mem": [
+          2775,
+          3702,
+          5550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 3,
+      "bytes_per_second": 43657324.01073963,
+      "ram_mib": 256,
+      "tcp_buffers": {
+        "tcp_mem": [
+          2775,
+          3702,
+          5550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          872384
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          872384
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 3,
+      "bytes_per_second": 50769340.63941048,
+      "ram_mib": 256,
+      "tcp_buffers": {
+        "tcp_mem": [
+          2775,
+          3702,
+          5550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          872384
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          872384
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 3,
+      "bytes_per_second": 40717378.79836269,
+      "ram_mib": 256,
+      "tcp_buffers": {
+        "tcp_mem": [
+          2775,
+          3702,
+          5550
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 3,
+      "bytes_per_second": 36810684.621174276,
+      "ram_mib": 112,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1086,
+          1450,
+          2172
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          742528
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          742528
+        ]
+      },
+      "treatment": "default"
+    },
+    {
+      "block": 3,
+      "bytes_per_second": 44216217.98526997,
+      "ram_mib": 112,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1086,
+          1450,
+          2172
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 3,
+      "bytes_per_second": 51675535.8869206,
+      "ram_mib": 112,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1086,
+          1450,
+          2172
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          1895552
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          1895552
+        ]
+      },
+      "treatment": "crossed"
+    },
+    {
+      "block": 3,
+      "bytes_per_second": 33876183.348420866,
+      "ram_mib": 112,
+      "tcp_buffers": {
+        "tcp_mem": [
+          1086,
+          1450,
+          2172
+        ],
+        "tcp_rmem": [
+          4096,
+          131072,
+          742528
+        ],
+        "tcp_wmem": [
+          4096,
+          16384,
+          742528
+        ]
+      },
+      "treatment": "default"
+    }
+  ],
+  "scope": "Offline ECHO path, with Tor idle and unstarted. Guest sysctls only. No production change or online qualification.",
+  "started": "2026-11-05T17:28:02.486931+00:00"
+}

@@ -46,3 +46,5 @@ have separate named references. Never equate a PASS against the data-only
 Keep all failed attempts and the original `baseline` tag/results immutable.
 Current selected 128 MiB configuration: ram, 25.8799 MiB including state. Consult final-selection.json for the original-reference recovery decision and every preservation gate.
 The 24.7354 MiB fulltor-slim candidate is ACCEPTED against both original-image 512 MiB references, but its 128 MiB throughput-preservation gate is REJECTED. Do not describe combined device qualification as complete or overwrite that rejection.
+
+Capacity characterization is recorded in `reports/capacity-2026-11-05/README.md`. The 16 MiB state volumes logged transient write failures. The built `capacity32` profile has 32 MiB state and an 8.6768 MiB non-state footprint. Use the report's separate functional, RAM-margin, and throughput outcomes. At 112 and 128 MiB the stressed workload passed functionality and RAM margins. Both groups fell below the local TCP floor. Only the 256 MiB group cleared the complete QEMU screen. Physical board qualification requires measurements on the actual target.

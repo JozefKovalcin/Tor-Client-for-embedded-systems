@@ -1,0 +1,9 @@
+{
+  "images": {
+    "capacity32": [
+      "qemu-x86_64-capacity32",
+      "build/iterations/12-capacity32",
+      "20261105T160654Z-f407769f"
+    ]
+  }
+}

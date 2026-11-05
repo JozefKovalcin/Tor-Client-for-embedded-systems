@@ -1,0 +1,49 @@
+{
+  "by_memory": {
+    "96": {
+      "capacity_screen": "BLOCKED_OR_REJECTED",
+      "direct_scan_pages": 3319,
+      "functional_pass_count": 3,
+      "min_available_bytes": 16162816,
+      "minimum_state_free_bytes": 15724544,
+      "peak_system_bytes": 67239936,
+      "peak_tor_hwm_bytes": 29687808,
+      "reservation_integrity_pass_count": 3,
+      "unreserved_peak_bytes": 38076416
+    },
+    "112": {
+      "capacity_screen": "BLOCKED_OR_REJECTED",
+      "direct_scan_pages": 0,
+      "functional_pass_count": 3,
+      "min_available_bytes": 32219136,
+      "minimum_state_free_bytes": 11185152,
+      "peak_system_bytes": 67964928,
+      "peak_tor_hwm_bytes": 29708288,
+      "reservation_integrity_pass_count": 3,
+      "unreserved_peak_bytes": 38473728
+    },
+    "128": {
+      "capacity_screen": "BLOCKED_OR_REJECTED",
+      "direct_scan_pages": 0,
+      "functional_pass_count": 3,
+      "min_available_bytes": 47820800,
+      "minimum_state_free_bytes": 11209728,
+      "peak_system_bytes": 69140480,
+      "peak_tor_hwm_bytes": 29741056,
+      "reservation_integrity_pass_count": 3,
+      "unreserved_peak_bytes": 38948864
+    },
+    "256": {
+      "capacity_screen": "PASS",
+      "direct_scan_pages": 0,
+      "functional_pass_count": 3,
+      "min_available_bytes": 176717824,
+      "minimum_state_free_bytes": 13694976,
+      "peak_system_bytes": 72167424,
+      "peak_tor_hwm_bytes": 29736960,
+      "reservation_integrity_pass_count": 3,
+      "unreserved_peak_bytes": 41406464
+    }
+  },
+  "smallest_full_screen_pass_mib": 256
+}

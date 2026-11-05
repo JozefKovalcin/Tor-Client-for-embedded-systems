@@ -1,0 +1,612 @@
+{
+  "build": {
+    "detail": "Aggregate of repeated measurements of the same hash-verified previously built image; no rebuild claimed",
+    "output_directory": "build/embedded/qemu-x86_64-selective/80671752a38bb101ab45",
+    "seconds": 582.969026773,
+    "status": "PASS"
+  },
+  "change": "Selective Tor/OpenSSL O2 with Os userland and XZ kernel at 128 MiB",
+  "diagnostics": {
+    "crypto": {
+      "maxrss_kib": 19760,
+      "openssl": "OpenSSL 3.6.5 29 Sep 2026",
+      "trials": [
+        {
+          "aes128ctr_bytes_per_second": 40198647.143,
+          "aes_cpu_seconds": 0.827287,
+          "sha256_bytes_per_second": 104901523.579,
+          "sha_cpu_seconds": 0.318957,
+          "x25519_cpu_seconds": 0.127062,
+          "x25519_ops_per_second": 3923.203
+        },
+        {
+          "aes128ctr_bytes_per_second": 41872253.333,
+          "aes_cpu_seconds": 0.80071,
+          "sha256_bytes_per_second": 104575942.021,
+          "sha_cpu_seconds": 0.320687,
+          "x25519_cpu_seconds": 0.121919,
+          "x25519_ops_per_second": 4100.511
+        },
+        {
+          "aes128ctr_bytes_per_second": 41489316.414,
+          "aes_cpu_seconds": 0.808541,
+          "sha256_bytes_per_second": 109060722.541,
+          "sha_cpu_seconds": 0.307568,
+          "x25519_cpu_seconds": 0.11796,
+          "x25519_ops_per_second": 4238.025
+        }
+      ]
+    },
+    "functional_driver_sha256": "a8a834192b16beba4c12f1db339117c711ef261f433c6afd8a35870297d73506",
+    "guest_cpuinfo": "processor\t: 0\nvendor_id\t: AuthenticAMD\ncpu family\t: 15\nmodel\t\t: 107\nmodel name\t: QEMU Virtual CPU version 2.5+\nstepping\t: 1\nmicrocode\t: 0x1000065\ncpu MHz\t\t: 4192.085\ncache size\t: 512 KB\nphysical id\t: 0\nsiblings\t: 1\ncore id\t\t: 0\ncpu cores\t: 1\napicid\t\t: 0\ninitial apicid\t: 0\nfpu\t\t: yes\nfpu_exception\t: yes\ncpuid level\t: 13\nwp\t\t: yes\nflags\t\t: fpu de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx lm rep_good nopl xtopology cpuid extd_apicid pni cx16 hypervisor lahf_lm svm 3dnowprefetch vmmcall\nbugs\t\t: fxsave_leak sysret_ss_attrs null_seg swapgs_fence amd_e400 spectre_v1 spectre_v2 spectre_v2_user\nbogomips\t: 8384.17\nTLB size\t: 1024 4K pages\nclflush size\t: 64\ncache_alignment\t: 64\naddress sizes\t: 40 bits physical, 48 bits virtual\npower management:\n\n",
+    "stages": [
+      {
+        "after": {
+          "memory": {
+            "Dirty": "0 kB",
+            "MemAvailable": "85408 kB",
+            "SwapFree": "0 kB",
+            "SwapTotal": "0 kB",
+            "Writeback": "0 kB"
+          },
+          "pressure": {
+            "cpu": null,
+            "io": null,
+            "memory": null
+          },
+          "processes": {
+            "118": {
+              "cpu_ticks": 16,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 601
+            },
+            "119": {
+              "cpu_ticks": 12,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 605
+            }
+          },
+          "time": 9.388480654,
+          "vmstat": {
+            "allocstall_dma32": 0,
+            "allocstall_normal": 0,
+            "oom_kill": 0,
+            "pgmajfault": 27,
+            "pgscan_direct": 0,
+            "pgscan_kswapd": 0,
+            "pswpin": 0,
+            "pswpout": 0
+          }
+        },
+        "before": {
+          "memory": {
+            "Dirty": "0 kB",
+            "MemAvailable": "87696 kB",
+            "SwapFree": "0 kB",
+            "SwapTotal": "0 kB",
+            "Writeback": "0 kB"
+          },
+          "pressure": {
+            "cpu": null,
+            "io": null,
+            "memory": null
+          },
+          "processes": {},
+          "time": 9.001623018,
+          "vmstat": {
+            "allocstall_dma32": 0,
+            "allocstall_normal": 0,
+            "oom_kill": 0,
+            "pgmajfault": 26,
+            "pgscan_direct": 0,
+            "pgscan_kswapd": 0,
+            "pswpin": 0,
+            "pswpout": 0
+          }
+        },
+        "elapsed_seconds": 0.3868576360000002,
+        "stage": "startup",
+        "tor_cpu_percent": 72.378046584558,
+        "tor_cpu_seconds": 0.28
+      },
+      {
+        "after": {
+          "memory": {
+            "Dirty": "0 kB",
+            "MemAvailable": "30780 kB",
+            "SwapFree": "0 kB",
+            "SwapTotal": "0 kB",
+            "Writeback": "0 kB"
+          },
+          "pressure": {
+            "cpu": null,
+            "io": null,
+            "memory": null
+          },
+          "processes": {
+            "118": {
+              "cpu_ticks": 649,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 26746
+            },
+            "119": {
+              "cpu_ticks": 812,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 32728
+            }
+          },
+          "time": 27.197964003,
+          "vmstat": {
+            "allocstall_dma32": 0,
+            "allocstall_normal": 0,
+            "oom_kill": 0,
+            "pgmajfault": 27,
+            "pgscan_direct": 0,
+            "pgscan_kswapd": 100,
+            "pswpin": 0,
+            "pswpout": 0
+          }
+        },
+        "before": {
+          "memory": {
+            "Dirty": "0 kB",
+            "MemAvailable": "85408 kB",
+            "SwapFree": "0 kB",
+            "SwapTotal": "0 kB",
+            "Writeback": "0 kB"
+          },
+          "pressure": {
+            "cpu": null,
+            "io": null,
+            "memory": null
+          },
+          "processes": {
+            "118": {
+              "cpu_ticks": 16,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 606
+            },
+            "119": {
+              "cpu_ticks": 12,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 610
+            }
+          },
+          "time": 9.40057121,
+          "vmstat": {
+            "allocstall_dma32": 0,
+            "allocstall_normal": 0,
+            "oom_kill": 0,
+            "pgmajfault": 27,
+            "pgscan_direct": 0,
+            "pgscan_kswapd": 0,
+            "pswpin": 0,
+            "pswpout": 0
+          }
+        },
+        "elapsed_seconds": 17.797392793,
+        "stage": "bootstrap",
+        "tor_cpu_percent": 80.51741154825902,
+        "tor_cpu_seconds": 14.33
+      },
+      {
+        "after": {
+          "memory": {
+            "Dirty": "0 kB",
+            "MemAvailable": "30616 kB",
+            "SwapFree": "0 kB",
+            "SwapTotal": "0 kB",
+            "Writeback": "0 kB"
+          },
+          "pressure": {
+            "cpu": null,
+            "io": null,
+            "memory": null
+          },
+          "processes": {
+            "118": {
+              "cpu_ticks": 708,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 28446
+            },
+            "119": {
+              "cpu_ticks": 944,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 37912
+            }
+          },
+          "time": 56.393057421,
+          "vmstat": {
+            "allocstall_dma32": 0,
+            "allocstall_normal": 0,
+            "oom_kill": 0,
+            "pgmajfault": 27,
+            "pgscan_direct": 0,
+            "pgscan_kswapd": 100,
+            "pswpin": 0,
+            "pswpout": 0
+          }
+        },
+        "before": {
+          "memory": {
+            "Dirty": "0 kB",
+            "MemAvailable": "30708 kB",
+            "SwapFree": "0 kB",
+            "SwapTotal": "0 kB",
+            "Writeback": "0 kB"
+          },
+          "pressure": {
+            "cpu": null,
+            "io": null,
+            "memory": null
+          },
+          "processes": {
+            "118": {
+              "cpu_ticks": 654,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 26887
+            },
+            "119": {
+              "cpu_ticks": 918,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 37399
+            }
+          },
+          "time": 37.218325738,
+          "vmstat": {
+            "allocstall_dma32": 0,
+            "allocstall_normal": 0,
+            "oom_kill": 0,
+            "pgmajfault": 27,
+            "pgscan_direct": 0,
+            "pgscan_kswapd": 100,
+            "pswpin": 0,
+            "pswpout": 0
+          }
+        },
+        "elapsed_seconds": 19.174731683000005,
+        "stage": "onion",
+        "tor_cpu_percent": 4.1721574686193215,
+        "tor_cpu_seconds": 0.8
+      },
+      {
+        "after": {
+          "memory": {
+            "Dirty": "0 kB",
+            "MemAvailable": "27004 kB",
+            "SwapFree": "0 kB",
+            "SwapTotal": "0 kB",
+            "Writeback": "0 kB"
+          },
+          "pressure": {
+            "cpu": null,
+            "io": null,
+            "memory": null
+          },
+          "processes": {
+            "118": {
+              "cpu_ticks": 894,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 31474
+            },
+            "119": {
+              "cpu_ticks": 1141,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 40330
+            }
+          },
+          "time": 150.998946488,
+          "vmstat": {
+            "allocstall_dma32": 0,
+            "allocstall_normal": 0,
+            "oom_kill": 0,
+            "pgmajfault": 27,
+            "pgscan_direct": 0,
+            "pgscan_kswapd": 3110,
+            "pswpin": 0,
+            "pswpout": 0
+          }
+        },
+        "before": {
+          "memory": {
+            "Dirty": "0 kB",
+            "MemAvailable": "30212 kB",
+            "SwapFree": "0 kB",
+            "SwapTotal": "0 kB",
+            "Writeback": "0 kB"
+          },
+          "pressure": {
+            "cpu": null,
+            "io": null,
+            "memory": null
+          },
+          "processes": {
+            "118": {
+              "cpu_ticks": 723,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 28778
+            },
+            "119": {
+              "cpu_ticks": 961,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 38268
+            }
+          },
+          "time": 62.784808072,
+          "vmstat": {
+            "allocstall_dma32": 0,
+            "allocstall_normal": 0,
+            "oom_kill": 0,
+            "pgmajfault": 27,
+            "pgscan_direct": 0,
+            "pgscan_kswapd": 100,
+            "pswpin": 0,
+            "pswpout": 0
+          }
+        },
+        "elapsed_seconds": 88.214138416,
+        "stage": "integrity",
+        "tor_cpu_percent": 3.9789540123914735,
+        "tor_cpu_seconds": 3.51
+      },
+      {
+        "after": {
+          "memory": {
+            "Dirty": "0 kB",
+            "MemAvailable": "34112 kB",
+            "SwapFree": "0 kB",
+            "SwapTotal": "0 kB",
+            "Writeback": "0 kB"
+          },
+          "pressure": {
+            "cpu": null,
+            "io": null,
+            "memory": null
+          },
+          "processes": {
+            "118": {
+              "cpu_ticks": 1045,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 36249
+            },
+            "130": {
+              "cpu_ticks": 616,
+              "io_accounting_available": false,
+              "major_faults": 2,
+              "minor_faults": 22687
+            }
+          },
+          "time": 260.4358127,
+          "vmstat": {
+            "allocstall_dma32": 0,
+            "allocstall_normal": 0,
+            "oom_kill": 0,
+            "pgmajfault": 29,
+            "pgscan_direct": 0,
+            "pgscan_kswapd": 3110,
+            "pswpin": 0,
+            "pswpout": 0
+          }
+        },
+        "before": {
+          "memory": {
+            "Dirty": "0 kB",
+            "MemAvailable": "28060 kB",
+            "SwapFree": "0 kB",
+            "SwapTotal": "0 kB",
+            "Writeback": "0 kB"
+          },
+          "pressure": {
+            "cpu": null,
+            "io": null,
+            "memory": null
+          },
+          "processes": {
+            "118": {
+              "cpu_ticks": 894,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 31474
+            },
+            "119": {
+              "cpu_ticks": 1141,
+              "io_accounting_available": false,
+              "major_faults": 0,
+              "minor_faults": 40330
+            }
+          },
+          "time": 151.007897312,
+          "vmstat": {
+            "allocstall_dma32": 0,
+            "allocstall_normal": 0,
+            "oom_kill": 0,
+            "pgmajfault": 27,
+            "pgscan_direct": 0,
+            "pgscan_kswapd": 3110,
+            "pswpin": 0,
+            "pswpout": 0
+          }
+        },
+        "elapsed_seconds": 109.42791538799997,
+        "stage": "reconnect",
+        "tor_cpu_percent": 7.164533814065278,
+        "tor_cpu_seconds": 7.84
+      }
+    ]
+  },
+  "environment": {
+    "accelerator": "tcg,thread=single",
+    "cpu": "qemu64",
+    "cpus": 1,
+    "diagnostic_fixture_sha256": "e5df718190c64b7ee66aed0529b3db71543584c30f1d4e2c1fd183ff0fcb54e0",
+    "host_cpu_sha256": "945d7876e23adee4ff42b5f5e48f2ebb01ed0af7a15676221bad924b41f52c79",
+    "host_memory_bytes": 16284282880,
+    "host_platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "kind": "qemu",
+    "machine": "pc-i440fx-8.2",
+    "measurement_protocol": "tor-two-node-v3-stage-profile",
+    "memory_mib": 128,
+    "network": "user-mode-nat",
+    "qemu_version": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.3)",
+    "serial_baud": 115200,
+    "test_mode": "online",
+    "timeouts": {
+      "bootstrap_timeout_seconds": 600,
+      "connection_timeout_seconds": 180,
+      "idle_seconds": 10
+    },
+    "validation_boot": "external-fixture-v1",
+    "validation_fixture_sha256": "48521767cbdc5fc4a9a213bd5fe48da3c2b45fa95adc3e1c48503e672c6422fd"
+  },
+  "metadata": {
+    "aggregation": {
+      "expected_repeats": 9,
+      "method": "component-wise median",
+      "series": "/home/jozef/embedded-tor/reports/benchmarks/capacity-public-nine-20261105T145131Z",
+      "source_runs": [
+        "01-selective",
+        "02-selective",
+        "03-selective",
+        "04-selective",
+        "05-selective",
+        "06-selective",
+        "07-selective",
+        "08-selective",
+        "09-selective"
+      ]
+    },
+    "architecture": "x86_64",
+    "buildroot_version": "2026.08.1",
+    "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+    "compiler_flags": "GNU_TARGET_NAME='x86_64-buildroot-linux-musl'\nTARGET_CFLAGS='-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -Os -g0 '\nTARGET_LDFLAGS=' -ztext'\nTOR_CONF_ENV='ac_cv_prog_cc_c99='\\''-std=gnu99'\\'' LIBS=\"-latomic\" LDFLAGS=\" -ztext -Wl,--gc-sections\" CFLAGS=\"-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -g0 -O2 -ffunction-sections -fdata-sections\"'\nTOR_CONF_OPTS='--disable-gcc-hardening --disable-unittests --with-libevent-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-selective/80671752a38bb101ab45/host/x86_64-buildroot-linux-musl/sysroot/usr --with-openssl-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-selective/80671752a38bb101ab45/host/x86_64-buildroot-linux-musl/sysroot/usr --with-zlib-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-selective/80671752a38bb101ab45/host/x86_64-buildroot-linux-musl/sysroot/usr --disable-systemd --disable-lzma --disable-zstd --enable-seccomp --disable-module-relay --disable-module-dirauth'",
+    "configuration_id": "qemu-x86_64-selective",
+    "git": {
+      "commit": "b9d2bdecd79e1c94e7fc953c199c166809131a4f",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dirty": false
+    },
+    "image_origin_run": "20261105T130046Z-719a45c7",
+    "input_sha256": "80671752a38bb101ab457f672bc11b02d77e870b9c65074d6c87519f55667496",
+    "kernel_version": "6.18.7",
+    "policy_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552",
+    "repeated_measurement_git": {
+      "commit": "84a8b22055ba63b34ecb6e9c21ae7c28c4a6b4eb",
+      "diff_sha256": "2257f2be177fa781a3618b5e3532b17bba707575cbb4f1285e4b0737db8e8844",
+      "dirty": true
+    },
+    "source_provenance_sha256": "d70edbfe36e8497d23179d7c04433f241444840a9d67490912ea74ffb148fb64",
+    "toolchain_archive": {
+      "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+      "path": "downloads/toolchains/x86_64-buildroot-linux-musl_sdk-buildroot.tar.gz",
+      "sha256": "5fd7659021ec80cf0bb47794be75776867270e672166210453acbaab89800e1e",
+      "source_baseline_commit": "da7c5281145589821ceeb4f6b7aabd4d98833587"
+    },
+    "tor_actual_flags": "CFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -g0 -O2 -ffunction-sections -fdata-sections -fasynchronous-unwind-tables -fcf-protection=full -Wall -fno-strict-aliasing  -Waddress -Warray-bounds -Wcompare-distinct-pointer-types -Wdate-time -Wdouble-promotion -Wduplicate-decl-specifier -Wduplicated-cond -Wenum-conversion -Wextra -Wfloat-conversion -Wheader-guard -Wignored-attributes -Wimplicit-fallthrough -Winit-self -Wlogical-op -Wmissing-field-initializers -Wmissing-format-attribute -Wmissing-noreturn -Wmissing-variable-declarations -Wnormalized=nfkc -Wnull-dereference -Woverlength-strings -Woverride-init -Wshadow -Wshift-count-negative -Wshift-count-overflow -Wshift-negative-value -Wshift-overflow=2 -Wsizeof-array-argument -Wstrict-overflow=1 -Wstring-compare -Wsuggest-attribute=format -Wsuggest-attribute=noreturn -Wswitch-bool -Wsync-nand -Wtrampolines -Wunicode -Wunused-but-set-parameter -Wunused-but-set-variable -Wunused-const-variable=2 -Wunused-local-typedefs -Wvariadic-macros  -W -Wfloat-equal -Wundef -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wwrite-strings -Wredundant-decls -Wchar-subscripts -Wcomment -Wformat=2 -Wwrite-strings -Wnested-externs -Wbad-function-cast -Wswitch-enum -Waggregate-return -Wpacked -Wunused -Wunused-parameter  -Wold-style-definition -Wmissing-declarations\nLDFLAGS =  -ztext -Wl,--gc-sections -z relro -z now",
+    "tor_version": "0.4.9.14"
+  },
+  "metrics": {
+    "bootstrap_seconds": 15.453182004,
+    "complete_image_bytes": 25842688,
+    "cpu_percent": 15.46885551075233,
+    "idle_pss_bytes": 49021595.82608695,
+    "idle_rss_bytes": 57851206.80851064,
+    "image_host_allocated_bytes": 9342976,
+    "installed_rootfs_bytes": 12119080,
+    "kernel_bytes": 3941376,
+    "library_bytes": 8913872,
+    "onion_connection_seconds": 4.607995155000005,
+    "peak_process_rss_bytes": 60108800,
+    "peak_system_used_bytes": 89821184,
+    "persistent_storage_bytes": 16661091,
+    "production_peak_rss_bytes": 27287552,
+    "production_pss_bytes": 26341376,
+    "production_rss_bytes": 26808320,
+    "production_state_bytes": 8326902,
+    "production_state_free_bytes": 4859904,
+    "production_state_volume_bytes": 14410752,
+    "rootfs_bytes": 21901312,
+    "startup_seconds": 0.40618827700000004,
+    "throughput_bytes_per_second": 232413.59013708553,
+    "tor_executable_bytes": 2428664
+  },
+  "run_id": "median-selective",
+  "schema_version": 1,
+  "tests": [
+    {
+      "detail": "All planned repeats required; statuses: PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS",
+      "id": "bidirectional_integrity",
+      "mode": "online",
+      "status": "PASS"
+    },
+    {
+      "detail": "All planned repeats required; statuses: PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS",
+      "id": "onion_v3",
+      "mode": "online",
+      "status": "PASS"
+    },
+    {
+      "detail": "All planned repeats required; statuses: PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS",
+      "id": "production_service",
+      "mode": "online",
+      "status": "PASS"
+    },
+    {
+      "detail": "All planned repeats required; statuses: PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS",
+      "id": "public_bootstrap",
+      "mode": "online",
+      "status": "PASS"
+    },
+    {
+      "detail": "All planned repeats required; statuses: PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS",
+      "id": "reconnection",
+      "mode": "online",
+      "status": "PASS"
+    },
+    {
+      "detail": "All planned repeats required; statuses: PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS",
+      "id": "security_config",
+      "mode": "offline",
+      "status": "PASS"
+    },
+    {
+      "detail": "All planned repeats required; statuses: PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS",
+      "id": "socks5",
+      "mode": "online",
+      "status": "PASS"
+    },
+    {
+      "detail": "All planned repeats required; statuses: PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS",
+      "id": "tor_config",
+      "mode": "offline",
+      "status": "PASS"
+    },
+    {
+      "detail": "All planned repeats required; statuses: PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS",
+      "id": "tor_startup",
+      "mode": "offline",
+      "status": "PASS"
+    },
+    {
+      "detail": "All planned repeats required; statuses: PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS, PASS",
+      "id": "two_node",
+      "mode": "online",
+      "status": "PASS"
+    }
+  ],
+  "timestamp": "2026-11-05T16:08:50.482425+00:00"
+}

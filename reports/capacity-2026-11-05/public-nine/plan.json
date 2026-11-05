@@ -1,0 +1,576 @@
+{
+  "aggregation": "all attempts retained; medians and ranges descriptive; existing 20% limits unchanged; no automatic acceptance from selected samples",
+  "created": "2026-11-05T14:51:31.837697+00:00",
+  "diagnostic_sha256": "e5df718190c64b7ee66aed0529b3db71543584c30f1d4e2c1fd183ff0fcb54e0",
+  "git": {
+    "commit": "84a8b22055ba63b34ecb6e9c21ae7c28c4a6b4eb",
+    "diff_sha256": "bdbee2ffd39cecae9a25171b0f7b7b109089eabea0d7b94e2f52a3fe98f30d93",
+    "dirty": true
+  },
+  "images": {
+    "baseline": {
+      "artifacts": [
+        {
+          "bytes": 5207040,
+          "path": "images/bzImage",
+          "role": "kernel",
+          "sha256": "db93194c6eabccd5a9c399dd56162c391648987ac5a80b96f4a8227b5ea00bda"
+        },
+        {
+          "bytes": 21929984,
+          "path": "images/disk.img",
+          "role": "rootfs",
+          "sha256": "c71ab1f79fcaace510d0ad768fa229b75c39b8e4d96e9b942ded985c58733811"
+        }
+      ],
+      "profile": "qemu-x86_64-ram",
+      "source_run": "20261105T101727Z-3c2822d0"
+    },
+    "selective": {
+      "artifacts": [
+        {
+          "bytes": 3941376,
+          "path": "images/bzImage",
+          "role": "kernel",
+          "sha256": "34fc79461775223b9c59dcd7cfc2d1cb9a5ac1e788268c50e63a1056d18b88a7"
+        },
+        {
+          "bytes": 21901312,
+          "path": "images/disk.img",
+          "role": "rootfs",
+          "sha256": "0cd551aa738db42e606c74e544439f629165440a79ffa9e406e8bf76f68ce7b9"
+        }
+      ],
+      "profile": "qemu-x86_64-selective",
+      "source_run": "20261105T130046Z-719a45c7"
+    },
+    "slim": {
+      "artifacts": [
+        {
+          "bytes": 3941376,
+          "path": "images/bzImage",
+          "role": "kernel",
+          "sha256": "0e88e44ddff67c5f7ab0e25f70779736841be29d9f2c769864b1cf684d3c6741"
+        },
+        {
+          "bytes": 21995520,
+          "path": "images/disk.img",
+          "role": "rootfs",
+          "sha256": "e506c56b217aaaf4ed53117f52de5c0ff6d822a50c821088ee27f91a09054402"
+        }
+      ],
+      "profile": "qemu-x86_64-fulltor-slim",
+      "source_run": "20261105T110833Z-e46f667a"
+    }
+  },
+  "memory_mib_override": 128,
+  "mode": "online",
+  "orders": [
+    [
+      "baseline",
+      "slim",
+      "selective"
+    ],
+    [
+      "slim",
+      "selective",
+      "baseline"
+    ],
+    [
+      "selective",
+      "baseline",
+      "slim"
+    ],
+    [
+      "selective",
+      "slim",
+      "baseline"
+    ],
+    [
+      "baseline",
+      "selective",
+      "slim"
+    ],
+    [
+      "slim",
+      "baseline",
+      "selective"
+    ],
+    [
+      "baseline",
+      "slim",
+      "selective"
+    ],
+    [
+      "slim",
+      "selective",
+      "baseline"
+    ],
+    [
+      "selective",
+      "baseline",
+      "slim"
+    ]
+  ],
+  "results": [
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/01-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 1
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/01-slim",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "slim",
+      "round": 1
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/01-selective",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "selective",
+      "round": 1
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/02-slim",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "slim",
+      "round": 2
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/02-selective",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "selective",
+      "round": 2
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/02-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 2
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/03-selective",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "selective",
+      "round": 3
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/03-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 3
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/03-slim",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "slim",
+      "round": 3
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/04-selective",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "selective",
+      "round": 4
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/04-slim",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "slim",
+      "round": 4
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/04-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 4
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/05-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 5
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/05-selective",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "selective",
+      "round": 5
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/05-slim",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "slim",
+      "round": 5
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/06-slim",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "slim",
+      "round": 6
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/06-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 6
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/06-selective",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "selective",
+      "round": 6
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/07-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 7
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/07-slim",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "slim",
+      "round": 7
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/07-selective",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "selective",
+      "round": 7
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/08-slim",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "slim",
+      "round": 8
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/08-selective",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "selective",
+      "round": 8
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/08-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 8
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/09-selective",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "selective",
+      "round": 9
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/09-baseline",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "baseline",
+      "round": 9
+    },
+    {
+      "directory": "reports/benchmarks/capacity-public-nine-20261105T145131Z/09-slim",
+      "functional_status": {
+        "bidirectional_integrity": "PASS",
+        "onion_v3": "PASS",
+        "production_service": "PASS",
+        "public_bootstrap": "PASS",
+        "reconnection": "PASS",
+        "security_config": "PASS",
+        "socks5": "PASS",
+        "tor_config": "PASS",
+        "tor_startup": "PASS",
+        "two_node": "PASS"
+      },
+      "image": "slim",
+      "round": 9
+    }
+  ]
+}
