@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Embedded Tor | Executive Engineering Report</title>
+<style>
+:root{--ink:#112a43;--muted:#425e75;--line:#dbe7ef;--blue:#2671d4;--teal:#078478;--gold:#e5ae42;--bg:#eaf1f6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.43 "Segoe UI",system-ui,sans-serif}
+main{max-width:1280px;margin:auto}.page{position:relative;background:white;margin:20px 0;padding:35px 60px 60px;min-height:720px;border-top:6px solid var(--teal);box-shadow:0 4px 20px #112a4314}
+header{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;font-weight:750;letter-spacing:.13em;text-transform:uppercase}
+h1,h2,h3,p{margin:0 0 .45em}h1{font-size:48px;letter-spacing:-.045em;line-height:1.08}h2{font-size:33px;line-height:1.12;letter-spacing:-.027em}h3{font-size:18px}
+.intro{margin-top:14px}.muted,small{color:var(--muted)}.note{font-size:14px;color:var(--muted);margin-top:9px}.eyebrow{color:var(--teal);font-size:12px;font-weight:750;letter-spacing:.11em;text-transform:uppercase}
+.grid{display:grid;gap:16px}.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,1fr)}.metrics{margin:15px 0}.card{background:#f3f8fb;border:1px solid var(--line);border-radius:8px;padding:13px 17px}.card strong.number{display:block;font-size:32px;line-height:1.12;color:#075f58}
+.chart{width:100%;display:block}.chart text{font:600 20px "Segoe UI",sans-serif;fill:var(--ink)}.chart .value{font-weight:750}.journey .chart{height:257px}.memory .chart{height:124px}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:8px 0 9px}th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}th{background:#edf4fa;color:#204861;font-size:13px}tbody tr:nth-child(even){background:#f8fbfd}
+.banner{border-left:4px solid var(--gold);background:#fff7e8;padding:11px 15px;margin:13px 0;font-size:15px}.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}.swatch{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px}
+.perf .chart{width:100%;height:84px}.perf h3{margin:.2em 0 .15em}.perf{gap:7px 23px}.diagram{width:100%;margin:22px 0 15px;display:block}.diagram text{font-family:"Segoe UI",sans-serif}
+footer{position:absolute;bottom:20px;left:60px;right:60px;display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:8px;color:var(--muted);font-size:12px}
+a{color:#125aa4;text-underline-offset:2px}.sources{font-size:13px}.steps{margin:12px 0}.steps td:first-child{width:60px;color:var(--teal);font-weight:750}
+@media screen and (max-width:760px){.page{padding:24px 18px 65px;min-height:0;margin:0 0 12px}.two,.three{grid-template-columns:1fr}footer{left:18px;right:18px}h1{font-size:37px}table{font-size:12px}td,th{padding:5px}}
+.compact th,.compact td{padding:5px 10px}.compact .note{margin-top:6px}.compact .banner{margin:9px 0;padding:8px 12px}@page{size:13.333333in 7.5in;margin:0}
+@media print{html,body{background:white}main{width:1280px;max-width:none}.page{width:1280px;height:720px;min-height:720px;margin:0;box-shadow:none;break-after:page;break-inside:avoid}.page:last-child{break-after:auto}*{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+</style></head>
+<body><main>
+<section class="page">
+<header><span>Embedded systems · Executive engineering report</span><span>05 November 2026</span></header>
+<div class="intro"><div class="eyebrow">01 / Executive summary</div><h1>Embedded Tor, ready for board bring-up</h1>
+<p>Two independent Linux endpoints for private bidirectional TCP between Windows hosts.</p></div>
+<div class="grid three metrics">
+<div class="card"><strong class="number">38.62 MiB</strong>ARM boot set, including 32 MiB writable state</div>
+<div class="card"><strong class="number">6.62 MiB</strong>ARM kernel, read-only root and layout</div>
+<div class="card"><strong class="number">256 MiB</strong>Lowest tested ARM QEMU budget to clear every gate</div>
+</div>
+<div class="journey"><h3>02 / Optimization journey · 85.3% smaller full boot set</h3>
+<svg class="chart" viewBox="0 0 1020 292" role="img" aria-label="Measured values in MiB"><text x="0" y="22" class="label">Original x86</text><rect x="204" y="3" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="3" width="695.00" height="26" fill="#8297ad"/><text x="1018" y="22" text-anchor="end" class="value">262.35 MiB</text><text x="0" y="62" class="label">x86 data-only</text><rect x="204" y="43" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="43" width="186.36" height="26" fill="#8297ad"/><text x="1018" y="62" text-anchor="end" class="value">70.35 MiB</text><text x="0" y="102" class="label">x86 tiny</text><rect x="204" y="83" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="83" width="138.33" height="26" fill="#8297ad"/><text x="1018" y="102" text-anchor="end" class="value">52.22 MiB</text><text x="0" y="142" class="label">x86 compressed</text><rect x="204" y="123" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="123" width="26.19" height="26" fill="#2671d4"/><rect x="230.19" y="123" width="42.39" height="26" fill="#e5ae42"/><text x="1018" y="142" text-anchor="end" class="value">25.89 MiB</text><text x="0" y="182" class="label">x86 fulltor-slim</text><rect x="204" y="163" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="163" width="23.14" height="26" fill="#2671d4"/><rect x="227.14" y="163" width="42.39" height="26" fill="#e5ae42"/><text x="1018" y="182" text-anchor="end" class="value">24.74 MiB</text><text x="0" y="222" class="label">x86 capacity32</text><rect x="204" y="203" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="203" width="22.99" height="26" fill="#2671d4"/><rect x="226.99" y="203" width="84.77" height="26" fill="#e5ae42"/><text x="1018" y="222" text-anchor="end" class="value">40.68 MiB</text><text x="0" y="262" class="label">ARM capacity32</text><rect x="204" y="243" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="243" width="17.54" height="26" fill="#2671d4"/><rect x="221.54" y="243" width="84.77" height="26" fill="#e5ae42"/><text x="1018" y="262" text-anchor="end" class="value">38.62 MiB</text></svg>
+<div class="legend"><span><i class="swatch" style="background:#8297ad"></i>Shared writable root layout</span><span><i class="swatch" style="background:#2671d4"></i>Non-state boot set</span><span><i class="swatch" style="background:#e5ae42"></i>Dedicated state</span></div>
+<p class="note">Logical boot artifacts only. The original development image includes its test tooling. Capacity32 uses an external fixture and deliberately reserves more writable state.</p></div>
+<footer><span>Ubuntu WSL2 / QEMU evidence · Physical qualification pending</span><span>01 / 06</span></footer>
+</section>
+
+<section class="page compact">
+<header><span>Measured footprint</span><span>Capacity32</span></header>
+<div class="intro"><div class="eyebrow">03 / Storage optimization</div><h2>Keep state headroom while shrinking the system</h2></div>
+<table><thead><tr><th>Boot set (MiB)</th><th>Kernel</th><th>Read-only root</th><th>MBR + alignment</th><th>State</th><th>Total</th></tr></thead><tbody><tr><td>x86 capacity32</td><td>3.76</td><td>3.92</td><td>1.00</td><td>32.00</td><td>40.68</td></tr><tr><td>ARM capacity32</td><td>2.37</td><td>3.25</td><td>1.00</td><td>32.00</td><td>38.62</td></tr></tbody></table>
+<p class="note">The ARM non-state footprint is 23.71% below x86 capacity32. The 32 MiB state allocation addresses transient write failures observed on 16 MiB volumes. NAND boot, ECC, reserved blocks and update space are separate board budgets.</p>
+<div class="intro"><div class="eyebrow">04 / RAM optimization</div><h3>Minimum available RAM with the 32 MiB resident reservation</h3></div>
+<div class="memory"><svg class="chart" viewBox="0 0 1020 172" role="img" aria-label="Measured values in MiB"><text x="0" y="22" class="label">ARM / 128 MiB</text><rect x="204" y="3" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="3" width="201.65" height="26" fill="#078478"/><text x="1018" y="22" text-anchor="end" class="value">58.03 MiB</text><text x="0" y="62" class="label">ARM / 256 MiB</text><rect x="204" y="43" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="43" width="633.62" height="26" fill="#078478"/><text x="1018" y="62" text-anchor="end" class="value">182.34 MiB</text><text x="0" y="102" class="label">X86 / 128 MiB</text><rect x="204" y="83" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="83" width="160.11" height="26" fill="#078478"/><text x="1018" y="102" text-anchor="end" class="value">46.07 MiB</text><text x="0" y="142" class="label">X86 / 256 MiB</text><rect x="204" y="123" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="123" width="583.68" height="26" fill="#078478"/><text x="1018" y="142" text-anchor="end" class="value">167.96 MiB</text></svg></div>
+<table><thead><tr><th>Guest</th><th>Idle PSS MiB</th><th>Tor peak RSS MiB</th><th>System peak MiB</th><th>Tor CPU s</th></tr></thead><tbody><tr><td>ARM / 128 MiB</td><td>22.36</td><td>25.96</td><td>59.68</td><td>31.32</td></tr><tr><td>ARM / 256 MiB</td><td>22.37</td><td>26.06</td><td>62.43</td><td>31.05</td></tr><tr><td>X86 / 128 MiB</td><td>25.76</td><td>28.28</td><td>65.33</td><td>21.00</td></tr><tr><td>X86 / 256 MiB</td><td>25.63</td><td>28.23</td><td>68.69</td><td>21.60</td></tr></tbody></table>
+<p class="note">Three cold boots per row. Bars show the lowest sampled RAM margin. Table values are medians. Workload uses one target Tor and a host peer.</p>
+<footer><span>All groups cleared the 20% and 16 MiB absolute RAM margins</span><span>02 / 06</span></footer>
+</section>
+
+<section class="page compact">
+<header><span>Measured runtime</span><span>Same-host QEMU TCG · 12 cold boots</span></header>
+<div class="intro"><div class="eyebrow">05 / Performance and reliability</div><h2>Both 128 MiB groups missed performance gates</h2></div>
+<div class="grid two perf"><div><h3>Local TCP</h3><svg class="chart" viewBox="0 0 1020 172" role="img" aria-label="Measured values in MiB/s"><text x="0" y="22" class="label">ARM / 128 MiB</text><rect x="204" y="3" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="3" width="295.38" height="26" fill="#078478"/><text x="1018" y="22" text-anchor="end" class="value">18.44 MiB/s</text><text x="0" y="62" class="label">ARM / 256 MiB</text><rect x="204" y="43" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="43" width="287.44" height="26" fill="#078478"/><text x="1018" y="62" text-anchor="end" class="value">17.94 MiB/s</text><text x="0" y="102" class="label">X86 / 128 MiB</text><rect x="204" y="83" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="83" width="544.99" height="26" fill="#2671d4"/><text x="1018" y="102" text-anchor="end" class="value">34.02 MiB/s</text><text x="0" y="142" class="label">X86 / 256 MiB</text><rect x="204" y="123" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="123" width="681.37" height="26" fill="#2671d4"/><text x="1018" y="142" text-anchor="end" class="value">42.54 MiB/s</text></svg></div><div><h3>Public Tor payload</h3><svg class="chart" viewBox="0 0 1020 172" role="img" aria-label="Measured values in KiB/s"><text x="0" y="22" class="label">ARM / 128 MiB</text><rect x="204" y="3" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="3" width="511.20" height="26" fill="#078478"/><text x="1018" y="22" text-anchor="end" class="value">143.80 KiB/s</text><text x="0" y="62" class="label">ARM / 256 MiB</text><rect x="204" y="43" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="43" width="681.37" height="26" fill="#078478"/><text x="1018" y="62" text-anchor="end" class="value">191.67 KiB/s</text><text x="0" y="102" class="label">X86 / 128 MiB</text><rect x="204" y="83" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="83" width="551.82" height="26" fill="#2671d4"/><text x="1018" y="102" text-anchor="end" class="value">155.22 KiB/s</text><text x="0" y="142" class="label">X86 / 256 MiB</text><rect x="204" y="123" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="123" width="560.63" height="26" fill="#2671d4"/><text x="1018" y="142" text-anchor="end" class="value">157.70 KiB/s</text></svg></div><div><h3>Onion connection</h3><svg class="chart" viewBox="0 0 1020 172" role="img" aria-label="Measured values in s"><text x="0" y="22" class="label">ARM / 128 MiB</text><rect x="204" y="3" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="3" width="681.37" height="26" fill="#078478"/><text x="1018" y="22" text-anchor="end" class="value">4.32 s</text><text x="0" y="62" class="label">ARM / 256 MiB</text><rect x="204" y="43" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="43" width="497.15" height="26" fill="#078478"/><text x="1018" y="62" text-anchor="end" class="value">3.15 s</text><text x="0" y="102" class="label">X86 / 128 MiB</text><rect x="204" y="83" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="83" width="618.74" height="26" fill="#2671d4"/><text x="1018" y="102" text-anchor="end" class="value">3.92 s</text><text x="0" y="142" class="label">X86 / 256 MiB</text><rect x="204" y="123" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="123" width="632.95" height="26" fill="#2671d4"/><text x="1018" y="142" text-anchor="end" class="value">4.01 s</text></svg></div><div><h3>Public bootstrap</h3><svg class="chart" viewBox="0 0 1020 172" role="img" aria-label="Measured values in s"><text x="0" y="22" class="label">ARM / 128 MiB</text><rect x="204" y="3" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="3" width="681.37" height="26" fill="#078478"/><text x="1018" y="22" text-anchor="end" class="value">15.23 s</text><text x="0" y="62" class="label">ARM / 256 MiB</text><rect x="204" y="43" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="43" width="664.18" height="26" fill="#078478"/><text x="1018" y="62" text-anchor="end" class="value">14.84 s</text><text x="0" y="102" class="label">X86 / 128 MiB</text><rect x="204" y="83" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="83" width="535.13" height="26" fill="#2671d4"/><text x="1018" y="102" text-anchor="end" class="value">11.96 s</text><text x="0" y="142" class="label">X86 / 256 MiB</text><rect x="204" y="123" width="695" height="26" rx="4" fill="#edf3f6"/><rect x="204.00" y="123" width="415.55" height="26" fill="#2671d4"/><text x="1018" y="142" text-anchor="end" class="value">9.29 s</text></svg></div></div>
+<table><thead><tr><th>Guest</th><th>Bootstrap s</th><th>Onion s</th><th>Public KiB/s</th><th>Local MiB/s</th><th>Functional runs</th><th>Screen</th></tr></thead><tbody><tr><td>ARM / 128 MiB</td><td>15.23</td><td>4.32</td><td>143.80</td><td>18.44</td><td>3/3</td><td>REJECTED</td></tr><tr><td>ARM / 256 MiB</td><td>14.84</td><td>3.15</td><td>191.67</td><td>17.94</td><td>3/3</td><td>PASS</td></tr><tr><td>X86 / 128 MiB</td><td>11.96</td><td>3.92</td><td>155.22</td><td>34.02</td><td>3/3</td><td>REJECTED</td></tr><tr><td>X86 / 256 MiB</td><td>9.29</td><td>4.01</td><td>157.70</td><td>42.54</td><td>3/3</td><td>PASS</td></tr></tbody></table>
+<div class="banner">ARM 128 MiB passed all eight local gates. Public Onion latency was 4.32 s against a 3.78 s limit, and transfer was 143.80 KiB/s against a 153.33 KiB/s floor. x86 128 MiB missed local TCP and bootstrap gates.</div>
+<p class="note">The unchanged 20% limits compare 128 MiB with 256 MiB on the same architecture. ARM 128 MiB public throughput ranged from 90.80 to 299.40 KiB/s. Cross-ISA performance is descriptive. Earlier x86 rejections and blocked attempts remain in the technical evidence.</p>
+<footer><span>All 12 passed functions, state and reserved payload integrity</span><span>03 / 06</span></footer>
+</section>
+
+<section class="page">
+<header><span>System design</span><span>Proposed physical topology</span></header>
+<div class="intro"><div class="eyebrow">06 / Embedded architecture</div><h2>Tor and persistent identity live on the endpoints</h2><p class="muted">USB provides local access. Each embedded Linux endpoint uses its wired uplink to reach public Tor.</p></div>
+<svg class="diagram" viewBox="0 0 1160 220" role="img" aria-label="PC A connects over USB to Tor A, across Ethernet and public Tor to Onion Service B on Tor B, then over USB to PC B">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#2671d4"/></marker></defs>
+<rect x="0" y="43" width="133" height="100" rx="12" fill="#edf4fa"/><rect x="202" y="43" width="178" height="100" rx="12" fill="#dff4ef"/>
+<rect x="458" y="34" width="231" height="118" rx="12" fill="#112a43"/><rect x="775" y="43" width="183" height="100" rx="12" fill="#dff4ef"/>
+<rect x="1026" y="43" width="134" height="100" rx="12" fill="#edf4fa"/>
+<g stroke="#2671d4" stroke-width="3" marker-end="url(#arrow)"><path d="M134 93H194"/><path d="M382 93H450"/><path d="M691 93H767"/><path d="M960 93H1018"/></g>
+<g text-anchor="middle" fill="#112a43" font-size="18" font-weight="700"><text x="66" y="100">Windows PC A</text><text x="291" y="85">Embedded Tor A</text><text x="866" y="85">Embedded Tor B</text><text x="1093" y="100">Windows PC B</text></g>
+<g text-anchor="middle" fill="#425e75" font-size="14"><text x="166" y="77">USB</text><text x="418" y="77">Ethernet</text><text x="731" y="77">Ethernet</text><text x="992" y="77">USB</text><text x="291" y="110">Linux + SOCKS5</text><text x="866" y="110">Linux + Onion Service v3</text></g>
+<g text-anchor="middle" fill="white"><text x="573" y="87" font-size="23" font-weight="700">Public Tor network</text><text x="573" y="116" font-size="15">Encrypted onion circuit</text></g>
+<path d="M250 184H910" stroke="#078478" stroke-width="2" stroke-dasharray="5 5"/>
+<text x="580" y="212" text-anchor="middle" fill="#075f58" font-size="17">Bidirectional application TCP over the onion circuit</text>
+</svg>
+<div class="grid three">
+<div class="card"><h3>SOCKS5</h3><p>PC A directs its application TCP to the client proxy on endpoint A. The selected USB gadget must keep access local.</p></div>
+<div class="card"><h3>Onion Service v3</h3><p>Endpoint B publishes an onion identity and maps the virtual port to its service. The identity persists across restart.</p></div>
+<div class="card"><h3>Physical integration</h3><p>The virtual lab exercises Tor, integrity and recovery. The next phase proves the USB, Ethernet and storage paths on actual boards.</p></div>
+</div>
+<footer><span>Physical topology under development</span><span>04 / 06</span></footer>
+</section>
+
+<section class="page">
+<header><span>Hardware decision</span><span>Manufacturer specifications</span></header>
+<div class="intro"><div class="eyebrow">07 / Hardware selection</div><h2>Bring up DHCOM first. Retain 128 MiB as a research target.</h2></div>
+<table><thead><tr><th>Platform / role</th><th>CPU</th><th>RAM / flash</th><th>USB / Ethernet</th><th>Readiness and trade-off</th></tr></thead><tbody>
+<tr><td><strong>DHCOM i.MX6ULL HI00096</strong><br>First prototype</td><td>1× Cortex-A7<br>528 MHz</td><td>256 MiB / 128 MiB NAND + 2 MiB boot SPI</td><td>HS USB OTG and 100 Mb/s on picoITX carrier</td><td>Fits capacity target. Existing Linux SD-carrier DTB. NAND boot and gadget require integration.</td></tr>
+<tr><td><strong>100ASK T113s3-PRO V1.3 LTS</strong><br>Minimum-RAM candidate</td><td>2× Cortex-A7<br>up to 1.2 GHz</td><td>128 MiB / documented 128 MiB SPI NAND option</td><td>USB-C OTG device mode and 100 Mb/s RJ45</td><td>Smallest RAM budget. Confirm NAND variant and pin multiplexing. Needs board qualification.</td></tr>
+<tr><td><strong>MYIR MYD-YF135</strong><br>Dual-Ethernet fallback</td><td>1× Cortex-A7<br>up to 1 GHz</td><td>256 MiB / 256 MiB NAND</td><td>HS USB OTG and 2× Gigabit Ethernet</td><td>More wired flexibility. NAND exceeds preferred budget. Board port and testing remain open.</td></tr>
+</tbody></table>
+<p class="sources"><a href="https://www.dh-electronics.com/en/embedded-products/dhsom/detail/dhcom-imx6ull">DHCOM SKU</a> · <a href="https://www.dh-electronics.com/en/embedded-products/development-carrier-boards/detail/picoitx-carrier-board">picoITX</a> · <a href="https://docs.100ask.net/T113s3-Pro/BoardIntroduction/">100ASK board</a> · <a href="https://allwinner-docs.100ask.org/Special/Buildroot_LTS-T113/01-BoardIntroduction.html">100ASK NAND</a> · <a href="https://en.myir.cn/STM32MP135/65.html">MYIR SKU</a></p>
+<div class="intro"><div class="eyebrow">08 / Risks and limitations</div></div>
+<div class="grid three">
+<div class="card"><h3>Board performance</h3><p>TCG and ISA-specific crypto affect CPU and TCP rates. Verify PHY, clocks, entropy, thermal behavior and real throughput.</p></div>
+<div class="card"><h3>USB and Ethernet</h3><p>Prove simultaneous gadget enumeration, host reconnect and Ethernet uplink. Use a board-specific kernel and device tree.</p></div>
+<div class="card"><h3>Storage and reliability</h3><p>Allow for cache growth, ECC and NAND wear. Exercise power loss and sustained traffic. Public Tor timings vary between circuits.</p></div>
+</div>
+<footer><span>All three platforms require physical validation</span><span>05 / 06</span></footer>
+</section>
+
+<section class="page">
+<header><span>Next engineering milestone</span><span>Physical qualification</span></header>
+<div class="intro"><div class="eyebrow">09 / Roadmap</div><h2>Qualify one board before pursuing the minimum</h2></div>
+<table class="steps"><thead><tr><th>Step</th><th>Milestone</th><th>Exit evidence</th></tr></thead><tbody>
+<tr><td>Done</td><td>ARM QEMU validation</td><td>ARM build and frozen tests at 128 and 256 MiB. Full screen passes at 256 MiB.</td></tr>
+<tr><td>01</td><td>Physical board bring-up</td><td>DHCOM serial boot from removable media, DHCP, valid clock and public Tor bootstrap.</td></tr>
+<tr><td>02</td><td>Boot from NAND</td><td>Board-specific flash map and identity recovery after interruption.</td></tr>
+<tr><td>03</td><td>USB and Ethernet integration</td><td>Windows enumeration and reconnect while Ethernet stays operational.</td></tr>
+<tr><td>04</td><td>Two physical endpoints</td><td>All nine required assertions and verified traffic in both directions.</td></tr>
+<tr><td>05</td><td>Reliability and endurance</td><td>Cold boots, sustained traffic, state growth, thermal and flash endurance records.</td></tr>
+<tr><td>06</td><td>Optimization and final selection</td><td>Compare 128 MiB hardware under equivalent conditions and preserve the gates.</td></tr>
+</tbody></table>
+<div class="banner"><strong>10 / Final recommendation</strong><br>Use the 256 MiB RAM / 128 MiB NAND DHCOM platform for the first bring-up. Advance the 128 MiB candidate after repeated hardware tests show acceptable latency, throughput and memory margin.</div>
+<p class="sources"><a href="../../docs/HANDOFF.md">Technical handover</a> · <a href="../../docs/ROADMAP.md">Roadmap</a> · <a href="../arm-2026-11-05/README.md">ARM measurements</a> · <a href="../capacity-2026-11-05/README.md">x86 capacity study</a> · <a href="../measured/2026-11-04/README.md">Original reference</a> · <a href="data.json">Source-linked dataset</a></p>
+<footer><span>Decision package · Embedded Tor feasibility</span><span>06 / 06</span></footer>
+</section>
+</main></body></html>

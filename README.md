@@ -19,6 +19,10 @@ same public Tor suite. The [ARM platform shortlist](docs/ARM_PLATFORM.md)
 includes the build command and distinguishes the emulated measurements
 from physical USB device, Ethernet and NAND qualification.
 
+See the [technical handover](docs/HANDOFF.md) and [engineering roadmap](docs/ROADMAP.md)
+for the first physical milestone. The [executive report package](reports/executive/README.md)
+contains offline HTML, a printable PDF and the source-linked dataset.
+
 Repository: [JozefKovalcin/Tor-Client-for-embedded-systems](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems).
 
 The separate [Nym mixnet client project](https://github.com/JozefKovalcin/Nym-MixNet-Client-for-embedded-systems)

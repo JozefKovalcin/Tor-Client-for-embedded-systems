@@ -230,3 +230,10 @@ passed the complete QEMU screen. Select DHCOM i.MX6ULL HI00096 at
 256 MiB RAM and 128 MiB NAND for the first hardware prototype. The
 100ASK T113s3-PRO 128 MiB configuration remains the smaller board
 candidate. [Measured ARM results](../reports/arm-2026-11-05/README.md)
+
+### Final handover
+
+The ARM port and its archived QEMU evidence are committed at `a7edcb8`.
+The [technical handover](HANDOFF.md) and [roadmap](ROADMAP.md) define the
+next physical milestone. The [executive report](../reports/executive/index.html)
+uses the existing evidence and preserves the 128 MiB performance rejections.
