@@ -194,3 +194,6 @@ Before the capacity32 build started, selected full O2 userspace for that practic
 
 
 Effective-config audit: all three preserved kernels resolve SQUASHFS_FRAGMENT_CACHE_SIZE to 3, despite ram/selective fragments requesting 1. Linux 6.18.7 exposes that setting only under SQUASHFS_EMBEDDED, which was not enabled. Do not attribute measured improvements to a one-fragment cache. ram/selective use FILE_DIRECT and slim FILE_CACHE; exact effective diffs are archived. The still-unbuilt capacity32 profile now has its own kernel fragment requesting the actual value 3, retaining effective qualified behavior. No preserved kernel image or old fragment was changed.
+
+
+The queued offline cell-operation control now isolates all three unchanged upstream Tor benchmark binaries against the O2 and Os builds of the same OpenSSL 3.6.5 in one fixed ram/128 MiB VM (two fixed reversed blocks, 12 processes). Only each diagnostic process selects those pinned shared objects; no production Tor service or image is altered. API/configure options/source version are identical and both builds have complete public-image regression evidence. This avoids confounding library flags with different kernel/root settings. It measures upstream Tor1/CGO/POLYVAL execution, not end-to-end local Tor throughput, and cannot qualify missing online tests. No local cell measurements have started yet.
