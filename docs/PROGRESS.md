@@ -164,3 +164,8 @@ This candidate is not accepted until it is actually built and measured.
 a native single-endpoint workload. Offline diagnostics have a 180-second
 collection deadline and cannot qualify mandatory online requirements. Existing
 online timeouts and 20% performance/5% RSS thresholds remain unchanged.
+
+Selective compiler hypothesis: retain qualified client/GC Tor O2 and OpenSSL
+O2, use Os for remaining userland and XZ for the kernel. Keep the RAM profile's
+direct SquashFS decompression, one fragment buffer and production service.
+This is a new complete build; no size/performance acceptance is assumed.

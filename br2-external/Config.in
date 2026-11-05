@@ -1,5 +1,12 @@
 # Packages are provided by the hash-pinned Buildroot release.
 
+config BR2_PACKAGE_EMBEDDED_OPENSSL_O2
+    bool "Compile OpenSSL with O2 while other userland remains size optimized"
+    depends on BR2_PACKAGE_LIBOPENSSL
+    help
+      Measure selective optimization of the upstream cryptographic/TLS package.
+      Preserve the existing library source, algorithms, ABI and hardening.
+
 config BR2_PACKAGE_TOR_CLIENT_ONLY
     bool "Tor client and onion service only"
     depends on BR2_PACKAGE_TOR
