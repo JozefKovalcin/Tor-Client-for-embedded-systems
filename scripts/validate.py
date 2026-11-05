@@ -88,6 +88,10 @@ def fixture_boot_script(profile, mode):
                "--bootstrap-timeout", str(profile["bootstrap_timeout_seconds"]),
                "--connection-timeout", str(profile["connection_timeout_seconds"]),
                "--idle-seconds", str(profile["idle_seconds"])]
+    diagnostic_setup = []
+    if profile.get("diagnostic_fixture"):
+        command[1] = "/run/probe/study_target.py"
+        diagnostic_setup = ["mkdir -p /run/probe", "mount -t ext4 -o ro,noload /dev/vdc /run/probe"]
     post = r'''
 import contextlib,json,os,subprocess,sys,time
 from pathlib import Path
@@ -153,7 +157,7 @@ print("TOR_"+"VALIDATION_END",flush=True)
         "/etc/init.d/rcS", "umask 077", "mkdir -p /mnt/validation /tmp/tor-validation",
         "mount -t ext4 -o ro,noload /dev/vdb /mnt/validation",
         "printf '%s\\n' '#!/bin/sh' 'unset LD_LIBRARY_PATH PYTHONHOME PYTHONPATH' 'exec /usr/bin/tor \"$@\"' > /tmp/target-tor",
-        "chmod 0755 /tmp/target-tor", env + " " + shlex.join(command) + " || true",
+        "chmod 0755 /tmp/target-tor", *diagnostic_setup, env + " " + shlex.join(command) + " || true",
         env + " " + python + " - <<'TOR_RESULT'", post, "TOR_RESULT", "sync", "poweroff -f", ""])
 
 
@@ -196,6 +200,13 @@ def emulation(output, profile, mode, run):
         append_index = command.index("-append") + 1
         command[append_index] = profile.get("kernel_root", "root=/dev/vda rw") + " console=ttyS0,115200 init=/bin/sh tor_validation_external=1"
         command.extend(["-drive", f"file={fixture},if=virtio,format=raw,readonly=on"])
+        if profile.get("diagnostic_fixture"):
+            diagnostic = profile["diagnostic_fixture"]
+            diagnostic_path = Path(diagnostic["path"])
+            if sha256(diagnostic_path) != diagnostic["sha256"]:
+                raise ValueError("diagnostic fixture digest mismatch")
+            environment["diagnostic_fixture_sha256"] = diagnostic["sha256"]
+            command.extend(["-drive", f"file={diagnostic_path},if=virtio,format=raw,readonly=on"])
         script = fixture_boot_script(profile, mode)
         (run / "qemu-boot-script.sh").write_text(script)
         import base64,gzip

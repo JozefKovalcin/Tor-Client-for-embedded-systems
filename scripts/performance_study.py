@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+"""Fixed-order repeated measurements of hash-verified existing images; no builds."""
+import argparse
+import copy
+import json
+from pathlib import Path
+import subprocess
+import time
+import uuid
+from common import ROOT,read_json,write_json,sha256,resolve_result,git_metadata,utcnow
+from validate import emulation
+from compare import compare
+
+IMAGES={
+ 'baseline':('qemu-x86_64','build/baseline','20261104T162447Z-cd6efe9f'),
+ 'small':('qemu-x86_64-small','build/iterations/01-data','20261104T163515Z-f2a9da00'),
+ 'tiny':('qemu-x86_64-tiny','build/iterations/02-tiny','20261104T165728Z-643dbbe1'),
+ 'production':('qemu-x86_64-production','build/iterations/03-production','20261104T173131Z-b63cb205'),
+ 'compressed':('qemu-x86_64-compressed','build/iterations/04-compressed','20261104T173443Z-2cd3ee20'),
+}
+# Predetermined interleaving; never stop or drop samples when a gate passes.
+ORDERS=[['baseline','compressed','small','production','tiny'],
+        ['tiny','production','small','compressed','baseline'],
+        ['compressed','baseline','tiny','small','production']]
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--rounds',type=int,default=3,choices=(1,2,3))
+    parser.add_argument('--series',type=Path)
+    args=parser.parse_args()
+    directory=args.series or ROOT/'reports/benchmarks'/('study-'+time.strftime('%Y%m%dT%H%M%SZ',time.gmtime()))
+    directory.mkdir(parents=True,exist_ok=False)
+    fixture=ROOT/'build/performance-probe.ext4'
+    plan={'created':utcnow(),'git':git_metadata(),'orders':ORDERS[:args.rounds],'diagnostic_sha256':sha256(fixture),
+          'aggregation':'all attempts retained; medians and ranges descriptive; existing 20% limits unchanged; no automatic acceptance from selected samples',
+          'images':{},'results':[]}
+    for name,(profile_name,source,rid) in IMAGES.items():
+        original=read_json(ROOT/'reports/benchmarks'/rid/'results.json')
+        artifacts=read_json(ROOT/'reports/benchmarks'/rid/'artifacts.json')
+        plan['images'][name]={'source_run':rid,'profile':profile_name,'artifacts':artifacts}
+        out=ROOT/'build/study-images'/name/'images';out.mkdir(parents=True,exist_ok=True)
+        for item in artifacts:
+            src=ROOT/source/Path(item['path']).name
+            if sha256(src)!=item['sha256']:raise ValueError('immutable artifact digest mismatch: '+str(src))
+            link=out/src.name
+            if not link.exists():link.symlink_to(src)
+            if link.resolve()!=src.resolve():raise ValueError('unexpected image link')
+    write_json(directory/'plan.json',plan)
+    policy=read_json(ROOT/'config/policy.json')
+    reference=resolve_result(ROOT/'reports/references/external-fixture/baseline')
+    for round_index,order in enumerate(plan['orders'],1):
+        for name in order:
+            run=directory/(f'{round_index:02d}-'+name);run.mkdir()
+            profile_name,source,rid=IMAGES[name]
+            profile=read_json(ROOT/'config/profiles'/(profile_name+'.json'))
+            profile['validation_fixture']='baseline'
+            profile['diagnostic_fixture']={'path':str(fixture),'sha256':plan['diagnostic_sha256']}
+            profile['environment']['measurement_protocol']='tor-two-node-v3-stage-profile'
+            write_json(run/'measurement-profile.json',profile)
+            before=sha256(ROOT/source/Path(profile['artifacts']['rootfs']).name)
+            print('START',run,flush=True)
+            try:
+                target,environment=emulation(ROOT/'build/study-images'/name,profile,'online',run)
+                original=read_json(ROOT/'reports/benchmarks'/rid/'results.json')
+                result=copy.deepcopy(original)
+                result.update(run_id=run.name,timestamp=utcnow(),environment=environment,tests=target['tests'])
+                result['metrics'].update({k:v for k,v in target['metrics'].items() if not isinstance(v,dict)})
+                result['metadata']['repeated_measurement_git']=git_metadata()
+                result['metadata']['image_origin_run']=rid
+                result['diagnostics']=target.get('diagnostics',{})
+                result['build']['detail']='Previously built immutable image; hashes verified before/after measurement; no rebuild claimed'
+                write_json(run/'results.json',result)
+                # Deliberately report NON_COMPARABLE against the old apparatus.
+                write_json(run/'frozen-reference-comparison.json',compare(reference,result,policy,sha256(ROOT/'config/policy.json')))
+                plan['results'].append({'round':round_index,'image':name,'directory':str(run.relative_to(ROOT)),'functional_status':{t['id']:t['status'] for t in target['tests']}})
+                print('DONE',name,json.dumps(result['metrics']),flush=True)
+            except Exception as exc:
+                write_json(run/'failure.json',{'error':type(exc).__name__+': '+str(exc)})
+                plan['results'].append({'round':round_index,'image':name,'error':str(exc)})
+                print('FAILED',name,type(exc).__name__,str(exc),flush=True)
+            if sha256(ROOT/source/Path(profile['artifacts']['rootfs']).name)!=before:raise ValueError('original image changed')
+            write_json(directory/'plan.json',plan)
+    print('SERIES COMPLETE',directory,flush=True)
+
+if __name__=='__main__':main()
