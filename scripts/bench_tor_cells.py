@@ -36,6 +36,7 @@ def main():
     for root,(profile,source,rid) in images.items():
         run=args.output/root
         with NativeVM(profile,source,disk,128,run) as vm:
+            blocked=False
             for repeat,order in enumerate(plan['orders'],1):
                 for binary in order:
                     vm.phase='cell-'+str(repeat)+'-'+binary;begin=time.monotonic()
@@ -47,7 +48,8 @@ def main():
                     except (OSError,RuntimeError) as exc:row.update(status='BLOCKED',detail=type(exc).__name__+': '+str(exc))
                     row['seconds']=time.monotonic()-begin;plan['rows'].append(row)
                     write_json(args.output/'plan.json',plan);print('DONE CELL',root,binary,repeat,row['status'],round(row['seconds'],2),flush=True)
-                    if row['status']=='BLOCKED':break
+                    if row['status']=='BLOCKED':blocked=True;break
+                if blocked:break
     print('CELL CONTROLS COMPLETE',args.output,flush=True)
     return 0 if len(plan['rows'])==len(images)**2*2 and all(row['status']=='PASS' for row in plan['rows']) else 1
 
