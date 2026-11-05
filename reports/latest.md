@@ -1,4 +1,15 @@
-# Latest capacity outcome
+# Latest ARM capacity outcome
+
+The ARMv7 capacity32 boot set uses **38.6198 MiB** including 32 MiB
+of persistent state. Its non-state footprint is **23.71% smaller**
+than x86 capacity32. The frozen public suite and production service
+passed at 128 and 256 MiB. All twelve paired native runs passed the
+functions, reservation, RAM and state checks. The 128 MiB ARM group
+missed the unchanged public Onion latency and throughput gates.
+The 256 MiB ARM group passed the complete QEMU screen.
+[ARM report](arm-2026-11-05/README.md) · [Hardware shortlist](../docs/ARM_PLATFORM.md)
+
+## Previous x86 capacity outcome
 
 The `capacity32` build and all twelve stressed public Tor functional runs completed successfully. At 128 MiB, the minimum available RAM was 45.61 MiB. The complete screen passed at 256 MiB. The 112 and 128 MiB groups fell below the local TCP floor. The 96 MiB group also missed the RAM margin. The boot-configured TCP profile cleared the local throughput floor at 112 and 128 MiB. Public Onion latency and throughput missed the limits at both lower RAM settings. The 128 MiB group also retained a blocked two-node run.
 

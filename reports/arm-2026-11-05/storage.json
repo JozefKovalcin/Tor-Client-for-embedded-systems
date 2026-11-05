@@ -1,0 +1,111 @@
+{
+  "arm_minus_x86_bytes": {
+    "complete": -2156832,
+    "disk": -700416,
+    "kernel": -1456416,
+    "mbr_and_alignment": 0,
+    "non_state": -2156832,
+    "shared_libraries": -2771036,
+    "squashfs_root": -700416,
+    "state": 0,
+    "tor": -221180
+  },
+  "arm_reduction_percent": {
+    "complete": 5.056733608623628,
+    "disk": 1.8093323457835149,
+    "kernel": 36.9519680436477,
+    "mbr_and_alignment": 0.0,
+    "non_state": 23.706035453010692,
+    "shared_libraries": 30.77577490417541,
+    "squashfs_root": 17.048853439680958,
+    "state": 0.0,
+    "tor": 9.107064624830771
+  },
+  "images": {
+    "arm": {
+      "artifacts": [
+        {
+          "bytes": 2484960,
+          "path": "images/zImage",
+          "role": "kernel",
+          "sha256": "7ece8439f6adc4c06960aa475cf1d6e08d3e64d6772dee56ee7273bd1bbe5e63"
+        },
+        {
+          "bytes": 38010880,
+          "path": "images/disk.img",
+          "role": "rootfs",
+          "sha256": "688786b1ea3198249cc6af5202d437fcb683872f46dc103d917b8a5ac4972f5c"
+        }
+      ],
+      "build_run": "20261105T190223Z-7002ec13",
+      "partitions": [
+        {
+          "bytes": 3407872,
+          "number": 1,
+          "offset_bytes": 1048576,
+          "type": 131
+        },
+        {
+          "bytes": 33554432,
+          "number": 2,
+          "offset_bytes": 4456448,
+          "type": 131
+        }
+      ],
+      "storage_bytes": {
+        "complete": 40495840,
+        "disk": 38010880,
+        "kernel": 2484960,
+        "mbr_and_alignment": 1048576,
+        "non_state": 6941408,
+        "shared_libraries": 6232916,
+        "squashfs_root": 3407872,
+        "state": 33554432,
+        "tor": 2207484
+      }
+    },
+    "x86": {
+      "artifacts": [
+        {
+          "bytes": 3941376,
+          "path": "images/bzImage",
+          "role": "kernel",
+          "sha256": "34fc79461775223b9c59dcd7cfc2d1cb9a5ac1e788268c50e63a1056d18b88a7"
+        },
+        {
+          "bytes": 38711296,
+          "path": "images/disk.img",
+          "role": "rootfs",
+          "sha256": "5922f87495afc00acba6a2b9b10a07625168d5a82960f5c886185784e350fb6c"
+        }
+      ],
+      "build_run": "20261105T160654Z-f407769f",
+      "partitions": [
+        {
+          "bytes": 4108288,
+          "number": 1,
+          "offset_bytes": 1048576,
+          "type": 131
+        },
+        {
+          "bytes": 33554432,
+          "number": 2,
+          "offset_bytes": 5156864,
+          "type": 131
+        }
+      ],
+      "storage_bytes": {
+        "complete": 42652672,
+        "disk": 38711296,
+        "kernel": 3941376,
+        "mbr_and_alignment": 1048576,
+        "non_state": 9098240,
+        "shared_libraries": 9003952,
+        "squashfs_root": 4108288,
+        "state": 33554432,
+        "tor": 2428664
+      }
+    }
+  },
+  "note": "QEMU zImage/bzImage plus disk. State is included in the total; bootloader and device-specific NAND layout are separate."
+}

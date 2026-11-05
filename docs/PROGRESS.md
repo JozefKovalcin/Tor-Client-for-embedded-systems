@@ -213,3 +213,20 @@ The first stressed 128 and 112 MiB cold starts passed functions, reservation int
 All twelve cold starts passed the nine public Tor functions, the 32 MiB resident reservation integrity check and the state checks. The lowest sampled available RAM was 30.73 MiB at 112 MiB and 45.61 MiB at 128 MiB. The 96 MiB runs missed the 16 MiB absolute margin and scanned 3319 pages in direct reclaim across all three boots. Public timings passed at 112 and 128 MiB. The local TCP floor was 37.19 MiB/s and both groups fell below it. The smallest full QEMU screen pass was 256 MiB.
 
 The TCP buffer crossover completed 36 transfers in nine cold boots. The fixed-VM cell benchmark verified the selected OpenSSL library and completed 12 of 12 planned processes. The full findings, source and artifact provenance, archived failures and separate flash budget are in `reports/capacity-2026-11-05/README.md`.
+
+### 2026-11-05 — ARMv7 capacity32 port
+
+Built the complete ARMv7 hard-float image under Ubuntu WSL2. It uses
+38.6198 MiB including the unchanged 32 MiB state partition. The non-state
+boot set is 23.71% smaller than x86 capacity32. The frozen online suite
+and production check passed at 128 and 256 MiB. The original baseline and
+policy are preserved.
+
+All twelve paired ARM and x86 native runs passed functions, the 32 MiB
+resident reservation and RAM and state checks. ARM retained at least
+58.03 MiB available at 128 MiB. ARM 128 MiB passed all local gates and
+missed the public Onion latency and throughput limits. ARM 256 MiB
+passed the complete QEMU screen. Select DHCOM i.MX6ULL HI00096 at
+256 MiB RAM and 128 MiB NAND for the first hardware prototype. The
+100ASK T113s3-PRO 128 MiB configuration remains the smaller board
+candidate. [Measured ARM results](../reports/arm-2026-11-05/README.md)

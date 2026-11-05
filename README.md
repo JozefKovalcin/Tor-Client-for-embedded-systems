@@ -13,6 +13,12 @@ references; consult the report before selecting a configuration.
 
 The smaller 24.7354 MiB fulltor-slim candidate passes the original-image performance comparisons at 512 MiB. Its fresh 128 MiB throughput-preservation comparison remains rejected; retain the qualified 25.8799 MiB RAM option for that scope. All statuses and component-size tradeoffs remain in the report.
 
+The [ARMv7 capacity32 port](reports/arm-2026-11-05/README.md) builds a
+38.6198 MiB QEMU boot set with 32 MiB writable Tor state and passes the
+same public Tor suite. The [ARM platform shortlist](docs/ARM_PLATFORM.md)
+includes the build command and distinguishes the emulated measurements
+from physical USB device, Ethernet and NAND qualification.
+
 Repository: [JozefKovalcin/Tor-Client-for-embedded-systems](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems).
 
 The separate [Nym mixnet client project](https://github.com/JozefKovalcin/Nym-MixNet-Client-for-embedded-systems)

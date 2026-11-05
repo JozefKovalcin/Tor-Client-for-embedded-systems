@@ -1,0 +1,175 @@
+{
+  "build": {
+    "detail": "make all succeeded; all required boot artifacts and ELF hardening verified",
+    "output_directory": "build/embedded/qemu-arm-capacity32/c93df292837d62737b66",
+    "seconds": 7.520482876000187,
+    "status": "PASS"
+  },
+  "change": "Exercise the built ARMv7 capacity32 image with low PCI addresses and the unchanged frozen suite",
+  "environment": {
+    "accelerator": "tcg,thread=single",
+    "cpu": "cortex-a7",
+    "cpus": 1,
+    "host_cpu_sha256": "945d7876e23adee4ff42b5f5e48f2ebb01ed0af7a15676221bad924b41f52c79",
+    "host_memory_bytes": 16284278784,
+    "host_platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "kind": "qemu",
+    "machine": "virt-8.2,highmem=off",
+    "measurement_protocol": "tor-two-node-v2-external-fixture",
+    "memory_mib": 256,
+    "network": "user-mode-nat",
+    "qemu_version": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.3)",
+    "serial_baud": 115200,
+    "test_mode": "online",
+    "timeouts": {
+      "bootstrap_timeout_seconds": 600,
+      "connection_timeout_seconds": 180,
+      "idle_seconds": 10
+    },
+    "validation_boot": "external-fixture-v1",
+    "validation_fixture_sha256": "d77401206746969d1e9ae9973bbd8599a6201231b96a5f77a534cee75c53e38a"
+  },
+  "metadata": {
+    "architecture": "armv7l",
+    "buildroot_version": "2026.08.1",
+    "compiler": "arm-buildroot-linux-musleabihf-gcc.br_real (Buildroot -gfec5f29-dirty) 15.3.0",
+    "compiler_flags": "GNU_TARGET_NAME='arm-buildroot-linux-musleabihf'\nTARGET_CFLAGS='-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -O2 -g0 '\nTARGET_LDFLAGS=' -ztext'\nTOR_CONF_ENV='ac_cv_prog_cc_c99='\\''-std=gnu99'\\'' LIBS=\"-latomic\" LDFLAGS=\" -ztext -Wl,--gc-sections\" CFLAGS=\"-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -O2 -g0 -O2 -ffunction-sections -fdata-sections\"'\nTOR_CONF_OPTS='--disable-gcc-hardening --disable-unittests --with-libevent-dir=/home/jozef/embedded-tor/build/embedded/qemu-arm-capacity32/c93df292837d62737b66/host/arm-buildroot-linux-musleabihf/sysroot/usr --with-openssl-dir=/home/jozef/embedded-tor/build/embedded/qemu-arm-capacity32/c93df292837d62737b66/host/arm-buildroot-linux-musleabihf/sysroot/usr --with-zlib-dir=/home/jozef/embedded-tor/build/embedded/qemu-arm-capacity32/c93df292837d62737b66/host/arm-buildroot-linux-musleabihf/sysroot/usr --disable-systemd --disable-lzma --disable-zstd --enable-seccomp --disable-module-relay --disable-module-dirauth'",
+    "configuration_id": "qemu-arm-capacity32",
+    "git": {
+      "commit": "fec5f291d41599acb3499f3f1639768a44388a78",
+      "diff_sha256": "846b467f7ec1f47db4c6445ef8636d6d523391169ec206dfae24b7d05c8052c3",
+      "dirty": true
+    },
+    "input_sha256": "8911aac35faa4a12ed46792665f741f24a6c00f5b3d4d95bed550080d31e7540",
+    "kernel_version": "6.18.7",
+    "policy_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552",
+    "resumed_build_from": {
+      "compatible_changes": [
+        "config/profiles/qemu-arm-capacity32.json",
+        "scripts/validate.py"
+      ],
+      "git": {
+        "commit": "fec5f291d41599acb3499f3f1639768a44388a78",
+        "diff_sha256": "e3127b9bc04b2c7b13068e25d1b1b72d41d9a9cdb7a3390e0c5edb7fd7adcbdf",
+        "dirty": true
+      },
+      "input_sha256": "c93df292837d62737b663318caf22d688ddbcf6c85bdf6a0fa8fba1458910be4",
+      "run_id": "20261105T183526Z-c95d541a"
+    },
+    "source_provenance_sha256": "db95f73a50b2d5a7f6c0e64e0d009629d53f8a6709412654ae35268491ce0d4e",
+    "tor_actual_flags": "CFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -O2 -g0 -O2 -ffunction-sections -fdata-sections -fasynchronous-unwind-tables -Wall -fno-strict-aliasing  -Waddress -Warray-bounds -Wcompare-distinct-pointer-types -Wdate-time -Wdouble-promotion -Wduplicate-decl-specifier -Wduplicated-cond -Wenum-conversion -Wextra -Wfloat-conversion -Wheader-guard -Wignored-attributes -Wimplicit-fallthrough -Winit-self -Wlogical-op -Wmissing-field-initializers -Wmissing-format-attribute -Wmissing-noreturn -Wmissing-variable-declarations -Wnormalized=nfkc -Wnull-dereference -Woverlength-strings -Woverride-init -Wshadow -Wshift-count-negative -Wshift-count-overflow -Wshift-negative-value -Wshift-overflow=2 -Wsizeof-array-argument -Wstrict-overflow=1 -Wstring-compare -Wsuggest-attribute=format -Wsuggest-attribute=noreturn -Wswitch-bool -Wsync-nand -Wtrampolines -Wunicode -Wunused-but-set-parameter -Wunused-but-set-variable -Wunused-const-variable=2 -Wunused-local-typedefs -Wvariadic-macros  -W -Wfloat-equal -Wundef -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wwrite-strings -Wredundant-decls -Wchar-subscripts -Wcomment -Wformat=2 -Wwrite-strings -Wnested-externs -Wbad-function-cast -Wswitch-enum -Waggregate-return -Wpacked -Wunused -Wunused-parameter  -Wold-style-definition -Wmissing-declarations\nLDFLAGS =  -ztext -Wl,--gc-sections -z relro -z now",
+    "tor_version": "0.4.9.14"
+  },
+  "metrics": {
+    "bootstrap_seconds": 19.722238735999998,
+    "complete_image_bytes": 40495840,
+    "cpu_percent": 18.905216107316477,
+    "idle_pss_bytes": 41288521.95555556,
+    "idle_rss_bytes": 49291081.95555556,
+    "image_host_allocated_bytes": 10502144,
+    "installed_rootfs_bytes": 9318905,
+    "kernel_bytes": 2484960,
+    "library_bytes": 6232916,
+    "onion_connection_seconds": 3.9119959200000025,
+    "peak_process_rss_bytes": 53071872,
+    "peak_system_used_bytes": 78852096,
+    "persistent_storage_bytes": 16609951,
+    "production_peak_rss_bytes": 24084480,
+    "production_pss_bytes": 23244800,
+    "production_rss_bytes": 23724032,
+    "production_state_bytes": 8300625,
+    "production_state_free_bytes": 15765504,
+    "production_state_volume_bytes": 26464256,
+    "rootfs_bytes": 38010880,
+    "startup_seconds": 1.717394176,
+    "throughput_bytes_per_second": 198710.86818946814,
+    "tor_executable_bytes": 2207484
+  },
+  "run_id": "20261105T190223Z-7002ec13",
+  "schema_version": 1,
+  "tests": [
+    {
+      "detail": "see checks.log",
+      "id": "repository_checks",
+      "mode": "offline",
+      "status": "PASS"
+    },
+    {
+      "detail": "PIE, RELRO, NOW and non-executable stack observed",
+      "id": "elf_hardening",
+      "mode": "offline",
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "security_config",
+      "mode": "offline",
+      "seconds": 0.005783103999999817,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "tor_config",
+      "mode": "offline",
+      "seconds": 0.8520252959999999,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "tor_startup",
+      "mode": "offline",
+      "seconds": 1.7183809119999998,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "socks5",
+      "mode": "online",
+      "seconds": 0.009322735999999665,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "public_bootstrap",
+      "mode": "online",
+      "seconds": 19.003737616000002,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "onion_v3",
+      "mode": "online",
+      "seconds": 3.914837472000002,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "two_node",
+      "mode": "online",
+      "seconds": 1.8062522560000005,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "bidirectional_integrity",
+      "mode": "online",
+      "seconds": 12.033941152000004,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "reconnection",
+      "mode": "online",
+      "seconds": 144.590280832,
+      "status": "PASS"
+    },
+    {
+      "detail": "native daemon bootstrapped as uid 905; no fixture libraries or Python in deployed root",
+      "id": "production_service",
+      "mode": "online",
+      "seconds": 12.261676432000002,
+      "status": "PASS"
+    }
+  ],
+  "timestamp": "2026-11-05T19:02:23.898129+00:00"
+}

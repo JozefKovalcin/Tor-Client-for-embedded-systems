@@ -1,0 +1,122 @@
+{
+  "architecture": "armv7l",
+  "environment": {
+    "accelerator": "tcg,thread=single",
+    "cpu": "cortex-a7",
+    "cpus": 1,
+    "host_cpu_sha256": "945d7876e23adee4ff42b5f5e48f2ebb01ed0af7a15676221bad924b41f52c79",
+    "host_memory_bytes": 16284278784,
+    "host_platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "kind": "qemu",
+    "machine": "virt-8.2,highmem=off",
+    "measurement_protocol": "tor-two-node-v2-external-fixture",
+    "memory_mib": 128,
+    "network": "user-mode-nat",
+    "qemu_version": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.3)",
+    "serial_baud": 115200,
+    "test_mode": "online",
+    "timeouts": {
+      "bootstrap_timeout_seconds": 600,
+      "connection_timeout_seconds": 180,
+      "idle_seconds": 10
+    },
+    "validation_boot": "external-fixture-v1",
+    "validation_fixture_sha256": "d77401206746969d1e9ae9973bbd8599a6201231b96a5f77a534cee75c53e38a"
+  },
+  "kernel_version": "6.18.7",
+  "metrics": {
+    "bootstrap_per_node_seconds": {
+      "A": 21.485404672,
+      "B": 22.745063072
+    },
+    "bootstrap_seconds": 22.745063072,
+    "cpu_percent": 48.22309575348665,
+    "idle_pss_bytes": 41255321.6,
+    "idle_rss_bytes": 49227639.46666667,
+    "onion_connection_seconds": 5.971548815999995,
+    "peak_process_rss_bytes": 52932608,
+    "peak_system_used_bytes": 75579392,
+    "persistent_storage_bytes": 16618065,
+    "production_peak_rss_bytes": 23838720,
+    "production_pss_bytes": 23030784,
+    "production_rss_bytes": 23511040,
+    "production_state_bytes": 8304666,
+    "production_state_free_bytes": 15761408,
+    "production_state_volume_bytes": 26464256,
+    "startup_seconds": 1.36033312,
+    "throughput_bytes_per_second": 159477.64859689987
+  },
+  "qemu_log_sha256": "eef13faa2397099f4dd432727c891b70695b867bc1f336421bac1206c3656e1e",
+  "tests": [
+    {
+      "detail": "explicit assertions passed",
+      "id": "security_config",
+      "mode": "offline",
+      "seconds": 0.00841657600000012,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "tor_config",
+      "mode": "offline",
+      "seconds": 0.9286328479999995,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "tor_startup",
+      "mode": "offline",
+      "seconds": 1.361428816,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "socks5",
+      "mode": "online",
+      "seconds": 0.009072655999999846,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "public_bootstrap",
+      "mode": "online",
+      "seconds": 22.388287808,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "onion_v3",
+      "mode": "online",
+      "seconds": 5.974018063999999,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "two_node",
+      "mode": "online",
+      "seconds": 1.5233303199999995,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "bidirectional_integrity",
+      "mode": "online",
+      "seconds": 14.250423487999996,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "reconnection",
+      "mode": "online",
+      "seconds": 21.239916528000002,
+      "status": "PASS"
+    },
+    {
+      "detail": "native daemon bootstrapped as uid 905; no fixture libraries or Python in deployed root",
+      "id": "production_service",
+      "mode": "online",
+      "seconds": 11.190565903999996,
+      "status": "PASS"
+    }
+  ]
+}

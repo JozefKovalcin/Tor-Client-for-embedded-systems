@@ -75,7 +75,8 @@ class NativeVM:
         p=self.profile;e=p['environment'];self.run.mkdir(parents=True,exist_ok=False)
         self.image_hashes={k:sha256(self.images/name) for k,name in p['artifacts'].items()}
         net=f'user,id=net0,restrict=off,hostfwd=tcp:127.0.0.1:{self.agent.address}-:19090'
-        cmd=[p['qemu'],'-machine',e['machine'],'-cpu',e['cpu'],'-accel',e['accelerator'],'-m',str(self.memory),'-smp',str(e['cpus']),'-nographic','-monitor','none','-no-reboot','-kernel',str(self.images/p['artifacts']['kernel']),'-drive',f'file={self.images/p["artifacts"]["rootfs"]},if=virtio,format=raw,snapshot=on','-append',p.get('kernel_root','root=/dev/vda1 ro')+' console=ttyS0,115200 init=/bin/sh tor_validation_external=1','-netdev',net,'-device','virtio-net-pci,netdev=net0','-device','virtio-rng-pci','-drive',f'file={self.fixture},if=virtio,format=raw,readonly=on']
+        console=p.get('qemu_console','ttyS0')
+        cmd=[p['qemu'],'-machine',e['machine'],'-cpu',e['cpu'],'-accel',e['accelerator'],'-m',str(self.memory),'-smp',str(e['cpus']),'-nographic','-monitor','none','-no-reboot','-kernel',str(self.images/p['artifacts']['kernel']),'-drive',f'file={self.images/p["artifacts"]["rootfs"]},if=virtio,format=raw,snapshot=on','-append',p.get('kernel_root','root=/dev/vda1 ro')+f' console={console},115200 init=/bin/sh tor_validation_external=1','-netdev',net,'-device','virtio-net-pci,netdev=net0','-device','virtio-rng-pci','-drive',f'file={self.fixture},if=virtio,format=raw,readonly=on']
         write_json(self.run/'qemu-command.json',cmd)
         self.log=(self.run/'qemu.log').open('wb');begin=time.monotonic()
         self.process=subprocess.Popen(cmd,stdin=subprocess.PIPE,stdout=self.log,stderr=subprocess.STDOUT)
@@ -229,7 +230,7 @@ def run_case(profile,images,fixture,memory,run,peer,origin,local_trials=3):
     selected=read_json(ROOT/'config/profiles'/(profile+'.json'))
     reserve_bytes=selected.get('queue_reserve_test_bytes',0)
     protocol='native-one-endpoint-v2-queue-reserve' if reserve_bytes else 'native-one-endpoint-v1'
-    result['environment']={**selected['environment'],'memory_mib':memory,'measurement_protocol':protocol,'test_mode':'online','diagnostic_fixture_sha256':sha256(fixture),'qemu_version':subprocess.check_output(['qemu-system-x86_64','--version'],text=True).splitlines()[0],'peer_tor_sha256':peer.data['tor_sha256']}
+    result['environment']={**selected['environment'],'memory_mib':memory,'measurement_protocol':protocol,'test_mode':'online','diagnostic_fixture_sha256':sha256(fixture),'qemu_version':subprocess.check_output([selected['qemu'],'--version'],text=True).splitlines()[0],'peer_tor_sha256':peer.data['tor_sha256']}
     result['metadata']['queue_reserve_test_bytes']=reserve_bytes
     result['metadata']['native_measurement_git']=git_metadata();result['metadata']['harness']='host Python; one guest Tor plus test-only C observer/backend; no guest Python'
     result['build']['detail']='Preserved complete built image; hashes verified; no rebuild claimed'

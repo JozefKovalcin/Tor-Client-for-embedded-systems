@@ -1,0 +1,68 @@
+{
+  "arm": {
+    "manifest": {
+      "compiler": "arm-buildroot-linux-musleabihf-gcc.br_real (Buildroot -gfec5f29) 15.3.0",
+      "executables": {
+        "crypto-capacity": "a61b92707e52cf42c9a1e1be0b77e34fd20ec5d8e6a6ee4faf513d7dab8ba739",
+        "crypto-probe": "4a79ed4869de23305ed151f7d72c1190cc1d873c7f10b124d82f4182392c7078",
+        "native-agent": "c1c9f0e71330c4a97a617e3ff0b54e1c65294f8c4f1f42b4cddf91fd85608b84"
+      },
+      "flags": [
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fstack-protector-strong",
+        "-fPIE",
+        "-pie",
+        "-Wl,-z,relro,-z,now"
+      ],
+      "git": {
+        "commit": "fec5f291d41599acb3499f3f1639768a44388a78",
+        "diff_sha256": "e3127b9bc04b2c7b13068e25d1b1b72d41d9a9cdb7a3390e0c5edb7fd7adcbdf",
+        "dirty": true
+      },
+      "purpose": "test-only observer/backend; never installed in production; SAFECOOKIE and private identities remain in guest",
+      "sources": {
+        "crypto_capacity.c": "8e3fb05541a1f459e204d98497576d00173de2aed6c6f8b2a7ef25125a883b0b",
+        "crypto_probe.c": "c4b5aa1a4539c05601c16fe4fc48b9388a67effd6efe1099baaaed4362962b5f",
+        "native_agent.c": "6b84b0dc5f80013f48a3b41f02c23e25a5a01b7a66d6a985a04a65b290936d44"
+      }
+    },
+    "path": "/home/jozef/embedded-tor/build/arm-study-arm-observer.ext4",
+    "sha256": "64acffd4b203737041621c3e69b52d480b40f81dae648f48ccb484fb6bef1891"
+  },
+  "x86": {
+    "manifest": {
+      "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+      "executables": {
+        "crypto-capacity": "80efcaf16e156a9546a700a74b69abc1bbc895b5516e1949e8d778461bf1c23d",
+        "crypto-probe": "78f0319c16d1140546a07a2795dce2b92838ca6c67ecdbf8a4c3c1ce8ac25430",
+        "native-agent": "8472b6ce1f4fc8320bc4df2f59c720512b8c975eed4b2847651857c704e17960"
+      },
+      "flags": [
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fstack-protector-strong",
+        "-fPIE",
+        "-pie",
+        "-Wl,-z,relro,-z,now"
+      ],
+      "git": {
+        "commit": "fec5f291d41599acb3499f3f1639768a44388a78",
+        "diff_sha256": "e3127b9bc04b2c7b13068e25d1b1b72d41d9a9cdb7a3390e0c5edb7fd7adcbdf",
+        "dirty": true
+      },
+      "purpose": "test-only observer/backend; never installed in production; SAFECOOKIE and private identities remain in guest",
+      "sources": {
+        "crypto_capacity.c": "8e3fb05541a1f459e204d98497576d00173de2aed6c6f8b2a7ef25125a883b0b",
+        "crypto_probe.c": "c4b5aa1a4539c05601c16fe4fc48b9388a67effd6efe1099baaaed4362962b5f",
+        "native_agent.c": "6b84b0dc5f80013f48a3b41f02c23e25a5a01b7a66d6a985a04a65b290936d44"
+      }
+    },
+    "path": "/home/jozef/embedded-tor/build/arm-study-x86-observer.ext4",
+    "sha256": "6b54712a8a09b8e6bd02b19b14e82bcc5b93b5fc53794e98cb9aaa1ae7982128"
+  }
+}

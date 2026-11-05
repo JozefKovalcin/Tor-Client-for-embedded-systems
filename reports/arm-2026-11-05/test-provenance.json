@@ -1,0 +1,10 @@
+{
+  "baseline_run": "20261104T162447Z-cd6efe9f",
+  "baseline_tag": "da7c5281145589821ceeb4f6b7aabd4d98833587",
+  "identical_frozen_suite_inputs": {
+    "br2-external/board/qemu/torrc.in": "f8c8ceea9a365aab515d1da22ba9af9e89595369c82122a5189fd7bf67f2d220",
+    "tests/echo_server.py": "c498c3edd9ccb9e102bf5c127752c186b974133eb7a460acbb22d8e73d651a47",
+    "tests/run_all.py": "a8a834192b16beba4c12f1db339117c711ef261f433c6afd8a35870297d73506"
+  },
+  "policy_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552"
+}

@@ -1,0 +1,32 @@
+{
+  "id": "qemu-arm-capacity32",
+  "defconfig": "tor_qemu_arm_capacity32_defconfig",
+  "architecture": "armv7l",
+  "environment": {
+    "kind": "qemu",
+    "machine": "virt-8.2,highmem=off",
+    "cpu": "cortex-a7",
+    "accelerator": "tcg,thread=single",
+    "memory_mib": 256,
+    "cpus": 1,
+    "network": "user-mode-nat",
+    "measurement_protocol": "tor-two-node-v2-external-fixture"
+  },
+  "qemu": "qemu-system-arm",
+  "qemu_console": "ttyAMA0",
+  "artifacts": {
+    "kernel": "zImage",
+    "rootfs": "disk.img"
+  },
+  "timeout_seconds": 1800,
+  "bootstrap_timeout_seconds": 600,
+  "connection_timeout_seconds": 180,
+  "idle_seconds": 10,
+  "validation_fixture": "buildroot",
+  "validation_fixture_defconfig": "tor_qemu_arm_validation_fixture_defconfig",
+  "production_service": true,
+  "kernel_root": "root=/dev/vda1 ro",
+  "read_only_root": true,
+  "max_mem_in_queues_bytes": 33554432,
+  "queue_reserve_test_bytes": 33554432
+}

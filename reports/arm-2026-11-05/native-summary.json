@@ -1,0 +1,614 @@
+{
+  "completed": 12,
+  "groups": [
+    {
+      "architecture": "arm",
+      "capacity_screen": "BLOCKED_OR_REJECTED",
+      "failed_local_median_gates": [],
+      "failed_public_median_gates": [
+        "onion_connection_seconds",
+        "throughput_bytes_per_second"
+      ],
+      "functions_pass": 3,
+      "medians": {
+        "bootstrap_seconds": 15.225169972999993,
+        "cpu_percent": 11.545928786009863,
+        "direct_reclaim_pages": 0,
+        "idle_pss_bytes": 23444728.242424242,
+        "idle_rss_bytes": 24040044.606060605,
+        "local_aes_509_bytes_per_second": 38667394.242,
+        "local_sha3_509_bytes_per_second": 19557584.399,
+        "local_shake_509_bytes_per_second": 18578001.374,
+        "local_tcp_bytes_per_second": 19335808.132774778,
+        "local_x25519_ops_per_second": 1153.708,
+        "minimum_available_bytes": 61263872,
+        "onion_connection_seconds": 4.320303487000274,
+        "peak_system_used_bytes": 62574592,
+        "peak_tor_rss_bytes": 27217920,
+        "peak_unreserved_system_used_bytes": 31436800,
+        "persistent_storage_bytes": 8329216,
+        "reconnection_seconds": 143.30538573400008,
+        "state_available_min_bytes": 11673600,
+        "swapin_pages": 0,
+        "swapout_pages": 0,
+        "throughput_bytes_per_second": 147248.7368405961,
+        "tor_cpu_seconds": 31.32
+      },
+      "observer_pass": 3,
+      "planned": 3,
+      "ram_margin_pass": 3,
+      "ram_mib": 128,
+      "ranges": {
+        "bootstrap_seconds": {
+          "max": 16.94157122200022,
+          "min": 14.674163627999405,
+          "n": 3
+        },
+        "cpu_percent": {
+          "max": 23.203638158584464,
+          "min": 11.127738937534845,
+          "n": 3
+        },
+        "direct_reclaim_pages": {
+          "max": 0,
+          "min": 0,
+          "n": 3
+        },
+        "idle_pss_bytes": {
+          "max": 23627838.060606062,
+          "min": 23198471.757575758,
+          "n": 3
+        },
+        "idle_rss_bytes": {
+          "max": 24207980.606060605,
+          "min": 23748111.515151516,
+          "n": 3
+        },
+        "local_aes_509_bytes_per_second": {
+          "max": 38821582.171,
+          "min": 34720550.614,
+          "n": 3
+        },
+        "local_sha3_509_bytes_per_second": {
+          "max": 20165280.195,
+          "min": 17557941.492,
+          "n": 3
+        },
+        "local_shake_509_bytes_per_second": {
+          "max": 20549555.603,
+          "min": 18058552.47,
+          "n": 3
+        },
+        "local_tcp_bytes_per_second": {
+          "max": 19693573.23683556,
+          "min": 18935471.561959457,
+          "n": 3
+        },
+        "local_x25519_ops_per_second": {
+          "max": 1312.857,
+          "min": 1146.217,
+          "n": 3
+        },
+        "minimum_available_bytes": {
+          "max": 61333504,
+          "min": 60846080,
+          "n": 3
+        },
+        "onion_connection_seconds": {
+          "max": 4.905331259999912,
+          "min": 3.9731245620000664,
+          "n": 3
+        },
+        "peak_system_used_bytes": {
+          "max": 62992384,
+          "min": 62504960,
+          "n": 3
+        },
+        "peak_tor_rss_bytes": {
+          "max": 27426816,
+          "min": 27168768,
+          "n": 3
+        },
+        "peak_unreserved_system_used_bytes": {
+          "max": 31645696,
+          "min": 31424512,
+          "n": 3
+        },
+        "persistent_storage_bytes": {
+          "max": 8329216,
+          "min": 8326144,
+          "n": 3
+        },
+        "reconnection_seconds": {
+          "max": 150.7519735400001,
+          "min": 27.776817050000318,
+          "n": 3
+        },
+        "state_available_min_bytes": {
+          "max": 11958272,
+          "min": 11076608,
+          "n": 3
+        },
+        "swapin_pages": {
+          "max": 0,
+          "min": 0,
+          "n": 3
+        },
+        "swapout_pages": {
+          "max": 0,
+          "min": 0,
+          "n": 3
+        },
+        "throughput_bytes_per_second": {
+          "max": 306581.7700927576,
+          "min": 92976.50286222836,
+          "n": 3
+        },
+        "tor_cpu_seconds": {
+          "max": 33.43,
+          "min": 29.0,
+          "n": 3
+        }
+      },
+      "reserved_integrity_pass": 3,
+      "runs": 3,
+      "state_pass": 3
+    },
+    {
+      "architecture": "arm",
+      "capacity_screen": "PASS",
+      "failed_local_median_gates": [],
+      "failed_public_median_gates": [],
+      "functions_pass": 3,
+      "medians": {
+        "bootstrap_seconds": 14.84102866000012,
+        "cpu_percent": 22.87117866340719,
+        "direct_reclaim_pages": 0,
+        "idle_pss_bytes": 23461484.606060605,
+        "idle_rss_bytes": 24033093.818181816,
+        "local_aes_509_bytes_per_second": 34319151.197,
+        "local_sha3_509_bytes_per_second": 18521259.956,
+        "local_shake_509_bytes_per_second": 18347868.14,
+        "local_tcp_bytes_per_second": 18815777.36037057,
+        "local_x25519_ops_per_second": 1234.808,
+        "minimum_available_bytes": 191451136,
+        "onion_connection_seconds": 3.152206062999994,
+        "peak_system_used_bytes": 65458176,
+        "peak_tor_rss_bytes": 27324416,
+        "peak_unreserved_system_used_bytes": 34242560,
+        "persistent_storage_bytes": 8329216,
+        "reconnection_seconds": 26.754902794999907,
+        "state_available_min_bytes": 10963968,
+        "swapin_pages": 0,
+        "swapout_pages": 0,
+        "throughput_bytes_per_second": 196265.88040428,
+        "tor_cpu_seconds": 31.05
+      },
+      "observer_pass": 3,
+      "planned": 3,
+      "ram_margin_pass": 3,
+      "ram_mib": 256,
+      "ranges": {
+        "bootstrap_seconds": {
+          "max": 18.470023168999887,
+          "min": 14.146585178999885,
+          "n": 3
+        },
+        "cpu_percent": {
+          "max": 25.828839344045306,
+          "min": 21.82310775481538,
+          "n": 3
+        },
+        "direct_reclaim_pages": {
+          "max": 0,
+          "min": 0,
+          "n": 3
+        },
+        "idle_pss_bytes": {
+          "max": 23476224.0,
+          "min": 23325696.0,
+          "n": 3
+        },
+        "idle_rss_bytes": {
+          "max": 24092416.0,
+          "min": 23953664.0,
+          "n": 3
+        },
+        "local_aes_509_bytes_per_second": {
+          "max": 37930303.242,
+          "min": 33595308.97,
+          "n": 3
+        },
+        "local_sha3_509_bytes_per_second": {
+          "max": 18769712.297,
+          "min": 18194506.217,
+          "n": 3
+        },
+        "local_shake_509_bytes_per_second": {
+          "max": 18531999.58,
+          "min": 17475224.425,
+          "n": 3
+        },
+        "local_tcp_bytes_per_second": {
+          "max": 19135565.128430147,
+          "min": 18634681.93444521,
+          "n": 3
+        },
+        "local_x25519_ops_per_second": {
+          "max": 1290.054,
+          "min": 1226.537,
+          "n": 3
+        },
+        "minimum_available_bytes": {
+          "max": 192684032,
+          "min": 191193088,
+          "n": 3
+        },
+        "onion_connection_seconds": {
+          "max": 3.5664251299999705,
+          "min": 2.345458871000119,
+          "n": 3
+        },
+        "peak_system_used_bytes": {
+          "max": 65716224,
+          "min": 64225280,
+          "n": 3
+        },
+        "peak_tor_rss_bytes": {
+          "max": 27353088,
+          "min": 27258880,
+          "n": 3
+        },
+        "peak_unreserved_system_used_bytes": {
+          "max": 34361344,
+          "min": 34205696,
+          "n": 3
+        },
+        "persistent_storage_bytes": {
+          "max": 8329216,
+          "min": 8329216,
+          "n": 3
+        },
+        "reconnection_seconds": {
+          "max": 27.00472146400034,
+          "min": 23.524962934000087,
+          "n": 3
+        },
+        "state_available_min_bytes": {
+          "max": 11885568,
+          "min": 10890240,
+          "n": 3
+        },
+        "swapin_pages": {
+          "max": 0,
+          "min": 0,
+          "n": 3
+        },
+        "swapout_pages": {
+          "max": 0,
+          "min": 0,
+          "n": 3
+        },
+        "throughput_bytes_per_second": {
+          "max": 216230.614697372,
+          "min": 150471.1645820194,
+          "n": 3
+        },
+        "tor_cpu_seconds": {
+          "max": 31.1,
+          "min": 28.33,
+          "n": 3
+        }
+      },
+      "reserved_integrity_pass": 3,
+      "runs": 3,
+      "state_pass": 3
+    },
+    {
+      "architecture": "x86",
+      "capacity_screen": "BLOCKED_OR_REJECTED",
+      "failed_local_median_gates": [
+        "tcp"
+      ],
+      "failed_public_median_gates": [
+        "bootstrap_seconds"
+      ],
+      "functions_pass": 3,
+      "medians": {
+        "bootstrap_seconds": 11.95748076200016,
+        "cpu_percent": 15.25875678431391,
+        "direct_reclaim_pages": 0,
+        "idle_pss_bytes": 27010905.945945945,
+        "idle_rss_bytes": 27621209.945945945,
+        "local_aes_509_bytes_per_second": 35847289.569,
+        "local_sha3_509_bytes_per_second": 40378567.371,
+        "local_shake_509_bytes_per_second": 38302908.517,
+        "local_tcp_bytes_per_second": 35674757.88123509,
+        "local_x25519_ops_per_second": 3624.081,
+        "minimum_available_bytes": 48455680,
+        "onion_connection_seconds": 3.9231481990000248,
+        "peak_system_used_bytes": 68505600,
+        "peak_tor_rss_bytes": 29650944,
+        "peak_unreserved_system_used_bytes": 38895616,
+        "persistent_storage_bytes": 8329216,
+        "reconnection_seconds": 26.031826415999603,
+        "state_available_min_bytes": 15753216,
+        "swapin_pages": 0,
+        "swapout_pages": 0,
+        "throughput_bytes_per_second": 158948.4638134464,
+        "tor_cpu_seconds": 21.0
+      },
+      "observer_pass": 3,
+      "planned": 3,
+      "ram_margin_pass": 3,
+      "ram_mib": 128,
+      "ranges": {
+        "bootstrap_seconds": {
+          "max": 11.991655312999683,
+          "min": 8.92941929799963,
+          "n": 3
+        },
+        "cpu_percent": {
+          "max": 20.818615315827017,
+          "min": 6.514318224662238,
+          "n": 3
+        },
+        "direct_reclaim_pages": {
+          "max": 0,
+          "min": 0,
+          "n": 3
+        },
+        "idle_pss_bytes": {
+          "max": 27194481.777777776,
+          "min": 26967950.222222224,
+          "n": 3
+        },
+        "idle_rss_bytes": {
+          "max": 27829589.333333332,
+          "min": 27598620.444444444,
+          "n": 3
+        },
+        "local_aes_509_bytes_per_second": {
+          "max": 37882743.358,
+          "min": 32157328.292,
+          "n": 3
+        },
+        "local_sha3_509_bytes_per_second": {
+          "max": 42142966.099,
+          "min": 40151224.769,
+          "n": 3
+        },
+        "local_shake_509_bytes_per_second": {
+          "max": 38629911.475,
+          "min": 35626819.691,
+          "n": 3
+        },
+        "local_tcp_bytes_per_second": {
+          "max": 40144417.59322314,
+          "min": 32454652.014583107,
+          "n": 3
+        },
+        "local_x25519_ops_per_second": {
+          "max": 3675.059,
+          "min": 3591.853,
+          "n": 3
+        },
+        "minimum_available_bytes": {
+          "max": 48537600,
+          "min": 48312320,
+          "n": 3
+        },
+        "onion_connection_seconds": {
+          "max": 4.428777752999849,
+          "min": 3.375772286999563,
+          "n": 3
+        },
+        "peak_system_used_bytes": {
+          "max": 68648960,
+          "min": 68423680,
+          "n": 3
+        },
+        "peak_tor_rss_bytes": {
+          "max": 29708288,
+          "min": 29552640,
+          "n": 3
+        },
+        "peak_unreserved_system_used_bytes": {
+          "max": 39022592,
+          "min": 38866944,
+          "n": 3
+        },
+        "persistent_storage_bytes": {
+          "max": 8329216,
+          "min": 8326144,
+          "n": 3
+        },
+        "reconnection_seconds": {
+          "max": 148.1622735349997,
+          "min": 18.890175116000137,
+          "n": 3
+        },
+        "state_available_min_bytes": {
+          "max": 15756288,
+          "min": 12522496,
+          "n": 3
+        },
+        "swapin_pages": {
+          "max": 0,
+          "min": 0,
+          "n": 3
+        },
+        "swapout_pages": {
+          "max": 0,
+          "min": 0,
+          "n": 3
+        },
+        "throughput_bytes_per_second": {
+          "max": 324567.68076808023,
+          "min": 69189.81112942092,
+          "n": 3
+        },
+        "tor_cpu_seconds": {
+          "max": 24.02,
+          "min": 19.62,
+          "n": 3
+        }
+      },
+      "reserved_integrity_pass": 3,
+      "runs": 3,
+      "state_pass": 3
+    },
+    {
+      "architecture": "x86",
+      "capacity_screen": "PASS",
+      "failed_local_median_gates": [],
+      "failed_public_median_gates": [],
+      "functions_pass": 3,
+      "medians": {
+        "bootstrap_seconds": 9.285405548999734,
+        "cpu_percent": 11.449079880649066,
+        "direct_reclaim_pages": 0,
+        "idle_pss_bytes": 26878201.08108108,
+        "idle_rss_bytes": 27503865.08108108,
+        "local_aes_509_bytes_per_second": 38802237.855,
+        "local_sha3_509_bytes_per_second": 41819460.153,
+        "local_shake_509_bytes_per_second": 39778506.65,
+        "local_tcp_bytes_per_second": 44602648.60153586,
+        "local_x25519_ops_per_second": 3726.361,
+        "minimum_available_bytes": 176861184,
+        "onion_connection_seconds": 4.013297722000061,
+        "peak_system_used_bytes": 72024064,
+        "peak_tor_rss_bytes": 29601792,
+        "peak_unreserved_system_used_bytes": 41066496,
+        "persistent_storage_bytes": 8329216,
+        "reconnection_seconds": 49.060979236000094,
+        "state_available_min_bytes": 11970560,
+        "swapin_pages": 0,
+        "swapout_pages": 0,
+        "throughput_bytes_per_second": 161486.75613867832,
+        "tor_cpu_seconds": 21.6
+      },
+      "observer_pass": 3,
+      "planned": 3,
+      "ram_margin_pass": 3,
+      "ram_mib": 256,
+      "ranges": {
+        "bootstrap_seconds": {
+          "max": 10.612506096999823,
+          "min": 9.005048677000104,
+          "n": 3
+        },
+        "cpu_percent": {
+          "max": 14.842971176409115,
+          "min": 8.57020181363628,
+          "n": 3
+        },
+        "direct_reclaim_pages": {
+          "max": 0,
+          "min": 0,
+          "n": 3
+        },
+        "idle_pss_bytes": {
+          "max": 26985699.555555556,
+          "min": 26867598.222222224,
+          "n": 3
+        },
+        "idle_rss_bytes": {
+          "max": 27609315.555555556,
+          "min": 27477447.111111112,
+          "n": 3
+        },
+        "local_aes_509_bytes_per_second": {
+          "max": 39489689.002,
+          "min": 30051510.803,
+          "n": 3
+        },
+        "local_sha3_509_bytes_per_second": {
+          "max": 43228820.816,
+          "min": 25421672.152,
+          "n": 3
+        },
+        "local_shake_509_bytes_per_second": {
+          "max": 42647340.345,
+          "min": 24120144.643,
+          "n": 3
+        },
+        "local_tcp_bytes_per_second": {
+          "max": 49978120.51769107,
+          "min": 42204798.64545601,
+          "n": 3
+        },
+        "local_x25519_ops_per_second": {
+          "max": 3798.735,
+          "min": 3553.749,
+          "n": 3
+        },
+        "minimum_available_bytes": {
+          "max": 177479680,
+          "min": 176123904,
+          "n": 3
+        },
+        "onion_connection_seconds": {
+          "max": 47.145446124000046,
+          "min": 3.5721288280001318,
+          "n": 3
+        },
+        "peak_system_used_bytes": {
+          "max": 72761344,
+          "min": 71405568,
+          "n": 3
+        },
+        "peak_tor_rss_bytes": {
+          "max": 29761536,
+          "min": 29511680,
+          "n": 3
+        },
+        "peak_unreserved_system_used_bytes": {
+          "max": 41381888,
+          "min": 40960000,
+          "n": 3
+        },
+        "persistent_storage_bytes": {
+          "max": 8329216,
+          "min": 8326144,
+          "n": 3
+        },
+        "reconnection_seconds": {
+          "max": 89.19515884300017,
+          "min": 21.569577105999997,
+          "n": 3
+        },
+        "state_available_min_bytes": {
+          "max": 13235200,
+          "min": 11369472,
+          "n": 3
+        },
+        "swapin_pages": {
+          "max": 0,
+          "min": 0,
+          "n": 3
+        },
+        "swapout_pages": {
+          "max": 0,
+          "min": 0,
+          "n": 3
+        },
+        "throughput_bytes_per_second": {
+          "max": 217577.78990287133,
+          "min": 81913.65157109755,
+          "n": 3
+        },
+        "tor_cpu_seconds": {
+          "max": 22.75,
+          "min": 20.65,
+          "n": 3
+        }
+      },
+      "reserved_integrity_pass": 3,
+      "runs": 3,
+      "state_pass": 3
+    }
+  ],
+  "planned": 12,
+  "scope": "QEMU TCG on WSL2. Matched 128/256 within each architecture. Cross-ISA results are descriptive."
+}

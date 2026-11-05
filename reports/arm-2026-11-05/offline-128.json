@@ -1,0 +1,92 @@
+{
+  "architecture": "armv7l",
+  "environment": {
+    "accelerator": "tcg,thread=single",
+    "cpu": "cortex-a7",
+    "cpus": 1,
+    "host_cpu_sha256": "945d7876e23adee4ff42b5f5e48f2ebb01ed0af7a15676221bad924b41f52c79",
+    "host_memory_bytes": 16284278784,
+    "host_platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "kind": "qemu",
+    "machine": "virt-8.2,highmem=off",
+    "measurement_protocol": "tor-two-node-v2-external-fixture",
+    "memory_mib": 128,
+    "network": "user-mode-nat",
+    "qemu_version": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.3)",
+    "serial_baud": 115200,
+    "test_mode": "offline",
+    "timeouts": {
+      "bootstrap_timeout_seconds": 600,
+      "connection_timeout_seconds": 180,
+      "idle_seconds": 10
+    },
+    "validation_boot": "external-fixture-v1",
+    "validation_fixture_sha256": "4027eab83fd5c54b61837faf8b8d397709f67b5c319f018b3c5b86145bdede05"
+  },
+  "kernel_version": "6.18.7",
+  "tests": [
+    {
+      "detail": "explicit assertions passed",
+      "id": "security_config",
+      "mode": "offline",
+      "seconds": 0.011389824000000104,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "tor_config",
+      "mode": "offline",
+      "seconds": 1.3270583040000004,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "tor_startup",
+      "mode": "offline",
+      "seconds": 1.9603564159999998,
+      "status": "PASS"
+    },
+    {
+      "detail": "offline mode selected; public Tor behavior remains unverified",
+      "id": "socks5",
+      "mode": "online",
+      "seconds": 0,
+      "status": "SKIPPED"
+    },
+    {
+      "detail": "offline mode selected; public Tor behavior remains unverified",
+      "id": "public_bootstrap",
+      "mode": "online",
+      "seconds": 0,
+      "status": "SKIPPED"
+    },
+    {
+      "detail": "offline mode selected; public Tor behavior remains unverified",
+      "id": "onion_v3",
+      "mode": "online",
+      "seconds": 0,
+      "status": "SKIPPED"
+    },
+    {
+      "detail": "offline mode selected; public Tor behavior remains unverified",
+      "id": "two_node",
+      "mode": "online",
+      "seconds": 0,
+      "status": "SKIPPED"
+    },
+    {
+      "detail": "offline mode selected; public Tor behavior remains unverified",
+      "id": "bidirectional_integrity",
+      "mode": "online",
+      "seconds": 0,
+      "status": "SKIPPED"
+    },
+    {
+      "detail": "offline mode selected; public Tor behavior remains unverified",
+      "id": "reconnection",
+      "mode": "online",
+      "seconds": 0,
+      "status": "SKIPPED"
+    }
+  ]
+}

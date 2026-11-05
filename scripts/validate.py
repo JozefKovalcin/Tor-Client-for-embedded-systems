@@ -161,7 +161,21 @@ print("TOR_"+"VALIDATION_END",flush=True)
         env + " " + python + " - <<'TOR_RESULT'", post, "TOR_RESULT", "sync", "poweroff -f", ""])
 
 
-def emulation(output, profile, mode, run):
+def build_validation_fixture(source, output, profile, downloads, run, jobs, env):
+    """Build a matching-ABI Python test disk outside the production output."""
+    directory = output.with_name(output.name + "-validation-fixture")
+    command = ["make", "--no-print-directory", "-C", str(source), "O=" + str(directory),
+               "BR2_EXTERNAL=" + str(ROOT / "br2-external"), "BR2_DL_DIR=" + str(downloads),
+               "TOR_ARM_SDK=" + str(output / "host")]
+    config = profile["validation_fixture_defconfig"]
+    run_logged([*command, config], run / "fixture-configure.log", env)
+    check_resolved_config(ROOT / "br2-external/configs" / config, directory / ".config")
+    shutil.copy2(directory / ".config", run / "fixture-buildroot.config")
+    run_logged([*command, "-j" + str(jobs), "all"], run / "fixture-build.log", env)
+    return directory / "images/rootfs.ext4"
+
+
+def emulation(output, profile, mode, run, fixture=None):
     emulator = shutil.which(profile["qemu"])
     if not emulator:
         raise Blocked("missing " + profile["qemu"] + "; install the QEMU system package")
@@ -177,20 +191,23 @@ def emulation(output, profile, mode, run):
     cpu = "\n".join(line for line in cpu.splitlines() if not line.startswith(("cpu MHz", "bogomips")))
     environment["host_cpu_sha256"] = hashlib.sha256(cpu.encode()).hexdigest()
     images = output / "images"
-    fixture = None
-    if profile.get("validation_fixture"):
+    console = profile.get("qemu_console", "ttyS0")
+    if profile.get("validation_fixture") == "baseline":
         baseline = resolve_result("baseline")
         item = next(a for a in baseline["metadata"]["baseline_artifacts"] if a["role"] == "rootfs")
         fixture = ROOT / item["path"]
         if sha256(fixture) != item["sha256"]:
             raise ValueError("immutable validation fixture checksum mismatch")
-        environment.update(validation_fixture_sha256=item["sha256"], validation_boot="external-fixture-v1", serial_baud=115200)
+    elif profile.get("validation_fixture") == "buildroot" and fixture is None:
+        raise Blocked("missing matching-ABI validation fixture")
+    if fixture:
+        environment.update(validation_fixture_sha256=sha256(fixture), validation_boot="external-fixture-v1", serial_baud=115200)
     command = [emulator, "-machine", environment["machine"], "-cpu", environment["cpu"],
                "-accel", environment["accelerator"], "-m", str(environment["memory_mib"]),
                "-smp", str(environment["cpus"]), "-nographic", "-monitor", "none", "-no-reboot",
                "-kernel", str(images / profile["artifacts"]["kernel"]),
                "-drive", f"file={images / profile['artifacts']['rootfs']},if=virtio,format=raw,snapshot=on",
-               "-append", "root=/dev/vda rw console=ttyS0 tor_validate=" + mode +
+               "-append", f"root=/dev/vda rw console={console} tor_validate=" + mode +
                f" tor_bootstrap_timeout={profile['bootstrap_timeout_seconds']}" +
                f" tor_connection_timeout={profile['connection_timeout_seconds']}" +
                f" tor_idle_seconds={profile['idle_seconds']}",
@@ -198,7 +215,7 @@ def emulation(output, profile, mode, run):
                "-device", "virtio-net-pci,netdev=net0", "-device", "virtio-rng-pci"]
     if fixture:
         append_index = command.index("-append") + 1
-        command[append_index] = profile.get("kernel_root", "root=/dev/vda rw") + " console=ttyS0,115200 init=/bin/sh tor_validation_external=1"
+        command[append_index] = profile.get("kernel_root", "root=/dev/vda rw") + f" console={console},115200 init=/bin/sh tor_validation_external=1"
         command.extend(["-drive", f"file={fixture},if=virtio,format=raw,readonly=on"])
         if profile.get("diagnostic_fixture"):
             diagnostic = profile["diagnostic_fixture"]
@@ -342,7 +359,10 @@ def main():
                     old_profile = json.loads(saved.extractfile(profile_name).read())
                 new_profile = json.loads(json.dumps(profile))
                 for item in (old_profile, new_profile):
-                    item["environment"].pop("measurement_protocol", None)
+                    # QEMU's machine options and measurement protocol only
+                    # change how existing artifacts are exercised.
+                    for field in ("machine", "measurement_protocol"):
+                        item["environment"].pop(field, None)
                 if old_profile != new_profile:
                     raise ValueError("resume refused: build or hardware profile changed")
                 allowed.add(profile_name)
@@ -404,7 +424,10 @@ def main():
             raise ValueError("target Tor ELF has missing/unsafe stack permissions")
         result["tests"].append({"id": "elf_hardening", "mode": "offline", "status": "PASS", "detail": "PIE, RELRO, NOW and non-executable stack observed"})
         result["build"].update(status="PASS", detail="make all succeeded; all required boot artifacts and ELF hardening verified")
-        target, environment = emulation(output, profile, args.mode, run)
+        fixture = None
+        if profile.get("validation_fixture") == "buildroot":
+            fixture = build_validation_fixture(source, output, profile, downloads, run, args.jobs, env)
+        target, environment = emulation(output, profile, args.mode, run, fixture)
         if not re.search(r"\b" + re.escape(lock["tor_version"]) + r"\b", target.get("tor_version_output", "")):
             raise ValueError("target Tor version differs from pinned version")
         if target.get("kernel_version") != lock["kernel_version"] or target.get("architecture") != profile["architecture"]:
