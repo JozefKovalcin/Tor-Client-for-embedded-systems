@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261105T080754Z-8e9862ab`
+Run: `20261105T083655Z-9a24cdbe`
 
-**REJECTED** — Ablation: only Tor CFLAGS -Os to -O2; kernel, libraries and gzip filesystem unchanged
+**REJECTED** — Restore -O2 userland, retain small kernel, remove diagnostic exports and garbage-collect unreachable Tor sections
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `ccc95611560be699a267014ade1bc5a1301b5a47`; dirty: `False`.
+Commit: `f7b48b660ad35299f270fd3f411fa0ce4ba4f737`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 

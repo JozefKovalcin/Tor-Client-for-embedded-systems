@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261105T080754Z-8e9862ab`
+Run: `20261105T083655Z-9a24cdbe`
 
-**REJECTED** — Ablation: only Tor CFLAGS -Os to -O2; kernel, libraries and gzip filesystem unchanged
+**REJECTED** — Restore -O2 userland, retain small kernel, remove diagnostic exports and garbage-collect unreachable Tor sections
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `ccc95611560be699a267014ade1bc5a1301b5a47`; dirty: `False`.
+Commit: `f7b48b660ad35299f270fd3f411fa0ce4ba4f737`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 
@@ -33,33 +33,34 @@ Null means unavailable; bytes use base 1024 for KiB conversions.
 
 | Metric | Candidate | Baseline | Delta | Reduction % |
 |---|---:|---:|---:|---:|
-| bootstrap_seconds | 18.135261557999996 | 22.553607893 | -4.4183463350000025 | 19.59041921789964 |
-| complete_image_bytes | 27333632 | 275092480 | -247758848 | 90.06383889519627 |
-| cpu_percent | 16.115412383016203 | 20.26267122673946 | -4.147258843723257 | 20.46748327165454 |
-| idle_pss_bytes | 48054850.782608695 | 123724451.40425532 | -75669600.62164661 | 61.15977865555852 |
-| idle_rss_bytes | 56692290.782608695 | 133537443.40425532 | -76845152.62164661 | 57.54577192931182 |
-| image_host_allocated_bytes | 10833920 | 79142912 | -68308992 | 86.31094089638754 |
-| installed_rootfs_bytes | 11980608 | 63362683 | -51382075 | 81.09201278613786 |
+| bootstrap_seconds | 14.861876812000002 | 22.553607893 | -7.691731080999997 | 34.10421568687151 |
+| complete_image_bytes | 27431936 | 275092480 | -247660544 | 90.02810400342459 |
+| cpu_percent | 13.67034243890223 | 20.26267122673946 | -6.59232878783723 | 32.53435203122538 |
+| idle_pss_bytes | 49147102.60869565 | 123724451.40425532 | -74577348.79555967 | 60.276968658270164 |
+| idle_rss_bytes | 58184926.60869565 | 133537443.40425532 | -75352516.79555967 | 56.42800616411867 |
+| image_host_allocated_bytes | 10932224 | 79142912 | -68210688 | 86.18673015215816 |
+| installed_rootfs_bytes | 12270600 | 63362683 | -51092083 | 80.63434277238544 |
 | kernel_bytes | 4445184 | 6657024 | -2211840 | 33.22565759113982 |
-| library_bytes | 8111688 | 18515107 | -10403419 | 56.18881381565875 |
-| onion_connection_seconds | 4.035402197000003 | 3.0411382779999983 | 0.9942639190000051 | -32.69380830831151 |
-| peak_process_rss_bytes | 58757120 | 134811648 | -76054528 | 56.4153981709355 |
-| peak_system_used_bytes | 94593024 | 171053056 | -76460032 | 44.69960010536146 |
-| persistent_storage_bytes | 16475965 | 16321542 | 154423 | -0.946129967376857 |
-| production_peak_rss_bytes | 26505216 | None | None | None |
-| production_pss_bytes | 25513984 | None | None | None |
-| production_rss_bytes | 25997312 | None | None | None |
-| production_state_bytes | 8156610 | None | None | None |
-| production_state_free_bytes | 5029888 | None | None | None |
+| library_bytes | 9003952 | 18515107 | -9511155 | 51.36970042895242 |
+| onion_connection_seconds | 4.078738665000003 | 3.0411382779999983 | 1.0376003870000048 | -34.11881644797756 |
+| peak_process_rss_bytes | 59224064 | 134811648 | -75587584 | 56.06903047428068 |
+| peak_system_used_bytes | 96440320 | 171053056 | -74612736 | 43.61964512344053 |
+| persistent_storage_bytes | 16651600 | 16321542 | 330058 | -2.0222231453376156 |
+| production_peak_rss_bytes | 27332608 | None | None | None |
+| production_pss_bytes | 26396672 | None | None | None |
+| production_rss_bytes | 26861568 | None | None | None |
+| production_state_bytes | 8321409 | None | None | None |
+| production_state_free_bytes | 4865024 | None | None | None |
 | production_state_volume_bytes | 14410752 | None | None | None |
-| rootfs_bytes | 22888448 | 268435456 | -245547008 | 91.473388671875 |
-| startup_seconds | 0.5104580639999998 | 6.915354525000001 | -6.404896461000001 | 92.61848308492904 |
-| throughput_bytes_per_second | 274440.20972307265 | 335069.59929016826 | -60629.38956709561 | 18.094565933625905 |
-| tor_executable_bytes | 3030936 | 3397272 | -366336 | 10.783240199783826 |
+| rootfs_bytes | 22986752 | 268435456 | -245448704 | 91.436767578125 |
+| startup_seconds | 0.3740472609999994 | 6.915354525000001 | -6.541307264000001 | 94.59106167807066 |
+| throughput_bytes_per_second | 159745.50862134952 | 335069.59929016826 | -175324.09066881874 | 52.32467852656162 |
+| tor_executable_bytes | 2428664 | 3397272 | -968608 | 28.511346751157987 |
 
 ## Decision
 
 - onion_connection_seconds exceeds regression limit 20%
+- throughput_bytes_per_second exceeds regression limit 20%
 
 Positive reduction means lower resource use. Throughput improvement has the opposite sign.
 Public Tor timing varies with network conditions; one run does not establish a causal speedup.
