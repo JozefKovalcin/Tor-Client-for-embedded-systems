@@ -42,6 +42,13 @@ uses the existing 20% performance limit against the same image at 256 MiB.
 RAM is deliberately varied here; this is not an equivalent-environment
 optimization acceptance. Public performance, artifact and mandatory functional
 gates remain separate and unchanged. No missing sample is discarded.
+For a repeated RAM group, every planned functional assertion and margin must
+pass. Local performance uses the median of each process's trial median, then
+the median across cold starts, against all planned 256 MiB controls. Public
+bootstrap/onion/throughput medians use the same unchanged 20% bounds and are
+reported separately with exploratory intervals. An incomplete or failed
+reference group cannot qualify a lower-RAM group. Individual outliers remain
+visible even when a median gate passes.
 
 The additional state-capacity screen requires no observed write errors and at
 least 4 MiB available during the run. It can reject a nine-test functional PASS;
