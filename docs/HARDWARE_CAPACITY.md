@@ -119,6 +119,17 @@ authenticated control. It does not establish an unlimited-concurrency or total
 RSS bound. This increases total storage intentionally; it is not a
 claimed size reduction. Retain the smaller images and their historical gates.
 
+The capacity32 cold-start plan additionally sets `queue_reserve_test_bytes` to
+32 MiB. In `native-one-endpoint-v2-queue-reserve`, after the ordinary nine tests
+and unreserved local timing, a real tmpfs allocation stays resident while local
+TCP and the complete bidirectional payload-integrity workload execute again.
+Shmem is checked to confirm allocation. System memory peaks and the 20%/16 MiB
+margin include this stage. Reserved and unreserved throughput are kept separate.
+This conservative planning stress represents additional queue-budget growth;
+it does not claim Tor actually queued that data or that MaxMemInQueues bounds
+all other allocations. Compare only v2 groups with one another. The prior v1
+measurements and frozen regression fixture remain unchanged.
+
 Physical flash also needs bootloader/firmware, erase alignment, reserved blocks,
 update slots and ongoing state headroom. Short runs cannot establish flash
 endurance or bound future consensus/cache sizes. Consult the measured report

@@ -1,0 +1,27 @@
+{
+  "manifest": {
+    "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+    "executables": {
+      "crypto-capacity": "80efcaf16e156a9546a700a74b69abc1bbc895b5516e1949e8d778461bf1c23d",
+      "crypto-probe": "849aade7de88b1b335ed2a66644d9db329409afb13068b606f996c94f3820f3b",
+      "native-agent": "8472b6ce1f4fc8320bc4df2f59c720512b8c975eed4b2847651857c704e17960"
+    },
+    "flags": [
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fstack-protector-strong",
+      "-fPIE",
+      "-pie",
+      "-Wl,-z,relro,-z,now"
+    ],
+    "purpose": "test-only observer/backend; no production installation; SAFECOOKIE credentials and identities stay in guest",
+    "sources": {
+      "crypto_capacity.c": "8e3fb05541a1f459e204d98497576d00173de2aed6c6f8b2a7ef25125a883b0b",
+      "native_agent.c": "6b84b0dc5f80013f48a3b41f02c23e25a5a01b7a66d6a985a04a65b290936d44"
+    }
+  },
+  "path": "/home/jozef/embedded-tor/build/capacity-fixture-v2.ext4",
+  "sha256": "4b531e68d242c3bdaee1f3de6d6ec3b8bb9af61e0ead3c137e3907658cbcbdfb"
+}

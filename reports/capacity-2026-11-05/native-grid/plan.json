@@ -1,0 +1,220 @@
+{
+  "created_before_measurements": "2026-11-05T13:58:19.589215+00:00",
+  "fixture_sha256": "4b531e68d242c3bdaee1f3de6d6ec3b8bb9af61e0ead3c137e3907658cbcbdfb",
+  "images": {
+    "ram": [
+      "qemu-x86_64-ram",
+      "build/iterations/08-ram",
+      "20261105T101727Z-3c2822d0"
+    ],
+    "selective": [
+      "qemu-x86_64-selective",
+      "build/iterations/11-selective",
+      "20261105T130046Z-719a45c7"
+    ],
+    "slim": [
+      "qemu-x86_64-fulltor-slim",
+      "build/iterations/10-fulltor-slim",
+      "20261105T110833Z-e46f667a"
+    ]
+  },
+  "local_tcp_trials": 3,
+  "margin": {
+    "minimum_available_bytes": 16777216,
+    "minimum_available_fraction": 0.2
+  },
+  "performance_limits": "Unchanged 20% local scaling/performance limits; RAM is the intentionally varied capacity variable. Public variance assessed separately; blocked mandatory tests prevent qualification.",
+  "protocol": "native-one-endpoint-v1",
+  "ram_order": [
+    256,
+    192,
+    160,
+    128,
+    112,
+    96
+  ],
+  "repeats": 1,
+  "results": [
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/01-ram-256",
+      "image": "ram",
+      "memory_mib": 256,
+      "qualification": {
+        "functional_pass": false,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/01-slim-256",
+      "image": "slim",
+      "memory_mib": 256,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/01-selective-256",
+      "image": "selective",
+      "memory_mib": 256,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/02-selective-192",
+      "image": "selective",
+      "memory_mib": 192,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/02-slim-192",
+      "image": "slim",
+      "memory_mib": 192,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/02-ram-192",
+      "image": "ram",
+      "memory_mib": 192,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/03-ram-160",
+      "image": "ram",
+      "memory_mib": 160,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/03-slim-160",
+      "image": "slim",
+      "memory_mib": 160,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/03-selective-160",
+      "image": "selective",
+      "memory_mib": 160,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/04-selective-128",
+      "image": "selective",
+      "memory_mib": 128,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/04-slim-128",
+      "image": "slim",
+      "memory_mib": 128,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/04-ram-128",
+      "image": "ram",
+      "memory_mib": 128,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/05-ram-112",
+      "image": "ram",
+      "memory_mib": 112,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/05-slim-112",
+      "image": "slim",
+      "memory_mib": 112,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/05-selective-112",
+      "image": "selective",
+      "memory_mib": 112,
+      "qualification": {
+        "functional_pass": false,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/06-selective-96",
+      "image": "selective",
+      "memory_mib": 96,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/06-slim-96",
+      "image": "slim",
+      "memory_mib": 96,
+      "qualification": {
+        "functional_pass": false,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    },
+    {
+      "directory": "/home/jozef/embedded-tor/reports/benchmarks/capacity-native-20261105T135819Z/06-ram-96",
+      "image": "ram",
+      "memory_mib": 96,
+      "qualification": {
+        "functional_pass": true,
+        "memory_margin_pass": true,
+        "performance": "UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate"
+      }
+    }
+  ],
+  "small_buffer_crypto_trials": 5
+}

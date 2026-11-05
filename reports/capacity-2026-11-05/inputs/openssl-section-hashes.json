@@ -1,0 +1,44 @@
+{
+  "ram": {
+    ".data.rel.ro": {
+      "bytes": 512272,
+      "sha256": "1c56eaeb5016e63d4074d1f1a1399a75f6e434d3eaaae04cdd0e129add21cae8"
+    },
+    ".rodata": {
+      "bytes": 615051,
+      "sha256": "45c21a6af27c102dc3e2e9c2df9a33c87d7c08a3525d330d4c97a83daa75a524"
+    },
+    ".text": {
+      "bytes": 3472673,
+      "sha256": "33db4d7ead9f1f1b9c4ffc47ea849a398a8eb5e0129dc51a2638332757c1a6b0"
+    }
+  },
+  "selective": {
+    ".data.rel.ro": {
+      "bytes": 512272,
+      "sha256": "1c56eaeb5016e63d4074d1f1a1399a75f6e434d3eaaae04cdd0e129add21cae8"
+    },
+    ".rodata": {
+      "bytes": 615051,
+      "sha256": "b3479ffb09b6ab53ac5438518e9efd3857a457901269c5a0a779670162686205"
+    },
+    ".text": {
+      "bytes": 3472673,
+      "sha256": "33db4d7ead9f1f1b9c4ffc47ea849a398a8eb5e0129dc51a2638332757c1a6b0"
+    }
+  },
+  "slim": {
+    ".data.rel.ro": {
+      "bytes": 512112,
+      "sha256": "1cc428956e9e804bc01a87d6beb3327ec06c62feb0009db5f01a7a091ddb1c21"
+    },
+    ".rodata": {
+      "bytes": 604875,
+      "sha256": "8bf9ec30a94b7d9723c9d92a7ac2c90aa46720eea4e8b27bdfc9a0dcf22cae19"
+    },
+    ".text": {
+      "bytes": 2859329,
+      "sha256": "887fb1a65deae3bc9d0cd4576648ed913da17ed3c5f2363f4d8f7a387dfcadef"
+    }
+  }
+}

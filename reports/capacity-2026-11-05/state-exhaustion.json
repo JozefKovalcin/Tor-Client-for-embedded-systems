@@ -1,0 +1,138 @@
+{
+  "cases_with_explicit_enospc": [
+    {
+      "errors_in_retained_notice_log": 38,
+      "first_errors": [
+        "Nov 05 14:12:41.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device",
+        "Nov 05 14:12:41.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device",
+        "Nov 05 14:12:41.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 473): No space left on device"
+      ],
+      "image": "slim",
+      "memory_mib": 192,
+      "run": "02-slim-192"
+    },
+    {
+      "errors_in_retained_notice_log": 49,
+      "first_errors": [
+        "Nov 05 14:14:10.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 728): No space left on device",
+        "Nov 05 14:14:10.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device",
+        "Nov 05 14:14:10.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device"
+      ],
+      "image": "ram",
+      "memory_mib": 192,
+      "run": "02-ram-192"
+    },
+    {
+      "errors_in_retained_notice_log": 36,
+      "first_errors": [
+        "Nov 05 14:17:49.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 513): No space left on device",
+        "Nov 05 14:17:49.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device",
+        "Nov 05 14:17:49.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 1158): No space left on device"
+      ],
+      "image": "ram",
+      "memory_mib": 160,
+      "run": "03-ram-160"
+    },
+    {
+      "errors_in_retained_notice_log": 38,
+      "first_errors": [
+        "Nov 05 14:26:29.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 438): No space left on device",
+        "Nov 05 14:26:29.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 410): No space left on device",
+        "Nov 05 14:26:29.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device"
+      ],
+      "image": "selective",
+      "memory_mib": 128,
+      "run": "04-selective-128"
+    },
+    {
+      "errors_in_retained_notice_log": 47,
+      "first_errors": [
+        "Nov 05 14:27:53.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device",
+        "Nov 05 14:27:53.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device",
+        "Nov 05 14:27:53.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device"
+      ],
+      "image": "slim",
+      "memory_mib": 128,
+      "run": "04-slim-128"
+    },
+    {
+      "errors_in_retained_notice_log": 47,
+      "first_errors": [
+        "Nov 05 14:31:09.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device",
+        "Nov 05 14:31:09.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 1146): No space left on device",
+        "Nov 05 14:31:09.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 438): No space left on device"
+      ],
+      "image": "ram",
+      "memory_mib": 128,
+      "run": "04-ram-128"
+    },
+    {
+      "errors_in_retained_notice_log": 49,
+      "first_errors": [
+        "Nov 05 14:32:47.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device",
+        "Nov 05 14:32:47.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 640): No space left on device",
+        "Nov 05 14:32:47.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device"
+      ],
+      "image": "ram",
+      "memory_mib": 112,
+      "run": "05-ram-112"
+    },
+    {
+      "errors_in_retained_notice_log": 48,
+      "first_errors": [
+        "Nov 05 14:35:08.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 1127): No space left on device",
+        "Nov 05 14:35:08.000 [warn] Couldn't write microdescriptor annotation: No space left on device",
+        "Nov 05 14:35:08.000 [warn] Couldn't write microdescriptor annotation: No space left on device"
+      ],
+      "image": "slim",
+      "memory_mib": 112,
+      "run": "05-slim-112"
+    },
+    {
+      "errors_in_retained_notice_log": 50,
+      "first_errors": [
+        "Nov 05 14:36:40.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device",
+        "Nov 05 14:36:40.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device",
+        "Nov 05 14:36:40.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 438): No space left on device"
+      ],
+      "image": "selective",
+      "memory_mib": 112,
+      "run": "05-selective-112"
+    },
+    {
+      "errors_in_retained_notice_log": 50,
+      "first_errors": [
+        "Nov 05 14:41:55.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device",
+        "Nov 05 14:41:55.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device",
+        "Nov 05 14:41:55.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device"
+      ],
+      "image": "selective",
+      "memory_mib": 96,
+      "run": "06-selective-96"
+    },
+    {
+      "errors_in_retained_notice_log": 49,
+      "first_errors": [
+        "Nov 05 14:48:27.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 1175): No space left on device",
+        "Nov 05 14:48:27.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device",
+        "Nov 05 14:48:27.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 375): No space left on device"
+      ],
+      "image": "slim",
+      "memory_mib": 96,
+      "run": "06-slim-96"
+    },
+    {
+      "errors_in_retained_notice_log": 48,
+      "first_errors": [
+        "Nov 05 14:50:55.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 586): No space left on device",
+        "Nov 05 14:50:55.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 410): No space left on device",
+        "Nov 05 14:50:55.000 [warn] Couldn't dump microdescriptor (wrote 0 out of 438): No space left on device"
+      ],
+      "image": "ram",
+      "memory_mib": 96,
+      "run": "06-ram-96"
+    }
+  ],
+  "note": "All full raw logs and 4 Hz samples remain in the ignored original benchmark directories; no private identities exported.",
+  "state_partition_bytes": 16777216
+}

@@ -1,64 +1,86 @@
 {
-  "run_id": "20261105-device128-fulltor-slim",
+  "run_id": "20261105T130046Z-719a45c7",
   "tests": [
     {
-      "detail": "All planned repeats required; statuses: PASS, PASS, PASS",
-      "id": "bidirectional_integrity",
-      "mode": "online",
+      "detail": "see checks.log",
+      "id": "repository_checks",
+      "mode": "offline",
       "status": "PASS"
     },
     {
-      "detail": "All planned repeats required; statuses: PASS, PASS, PASS",
-      "id": "onion_v3",
-      "mode": "online",
+      "detail": "PIE, RELRO, NOW and non-executable stack observed",
+      "id": "elf_hardening",
+      "mode": "offline",
       "status": "PASS"
     },
     {
-      "detail": "All planned repeats required; statuses: PASS, PASS, PASS",
-      "id": "production_service",
-      "mode": "online",
-      "status": "PASS"
-    },
-    {
-      "detail": "All planned repeats required; statuses: PASS, PASS, PASS",
-      "id": "public_bootstrap",
-      "mode": "online",
-      "status": "PASS"
-    },
-    {
-      "detail": "All planned repeats required; statuses: PASS, PASS, PASS",
-      "id": "reconnection",
-      "mode": "online",
-      "status": "PASS"
-    },
-    {
-      "detail": "All planned repeats required; statuses: PASS, PASS, PASS",
+      "detail": "explicit assertions passed",
       "id": "security_config",
       "mode": "offline",
+      "seconds": 0.007931427000000824,
       "status": "PASS"
     },
     {
-      "detail": "All planned repeats required; statuses: PASS, PASS, PASS",
-      "id": "socks5",
-      "mode": "online",
-      "status": "PASS"
-    },
-    {
-      "detail": "All planned repeats required; statuses: PASS, PASS, PASS",
+      "detail": "explicit assertions passed",
       "id": "tor_config",
       "mode": "offline",
+      "seconds": 0.47356706800000126,
       "status": "PASS"
     },
     {
-      "detail": "All planned repeats required; statuses: PASS, PASS, PASS",
+      "detail": "explicit assertions passed",
       "id": "tor_startup",
       "mode": "offline",
+      "seconds": 0.47053377800000007,
       "status": "PASS"
     },
     {
-      "detail": "All planned repeats required; statuses: PASS, PASS, PASS",
+      "detail": "explicit assertions passed",
+      "id": "socks5",
+      "mode": "online",
+      "seconds": 0.008101020999999875,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "public_bootstrap",
+      "mode": "online",
+      "seconds": 17.228821345,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "onion_v3",
+      "mode": "online",
+      "seconds": 4.330816693000003,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
       "id": "two_node",
       "mode": "online",
+      "seconds": 1.6847868199999994,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "bidirectional_integrity",
+      "mode": "online",
+      "seconds": 14.778785712999998,
+      "status": "PASS"
+    },
+    {
+      "detail": "explicit assertions passed",
+      "id": "reconnection",
+      "mode": "online",
+      "seconds": 21.63621472799999,
+      "status": "PASS"
+    },
+    {
+      "detail": "native daemon bootstrapped as uid 905; no fixture libraries or Python in deployed root",
+      "id": "production_service",
+      "mode": "online",
+      "seconds": 8.860678422999996,
       "status": "PASS"
     }
   ]

@@ -1,0 +1,404 @@
+{
+  "ram": {
+    "build": {
+      "detail": "make all succeeded; all required boot artifacts and ELF hardening verified",
+      "output_directory": "build/embedded/qemu-x86_64-ram/a2bae7b5c98ae3145a27",
+      "seconds": 563.341998187,
+      "status": "PASS"
+    },
+    "effective_makefile_flags": {
+      "libevent": [
+        "CFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -O2 -g0  -Wall -fno-strict-aliasing  -W -Wfloat-equal -Wundef -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wwrite-strings -Wredundant-decls -Wmissing-declarations -Wnested-externs -Wbad-function-cast -Wno-unused-parameter -Wstrict-aliasing -Winit-self -Wmissing-field-initializers -Wdeclaration-after-statement -Waddress -Wnormalized=id -Woverride-init -Wlogical-op",
+        "LDFLAGS =  -ztext"
+      ],
+      "libopenssl": [
+        "CONFIGURE_ARGS=(\"linux-x86_64\", \"--prefix=/usr\", \"--openssldir=/etc/ssl\", \"threads\", \"shared\", \"no-rc5\", \"enable-camellia\", \"no-docs\", \"no-tests\", \"no-fuzz-libfuzzer\", \"no-fuzz-afl\", \"no-afalgeng\", \"no-apps\", \"no-engine\", \"no-sm2-precomp\", \"zlib-dynamic\")",
+        "CFLAGS=-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -O2 -g0  -DOPENSSL_NO_ASYNC -DOPENSSL_NO_ASYNC",
+        "CXXFLAGS=-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -O2 -g0 ",
+        "LDFLAGS=  -ztext"
+      ],
+      "tor": [
+        "CFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -O2 -g0 -O2 -ffunction-sections -fdata-sections -fasynchronous-unwind-tables -fcf-protection=full -Wall -fno-strict-aliasing  -Waddress -Warray-bounds -Wcompare-distinct-pointer-types -Wdate-time -Wdouble-promotion -Wduplicate-decl-specifier -Wduplicated-cond -Wenum-conversion -Wextra -Wfloat-conversion -Wheader-guard -Wignored-attributes -Wimplicit-fallthrough -Winit-self -Wlogical-op -Wmissing-field-initializers -Wmissing-format-attribute -Wmissing-noreturn -Wmissing-variable-declarations -Wnormalized=nfkc -Wnull-dereference -Woverlength-strings -Woverride-init -Wshadow -Wshift-count-negative -Wshift-count-overflow -Wshift-negative-value -Wshift-overflow=2 -Wsizeof-array-argument -Wstrict-overflow=1 -Wstring-compare -Wsuggest-attribute=format -Wsuggest-attribute=noreturn -Wswitch-bool -Wsync-nand -Wtrampolines -Wunicode -Wunused-but-set-parameter -Wunused-but-set-variable -Wunused-const-variable=2 -Wunused-local-typedefs -Wvariadic-macros  -W -Wfloat-equal -Wundef -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wwrite-strings -Wredundant-decls -Wchar-subscripts -Wcomment -Wformat=2 -Wwrite-strings -Wnested-externs -Wbad-function-cast -Wswitch-enum -Waggregate-return -Wpacked -Wunused -Wunused-parameter  -Wold-style-definition -Wmissing-declarations",
+        "LDFLAGS =  -ztext -Wl,--gc-sections -z relro -z now"
+      ]
+    },
+    "images": {
+      "bzImage": {
+        "bytes": 5207040,
+        "sha256": "db93194c6eabccd5a9c399dd56162c391648987ac5a80b96f4a8227b5ea00bda"
+      },
+      "disk.img": {
+        "bytes": 21929984,
+        "sha256": "c71ab1f79fcaace510d0ad768fa229b75c39b8e4d96e9b942ded985c58733811"
+      }
+    },
+    "libraries": {
+      "lib/libatomic.so.1.2.0": {
+        "bytes": 26496,
+        "sha256": "0eed800c8af639ff34facddb0a0701a55c89fcc1cae2eefec982fb9da2da0ef7"
+      },
+      "lib/libc.so": {
+        "bytes": 739680,
+        "sha256": "2868d52ba84c7c2448341f12054303b9f3ab83cb4d5c1224ce94a450da96c79d"
+      },
+      "lib/libgcc_s.so.1": {
+        "bytes": 174424,
+        "sha256": "7cb2269d844e797d734757b2559bfc531664ddd3b043ddd653aca6ecf49ba061"
+      },
+      "usr/lib/libcrypto.so.3": {
+        "bytes": 6192128,
+        "sha256": "79b14e95985359bde37f06355d1f4136183e702c7051d549dfb5e657ebb94dd2"
+      },
+      "usr/lib/libevent-2.1.so.7.0.2": {
+        "bytes": 354480,
+        "sha256": "bae7310f5187975c92c363c1ac403e55dfc82d3071477b6e070b32527a54b801"
+      },
+      "usr/lib/libseccomp.so.2.6.1": {
+        "bytes": 182040,
+        "sha256": "d3e8b4ead970f43ebed795731355405d2eb8b9a116d3554e9996930a53b54e21"
+      },
+      "usr/lib/libssl.so.3": {
+        "bytes": 1081056,
+        "sha256": "aa5c5784eb169421caaa9dda5bad751060d5428cb57503a4718dcaa31b4c0ae1"
+      },
+      "usr/lib/libz.so.1.3.2": {
+        "bytes": 104296,
+        "sha256": "4ea09a2dd5310118a159e6d49a0e17b2a21edd7f0d910ebef6fe2f1470ba9394"
+      }
+    },
+    "metadata": {
+      "architecture": "x86_64",
+      "buildroot_version": "2026.08.1",
+      "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+      "compiler_flags": "GNU_TARGET_NAME='x86_64-buildroot-linux-musl'\nTARGET_CFLAGS='-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -O2 -g0 '\nTARGET_LDFLAGS=' -ztext'\nTOR_CONF_ENV='ac_cv_prog_cc_c99='\\''-std=gnu99'\\'' LIBS=\"-latomic\" LDFLAGS=\" -ztext -Wl,--gc-sections\" CFLAGS=\"-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -O2 -g0 -O2 -ffunction-sections -fdata-sections\"'\nTOR_CONF_OPTS='--disable-gcc-hardening --disable-unittests --with-libevent-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-ram/a2bae7b5c98ae3145a27/host/x86_64-buildroot-linux-musl/sysroot/usr --with-openssl-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-ram/a2bae7b5c98ae3145a27/host/x86_64-buildroot-linux-musl/sysroot/usr --with-zlib-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-ram/a2bae7b5c98ae3145a27/host/x86_64-buildroot-linux-musl/sysroot/usr --disable-systemd --disable-lzma --disable-zstd --enable-seccomp --disable-module-relay --disable-module-dirauth'",
+      "configuration_id": "qemu-x86_64-ram",
+      "git": {
+        "commit": "6247a1393d289ece4918826b4e9ea1835909b760",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false
+      },
+      "input_sha256": "a2bae7b5c98ae3145a27a196d2c066d70447a5b9cdcb9c131007422985e1dabd",
+      "kernel_version": "6.18.7",
+      "policy_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552",
+      "source_provenance_sha256": "a791b15b135cdafcc3edbc6ad7ba6364c168c6a7dca38f3729ccdf7f95eb744e",
+      "toolchain_archive": {
+        "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+        "path": "downloads/toolchains/x86_64-buildroot-linux-musl_sdk-buildroot.tar.gz",
+        "sha256": "5fd7659021ec80cf0bb47794be75776867270e672166210453acbaab89800e1e",
+        "source_baseline_commit": "da7c5281145589821ceeb4f6b7aabd4d98833587"
+      },
+      "tor_actual_flags": "CFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -O2 -g0 -O2 -ffunction-sections -fdata-sections -fasynchronous-unwind-tables -fcf-protection=full -Wall -fno-strict-aliasing  -Waddress -Warray-bounds -Wcompare-distinct-pointer-types -Wdate-time -Wdouble-promotion -Wduplicate-decl-specifier -Wduplicated-cond -Wenum-conversion -Wextra -Wfloat-conversion -Wheader-guard -Wignored-attributes -Wimplicit-fallthrough -Winit-self -Wlogical-op -Wmissing-field-initializers -Wmissing-format-attribute -Wmissing-noreturn -Wmissing-variable-declarations -Wnormalized=nfkc -Wnull-dereference -Woverlength-strings -Woverride-init -Wshadow -Wshift-count-negative -Wshift-count-overflow -Wshift-negative-value -Wshift-overflow=2 -Wsizeof-array-argument -Wstrict-overflow=1 -Wstring-compare -Wsuggest-attribute=format -Wsuggest-attribute=noreturn -Wswitch-bool -Wsync-nand -Wtrampolines -Wunicode -Wunused-but-set-parameter -Wunused-but-set-variable -Wunused-const-variable=2 -Wunused-local-typedefs -Wvariadic-macros  -W -Wfloat-equal -Wundef -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wwrite-strings -Wredundant-decls -Wchar-subscripts -Wcomment -Wformat=2 -Wwrite-strings -Wnested-externs -Wbad-function-cast -Wswitch-enum -Waggregate-return -Wpacked -Wunused -Wunused-parameter  -Wold-style-definition -Wmissing-declarations\nLDFLAGS =  -ztext -Wl,--gc-sections -z relro -z now",
+      "tor_version": "0.4.9.14"
+    },
+    "metrics": {
+      "bootstrap_seconds": 15.689931228,
+      "complete_image_bytes": 27137024,
+      "cpu_percent": 42.75315887617588,
+      "idle_pss_bytes": 48945463.652173914,
+      "idle_rss_bytes": 57838191.30434783,
+      "image_host_allocated_bytes": 10637312,
+      "installed_rootfs_bytes": 12209160,
+      "kernel_bytes": 5207040,
+      "library_bytes": 9003952,
+      "onion_connection_seconds": 2.2031843460000005,
+      "peak_process_rss_bytes": 60518400,
+      "peak_system_used_bytes": 89636864,
+      "persistent_storage_bytes": 16648867,
+      "production_peak_rss_bytes": 27574272,
+      "production_pss_bytes": 26602496,
+      "production_rss_bytes": 27070464,
+      "production_state_bytes": 8320183,
+      "production_state_free_bytes": 4866048,
+      "production_state_volume_bytes": 14410752,
+      "rootfs_bytes": 21929984,
+      "startup_seconds": 0.4270389169999991,
+      "throughput_bytes_per_second": 275884.4981868447,
+      "tor_executable_bytes": 2428664
+    },
+    "partitions": [
+      {
+        "bytes": 4104192,
+        "number": 1,
+        "offset_bytes": 1048576,
+        "type": 131
+      },
+      {
+        "bytes": 16777216,
+        "number": 2,
+        "offset_bytes": 5152768,
+        "type": 131
+      }
+    ],
+    "profile": "qemu-x86_64-ram",
+    "source_build": "20261105T101727Z-3c2822d0",
+    "state_partition_included_in_complete_image": true
+  },
+  "selective": {
+    "build": {
+      "detail": "make all succeeded; all required boot artifacts and ELF hardening verified",
+      "output_directory": "build/embedded/qemu-x86_64-selective/80671752a38bb101ab45",
+      "seconds": 582.969026773,
+      "status": "PASS"
+    },
+    "effective_makefile_flags": {
+      "libevent": [
+        "CFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -Os -g0  -Wall -fno-strict-aliasing  -W -Wfloat-equal -Wundef -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wwrite-strings -Wredundant-decls -Wmissing-declarations -Wnested-externs -Wbad-function-cast -Wno-unused-parameter -Wstrict-aliasing -Winit-self -Wmissing-field-initializers -Wdeclaration-after-statement -Waddress -Wnormalized=id -Woverride-init -Wlogical-op",
+        "LDFLAGS =  -ztext"
+      ],
+      "libopenssl": [
+        "CONFIGURE_ARGS=(\"linux-x86_64\", \"--prefix=/usr\", \"--openssldir=/etc/ssl\", \"threads\", \"shared\", \"no-rc5\", \"enable-camellia\", \"no-docs\", \"no-tests\", \"no-fuzz-libfuzzer\", \"no-fuzz-afl\", \"no-afalgeng\", \"no-apps\", \"no-engine\", \"no-sm2-precomp\", \"zlib-dynamic\")",
+        "CFLAGS=-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -g0 -DOPENSSL_NO_ASYNC -DOPENSSL_NO_ASYNC -O2",
+        "CXXFLAGS=-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -Os -g0 ",
+        "LDFLAGS=  -ztext"
+      ],
+      "tor": [
+        "CFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -g0 -O2 -ffunction-sections -fdata-sections -fasynchronous-unwind-tables -fcf-protection=full -Wall -fno-strict-aliasing  -Waddress -Warray-bounds -Wcompare-distinct-pointer-types -Wdate-time -Wdouble-promotion -Wduplicate-decl-specifier -Wduplicated-cond -Wenum-conversion -Wextra -Wfloat-conversion -Wheader-guard -Wignored-attributes -Wimplicit-fallthrough -Winit-self -Wlogical-op -Wmissing-field-initializers -Wmissing-format-attribute -Wmissing-noreturn -Wmissing-variable-declarations -Wnormalized=nfkc -Wnull-dereference -Woverlength-strings -Woverride-init -Wshadow -Wshift-count-negative -Wshift-count-overflow -Wshift-negative-value -Wshift-overflow=2 -Wsizeof-array-argument -Wstrict-overflow=1 -Wstring-compare -Wsuggest-attribute=format -Wsuggest-attribute=noreturn -Wswitch-bool -Wsync-nand -Wtrampolines -Wunicode -Wunused-but-set-parameter -Wunused-but-set-variable -Wunused-const-variable=2 -Wunused-local-typedefs -Wvariadic-macros  -W -Wfloat-equal -Wundef -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wwrite-strings -Wredundant-decls -Wchar-subscripts -Wcomment -Wformat=2 -Wwrite-strings -Wnested-externs -Wbad-function-cast -Wswitch-enum -Waggregate-return -Wpacked -Wunused -Wunused-parameter  -Wold-style-definition -Wmissing-declarations",
+        "LDFLAGS =  -ztext -Wl,--gc-sections -z relro -z now"
+      ]
+    },
+    "images": {
+      "bzImage": {
+        "bytes": 3941376,
+        "sha256": "34fc79461775223b9c59dcd7cfc2d1cb9a5ac1e788268c50e63a1056d18b88a7"
+      },
+      "disk.img": {
+        "bytes": 21901312,
+        "sha256": "0cd551aa738db42e606c74e544439f629165440a79ffa9e406e8bf76f68ce7b9"
+      }
+    },
+    "libraries": {
+      "lib/libatomic.so.1.2.0": {
+        "bytes": 26496,
+        "sha256": "0eed800c8af639ff34facddb0a0701a55c89fcc1cae2eefec982fb9da2da0ef7"
+      },
+      "lib/libc.so": {
+        "bytes": 739680,
+        "sha256": "2868d52ba84c7c2448341f12054303b9f3ab83cb4d5c1224ce94a450da96c79d"
+      },
+      "lib/libgcc_s.so.1": {
+        "bytes": 174424,
+        "sha256": "7cb2269d844e797d734757b2559bfc531664ddd3b043ddd653aca6ecf49ba061"
+      },
+      "usr/lib/libcrypto.so.3": {
+        "bytes": 6192128,
+        "sha256": "d83076f2a0ec97040d2c64151f39be39540aae0ef89d0d8ce1e68eacf114d7da"
+      },
+      "usr/lib/libevent-2.1.so.7.0.2": {
+        "bytes": 305360,
+        "sha256": "8cfe40921dc339ba1e12bf837da60fb5b154d5a71a1748554d73aa56bd09de83"
+      },
+      "usr/lib/libseccomp.so.2.6.1": {
+        "bytes": 161560,
+        "sha256": "d6585a32403ae0a59179f3db15056cbe33dfd877300d0ce04f50dd292cce987d"
+      },
+      "usr/lib/libssl.so.3": {
+        "bytes": 1081056,
+        "sha256": "aa5c5784eb169421caaa9dda5bad751060d5428cb57503a4718dcaa31b4c0ae1"
+      },
+      "usr/lib/libz.so.1.3.2": {
+        "bytes": 83816,
+        "sha256": "35bb06b3ec51eee6af4a901cd47610727414ce52edfbfad1d02e5b904896906f"
+      }
+    },
+    "metadata": {
+      "architecture": "x86_64",
+      "buildroot_version": "2026.08.1",
+      "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+      "compiler_flags": "GNU_TARGET_NAME='x86_64-buildroot-linux-musl'\nTARGET_CFLAGS='-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -Os -g0 '\nTARGET_LDFLAGS=' -ztext'\nTOR_CONF_ENV='ac_cv_prog_cc_c99='\\''-std=gnu99'\\'' LIBS=\"-latomic\" LDFLAGS=\" -ztext -Wl,--gc-sections\" CFLAGS=\"-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -g0 -O2 -ffunction-sections -fdata-sections\"'\nTOR_CONF_OPTS='--disable-gcc-hardening --disable-unittests --with-libevent-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-selective/80671752a38bb101ab45/host/x86_64-buildroot-linux-musl/sysroot/usr --with-openssl-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-selective/80671752a38bb101ab45/host/x86_64-buildroot-linux-musl/sysroot/usr --with-zlib-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-selective/80671752a38bb101ab45/host/x86_64-buildroot-linux-musl/sysroot/usr --disable-systemd --disable-lzma --disable-zstd --enable-seccomp --disable-module-relay --disable-module-dirauth'",
+      "configuration_id": "qemu-x86_64-selective",
+      "git": {
+        "commit": "b9d2bdecd79e1c94e7fc953c199c166809131a4f",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false
+      },
+      "input_sha256": "80671752a38bb101ab457f672bc11b02d77e870b9c65074d6c87519f55667496",
+      "kernel_version": "6.18.7",
+      "policy_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552",
+      "source_provenance_sha256": "d70edbfe36e8497d23179d7c04433f241444840a9d67490912ea74ffb148fb64",
+      "toolchain_archive": {
+        "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+        "path": "downloads/toolchains/x86_64-buildroot-linux-musl_sdk-buildroot.tar.gz",
+        "sha256": "5fd7659021ec80cf0bb47794be75776867270e672166210453acbaab89800e1e",
+        "source_baseline_commit": "da7c5281145589821ceeb4f6b7aabd4d98833587"
+      },
+      "tor_actual_flags": "CFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -g0 -O2 -ffunction-sections -fdata-sections -fasynchronous-unwind-tables -fcf-protection=full -Wall -fno-strict-aliasing  -Waddress -Warray-bounds -Wcompare-distinct-pointer-types -Wdate-time -Wdouble-promotion -Wduplicate-decl-specifier -Wduplicated-cond -Wenum-conversion -Wextra -Wfloat-conversion -Wheader-guard -Wignored-attributes -Wimplicit-fallthrough -Winit-self -Wlogical-op -Wmissing-field-initializers -Wmissing-format-attribute -Wmissing-noreturn -Wmissing-variable-declarations -Wnormalized=nfkc -Wnull-dereference -Woverlength-strings -Woverride-init -Wshadow -Wshift-count-negative -Wshift-count-overflow -Wshift-negative-value -Wshift-overflow=2 -Wsizeof-array-argument -Wstrict-overflow=1 -Wstring-compare -Wsuggest-attribute=format -Wsuggest-attribute=noreturn -Wswitch-bool -Wsync-nand -Wtrampolines -Wunicode -Wunused-but-set-parameter -Wunused-but-set-variable -Wunused-const-variable=2 -Wunused-local-typedefs -Wvariadic-macros  -W -Wfloat-equal -Wundef -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wwrite-strings -Wredundant-decls -Wchar-subscripts -Wcomment -Wformat=2 -Wwrite-strings -Wnested-externs -Wbad-function-cast -Wswitch-enum -Waggregate-return -Wpacked -Wunused -Wunused-parameter  -Wold-style-definition -Wmissing-declarations\nLDFLAGS =  -ztext -Wl,--gc-sections -z relro -z now",
+      "tor_version": "0.4.9.14"
+    },
+    "metrics": {
+      "bootstrap_seconds": 16.690900327,
+      "complete_image_bytes": 25842688,
+      "cpu_percent": 38.794474243748006,
+      "idle_pss_bytes": 48985000.85106383,
+      "idle_rss_bytes": 57831336.85106383,
+      "image_host_allocated_bytes": 9342976,
+      "installed_rootfs_bytes": 12119080,
+      "kernel_bytes": 3941376,
+      "library_bytes": 8913872,
+      "onion_connection_seconds": 4.315374477999995,
+      "peak_process_rss_bytes": 60395520,
+      "peak_system_used_bytes": 89702400,
+      "persistent_storage_bytes": 16660681,
+      "production_peak_rss_bytes": 27475968,
+      "production_pss_bytes": 26439680,
+      "production_rss_bytes": 26902528,
+      "production_state_bytes": 8296534,
+      "production_state_free_bytes": 4890624,
+      "production_state_volume_bytes": 14410752,
+      "rootfs_bytes": 21901312,
+      "startup_seconds": 0.4501322079999994,
+      "throughput_bytes_per_second": 163062.67722908457,
+      "tor_executable_bytes": 2428664
+    },
+    "partitions": [
+      {
+        "bytes": 4075520,
+        "number": 1,
+        "offset_bytes": 1048576,
+        "type": 131
+      },
+      {
+        "bytes": 16777216,
+        "number": 2,
+        "offset_bytes": 5124096,
+        "type": 131
+      }
+    ],
+    "profile": "qemu-x86_64-selective",
+    "source_build": "20261105T130046Z-719a45c7",
+    "state_partition_included_in_complete_image": true
+  },
+  "slim": {
+    "build": {
+      "detail": "make all succeeded; all required boot artifacts and ELF hardening verified",
+      "output_directory": "build/embedded/qemu-x86_64-fulltor-slim/a37d79406d038c933cdc",
+      "seconds": 525.4144373889999,
+      "status": "PASS"
+    },
+    "effective_makefile_flags": {
+      "libevent": [
+        "CFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -Os -g0  -Wall -fno-strict-aliasing  -W -Wfloat-equal -Wundef -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wwrite-strings -Wredundant-decls -Wmissing-declarations -Wnested-externs -Wbad-function-cast -Wno-unused-parameter -Wstrict-aliasing -Winit-self -Wmissing-field-initializers -Wdeclaration-after-statement -Waddress -Wnormalized=id -Woverride-init -Wlogical-op",
+        "LDFLAGS =  -ztext"
+      ],
+      "libopenssl": [
+        "CONFIGURE_ARGS=(\"linux-x86_64\", \"--prefix=/usr\", \"--openssldir=/etc/ssl\", \"threads\", \"shared\", \"no-rc5\", \"enable-camellia\", \"no-docs\", \"no-tests\", \"no-fuzz-libfuzzer\", \"no-fuzz-afl\", \"no-afalgeng\", \"no-apps\", \"no-engine\", \"no-sm2-precomp\", \"zlib-dynamic\")",
+        "CFLAGS=-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -Os -g0  -DOPENSSL_NO_ASYNC -DOPENSSL_NO_ASYNC",
+        "CXXFLAGS=-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -Os -g0 ",
+        "LDFLAGS=  -ztext"
+      ],
+      "tor": [
+        "CFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -g0 -O2 -fasynchronous-unwind-tables -fcf-protection=full -Wall -fno-strict-aliasing  -Waddress -Warray-bounds -Wcompare-distinct-pointer-types -Wdate-time -Wdouble-promotion -Wduplicate-decl-specifier -Wduplicated-cond -Wenum-conversion -Wextra -Wfloat-conversion -Wheader-guard -Wignored-attributes -Wimplicit-fallthrough -Winit-self -Wlogical-op -Wmissing-field-initializers -Wmissing-format-attribute -Wmissing-noreturn -Wmissing-variable-declarations -Wnormalized=nfkc -Wnull-dereference -Woverlength-strings -Woverride-init -Wshadow -Wshift-count-negative -Wshift-count-overflow -Wshift-negative-value -Wshift-overflow=2 -Wsizeof-array-argument -Wstrict-overflow=1 -Wstring-compare -Wsuggest-attribute=format -Wsuggest-attribute=noreturn -Wswitch-bool -Wsync-nand -Wtrampolines -Wunicode -Wunused-but-set-parameter -Wunused-but-set-variable -Wunused-const-variable=2 -Wunused-local-typedefs -Wvariadic-macros  -W -Wfloat-equal -Wundef -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wwrite-strings -Wredundant-decls -Wchar-subscripts -Wcomment -Wformat=2 -Wwrite-strings -Wnested-externs -Wbad-function-cast -Wswitch-enum -Waggregate-return -Wpacked -Wunused -Wunused-parameter  -Wold-style-definition -Wmissing-declarations",
+        "LDFLAGS =  -ztext -z relro -z now -rdynamic"
+      ]
+    },
+    "images": {
+      "bzImage": {
+        "bytes": 3941376,
+        "sha256": "0e88e44ddff67c5f7ab0e25f70779736841be29d9f2c769864b1cf684d3c6741"
+      },
+      "disk.img": {
+        "bytes": 21995520,
+        "sha256": "e506c56b217aaaf4ed53117f52de5c0ff6d822a50c821088ee27f91a09054402"
+      }
+    },
+    "libraries": {
+      "lib/libatomic.so.1.2.0": {
+        "bytes": 26496,
+        "sha256": "0eed800c8af639ff34facddb0a0701a55c89fcc1cae2eefec982fb9da2da0ef7"
+      },
+      "lib/libc.so": {
+        "bytes": 739680,
+        "sha256": "2868d52ba84c7c2448341f12054303b9f3ab83cb4d5c1224ce94a450da96c79d"
+      },
+      "lib/libgcc_s.so.1": {
+        "bytes": 174424,
+        "sha256": "7cb2269d844e797d734757b2559bfc531664ddd3b043ddd653aca6ecf49ba061"
+      },
+      "usr/lib/libcrypto.so.3": {
+        "bytes": 5570168,
+        "sha256": "15523cecdd832645bafacbe9d9448fe34ab1a3a911948b4b74edc3075e562dfd"
+      },
+      "usr/lib/libevent-2.1.so.7.0.2": {
+        "bytes": 305360,
+        "sha256": "8cfe40921dc339ba1e12bf837da60fb5b154d5a71a1748554d73aa56bd09de83"
+      },
+      "usr/lib/libseccomp.so.2.6.1": {
+        "bytes": 161560,
+        "sha256": "d6585a32403ae0a59179f3db15056cbe33dfd877300d0ce04f50dd292cce987d"
+      },
+      "usr/lib/libssl.so.3": {
+        "bytes": 913120,
+        "sha256": "9fda6eb729788f1b0027800a14d4985ab85e67ec92b74bedc71c802fae20ad4e"
+      },
+      "usr/lib/libz.so.1.3.2": {
+        "bytes": 83816,
+        "sha256": "35bb06b3ec51eee6af4a901cd47610727414ce52edfbfad1d02e5b904896906f"
+      }
+    },
+    "metadata": {
+      "architecture": "x86_64",
+      "buildroot_version": "2026.08.1",
+      "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+      "compiler_flags": "GNU_TARGET_NAME='x86_64-buildroot-linux-musl'\nTARGET_CFLAGS='-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -Os -g0 '\nTARGET_LDFLAGS=' -ztext'\nTOR_CONF_ENV='ac_cv_prog_cc_c99='\\''-std=gnu99'\\'' LIBS=\"-latomic\" CFLAGS=\"-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -g0 -O2\"'\nTOR_CONF_OPTS='--disable-gcc-hardening --disable-unittests --with-libevent-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-fulltor-slim/a37d79406d038c933cdc/host/x86_64-buildroot-linux-musl/sysroot/usr --with-openssl-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-fulltor-slim/a37d79406d038c933cdc/host/x86_64-buildroot-linux-musl/sysroot/usr --with-zlib-dir=/home/jozef/embedded-tor/build/embedded/qemu-x86_64-fulltor-slim/a37d79406d038c933cdc/host/x86_64-buildroot-linux-musl/sysroot/usr --disable-systemd --disable-lzma --disable-zstd --enable-seccomp'",
+      "configuration_id": "qemu-x86_64-fulltor-slim",
+      "git": {
+        "commit": "d4b5c60711507a8bb59a676461fc6f1fcafdfd88",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dirty": false
+      },
+      "input_sha256": "a37d79406d038c933cdc7f1d4b8fe4b25299c55f703b5b591600d3ba13f0e7ba",
+      "kernel_version": "6.18.7",
+      "policy_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552",
+      "source_provenance_sha256": "d70edbfe36e8497d23179d7c04433f241444840a9d67490912ea74ffb148fb64",
+      "toolchain_archive": {
+        "compiler": "x86_64-buildroot-linux-musl-gcc.br_real (Buildroot -g60254c8) 15.3.0",
+        "path": "downloads/toolchains/x86_64-buildroot-linux-musl_sdk-buildroot.tar.gz",
+        "sha256": "5fd7659021ec80cf0bb47794be75776867270e672166210453acbaab89800e1e",
+        "source_baseline_commit": "da7c5281145589821ceeb4f6b7aabd4d98833587"
+      },
+      "tor_actual_flags": "CFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -g0 -O2 -fasynchronous-unwind-tables -fcf-protection=full -Wall -fno-strict-aliasing  -Waddress -Warray-bounds -Wcompare-distinct-pointer-types -Wdate-time -Wdouble-promotion -Wduplicate-decl-specifier -Wduplicated-cond -Wenum-conversion -Wextra -Wfloat-conversion -Wheader-guard -Wignored-attributes -Wimplicit-fallthrough -Winit-self -Wlogical-op -Wmissing-field-initializers -Wmissing-format-attribute -Wmissing-noreturn -Wmissing-variable-declarations -Wnormalized=nfkc -Wnull-dereference -Woverlength-strings -Woverride-init -Wshadow -Wshift-count-negative -Wshift-count-overflow -Wshift-negative-value -Wshift-overflow=2 -Wsizeof-array-argument -Wstrict-overflow=1 -Wstring-compare -Wsuggest-attribute=format -Wsuggest-attribute=noreturn -Wswitch-bool -Wsync-nand -Wtrampolines -Wunicode -Wunused-but-set-parameter -Wunused-but-set-variable -Wunused-const-variable=2 -Wunused-local-typedefs -Wvariadic-macros  -W -Wfloat-equal -Wundef -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wwrite-strings -Wredundant-decls -Wchar-subscripts -Wcomment -Wformat=2 -Wwrite-strings -Wnested-externs -Wbad-function-cast -Wswitch-enum -Waggregate-return -Wpacked -Wunused -Wunused-parameter  -Wold-style-definition -Wmissing-declarations\nLDFLAGS =  -ztext -z relro -z now -rdynamic",
+      "tor_version": "0.4.9.14"
+    },
+    "metrics": {
+      "bootstrap_seconds": 15.704382664000002,
+      "complete_image_bytes": 25936896,
+      "cpu_percent": 16.676548472951218,
+      "idle_pss_bytes": 49119493.44680851,
+      "idle_rss_bytes": 58138885.44680851,
+      "image_host_allocated_bytes": 9437184,
+      "installed_rootfs_bytes": 12285504,
+      "kernel_bytes": 3941376,
+      "library_bytes": 8111688,
+      "onion_connection_seconds": 7.071195822,
+      "peak_process_rss_bytes": 60502016,
+      "peak_system_used_bytes": 89698304,
+      "persistent_storage_bytes": 16622064,
+      "production_peak_rss_bytes": 27561984,
+      "production_pss_bytes": 26595328,
+      "production_rss_bytes": 27095040,
+      "production_state_bytes": 8320183,
+      "production_state_free_bytes": 4866048,
+      "production_state_volume_bytes": 14410752,
+      "rootfs_bytes": 21995520,
+      "startup_seconds": 0.37142621399999953,
+      "throughput_bytes_per_second": 34236.45699837551,
+      "tor_executable_bytes": 3397272
+    },
+    "partitions": [
+      {
+        "bytes": 4169728,
+        "number": 1,
+        "offset_bytes": 1048576,
+        "type": 131
+      },
+      {
+        "bytes": 16777216,
+        "number": 2,
+        "offset_bytes": 5218304,
+        "type": 131
+      }
+    ],
+    "profile": "qemu-x86_64-fulltor-slim",
+    "source_build": "20261105T110833Z-e46f667a",
+    "state_partition_included_in_complete_image": true
+  }
+}

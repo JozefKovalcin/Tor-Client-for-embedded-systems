@@ -226,7 +226,11 @@ def run_case(profile,images,fixture,memory,run,peer,origin,local_trials=3):
     result=copy.deepcopy(origin);result.update(run_id=Path(run).name,timestamp=utcnow(),tests=[],metrics={k:None for k in origin['metrics']})
     static=('tor_executable_bytes','library_bytes','kernel_bytes','rootfs_bytes','complete_image_bytes','installed_rootfs_bytes')
     result['metrics'].update({k:origin['metrics'][k] for k in static if k in origin['metrics']})
-    result['environment']={**read_json(ROOT/'config/profiles'/(profile+'.json'))['environment'],'memory_mib':memory,'measurement_protocol':'native-one-endpoint-v1','test_mode':'online','diagnostic_fixture_sha256':sha256(fixture),'qemu_version':subprocess.check_output(['qemu-system-x86_64','--version'],text=True).splitlines()[0],'peer_tor_sha256':peer.data['tor_sha256']}
+    selected=read_json(ROOT/'config/profiles'/(profile+'.json'))
+    reserve_bytes=selected.get('queue_reserve_test_bytes',0)
+    protocol='native-one-endpoint-v2-queue-reserve' if reserve_bytes else 'native-one-endpoint-v1'
+    result['environment']={**selected['environment'],'memory_mib':memory,'measurement_protocol':protocol,'test_mode':'online','diagnostic_fixture_sha256':sha256(fixture),'qemu_version':subprocess.check_output(['qemu-system-x86_64','--version'],text=True).splitlines()[0],'peer_tor_sha256':peer.data['tor_sha256']}
+    result['metadata']['queue_reserve_test_bytes']=reserve_bytes
     result['metadata']['native_measurement_git']=git_metadata();result['metadata']['harness']='host Python; one guest Tor plus test-only C observer/backend; no guest Python'
     result['build']['detail']='Preserved complete built image; hashes verified; no rebuild claimed'
     rows=result['tests'];phase=[];vm=NativeVM(profile,images,fixture,memory,run)
@@ -338,6 +342,20 @@ def run_case(profile,images,fixture,memory,run,peer,origin,local_trials=3):
             text,_=vm.agent.execute('/run/probe/crypto-probe',180);result['crypto_bulk']=json.loads(text)
             vm.phase='state';text,_=vm.agent.execute('du -sk /var/lib/tor');result['metrics']['persistent_storage_allocated_bytes']=1024*int(text.split()[0])
             text,_=vm.agent.execute('sha256sum /var/lib/tor/cached-microdesc-consensus 2>/dev/null || true');result['metadata']['public_consensus_sha256']=text.split()[0] if re.match(r'^[a-f0-9]{64}\s',text) else None
+            if reserve_bytes:
+                def reserved_integrity():
+                    if reserve_bytes%1048576:raise ValueError('reservation must be whole MiB')
+                    vm.agent.execute('dd if=/dev/zero of=/run/capacity/queue-reserve bs=1048576 count='+str(reserve_bytes//1048576),timeout=30)
+                    time.sleep(3)
+                    if vm.agent.sample()['memory']['Shmem']<reserve_bytes:raise AssertionError('resident reservation not observed')
+                    with vm.agent.open('ECHO',180) as s:result['queue_reserve_local_tcp_bytes_per_second']=exchange(s,[data]*16)
+                    original=dict(result['metrics']);keys=('server_role_throughput_bytes_per_second','client_role_throughput_bytes_per_second','throughput_bytes_per_second')
+                    for key in keys:result['metrics'][key]=None
+                    try:integrity()
+                    finally:
+                        result['queue_reserve_public_metrics']={key:result['metrics'].get(key) for key in keys}
+                        result['metrics']=original
+                test('queue_reserve_integrity',reserved_integrity)
     except Exception as exc:result['error']=type(exc).__name__+': '+str(exc)
     required=read_json(ROOT/'config/policy.json')['required_tests']
     for name in required:
@@ -347,7 +365,8 @@ def run_case(profile,images,fixture,memory,run,peer,origin,local_trials=3):
     result['observer_errors']=vm.errors;result['phase_intervals']=phase
     notice=Path(run)/'guest-notice.log'
     state_ok=notice.exists() and not re.search(r'No space left on device|Couldn.t (?:dump|write)|Unable to (?:write|save)',notice.read_text()) and result['native_summary'].get('state_available_min_bytes',0)>=4*1024**2
-    result['qualification']={'functional_pass':all(next(x['status'] for x in rows if x['id']==name)=='PASS' for name in required),'memory_margin_pass':bool(vm.samples) and result['native_summary'].get('min_available_fraction',0)>=.2 and result['native_summary'].get('min_available_bytes',0)>=16*1024**2,'state_capacity_pass':bool(state_ok),'performance':'UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate'}
+    reserve_ok=not reserve_bytes or any(t['id']=='queue_reserve_integrity' and t['status']=='PASS' for t in rows)
+    result['qualification']={'functional_pass':all(next(x['status'] for x in rows if x['id']==name)=='PASS' for name in required),'queue_reserve_integrity_pass':reserve_ok,'memory_margin_pass':bool(vm.samples) and result['native_summary'].get('min_available_fraction',0)>=.2 and result['native_summary'].get('min_available_bytes',0)>=16*1024**2,'state_capacity_pass':bool(state_ok),'performance':'UNASSESSED: controlled-local comparison uses the same image at 256 MiB; public variability is separate'}
     write_json(Path(run)/'results.json',result);return result
 
 
@@ -364,7 +383,7 @@ def main():
     state=read_json(args.peer_session)
     peer=Peer({**state['public'],'tor_sha256':state['provenance']['tor_sha256']})
     images=read_json(args.matrix)['images'];args.output.mkdir(parents=True,exist_ok=False)
-    plan={'created_before_measurements':utcnow(),'protocol':'native-one-endpoint-v1','images':images,
+    plan={'created_before_measurements':utcnow(),'protocol':'per-result; v2 additionally holds the explicitly configured resident queue reservation','images':images,
           'ram_order':args.memory_mib,'repeats':args.rounds,'git':git_metadata(),'fixture_sha256':sha256(args.fixture),
           'local_tcp_trials':3,'small_buffer_crypto_trials':5,
           'margin':{'minimum_available_fraction':.2,'minimum_available_bytes':16*1024**2},
@@ -381,7 +400,7 @@ def main():
                 print('START NATIVE',name,memory,str(run),flush=True)
                 result=run_case(profile,source,args.fixture,memory,run,peer,read_json(ROOT/'reports/benchmarks'/rid/'results.json'))
                 plan['results'].append({'image':name,'memory_mib':memory,'directory':str(run),'qualification':result['qualification']})
-                failed=failed or not result['qualification']['functional_pass'] or not result['qualification']['memory_margin_pass'] or not result['qualification']['state_capacity_pass']
+                failed=failed or not result['qualification']['functional_pass'] or not result['qualification']['queue_reserve_integrity_pass'] or not result['qualification']['memory_margin_pass'] or not result['qualification']['state_capacity_pass']
                 write_json(args.output/'plan.json',plan)
                 print('DONE NATIVE',name,memory,result['qualification'],flush=True)
     # Performance still requires explicit matched analysis, even if assertions passed.

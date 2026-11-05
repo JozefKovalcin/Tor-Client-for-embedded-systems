@@ -1,0 +1,6 @@
+{
+  "status": "BLOCKED",
+  "reason": "Private network did not converge before fixture setup deadline; no private Tor throughput claimed.",
+  "terminated_owned_pids": [],
+  "runtime_logs": "runtime/capacity-peers-20261105/setup.log"
+}

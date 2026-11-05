@@ -1,0 +1,25 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/python/cpython/v3.11.9/Lib/asyncore.py",
+    "source_sha256": "0dc49691ced7a3d7c67eb42f1319d1a93f7fae9cec65712a38cfaeee26fefffb",
+    "compat_sha256": "4cc691b6d9af58d1eb26cd3381c1bb95675b4a065307074658a9e75727499314",
+    "change": "Remove obsolete interpreter-version deprecation guard only"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/python/cpython/v3.11.9/Lib/asynchat.py",
+    "source_sha256": "63fe1a2fd717d09ad462ca87adf57d8963c67a58e18c40340d5c9e39390ccf94",
+    "compat_sha256": "fd731e707aa58821e7f0765dd6d701a8f168545dafcc948e543281b1d4eac5bf",
+    "change": "Remove obsolete interpreter-version deprecation guard only"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/python/cpython/v3.11.9/LICENSE",
+    "source_sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+    "compat_sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+    "change": "none"
+  },
+  {
+    "repository": "https://github.com/torproject/chutney.git",
+    "commit": "62b54a55215c94eb14adc22c5acd17b2ada04b76",
+    "role": "Private-network fixture only; no changes to production or public tests"
+  }
+]
