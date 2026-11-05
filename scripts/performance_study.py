@@ -36,6 +36,7 @@ def main():
     parser.add_argument('--fixture',type=Path,default=ROOT/'build/performance-probe.ext4')
     parser.add_argument('--matrix',type=Path,help='explicit additional experiment image mapping and fixed orders')
     parser.add_argument('--mode',choices=('online','offline'),default='online')
+    parser.add_argument('--memory-mib',type=int,choices=(128,512),help='explicit capacity experiment; comparisons require the same RAM')
     args=parser.parse_args()
     matrix=read_json(args.matrix) if args.matrix else {'images':IMAGES,'orders':ORDERS}
     images=matrix['images']
@@ -43,7 +44,7 @@ def main():
     directory=args.series or ROOT/'reports/benchmarks'/('study-'+time.strftime('%Y%m%dT%H%M%SZ',time.gmtime()))
     directory.mkdir(parents=True,exist_ok=False)
     fixture=args.fixture.resolve()
-    plan={'created':utcnow(),'git':git_metadata(),'orders':orders,'mode':args.mode,'diagnostic_sha256':sha256(fixture),
+    plan={'created':utcnow(),'git':git_metadata(),'orders':orders,'mode':args.mode,'memory_mib_override':args.memory_mib,'diagnostic_sha256':sha256(fixture),
           'aggregation':'all attempts retained; medians and ranges descriptive; existing 20% limits unchanged; no automatic acceptance from selected samples',
           'images':{},'results':[]}
     for name,(profile_name,source,rid) in images.items():
@@ -68,6 +69,8 @@ def main():
             profile['validation_fixture']='baseline'
             profile['diagnostic_fixture']={'path':str(fixture),'sha256':plan['diagnostic_sha256']}
             profile['environment']['measurement_protocol']='tor-two-node-v3-stage-profile'
+            if args.memory_mib is not None:
+                profile['environment']['memory_mib']=args.memory_mib
             write_json(run/'measurement-profile.json',profile)
             before=sha256(ROOT/source/Path(profile['artifacts']['rootfs']).name)
             print('START',run,flush=True)

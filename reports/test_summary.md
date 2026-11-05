@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261105T083655Z-9a24cdbe`
+Run: `20261105T093316Z-b835cc6d`
 
-**REJECTED** — Restore -O2 userland, retain small kernel, remove diagnostic exports and garbage-collect unreachable Tor sections
+**NON_COMPARABLE** — Restore SMP/-O2 kernel execution; offset footprint with XZ and removal of unused debug, initrd and applets
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `f7b48b660ad35299f270fd3f411fa0ce4ba4f737`; dirty: `False`.
+Commit: `bc282a6b21bbaf0fd577fd4740fbd5116323cebc`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 

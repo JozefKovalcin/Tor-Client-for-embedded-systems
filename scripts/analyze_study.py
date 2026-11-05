@@ -70,7 +70,10 @@ def main():
             writer=csv.DictWriter(f,fieldnames=keys);writer.writeheader();writer.writerows(raw)
     def val(name,key,scale=1):
         x=summary[name]['metrics'].get(key)
-        return f"{x['median']/scale:.2f} [{x['min']/scale:.2f}, {x['max']/scale:.2f}]" if x else 'unavailable'
+        if not x:return 'unavailable'
+        label=f"{x['median']/scale:.2f} [{x['min']/scale:.2f}, {x['max']/scale:.2f}]"
+        if x['n']!=expected:label+=f"; {x['n']}/{expected} available"
+        return label
     lines=['# Repeated embedded Tor performance study','',
         'Fixed interleaved order; all attempts retained. Values are median [min, max]. The original baseline and 20% thresholds are unchanged. '
         'Medians are a separate matched measurement reference, not edits to historical measurements. Any missing planned result, mandatory BLOCKED/FAIL, or unavailable required metric prevents aggregate acceptance. '
@@ -81,7 +84,7 @@ def main():
         if name not in summary:continue
         lines.append('| '+ ' | '.join([name,f"{summary[name]['completed']}/{expected}",val(name,'complete_image_bytes',1048576),val(name,'idle_rss_bytes',1048576),val(name,'cpu_percent'),val(name,'bootstrap_seconds'),val(name,'onion_connection_seconds'),val(name,'throughput_bytes_per_second',1024),comparisons.get(name,{}).get('status','REFERENCE')])+' |')
     lines+=['','CPU percentage covers the whole observation, including public-network waiting; phase CPU seconds below isolate active work more closely. '
-        'All images use identical QEMU CPU/machine/512 MiB RAM/NAT/RNG, baseline functional suite, and read-only diagnostic disk. '
+        'All images use identical QEMU CPU/machine/RAM/NAT/RNG (RAM is recorded in each result), baseline functional suite, and read-only diagnostic disk. '
         'Public relays/circuits are not held identical. No host builds run during the series.','',
         '| Image | Startup CPU s | Bootstrap CPU s | Integrity CPU s | AES CTR MiB/s | SHA256 MiB/s | X25519 ops/s |',
         '|---|---:|---:|---:|---:|---:|---:|']

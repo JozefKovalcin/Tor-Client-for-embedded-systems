@@ -6,6 +6,17 @@ import math
 from pathlib import Path
 from common import ROOT, read_json, resolve_result, sha256, validate_result, write_json
 
+def equivalent_environments(a, b):
+    if a == b:
+        return True
+    left, right = dict(a), dict(b)
+    old, new = left.pop("host_memory_bytes", None), right.pop("host_memory_bytes", None)
+    # WSL's reported physical capacity can change by a few reserved pages.
+    # Keep raw observations; tolerate at most 1 MiB on the HOST only. Guest
+    # RAM, CPU, architecture, emulator, protocol and every other field stay exact.
+    return (left == right and all(isinstance(x, int) and not isinstance(x, bool) and x > 0
+                                 for x in (old, new)) and abs(old-new) <= 1024*1024)
+
 
 def compare(baseline, candidate, policy, policy_sha256=None):
     reasons = validate_result(candidate, policy)
@@ -21,7 +32,7 @@ def compare(baseline, candidate, policy, policy_sha256=None):
     if baseline_errors:
         reasons.append("baseline is not fully validated: " + "; ".join(baseline_errors))
         result["status"] = "INCOMPLETE"
-    equivalent = baseline.get("environment") == candidate.get("environment")
+    equivalent = equivalent_environments(baseline.get("environment", {}), candidate.get("environment", {}))
     for name in ("architecture", "policy_sha256"):
         equivalent = equivalent and baseline.get("metadata", {}).get(name) == candidate.get("metadata", {}).get(name)
     if policy_sha256 is not None:
