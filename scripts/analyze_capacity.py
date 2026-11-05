@@ -10,6 +10,10 @@ import statistics as stats
 from common import ROOT,read_json,write_json,sha256
 from capacity_native import summarize_samples
 
+LOCAL_KEYS=('tcp','aes_cell_bytes_per_second','sha256_cell_bytes_per_second',
+            'sha3_256_cell_bytes_per_second','shake256_cell_bytes_per_second',
+            'aes128ctr_bytes_per_second','sha256_bytes_per_second','x25519_ops_per_second')
+
 
 def distribution(values):
     values=[v for v in values if isinstance(v,(int,float))]
@@ -58,6 +62,7 @@ def native(series,output):
         path=Path(item['directory']);d=read_json(path/'results.json')
         samples=[json.loads(s) for s in (path/'samples.jsonl').read_text().splitlines()]
         row={'image':item['image'],'memory_mib':item['memory_mib'],'run':path.name,'qualification':d['qualification'],
+             'measurement_quality_pass':not d.get('error') and not d.get('observer_errors'),
              'tests':d['tests'],'summary':cpu_phase(samples),'metrics':d['metrics'],
              'phases':{phase:cpu_phase([s for s in samples if s['phase']==phase]) for phase in {s['phase'] for s in samples}},
              'local':{'tcp':distribution(d.get('local_tcp_trials_bytes_per_second',[]))}}
@@ -91,7 +96,7 @@ def native(series,output):
             rows=[r for r in cases if r['image']==image and r['memory_mib']==memory]
             complete=len(rows)==plan['repeats'] and len(ref)==plan['repeats']
             local={};public_gates={}
-            for key in sorted({k for r in rows for k in r['local']}):
+            for key in LOCAL_KEYS:
                 a=[r['local'].get(key,{}).get('median') for r in ref];b=[r['local'].get(key,{}).get('median') for r in rows]
                 available=complete and all(v is not None for v in a+b)
                 local[key]={'control':distribution(a),'candidate':distribution(b),'pass':stats.median(b)>=.8*stats.median(a) if available else None}
@@ -101,12 +106,13 @@ def native(series,output):
                 gate=(stats.median(b)>=.8*stats.median(a) if key=='throughput_bytes_per_second' else stats.median(b)<=1.2*stats.median(a)) if available else None
                 public_gates[key]={'control':distribution(a),'candidate':distribution(b),'pass':gate,'exploratory_paired_ci':paired_ratio_ci(a,b)}
             functions=complete and all(r['qualification']['functional_pass'] for r in rows+ref)
+            quality=complete and all(r['measurement_quality_pass'] for r in rows+ref)
             margins=complete and all(r['qualification']['memory_margin_pass'] for r in rows)
             state=complete and all(r['state_capacity']['pass'] for r in rows+ref)
             groups[f'{image}-{memory}']={'image':image,'memory_mib':memory,'planned':plan['repeats'],'completed':len(rows),
-                'all_functional_assertions_pass':functions,'memory_margin_pass':margins,'state_capacity_pass':state,
+                'all_functional_assertions_pass':functions,'measurement_quality_pass':quality,'memory_margin_pass':margins,'state_capacity_pass':state,
                 'local_median_gates':local,'public_median_gates':public_gates,
-                'capacity_screen':'PASS' if functions and margins and state and local and all(v['pass'] for v in local.values()) and all(v['pass'] for v in public_gates.values()) else 'BLOCKED_OR_REJECTED'}
+                'capacity_screen':'PASS' if functions and quality and margins and state and local and all(v['pass'] for v in local.values()) and all(v['pass'] for v in public_gates.values()) else 'BLOCKED_OR_REJECTED'}
     write_json(output/'native-analysis.json',{'plan':plan,'cases':cases,'groups':groups,'planned':expected,'completed':len(cases),'complete':len(cases)==expected,'note':'CPU counters recomputed from raw samples using per-PID differences. Original per-phase summaries accumulated earlier process CPU; they are not used. RAM scaling intentionally varies RAM and is not an equivalent-environment optimization acceptance. All planned functional assertions and margins must pass; performance uses medians of per-process trial medians, with the unchanged 20% limits. Every attempt and individual outlier is retained.'})
     fields=['image','memory_mib','run','capacity_screen','functional_pass','memory_margin_pass','linux_memtotal_bytes','peak_system_used_bytes','peak_process_hwm_bytes','min_available_bytes','min_available_fraction','state_available_min_bytes','tor_cpu_seconds','tor_cpu_percent','tcp_bytes_per_second']
     with (output/'native-measurements.csv').open('w',newline='') as f:
