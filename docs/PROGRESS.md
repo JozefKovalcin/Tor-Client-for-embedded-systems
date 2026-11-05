@@ -105,3 +105,11 @@ Performance recovery experiment: restore baseline -O2 userland compilation while
 Next recovery experiment: restore baseline kernel SMP and -O2 execution choices (two possible CPUs, one QEMU vCPU), keep trimmed drivers, remove unused performance/debug/input/initrd support and development/network-server BusyBox applets, and use 128 KiB XZ SquashFS blocks to offset code growth. Keep the 16 MiB ext4 state partition, seccomp, ASLR, stack protection, upstream crypto and authenticated control. Previous fast image remains REJECTED; this candidate has no claimed result before build and regression execution.
 
 The balanced image passed all three mandatory-online repeats and the unchanged performance gates at128 MiB against the accepted data-only128 control. Next targeted RAM/storage iteration: directly decompress SquashFS into the page cache, reduce cached fragment blocks from3 to1, and omit unused BusyBox archive codecs. Kernel XZ and the gzip/base64 validation bootstrap remain. No improvement claimed until the new complete image is built, tested and measured.
+
+
+2026-11-05 final compiler/module ablation: restore the original full upstream
+Tor module/link configuration at -O2, keeping the production root and trimmed
+libraries. Kernel XZ compression offsets executable growth without changing
+the running kernel's code/configuration. This tests whether client-module or
+symbol-GC changes explain remaining throughput loss. Hypothesis only: no
+performance or size improvement claimed until the complete build/tests run.

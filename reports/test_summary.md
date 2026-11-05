@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261105T093316Z-b835cc6d`
+Run: `20261105T101727Z-3c2822d0`
 
-**NON_COMPARABLE** — Restore SMP/-O2 kernel execution; offset footprint with XZ and removal of unused debug, initrd and applets
+**ACCEPTED** — Reduce SquashFS buffer RAM and unused archive codec storage while keeping qualified performance flags
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `bc282a6b21bbaf0fd577fd4740fbd5116323cebc`; dirty: `False`.
+Commit: `6247a1393d289ece4918826b4e9ea1835909b760`; dirty: `False`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 

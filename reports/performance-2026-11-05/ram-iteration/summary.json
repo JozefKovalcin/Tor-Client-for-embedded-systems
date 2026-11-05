@@ -1,0 +1,260 @@
+{
+  "ram": {
+    "completed": 3,
+    "crypto": {
+      "aes128ctr_bytes_per_second": {
+        "max": 40784229.232,
+        "median": 40286013.18,
+        "min": 31169884.615
+      },
+      "sha256_bytes_per_second": {
+        "max": 102316288.802,
+        "median": 100330478.133,
+        "min": 99932987.03
+      },
+      "x25519_ops_per_second": {
+        "max": 3982.55,
+        "median": 3782.857,
+        "min": 3780.178
+      }
+    },
+    "functional_attempts": [
+      {
+        "run": "01-ram",
+        "tests": {
+          "bidirectional_integrity": "PASS",
+          "onion_v3": "PASS",
+          "production_service": "PASS",
+          "public_bootstrap": "PASS",
+          "reconnection": "PASS",
+          "security_config": "PASS",
+          "socks5": "PASS",
+          "tor_config": "PASS",
+          "tor_startup": "PASS",
+          "two_node": "PASS"
+        }
+      },
+      {
+        "run": "02-ram",
+        "tests": {
+          "bidirectional_integrity": "PASS",
+          "onion_v3": "PASS",
+          "production_service": "PASS",
+          "public_bootstrap": "PASS",
+          "reconnection": "PASS",
+          "security_config": "PASS",
+          "socks5": "PASS",
+          "tor_config": "PASS",
+          "tor_startup": "PASS",
+          "two_node": "PASS"
+        }
+      },
+      {
+        "run": "03-ram",
+        "tests": {
+          "bidirectional_integrity": "PASS",
+          "onion_v3": "PASS",
+          "production_service": "PASS",
+          "public_bootstrap": "PASS",
+          "reconnection": "PASS",
+          "security_config": "PASS",
+          "socks5": "PASS",
+          "tor_config": "PASS",
+          "tor_startup": "PASS",
+          "two_node": "PASS"
+        }
+      }
+    ],
+    "metrics": {
+      "bootstrap_seconds": {
+        "max": 18.031958773,
+        "median": 17.734602142,
+        "min": 16.371244559,
+        "n": 3,
+        "stdev": 0.8855447067299785
+      },
+      "complete_image_bytes": {
+        "max": 27137024,
+        "median": 27137024,
+        "min": 27137024,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "cpu_percent": {
+        "max": 42.22995330626652,
+        "median": 39.10032919594138,
+        "min": 14.335490006238292,
+        "n": 3,
+        "stdev": 15.281758679115896
+      },
+      "idle_pss_bytes": {
+        "max": 49404209.02127659,
+        "median": 49037333.787234046,
+        "min": 48963540.42553192,
+        "n": 3,
+        "stdev": 236019.67038810588
+      },
+      "idle_rss_bytes": {
+        "max": 58276145.02127659,
+        "median": 57899835.91489362,
+        "min": 57811989.787234046,
+        "n": 3,
+        "stdev": 246564.92281636037
+      },
+      "image_host_allocated_bytes": {
+        "max": 10637312,
+        "median": 10637312,
+        "min": 10637312,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "installed_rootfs_bytes": {
+        "max": 12209160,
+        "median": 12209160,
+        "min": 12209160,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "kernel_bytes": {
+        "max": 5207040,
+        "median": 5207040,
+        "min": 5207040,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "library_bytes": {
+        "max": 9003952,
+        "median": 9003952,
+        "min": 9003952,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "onion_connection_seconds": {
+        "max": 4.665770817000002,
+        "median": 3.6585132529999953,
+        "min": 3.4097412399999953,
+        "n": 3,
+        "stdev": 0.6650896697671821
+      },
+      "peak_process_rss_bytes": {
+        "max": 60047360,
+        "median": 59199488,
+        "min": 58957824,
+        "n": 3,
+        "stdev": 572185.4467122817
+      },
+      "peak_system_used_bytes": {
+        "max": 90914816,
+        "median": 89722880,
+        "min": 89690112,
+        "n": 3,
+        "stdev": 697816.2434261139
+      },
+      "persistent_storage_bytes": {
+        "max": 16649070,
+        "median": 16649044,
+        "min": 16646569,
+        "n": 3,
+        "stdev": 1436.5062942198804
+      },
+      "production_peak_rss_bytes": {
+        "max": 27508736,
+        "median": 27430912,
+        "min": 27287552,
+        "n": 3,
+        "stdev": 112198.504470128
+      },
+      "production_pss_bytes": {
+        "max": 26629120,
+        "median": 26448896,
+        "min": 26286080,
+        "n": 3,
+        "stdev": 171593.60012929776
+      },
+      "production_rss_bytes": {
+        "max": 27111424,
+        "median": 26947584,
+        "min": 26742784,
+        "n": 3,
+        "stdev": 184698.86987562574
+      },
+      "production_state_bytes": {
+        "max": 8320183,
+        "median": 8320183,
+        "min": 8298312,
+        "n": 3,
+        "stdev": 12627.227737446305
+      },
+      "production_state_free_bytes": {
+        "max": 4887552,
+        "median": 4866048,
+        "min": 4866048,
+        "n": 3,
+        "stdev": 12415.340188653712
+      },
+      "production_state_volume_bytes": {
+        "max": 14410752,
+        "median": 14410752,
+        "min": 14410752,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "rootfs_bytes": {
+        "max": 21929984,
+        "median": 21929984,
+        "min": 21929984,
+        "n": 3,
+        "stdev": 0.0
+      },
+      "startup_seconds": {
+        "max": 0.49599865699999945,
+        "median": 0.4521328329999985,
+        "min": 0.44344515400000084,
+        "n": 3,
+        "stdev": 0.028170779657820746
+      },
+      "throughput_bytes_per_second": {
+        "max": 277308.9652677954,
+        "median": 253093.8968784686,
+        "min": 184904.4293929597,
+        "n": 3,
+        "stdev": 47914.45721856967
+      },
+      "tor_executable_bytes": {
+        "max": 2428664,
+        "median": 2428664,
+        "min": 2428664,
+        "n": 3,
+        "stdev": 0.0
+      }
+    },
+    "phases": {
+      "bootstrap": {
+        "max": 14.42,
+        "median_tor_cpu_seconds": 13.95,
+        "min": 13.61
+      },
+      "integrity": {
+        "max": 2.52,
+        "median_tor_cpu_seconds": 2.43,
+        "min": 2.33
+      },
+      "onion": {
+        "max": 0.67,
+        "median_tor_cpu_seconds": 0.63,
+        "min": 0.51
+      },
+      "reconnect": {
+        "max": 8.1,
+        "median_tor_cpu_seconds": 6.9,
+        "min": 6.13
+      },
+      "startup": {
+        "max": 0.37,
+        "median_tor_cpu_seconds": 0.34,
+        "min": 0.33
+      }
+    },
+    "planned": 3
+  }
+}

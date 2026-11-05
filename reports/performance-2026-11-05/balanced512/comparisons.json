@@ -1,0 +1,147 @@
+{
+  "balanced512": {
+    "differences": [
+      {
+        "baseline": 22.529744904,
+        "candidate": 16.576576433,
+        "delta": -5.9531684710000015,
+        "improvement_percent": 26.423594658380075,
+        "metric": "bootstrap_seconds",
+        "reduction_percent": 26.423594658380075
+      },
+      {
+        "baseline": 275092480,
+        "candidate": 27141120,
+        "delta": -247951360,
+        "improvement_percent": 90.13381972491578,
+        "metric": "complete_image_bytes",
+        "reduction_percent": 90.13381972491578
+      },
+      {
+        "baseline": 49.052049862876515,
+        "candidate": 36.16969547219448,
+        "delta": -12.882354390682032,
+        "improvement_percent": 26.26262190202908,
+        "metric": "cpu_percent",
+        "reduction_percent": 26.26262190202908
+      },
+      {
+        "baseline": 124722677.10638298,
+        "candidate": 49088294.127659574,
+        "delta": -75634382.9787234,
+        "improvement_percent": 60.64204580391631,
+        "metric": "idle_pss_bytes",
+        "reduction_percent": 60.64204580391631
+      },
+      {
+        "baseline": 134523185.0212766,
+        "candidate": 57876925.217391305,
+        "delta": -76646259.80388528,
+        "improvement_percent": 56.97624524111786,
+        "metric": "idle_rss_bytes",
+        "reduction_percent": 56.97624524111786
+      },
+      {
+        "baseline": 79142912,
+        "candidate": 10641408,
+        "delta": -68501504,
+        "improvement_percent": 86.55418693717006,
+        "metric": "image_host_allocated_bytes",
+        "reduction_percent": 86.55418693717006
+      },
+      {
+        "baseline": 63362683,
+        "candidate": 12209160,
+        "delta": -51153523,
+        "improvement_percent": 80.73130836331536,
+        "metric": "installed_rootfs_bytes",
+        "reduction_percent": 80.73130836331536
+      },
+      {
+        "baseline": 6657024,
+        "candidate": 5207040,
+        "delta": -1449984,
+        "improvement_percent": 21.781264420858328,
+        "metric": "kernel_bytes",
+        "reduction_percent": 21.781264420858328
+      },
+      {
+        "baseline": 18515107,
+        "candidate": 9003952,
+        "delta": -9511155,
+        "improvement_percent": 51.36970042895242,
+        "metric": "library_bytes",
+        "reduction_percent": 51.36970042895242
+      },
+      {
+        "baseline": 3.961948402999994,
+        "candidate": 4.039933318999999,
+        "delta": 0.07798491600000546,
+        "improvement_percent": -1.9683475923350024,
+        "metric": "onion_connection_seconds",
+        "reduction_percent": -1.9683475923350024
+      },
+      {
+        "baseline": 136028160,
+        "candidate": 59584512,
+        "delta": -76443648,
+        "improvement_percent": 56.19692863595303,
+        "metric": "peak_process_rss_bytes",
+        "reduction_percent": 56.19692863595303
+      },
+      {
+        "baseline": 171220992,
+        "candidate": 95727616,
+        "delta": -75493376,
+        "improvement_percent": 44.09119180900436,
+        "metric": "peak_system_used_bytes",
+        "reduction_percent": 44.09119180900436
+      },
+      {
+        "baseline": 16651263,
+        "candidate": 16648780,
+        "delta": -2483,
+        "improvement_percent": 0.014911781766944646,
+        "metric": "persistent_storage_bytes",
+        "reduction_percent": 0.014911781766944646
+      },
+      {
+        "baseline": 268435456,
+        "candidate": 21934080,
+        "delta": -246501376,
+        "improvement_percent": 91.82891845703125,
+        "metric": "rootfs_bytes",
+        "reduction_percent": 91.82891845703125
+      },
+      {
+        "baseline": 6.65769389,
+        "candidate": 0.4155691439999991,
+        "delta": -6.242124746000001,
+        "improvement_percent": 93.75806171226657,
+        "metric": "startup_seconds",
+        "reduction_percent": 93.75806171226657
+      },
+      {
+        "baseline": 261955.94246885675,
+        "candidate": 129350.07699675324,
+        "delta": -132605.86547210353,
+        "improvement_percent": -50.621438178623755,
+        "metric": "throughput_bytes_per_second",
+        "reduction_percent": 50.621438178623755
+      },
+      {
+        "baseline": 3397272,
+        "candidate": 2428664,
+        "delta": -968608,
+        "improvement_percent": 28.511346751157987,
+        "metric": "tor_executable_bytes",
+        "reduction_percent": 28.511346751157987
+      }
+    ],
+    "functional_regressions": [],
+    "reasons": [
+      "throughput_bytes_per_second exceeds regression limit 20%"
+    ],
+    "status": "REJECTED"
+  }
+}
