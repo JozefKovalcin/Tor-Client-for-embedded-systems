@@ -1,0 +1,141 @@
+test_empty_metrics_remain_unavailable (test_capacity_analysis.CapacityAnalysisTests.test_empty_metrics_remain_unavailable) ... ok
+test_missing_crypto_blocks_an_otherwise_complete_capacity_group (test_capacity_analysis.CapacityAnalysisTests.test_missing_crypto_blocks_an_otherwise_complete_capacity_group) ... ERROR
+test_missing_pair_is_not_dropped (test_capacity_analysis.CapacityAnalysisTests.test_missing_pair_is_not_dropped) ... ok
+test_paired_constant_ratio_is_retained (test_capacity_analysis.CapacityAnalysisTests.test_paired_constant_ratio_is_retained) ... ok
+test_phase_cpu_uses_differences_not_lifetime_counters (test_capacity_analysis.CapacityAnalysisTests.test_phase_cpu_uses_differences_not_lifetime_counters) ... ok
+test_failed_build_keeps_logs_and_reports_nonzero (test_pipeline.FailurePipelineTests.test_failed_build_keeps_logs_and_reports_nonzero) ... ok
+test_unavailable_tor_is_blocked_without_false_metrics (test_pipeline.FailurePipelineTests.test_unavailable_tor_is_blocked_without_false_metrics) ... ok
+test_actual_bidirectional_fixture (test_protocols.ProtocolTests.test_actual_bidirectional_fixture) ... ERROR
+test_configuration_checks (test_protocols.ProtocolTests.test_configuration_checks) ... ok
+test_invalid_onion_rejected_before_connection (test_protocols.ProtocolTests.test_invalid_onion_rejected_before_connection) ... ok
+test_socks_onion_transmitted_as_domain_name (test_protocols.ProtocolTests.test_socks_onion_transmitted_as_domain_name) ... ERROR
+test_inert_absolute_target_symlink_preserved (test_sources.ExtractionTests.test_inert_absolute_target_symlink_preserved) ... skipped 'Windows symlink creation may require developer mode'
+test_path_traversal_refused (test_sources.ExtractionTests.test_path_traversal_refused) ... ok
+test_write_through_symlink_refused (test_sources.ExtractionTests.test_write_through_symlink_refused) ... ok
+test_blocked_run_cannot_inherit_successful_historical_measurements (test_study.RuntimeProvenanceTests.test_blocked_run_cannot_inherit_successful_historical_measurements) ... ok
+test_wsl_reserved_pages_are_not_a_guest_hardware_change (test_study.RuntimeProvenanceTests.test_wsl_reserved_pages_are_not_a_guest_hardware_change) ... ok
+test_accepts_valid_improvement (test_tracking.ComparisonTests.test_accepts_valid_improvement) ... ok
+test_architecture_is_noncomparable (test_tracking.ComparisonTests.test_architecture_is_noncomparable) ... ok
+test_bad_measurements_rejected (test_tracking.ComparisonTests.test_bad_measurements_rejected) ... ok
+test_candidate_cannot_opt_out_of_online_tests (test_tracking.ComparisonTests.test_candidate_cannot_opt_out_of_online_tests) ... ok
+test_changed_current_policy_cannot_accept_old_runs (test_tracking.ComparisonTests.test_changed_current_policy_cannot_accept_old_runs) ... ok
+test_different_hardware_is_noncomparable (test_tracking.ComparisonTests.test_different_hardware_is_noncomparable) ... ok
+test_different_policy_is_noncomparable (test_tracking.ComparisonTests.test_different_policy_is_noncomparable) ... ok
+test_duplicate_test (test_tracking.ComparisonTests.test_duplicate_test) ... ok
+test_failed_build_rejected (test_tracking.ComparisonTests.test_failed_build_rejected) ... ok
+test_invalid_baseline (test_tracking.ComparisonTests.test_invalid_baseline) ... ok
+test_no_improvement (test_tracking.ComparisonTests.test_no_improvement) ... ok
+test_online_skipped_never_accepted (test_tracking.ComparisonTests.test_online_skipped_never_accepted) ... ok
+test_optional_test_regression_rejected (test_tracking.ComparisonTests.test_optional_test_regression_rejected) ... ok
+test_regression_rejected_despite_smaller_binary (test_tracking.ComparisonTests.test_regression_rejected_despite_smaller_binary) ... ok
+test_removed_required_test (test_tracking.ComparisonTests.test_removed_required_test) ... ok
+test_throughput_direction (test_tracking.ComparisonTests.test_throughput_direction) ... ok
+test_zero_baseline_safe (test_tracking.ComparisonTests.test_zero_baseline_safe) ... ok
+test_baseline_is_exclusive_and_unchanged (test_tracking.PreservationTests.test_baseline_is_exclusive_and_unchanged) ... ok
+test_baseline_tampering_detected (test_tracking.PreservationTests.test_baseline_tampering_detected) ... ok
+test_blocked_baseline_refused (test_tracking.PreservationTests.test_blocked_baseline_refused) ... ok
+test_dirty_baseline_refused (test_tracking.PreservationTests.test_dirty_baseline_refused) ... ok
+test_empty_artifact_rejected (test_tracking.PreservationTests.test_empty_artifact_rejected) ... ok
+test_hardlinks_not_double_counted (test_tracking.PreservationTests.test_hardlinks_not_double_counted) ... ERROR
+test_kconfig_dropped_option_rejected (test_tracking.PreservationTests.test_kconfig_dropped_option_rejected) ... ok
+test_reports_keep_nulls_and_csv (test_tracking.PreservationTests.test_reports_keep_nulls_and_csv) ... ok
+test_compatibility_and_upgrade_opt_in (test_two_pc_demo.LauncherTests.test_compatibility_and_upgrade_opt_in) ... skipped 'Linux shell required'
+test_windows_discovery_and_arguments (test_two_pc_demo.LauncherTests.test_windows_discovery_and_arguments) ... ok
+
+======================================================================
+ERROR: test_missing_crypto_blocks_an_otherwise_complete_capacity_group (test_capacity_analysis.CapacityAnalysisTests.test_missing_crypto_blocks_an_otherwise_complete_capacity_group)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\jozef\Downloads\Tor Klient\tests\test_capacity_analysis.py", line 39, in test_missing_crypto_blocks_an_otherwise_complete_capacity_group
+    run=root/str(memory);run.mkdir()
+                         ~~~~~~~~~^^
+  File "C:\Python314\Lib\pathlib\__init__.py", line 1011, in mkdir
+    os.mkdir(self, mode)
+    ~~~~~~~~^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\jozef\\AppData\\Local\\Packages\\sandbox.{f7c02352-f2fe-4ad2-ad1c-9019e4056f52}\\AC\\Temp\\tmp8_kvkek_\\128'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Python314\Lib\shutil.py", line 707, in _rmtree_unsafe
+    os.rmdir(path)
+    ~~~~~~~~^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\jozef\\AppData\\Local\\Packages\\sandbox.{f7c02352-f2fe-4ad2-ad1c-9019e4056f52}\\AC\\Temp\\tmp8_kvkek_'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\jozef\Downloads\Tor Klient\tests\test_capacity_analysis.py", line 36, in test_missing_crypto_blocks_an_otherwise_complete_capacity_group
+    with tempfile.TemporaryDirectory() as tmp:
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Python314\Lib\tempfile.py", line 971, in __exit__
+    self.cleanup()
+    ~~~~~~~~~~~~^^
+  File "C:\Python314\Lib\tempfile.py", line 975, in cleanup
+    self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\tempfile.py", line 955, in _rmtree
+    _shutil.rmtree(name, onexc=onexc)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\shutil.py", line 852, in rmtree
+    _rmtree_impl(path, dir_fd, onexc)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\shutil.py", line 711, in _rmtree_unsafe
+    onexc(os.rmdir, path, err)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\tempfile.py", line 927, in onexc
+    _resetperms(path)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Python314\Lib\tempfile.py", line 287, in _resetperms
+    _dont_follow_symlinks(_os.chmod, path, 0o700)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\tempfile.py", line 276, in _dont_follow_symlinks
+    func(path, *args, follow_symlinks=False)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\jozef\\AppData\\Local\\Packages\\sandbox.{f7c02352-f2fe-4ad2-ad1c-9019e4056f52}\\AC\\Temp\\tmp8_kvkek_'
+
+======================================================================
+ERROR: test_actual_bidirectional_fixture (test_protocols.ProtocolTests.test_actual_bidirectional_fixture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\jozef\Downloads\Tor Klient\tests\test_protocols.py", line 37, in test_actual_bidirectional_fixture
+    with socket.create_connection(server.server_address, timeout=5) as sock:
+         ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\socket.py", line 870, in create_connection
+    raise exceptions[0]
+  File "C:\Python314\Lib\socket.py", line 855, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions
+
+======================================================================
+ERROR: test_socks_onion_transmitted_as_domain_name (test_protocols.ProtocolTests.test_socks_onion_transmitted_as_domain_name)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\jozef\Downloads\Tor Klient\tests\test_protocols.py", line 72, in test_socks_onion_transmitted_as_domain_name
+    with socks_connect(listener.getsockname()[1], address, 80, 5):
+         ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jozef\Downloads\Tor Klient\tests\run_all.py", line 192, in socks_connect
+    sock = socket.create_connection(("127.0.0.1", address), timeout=timeout)
+  File "C:\Python314\Lib\socket.py", line 870, in create_connection
+    raise exceptions[0]
+  File "C:\Python314\Lib\socket.py", line 855, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions
+
+======================================================================
+ERROR: test_hardlinks_not_double_counted (test_tracking.PreservationTests.test_hardlinks_not_double_counted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\jozef\Downloads\Tor Klient\tests\test_tracking.py", line 189, in test_hardlinks_not_double_counted
+    os.link(a, b)
+    ~~~~~~~^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\jozef\\Downloads\\Tor Klient\\build\\test-tmp\\tmp0i_m1pmv\\a' -> 'C:\\Users\\jozef\\Downloads\\Tor Klient\\build\\test-tmp\\tmp0i_m1pmv\\b'
+
+----------------------------------------------------------------------
+Ran 43 tests in 1.573s
+
+FAILED (errors=4, skipped=2)
+Command '['C:\\Python314\\python.exe', '-m', 'unittest', 'discover', '-s', 'tests', '-p', 'test_*.py', '-v']' returned non-zero exit status 1.
+Configuration and script checks passed

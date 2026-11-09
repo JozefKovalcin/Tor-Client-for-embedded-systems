@@ -1,3 +1,37 @@
+# Repository and report synchronization — 2026-11-09
+
+Windows and GitHub initially matched `938b6d2`; the native WSL checkout was
+still at `fec5f29` with 37 changed/untracked ARM files. Preserved that entire
+working tree in stash `ce09ea68b91503598dfdefba1c135c404a544f50` before a
+fast-forward. Thirty-two files matched Windows after line-ending normalization;
+the remaining five were documentation/report differences, including newer ARM
+test summaries that had not reached Git. Existing Windows stashes, the
+`baseline` tag, sealed images, failed logs and large build outputs were retained.
+
+Updated `reports/latest.md`, `test_results.json` and `test_summary.md` from the
+archived ARM online run `20261105T190223Z-7002ec13`, preserving its original
+dirty-tree provenance and `NON_COMPARABLE` decision. Verified 102 SHA-256
+records for baseline, ARM/x86 images, build and native logs, fixtures, policy,
+frozen tests and report sources. Executive HTML/JSON regeneration is unchanged.
+
+The supplied Slovak PDF is now the current executive report. Measurements and
+pages 1–5 remain unchanged; page 6 describes the corrected two-PC launcher.
+The launcher discovers all Ubuntu installations by OS identity, including older
+and renamed ones, and offers selection. It checks Python 3.11+ and QEMU's
+`virt-8.2` support before starting Tor. Insufficient tools trigger an opt-in
+Ubuntu upgrade prompt; no distribution was upgraded during this audit.
+Versioned launcher sources and a SHA-256-checking ZIP packager retain the
+original ARM images. The supplied original PDF and ZIP provenance are preserved.
+
+Linux regression/script checks and all 15 Buildroot profile resolutions passed.
+The launcher tests cover UTF-16 distribution discovery, older/renamed Ubuntu,
+selection, argument/exit-code forwarding and five dependency/upgrade scenarios.
+Actual Ubuntu discovery and dependency preflight also passed. Full image builds,
+public-network target tests and a real two-PC session were not rerun; physical
+qualification remains open. See the [audit and execution details](../reports/sync-2026-11-09/README.md).
+
+## Previous measured stages (retained)
+
 # Measured performance recovery — 2026-11-05
 
 Continued from `e1abc78` without replacing the original baseline. Executed three

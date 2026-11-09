@@ -1,0 +1,85 @@
+{
+  "original_pdf_sha256": "caa5c2773e4f67545b32e0cac87bae514565ab07bd8f6211ea19ae4f2ab8656b",
+  "updated_pdf_sha256": "a1007871fcd5a317400676b16638611f1149fc9fc6452151ecf62c1bf7c380b2",
+  "pdf_pages": [
+    {
+      "page": 1,
+      "render_identical": true,
+      "change": null
+    },
+    {
+      "page": 2,
+      "render_identical": true,
+      "change": null
+    },
+    {
+      "page": 3,
+      "render_identical": true,
+      "change": null
+    },
+    {
+      "page": 4,
+      "render_identical": true,
+      "change": null
+    },
+    {
+      "page": 5,
+      "render_identical": true,
+      "change": null
+    },
+    {
+      "page": 6,
+      "render_identical": false,
+      "change": "launcher prerequisite note only"
+    }
+  ],
+  "page_6_outside_note_render_identical": true,
+  "original_zip_sha256": "6e5e9fe8a02e68409f00c85128a03d0fc9943391aae3085a886aa5e878a1e474",
+  "updated_zip_sha256": "f1bc8740afc939a6cd792a5e39bf614af8f1ca53060b5ac70ed0ef757a891cee",
+  "zip_entries": [
+    {
+      "name": "Spustit-Tor-Test.cmd",
+      "bytes": 209,
+      "sha256": "b614df80619a90c549cf7b066230554548590e08221cb40c060934d7d81f3484",
+      "identical_to_original": false
+    },
+    {
+      "name": "Start-Tor-Test.ps1",
+      "bytes": 2535,
+      "sha256": "cb57737ef8c702fd258ee0b42183a88e3ab7ee18af14210df529815c741ed66e",
+      "identical_to_original": false
+    },
+    {
+      "name": "run-wsl.sh",
+      "bytes": 2291,
+      "sha256": "83317238494d548cd3529162b42c677e1e23341df4c4935eb3cdac790f0a4779",
+      "identical_to_original": false
+    },
+    {
+      "name": "run.py",
+      "bytes": 10693,
+      "sha256": "1163c8844a8db41d7a11dd69971519f306d2879803d46832d780295e5593f3e3",
+      "identical_to_original": true
+    },
+    {
+      "name": "README.txt",
+      "bytes": 1847,
+      "sha256": "61aef85d6dbb336dd7e6643495d1f748d0558ffdff9d5ea262c0ae3b97ec568e",
+      "identical_to_original": false
+    },
+    {
+      "name": "zImage",
+      "bytes": 2484960,
+      "sha256": "7ece8439f6adc4c06960aa475cf1d6e08d3e64d6772dee56ee7273bd1bbe5e63",
+      "identical_to_original": true
+    },
+    {
+      "name": "disk.img",
+      "bytes": 38010880,
+      "sha256": "688786b1ea3198249cc6af5202d437fcb683872f46dc103d917b8a5ac4972f5c",
+      "identical_to_original": true
+    }
+  ],
+  "new_two_pc_online_session": "SKIPPED",
+  "distribution_upgrades_executed": false
+}

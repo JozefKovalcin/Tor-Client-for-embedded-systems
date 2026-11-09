@@ -1,0 +1,42 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/check.py"
+    ],
+    "exit_code": 0,
+    "status": "PASS",
+    "seconds": 0.817,
+    "log": "repository-checks.txt"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_buildroot.py"
+    ],
+    "exit_code": 0,
+    "status": "PASS",
+    "seconds": 8.657,
+    "log": "buildroot-checks.txt"
+  },
+  {
+    "command": [
+      "shellcheck",
+      "scripts/two_pc_demo/run-wsl.sh"
+    ],
+    "exit_code": 0,
+    "status": "PASS",
+    "seconds": 0.023,
+    "log": "launcher-shellcheck.txt"
+  },
+  {
+    "command": [
+      "python3",
+      "reports/executive/generate.py"
+    ],
+    "exit_code": 0,
+    "status": "PASS",
+    "seconds": 0.033,
+    "log": "executive-generation.txt"
+  }
+]

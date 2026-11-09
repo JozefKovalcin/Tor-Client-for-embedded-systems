@@ -1,12 +1,12 @@
 # Optimization validation
 
-Run: `20261105T160654Z-f407769f`
+Run: `20261105T190223Z-7002ec13`
 
-**NON_COMPARABLE** — Configuration validation
+**NON_COMPARABLE** — Exercise the built ARMv7 capacity32 image with low PCI addresses and the unchanged frozen suite
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `62a99ece3177a97515a3807e1ece72201c3fc8fe`; dirty: `False`.
+Commit: `fec5f291d41599acb3499f3f1639768a44388a78`; dirty: `True`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 

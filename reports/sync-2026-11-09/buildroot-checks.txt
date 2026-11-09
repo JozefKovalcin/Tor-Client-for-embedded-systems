@@ -1,0 +1,105 @@
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-arm-capacity32/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-arm-capacity32/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-x86_64-balanced/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-x86_64-balanced/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-x86_64-capacity32-tcp/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-x86_64-capacity32-tcp/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-x86_64-capacity32/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-x86_64-capacity32/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-x86_64-compressed/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-x86_64-compressed/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-x86_64-fast/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-x86_64-fast/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-x86_64-fulltor-slim/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-x86_64-fulltor-slim/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-x86_64-fulltor/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-x86_64-fulltor/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-x86_64-production/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-x86_64-production/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-x86_64-ram/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-x86_64-ram/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-x86_64-selective/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-x86_64-selective/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-x86_64-small/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-x86_64-small/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-x86_64-tiny/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-x86_64-tiny/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-x86_64-tor-o2/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-x86_64-tor-o2/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+make: Entering directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+  GEN     /home/jozef/embedded-tor/build/config-check/qemu-x86_64/Makefile
+#
+# configuration written to /home/jozef/embedded-tor/build/config-check/qemu-x86_64/.config
+#
+make: Leaving directory '/home/jozef/embedded-tor/build/sources/34fb7bea8a213ffd/buildroot-2026.08.1'
+Resolved Kconfig: qemu-arm-capacity32
+Resolved Kconfig: qemu-x86_64-balanced
+Resolved Kconfig: qemu-x86_64-capacity32-tcp
+Resolved Kconfig: qemu-x86_64-capacity32
+Resolved Kconfig: qemu-x86_64-compressed
+Resolved Kconfig: qemu-x86_64-fast
+Resolved Kconfig: qemu-x86_64-fulltor-slim
+Resolved Kconfig: qemu-x86_64-fulltor
+Resolved Kconfig: qemu-x86_64-production
+Resolved Kconfig: qemu-x86_64-ram
+Resolved Kconfig: qemu-x86_64-selective
+Resolved Kconfig: qemu-x86_64-small
+Resolved Kconfig: qemu-x86_64-tiny
+Resolved Kconfig: qemu-x86_64-tor-o2
+Resolved Kconfig: qemu-x86_64

@@ -16,6 +16,13 @@ committed at `a7edcb8b96853f6d1fe39f4fc6a20f9bb61ff091`. The ARM run
 manifest identifies the pre-commit working tree used during measurement.
 Use `git log -1` for the current handover commit.
 
+The [2026-11-09 synchronization audit](../reports/sync-2026-11-09/README.md)
+aligns Windows, WSL and GitHub and preserves the earlier WSL work in a stash.
+The current [Slovak executive report](../reports/executive/Tor_Executive_Report_SK.pdf)
+retains the measured results; only its two-PC launcher note was updated.
+Launcher sources and the image-checking packager are in `scripts/two_pc_demo/`
+and `scripts/build_two_pc_demo.py`. Generated ZIPs and images remain outside Git.
+
 ## Software and configurations
 
 | Component | Pinned version |

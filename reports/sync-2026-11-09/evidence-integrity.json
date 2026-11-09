@@ -1,0 +1,614 @@
+[
+  {
+    "path": "reports/baseline/results.json",
+    "expected_sha256": "775a44badfd40adae1bf09588fb7f54a3c7b453042c4bf34dc7d01de3a2293aa",
+    "actual_sha256": "775a44badfd40adae1bf09588fb7f54a3c7b453042c4bf34dc7d01de3a2293aa",
+    "status": "PASS"
+  },
+  {
+    "path": "build/baseline/bzImage",
+    "expected_sha256": "d49916853b8095195ca0b1bc241a6617ccde3b1779573dcc877a8bbd44b0a16d",
+    "actual_sha256": "d49916853b8095195ca0b1bc241a6617ccde3b1779573dcc877a8bbd44b0a16d",
+    "status": "PASS"
+  },
+  {
+    "path": "build/baseline/rootfs.ext2",
+    "expected_sha256": "48521767cbdc5fc4a9a213bd5fe48da3c2b45fa95adc3e1c48503e672c6422fd",
+    "actual_sha256": "48521767cbdc5fc4a9a213bd5fe48da3c2b45fa95adc3e1c48503e672c6422fd",
+    "status": "PASS"
+  },
+  {
+    "path": "build/embedded/qemu-arm-capacity32/c93df292837d62737b66/images/zImage",
+    "expected_sha256": "7ece8439f6adc4c06960aa475cf1d6e08d3e64d6772dee56ee7273bd1bbe5e63",
+    "actual_sha256": "7ece8439f6adc4c06960aa475cf1d6e08d3e64d6772dee56ee7273bd1bbe5e63",
+    "status": "PASS"
+  },
+  {
+    "path": "build/embedded/qemu-arm-capacity32/c93df292837d62737b66/images/disk.img",
+    "expected_sha256": "688786b1ea3198249cc6af5202d437fcb683872f46dc103d917b8a5ac4972f5c",
+    "actual_sha256": "688786b1ea3198249cc6af5202d437fcb683872f46dc103d917b8a5ac4972f5c",
+    "status": "PASS"
+  },
+  {
+    "path": "build/iterations/12-capacity32/bzImage",
+    "expected_sha256": "34fc79461775223b9c59dcd7cfc2d1cb9a5ac1e788268c50e63a1056d18b88a7",
+    "actual_sha256": "34fc79461775223b9c59dcd7cfc2d1cb9a5ac1e788268c50e63a1056d18b88a7",
+    "status": "PASS"
+  },
+  {
+    "path": "build/iterations/12-capacity32/disk.img",
+    "expected_sha256": "5922f87495afc00acba6a2b9b10a07625168d5a82960f5c886185784e350fb6c",
+    "actual_sha256": "5922f87495afc00acba6a2b9b10a07625168d5a82960f5c886185784e350fb6c",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/benchmarks/20261105T190223Z-7002ec13/build.log",
+    "expected_sha256": "3c6746f61205404bdca01539f8244a5df7131ac688f9a9087f35f6bf60b85675",
+    "actual_sha256": "3c6746f61205404bdca01539f8244a5df7131ac688f9a9087f35f6bf60b85675",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/benchmarks/20261105T190223Z-7002ec13/fixture-build.log",
+    "expected_sha256": "d090422bb2bb671963b23e191b1e87e060c1c265ed7b5596d1aad4c3b5a3df70",
+    "actual_sha256": "d090422bb2bb671963b23e191b1e87e060c1c265ed7b5596d1aad4c3b5a3df70",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/benchmarks/20261105T190223Z-7002ec13/qemu.log",
+    "expected_sha256": "6e54413110ab61bb94a6dc51b07af64f685fc5f1b79c0d3de049c0910015667f",
+    "actual_sha256": "6e54413110ab61bb94a6dc51b07af64f685fc5f1b79c0d3de049c0910015667f",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/benchmarks/20261105T190223Z-7002ec13/source-inputs.tar",
+    "expected_sha256": "00762033007ae4e0fccba1a6d32a7e1e3a5a190f7164b0485257b725d01cd1e0",
+    "actual_sha256": "00762033007ae4e0fccba1a6d32a7e1e3a5a190f7164b0485257b725d01cd1e0",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/benchmarks/20261105T190223Z-7002ec13/source-provenance.json",
+    "expected_sha256": "db95f73a50b2d5a7f6c0e64e0d009629d53f8a6709412654ae35268491ce0d4e",
+    "actual_sha256": "db95f73a50b2d5a7f6c0e64e0d009629d53f8a6709412654ae35268491ce0d4e",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/benchmarks/20261105T190223Z-7002ec13/target-tests.json",
+    "expected_sha256": "77e98e1e5213365afcb95970cb9a5d695c9df8aec42b0f62338a8ed0c3df459d",
+    "actual_sha256": "77e98e1e5213365afcb95970cb9a5d695c9df8aec42b0f62338a8ed0c3df459d",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-arm-128/guest-notice.log",
+    "expected_sha256": "199ad8402e2529cf88b43c385dc5eca7a4b2384fef6ee09c7eb11786c950c4ee",
+    "actual_sha256": "199ad8402e2529cf88b43c385dc5eca7a4b2384fef6ee09c7eb11786c950c4ee",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-arm-128/qemu-command.json",
+    "expected_sha256": "f9d0e274f6b548772f9cd1ba41e23c9b6cd9b900b3fcd7dff931052304896228",
+    "actual_sha256": "f9d0e274f6b548772f9cd1ba41e23c9b6cd9b900b3fcd7dff931052304896228",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-arm-128/qemu.log",
+    "expected_sha256": "0726e7f843eb11c7e4fe506f52fb297278ab48d5c05ba3dad84a006d7ce52d90",
+    "actual_sha256": "0726e7f843eb11c7e4fe506f52fb297278ab48d5c05ba3dad84a006d7ce52d90",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-arm-128/results.json",
+    "expected_sha256": "bc22dc33b126ae6a687bc2aa31b56cc9cd8c7ca275b9e0319644f6e62bb19900",
+    "actual_sha256": "bc22dc33b126ae6a687bc2aa31b56cc9cd8c7ca275b9e0319644f6e62bb19900",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-arm-128/samples.jsonl",
+    "expected_sha256": "955cf59f1c52d4621a45b9495add93805bfc50b7fd80f16ea2567334582372e5",
+    "actual_sha256": "955cf59f1c52d4621a45b9495add93805bfc50b7fd80f16ea2567334582372e5",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-arm-256/guest-notice.log",
+    "expected_sha256": "2c9464c86ed186c8aa8b6a151729015e1494d83b71c0ab9b3480daabc4739375",
+    "actual_sha256": "2c9464c86ed186c8aa8b6a151729015e1494d83b71c0ab9b3480daabc4739375",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-arm-256/qemu-command.json",
+    "expected_sha256": "460499962be6c1310113b3c5e93b9d582dbccf5060854a00a873704fecfea7ec",
+    "actual_sha256": "460499962be6c1310113b3c5e93b9d582dbccf5060854a00a873704fecfea7ec",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-arm-256/qemu.log",
+    "expected_sha256": "d8bb1748ebca508259e1aaf31e3f8c7caf8844d4f45cadfe3f9b12a386e1b88d",
+    "actual_sha256": "d8bb1748ebca508259e1aaf31e3f8c7caf8844d4f45cadfe3f9b12a386e1b88d",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-arm-256/results.json",
+    "expected_sha256": "676bb3cdf10dc6fe644fe873924e88879347a2e5d9be947bc4c0aaf6bebc3757",
+    "actual_sha256": "676bb3cdf10dc6fe644fe873924e88879347a2e5d9be947bc4c0aaf6bebc3757",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-arm-256/samples.jsonl",
+    "expected_sha256": "e9f28c8a521985a8bce1d82e24380cbe6840759eda1d645737224ae8c053ee0b",
+    "actual_sha256": "e9f28c8a521985a8bce1d82e24380cbe6840759eda1d645737224ae8c053ee0b",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-x86-128/guest-notice.log",
+    "expected_sha256": "274e54ad9cddaeba576c83d80e379d34ffa08c490fcdb522f53f4afb30a75ea8",
+    "actual_sha256": "274e54ad9cddaeba576c83d80e379d34ffa08c490fcdb522f53f4afb30a75ea8",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-x86-128/qemu-command.json",
+    "expected_sha256": "b1c6900d762eb8c3767b6256625442acab029d23e8de37a3941027e7804a684e",
+    "actual_sha256": "b1c6900d762eb8c3767b6256625442acab029d23e8de37a3941027e7804a684e",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-x86-128/qemu.log",
+    "expected_sha256": "f47b21e7d4bbfe3864c36a01c040344d624ceed6b262789a92a502f448b6b2dd",
+    "actual_sha256": "f47b21e7d4bbfe3864c36a01c040344d624ceed6b262789a92a502f448b6b2dd",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-x86-128/results.json",
+    "expected_sha256": "d0f45f123ed6d174e85519bc755c2d9d050abb87bab03d52e6980ca6ec7a907b",
+    "actual_sha256": "d0f45f123ed6d174e85519bc755c2d9d050abb87bab03d52e6980ca6ec7a907b",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-x86-128/samples.jsonl",
+    "expected_sha256": "30f13bd81fa5eda7f28f4b3d031ac048555302a0e8ed352007d280eecc8ddd86",
+    "actual_sha256": "30f13bd81fa5eda7f28f4b3d031ac048555302a0e8ed352007d280eecc8ddd86",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-x86-256/guest-notice.log",
+    "expected_sha256": "6fb2de5e11c3b09e355be264e2ab25f7c0b13efa592a379c7b343e03b6ab3c1b",
+    "actual_sha256": "6fb2de5e11c3b09e355be264e2ab25f7c0b13efa592a379c7b343e03b6ab3c1b",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-x86-256/qemu-command.json",
+    "expected_sha256": "a6bd8b4c0683c4d0b611521d9be7124f35cb1a43653c103e9f741e9a5234e665",
+    "actual_sha256": "a6bd8b4c0683c4d0b611521d9be7124f35cb1a43653c103e9f741e9a5234e665",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-x86-256/qemu.log",
+    "expected_sha256": "7088648b1858cbd2c1219fb35ec680c9c7de8716442b8ef34cac89d2403a1494",
+    "actual_sha256": "7088648b1858cbd2c1219fb35ec680c9c7de8716442b8ef34cac89d2403a1494",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-x86-256/results.json",
+    "expected_sha256": "b5993d7839448145c09f23702a6693d1c64db673bc6af6f92d1e4ff668071a04",
+    "actual_sha256": "b5993d7839448145c09f23702a6693d1c64db673bc6af6f92d1e4ff668071a04",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/01-x86-256/samples.jsonl",
+    "expected_sha256": "a7a1dc5ee51c7bac88b89a6cc0c825acf82b0c59a70a19ecbfe6c9444b139244",
+    "actual_sha256": "a7a1dc5ee51c7bac88b89a6cc0c825acf82b0c59a70a19ecbfe6c9444b139244",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-arm-128/guest-notice.log",
+    "expected_sha256": "a4ea30b08b79df0918b5d15bafb237cc0e0465652537c7466477c30aa920e91a",
+    "actual_sha256": "a4ea30b08b79df0918b5d15bafb237cc0e0465652537c7466477c30aa920e91a",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-arm-128/qemu-command.json",
+    "expected_sha256": "cea3ce631d2fb9c5a8e12f3b18f260bace1906725003828f7c0bed8f228d9e95",
+    "actual_sha256": "cea3ce631d2fb9c5a8e12f3b18f260bace1906725003828f7c0bed8f228d9e95",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-arm-128/qemu.log",
+    "expected_sha256": "33ec50f3994640cb63ab58703b2aae4be74576ab4963716e53c077454c16b157",
+    "actual_sha256": "33ec50f3994640cb63ab58703b2aae4be74576ab4963716e53c077454c16b157",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-arm-128/results.json",
+    "expected_sha256": "d39038d2e99b1a5c91efc3592689da972667d7a43f1361bdb5b443e8fbafd46c",
+    "actual_sha256": "d39038d2e99b1a5c91efc3592689da972667d7a43f1361bdb5b443e8fbafd46c",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-arm-128/samples.jsonl",
+    "expected_sha256": "88a3fc467bdf5167dd909f59831b7de001970b94874978ed433248bb2a0b0b29",
+    "actual_sha256": "88a3fc467bdf5167dd909f59831b7de001970b94874978ed433248bb2a0b0b29",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-arm-256/guest-notice.log",
+    "expected_sha256": "eefcee98027eeff3206a87d04eaab9ea1c52d3392d5d297305a19d44cc466a39",
+    "actual_sha256": "eefcee98027eeff3206a87d04eaab9ea1c52d3392d5d297305a19d44cc466a39",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-arm-256/qemu-command.json",
+    "expected_sha256": "c2724d71978c82a9e6d5c7d7aa364a73d1b0775c18b631709500000c4c518f3a",
+    "actual_sha256": "c2724d71978c82a9e6d5c7d7aa364a73d1b0775c18b631709500000c4c518f3a",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-arm-256/qemu.log",
+    "expected_sha256": "fe85f54ad606a2059e72087f5a46ed00a56778defd0e974e3b42116d1538e7b4",
+    "actual_sha256": "fe85f54ad606a2059e72087f5a46ed00a56778defd0e974e3b42116d1538e7b4",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-arm-256/results.json",
+    "expected_sha256": "7f555c41ac393c56ee3da490e508f2c4d897e16552bb35d12bfcd258818e905e",
+    "actual_sha256": "7f555c41ac393c56ee3da490e508f2c4d897e16552bb35d12bfcd258818e905e",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-arm-256/samples.jsonl",
+    "expected_sha256": "8e28ead77b94c1aad87b514ff5bd09b3b8c9714013a74b77399749a9e29b8796",
+    "actual_sha256": "8e28ead77b94c1aad87b514ff5bd09b3b8c9714013a74b77399749a9e29b8796",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-x86-128/guest-notice.log",
+    "expected_sha256": "6285427df613ebd2be0ada9a332d75c4e3567e4ba36b7056264649a8125bd00f",
+    "actual_sha256": "6285427df613ebd2be0ada9a332d75c4e3567e4ba36b7056264649a8125bd00f",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-x86-128/qemu-command.json",
+    "expected_sha256": "8c76939903c2927aa696ac406779ef2122a3c1f21e55a374816dd5cadc0b65d1",
+    "actual_sha256": "8c76939903c2927aa696ac406779ef2122a3c1f21e55a374816dd5cadc0b65d1",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-x86-128/qemu.log",
+    "expected_sha256": "f6f116781a4291e7d863299bc2f37c1c0350bc1808a2bed722b858a90e0c227b",
+    "actual_sha256": "f6f116781a4291e7d863299bc2f37c1c0350bc1808a2bed722b858a90e0c227b",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-x86-128/results.json",
+    "expected_sha256": "adff0425c6349cd7b23f214e2d47435c250816cdf17f5a1edbe6a7f2d0ba0757",
+    "actual_sha256": "adff0425c6349cd7b23f214e2d47435c250816cdf17f5a1edbe6a7f2d0ba0757",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-x86-128/samples.jsonl",
+    "expected_sha256": "8f83ba1aad0e8b4655e3f71326c641e67fbd2f5d4c027edfe0d5136e4fdc0fb4",
+    "actual_sha256": "8f83ba1aad0e8b4655e3f71326c641e67fbd2f5d4c027edfe0d5136e4fdc0fb4",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-x86-256/guest-notice.log",
+    "expected_sha256": "a4b5785af196d431a95cfdaacff8119a512e6455a74f76eb82a2422022ded4c9",
+    "actual_sha256": "a4b5785af196d431a95cfdaacff8119a512e6455a74f76eb82a2422022ded4c9",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-x86-256/qemu-command.json",
+    "expected_sha256": "ab7c25bd458113db8f7426e37ed1772cb698ca3b59d4f1ccd4fe3157e0e4c1a8",
+    "actual_sha256": "ab7c25bd458113db8f7426e37ed1772cb698ca3b59d4f1ccd4fe3157e0e4c1a8",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-x86-256/qemu.log",
+    "expected_sha256": "172a2e7db7816842a6b502dc53d406baffb4df2c70758f89a596ee560e3fe93b",
+    "actual_sha256": "172a2e7db7816842a6b502dc53d406baffb4df2c70758f89a596ee560e3fe93b",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-x86-256/results.json",
+    "expected_sha256": "05438caecaed78e42ee4ffa6a879f8ed5e9d2754ec35a031af27e8adebdf50b5",
+    "actual_sha256": "05438caecaed78e42ee4ffa6a879f8ed5e9d2754ec35a031af27e8adebdf50b5",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/02-x86-256/samples.jsonl",
+    "expected_sha256": "1a463e69e76ec665dd52df21862b5b62f2030e0406c509e0f0e46344c87d104b",
+    "actual_sha256": "1a463e69e76ec665dd52df21862b5b62f2030e0406c509e0f0e46344c87d104b",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-arm-128/guest-notice.log",
+    "expected_sha256": "e1ad4fb697f2a1d76924f7fb35f1899272cd81677208b2f02e6b0b70ad66c6a0",
+    "actual_sha256": "e1ad4fb697f2a1d76924f7fb35f1899272cd81677208b2f02e6b0b70ad66c6a0",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-arm-128/qemu-command.json",
+    "expected_sha256": "21ee1fbcd2b580a3338f61a65580ad9374e3e58332c7db12ed2d6ee2b39f0297",
+    "actual_sha256": "21ee1fbcd2b580a3338f61a65580ad9374e3e58332c7db12ed2d6ee2b39f0297",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-arm-128/qemu.log",
+    "expected_sha256": "4cd38b8617b5ae7e6a1cb57b31e1514dddbedc8863d4aa4dd11152777f8d3a47",
+    "actual_sha256": "4cd38b8617b5ae7e6a1cb57b31e1514dddbedc8863d4aa4dd11152777f8d3a47",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-arm-128/results.json",
+    "expected_sha256": "380d8b43dde2ec13dafcfafbf00bc7ef948a7d2637e5d67a3e2b38317850b16f",
+    "actual_sha256": "380d8b43dde2ec13dafcfafbf00bc7ef948a7d2637e5d67a3e2b38317850b16f",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-arm-128/samples.jsonl",
+    "expected_sha256": "e8cd5031135033b781d80fc4dae41e580cf77fdd977fccc8cfaaec2cead46738",
+    "actual_sha256": "e8cd5031135033b781d80fc4dae41e580cf77fdd977fccc8cfaaec2cead46738",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-arm-256/guest-notice.log",
+    "expected_sha256": "00b4b96e07032cdae86c73d72602fdccc448d5752f9ade3eb967fa8ce46b12b2",
+    "actual_sha256": "00b4b96e07032cdae86c73d72602fdccc448d5752f9ade3eb967fa8ce46b12b2",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-arm-256/qemu-command.json",
+    "expected_sha256": "78344b43fd73e31422af189852bab636b8e4bbb4ce6dc89392ea8034d118f9fd",
+    "actual_sha256": "78344b43fd73e31422af189852bab636b8e4bbb4ce6dc89392ea8034d118f9fd",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-arm-256/qemu.log",
+    "expected_sha256": "aa5c7a6f9b4ee76a4bba9332b726d8b593e3ae79c90f898fcc9ba12d91f4185b",
+    "actual_sha256": "aa5c7a6f9b4ee76a4bba9332b726d8b593e3ae79c90f898fcc9ba12d91f4185b",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-arm-256/results.json",
+    "expected_sha256": "afd3e0a1911707ce3b11bfb7e98c42a859bc6d5a09ad95982d9b5c38c2d10067",
+    "actual_sha256": "afd3e0a1911707ce3b11bfb7e98c42a859bc6d5a09ad95982d9b5c38c2d10067",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-arm-256/samples.jsonl",
+    "expected_sha256": "ecfbc86c62fc7dcaf7fc18169950bdf101874b543b61da1d9cbd9873bbc51129",
+    "actual_sha256": "ecfbc86c62fc7dcaf7fc18169950bdf101874b543b61da1d9cbd9873bbc51129",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-x86-128/guest-notice.log",
+    "expected_sha256": "c562b1d20e42af7e44fe417a157da3fd585eb58dc802ab3ce17b804cecc5c6a8",
+    "actual_sha256": "c562b1d20e42af7e44fe417a157da3fd585eb58dc802ab3ce17b804cecc5c6a8",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-x86-128/qemu-command.json",
+    "expected_sha256": "967e09946bf2ed191f5f8001cc52a666a9a44723fe99f111a9c11a3b0afb3344",
+    "actual_sha256": "967e09946bf2ed191f5f8001cc52a666a9a44723fe99f111a9c11a3b0afb3344",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-x86-128/qemu.log",
+    "expected_sha256": "c673e0b17b2e865e9e293bbbcbcfe8430dd3952c97a9427c4d09f7dcd9c81adb",
+    "actual_sha256": "c673e0b17b2e865e9e293bbbcbcfe8430dd3952c97a9427c4d09f7dcd9c81adb",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-x86-128/results.json",
+    "expected_sha256": "130188d319b30770f4037d8cc31e9fa883930a10a1d3467d1106f74ae6e35dce",
+    "actual_sha256": "130188d319b30770f4037d8cc31e9fa883930a10a1d3467d1106f74ae6e35dce",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-x86-128/samples.jsonl",
+    "expected_sha256": "008d1e031b157040eb29a1c5f2af1ed53c55f3f6262ec9c52ee633a6aff0d79f",
+    "actual_sha256": "008d1e031b157040eb29a1c5f2af1ed53c55f3f6262ec9c52ee633a6aff0d79f",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-x86-256/guest-notice.log",
+    "expected_sha256": "f4a1287a787bda2c401a6e53f1cd1fea187165463ed1c0c471501f6fa753aae4",
+    "actual_sha256": "f4a1287a787bda2c401a6e53f1cd1fea187165463ed1c0c471501f6fa753aae4",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-x86-256/qemu-command.json",
+    "expected_sha256": "91fecafa210905fe8e3cecae1e7fdccd48fe751d4926640df4593ebf1c43ef5b",
+    "actual_sha256": "91fecafa210905fe8e3cecae1e7fdccd48fe751d4926640df4593ebf1c43ef5b",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-x86-256/qemu.log",
+    "expected_sha256": "164de084c65ea31c23096857692475348a78a32d8894a834c672720d4a65ff0f",
+    "actual_sha256": "164de084c65ea31c23096857692475348a78a32d8894a834c672720d4a65ff0f",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-x86-256/results.json",
+    "expected_sha256": "fa33176196f6c5616e20cbdc7fcb2ae9f8980be6721e357be47ec801309bdc55",
+    "actual_sha256": "fa33176196f6c5616e20cbdc7fcb2ae9f8980be6721e357be47ec801309bdc55",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-capacity-paired/03-x86-256/samples.jsonl",
+    "expected_sha256": "d080dd79829558b39a6ba6dcdcf8c2abcb20e09425ab47061baf47de8b9125b6",
+    "actual_sha256": "d080dd79829558b39a6ba6dcdcf8c2abcb20e09425ab47061baf47de8b9125b6",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-study-arm-observer.ext4",
+    "expected_sha256": "64acffd4b203737041621c3e69b52d480b40f81dae648f48ccb484fb6bef1891",
+    "actual_sha256": "64acffd4b203737041621c3e69b52d480b40f81dae648f48ccb484fb6bef1891",
+    "status": "PASS"
+  },
+  {
+    "path": "build/arm-study-x86-observer.ext4",
+    "expected_sha256": "6b54712a8a09b8e6bd02b19b14e82bcc5b93b5fc53794e98cb9aaa1ae7982128",
+    "actual_sha256": "6b54712a8a09b8e6bd02b19b14e82bcc5b93b5fc53794e98cb9aaa1ae7982128",
+    "status": "PASS"
+  },
+  {
+    "path": "config/policy.json",
+    "expected_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552",
+    "actual_sha256": "e07fafcca651f12544ba50ad052845e17a3df6e1e0243a359bc8c21ad6382552",
+    "status": "PASS"
+  },
+  {
+    "path": "br2-external/board/qemu/torrc.in",
+    "expected_sha256": "f8c8ceea9a365aab515d1da22ba9af9e89595369c82122a5189fd7bf67f2d220",
+    "actual_sha256": "f8c8ceea9a365aab515d1da22ba9af9e89595369c82122a5189fd7bf67f2d220",
+    "status": "PASS"
+  },
+  {
+    "path": "tests/echo_server.py",
+    "expected_sha256": "c498c3edd9ccb9e102bf5c127752c186b974133eb7a460acbb22d8e73d651a47",
+    "actual_sha256": "c498c3edd9ccb9e102bf5c127752c186b974133eb7a460acbb22d8e73d651a47",
+    "status": "PASS"
+  },
+  {
+    "path": "tests/run_all.py",
+    "expected_sha256": "a8a834192b16beba4c12f1db339117c711ef261f433c6afd8a35870297d73506",
+    "actual_sha256": "a8a834192b16beba4c12f1db339117c711ef261f433c6afd8a35870297d73506",
+    "status": "PASS"
+  },
+  {
+    "path": "config/profiles/qemu-arm-capacity32.json",
+    "expected_sha256": "1d7cb2476794dc2a2e2713e635bfad8804dbb82c1f86907b39fc06a98f42f2bd",
+    "actual_sha256": "1d7cb2476794dc2a2e2713e635bfad8804dbb82c1f86907b39fc06a98f42f2bd",
+    "status": "PASS"
+  },
+  {
+    "path": "config/profiles/qemu-x86_64-capacity32.json",
+    "expected_sha256": "48c2f6068aaddc07e48ea350360f4bdcb822a5b30e41668a29d33d4bb2c53c4e",
+    "actual_sha256": "48c2f6068aaddc07e48ea350360f4bdcb822a5b30e41668a29d33d4bb2c53c4e",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/arm-2026-11-05/build-comparison.json",
+    "expected_sha256": "0b5a20f822a53053b54eb6e3ea37125195927bf63fd0716b8587597111d6a048",
+    "actual_sha256": "0b5a20f822a53053b54eb6e3ea37125195927bf63fd0716b8587597111d6a048",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/arm-2026-11-05/build-results.json",
+    "expected_sha256": "91d472acdfdc6af1c59ec6fec5d8681bd83b00953be90af515c5e208e0d2d34d",
+    "actual_sha256": "91d472acdfdc6af1c59ec6fec5d8681bd83b00953be90af515c5e208e0d2d34d",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/arm-2026-11-05/native-analysis.json",
+    "expected_sha256": "ac13494b9000e763484bb1977fbfa06518c1d9885a6d99811e9391dd02b13bf0",
+    "actual_sha256": "ac13494b9000e763484bb1977fbfa06518c1d9885a6d99811e9391dd02b13bf0",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/arm-2026-11-05/native-summary.json",
+    "expected_sha256": "ecb18a7f31e1ef5add81171140074faa9466f03d5b18aff65a62e1cf792e186f",
+    "actual_sha256": "ecb18a7f31e1ef5add81171140074faa9466f03d5b18aff65a62e1cf792e186f",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/arm-2026-11-05/offline-128.json",
+    "expected_sha256": "2fa8cc859bb9aa12baa3e25cd147279117682db5c097cd03f529710f6319b050",
+    "actual_sha256": "2fa8cc859bb9aa12baa3e25cd147279117682db5c097cd03f529710f6319b050",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/arm-2026-11-05/online-128.json",
+    "expected_sha256": "78ae862f12c822d9b534308013fdc0a2163cd5467758419d81b608fd63a92379",
+    "actual_sha256": "78ae862f12c822d9b534308013fdc0a2163cd5467758419d81b608fd63a92379",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/arm-2026-11-05/storage.json",
+    "expected_sha256": "af4fb2472dc167f0292c9c8fac03a9bbce7127420d9dc4ebcf99b3c4e6b7304a",
+    "actual_sha256": "af4fb2472dc167f0292c9c8fac03a9bbce7127420d9dc4ebcf99b3c4e6b7304a",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/capacity-2026-11-05/capacity32-build/comparison.json",
+    "expected_sha256": "972e389c3cb4bce9e829e2b1266f6bdcd8aa89c4cc70bcea84adf55a40073600",
+    "actual_sha256": "972e389c3cb4bce9e829e2b1266f6bdcd8aa89c4cc70bcea84adf55a40073600",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/capacity-2026-11-05/capacity32-build/results.json",
+    "expected_sha256": "ce8218e66b0ee3de552f9a1bf5c7ede92d8d3f88ae7380118fbb6f7d71e0877f",
+    "actual_sha256": "ce8218e66b0ee3de552f9a1bf5c7ede92d8d3f88ae7380118fbb6f7d71e0877f",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/capacity-2026-11-05/inputs/inventory.json",
+    "expected_sha256": "17bd48bdfffc20805b0ec5b01d18af8bfae47b4f62312ac75dec1d73ad443947",
+    "actual_sha256": "17bd48bdfffc20805b0ec5b01d18af8bfae47b4f62312ac75dec1d73ad443947",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/capacity-2026-11-05/public-nine/summary.json",
+    "expected_sha256": "667b18bb2b6431cb92f07ccfce08f05583ceb7c9ff77106ead6b0db2cb87ad01",
+    "actual_sha256": "667b18bb2b6431cb92f07ccfce08f05583ceb7c9ff77106ead6b0db2cb87ad01",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/measured/2026-11-04/20261104T162447Z-cd6efe9f.json",
+    "expected_sha256": "88439413b2cc2524cdf5f37982aef47f4f49408fee8ada0efc023fad67b5a765",
+    "actual_sha256": "88439413b2cc2524cdf5f37982aef47f4f49408fee8ada0efc023fad67b5a765",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/measured/2026-11-04/20261104T163515Z-f2a9da00.json",
+    "expected_sha256": "fdcda6b57e9f59ce97d01616387980270ab6e3335fc92f588009a4227bd902cf",
+    "actual_sha256": "fdcda6b57e9f59ce97d01616387980270ab6e3335fc92f588009a4227bd902cf",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/measured/2026-11-04/20261104T165728Z-643dbbe1.json",
+    "expected_sha256": "87d1ed7d0aba52c05453c641c48fc155a9aa759cafbfa291a0ff806b51657e04",
+    "actual_sha256": "87d1ed7d0aba52c05453c641c48fc155a9aa759cafbfa291a0ff806b51657e04",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/measured/2026-11-04/20261104T171128Z-fixture-reference-546024.json",
+    "expected_sha256": "90f146f9ee33fe1cfd1abcafc6d7285a01d8edeb53f1eadf6c9006d971e7f433",
+    "actual_sha256": "90f146f9ee33fe1cfd1abcafc6d7285a01d8edeb53f1eadf6c9006d971e7f433",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/measured/2026-11-04/20261104T171716Z-86a5a81b.json",
+    "expected_sha256": "9bcfd437d77da7942bd8912c931f2e6c701be807c87c0767235507c06ee5fb09",
+    "actual_sha256": "9bcfd437d77da7942bd8912c931f2e6c701be807c87c0767235507c06ee5fb09",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/measured/2026-11-04/20261104T173131Z-b63cb205.json",
+    "expected_sha256": "124486fb3d7a91d7ce8efd543b484923c5fe180efc36ac70977eea3f36d49c9b",
+    "actual_sha256": "124486fb3d7a91d7ce8efd543b484923c5fe180efc36ac70977eea3f36d49c9b",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/measured/2026-11-04/20261104T173443Z-2cd3ee20.json",
+    "expected_sha256": "9e0aaf50073ed72efd8a937b44e1d5af155e0dc8fa2d7f4703c2fcedff6170d8",
+    "actual_sha256": "9e0aaf50073ed72efd8a937b44e1d5af155e0dc8fa2d7f4703c2fcedff6170d8",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/performance-2026-11-05/final-selection.json",
+    "expected_sha256": "8bba20eff531eb85e55c99574dcf6c5cc01df238bb2ad1720beb20853ca356c7",
+    "actual_sha256": "8bba20eff531eb85e55c99574dcf6c5cc01df238bb2ad1720beb20853ca356c7",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/performance-2026-11-05/fulltor-slim-build.json",
+    "expected_sha256": "318070ae1023f86add599efe4514cff7450391f3755eae53e4725582680a5112",
+    "actual_sha256": "318070ae1023f86add599efe4514cff7450391f3755eae53e4725582680a5112",
+    "status": "PASS"
+  },
+  {
+    "path": "reports/performance-2026-11-05/ram-build.json",
+    "expected_sha256": "3414e7967a15b0ef498d75757b72ccd9810d7760f1e1d232a3a7bd8b7a9e0717",
+    "actual_sha256": "3414e7967a15b0ef498d75757b72ccd9810d7760f1e1d232a3a7bd8b7a9e0717",
+    "status": "PASS"
+  }
+]

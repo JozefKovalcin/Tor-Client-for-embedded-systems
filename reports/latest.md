@@ -17,17 +17,24 @@ The kernel, read-only root and disk layout use 8.6768 MiB. The 32 MiB persistent
 
 [Capacity report and measurements](capacity-2026-11-05/README.md).
 
+
+## Repository audit — 2026-11-09
+
+Windows and native WSL sources were synchronized with GitHub. The current validation audit and preserved-work details are in [the synchronization report](sync-2026-11-09/README.md). The measurements below remain the archived 2026-11-05 ARM online run; they were not remeasured during this audit.
+
+Source: [ARM build result](arm-2026-11-05/build-results.json) and [unchanged comparison](arm-2026-11-05/build-comparison.json). Its pre-commit dirty-tree provenance is retained.
+
 ---
 
 # Optimization validation
 
-Run: `20261105T160654Z-f407769f`
+Run: `20261105T190223Z-7002ec13`
 
-**NON_COMPARABLE** — Configuration validation
+**NON_COMPARABLE** — Exercise the built ARMv7 capacity32 image with low PCI addresses and the unchanged frozen suite
 
 Build: PASS. make all succeeded; all required boot artifacts and ELF hardening verified
 
-Commit: `62a99ece3177a97515a3807e1ece72201c3fc8fe`; dirty: `False`.
+Commit: `fec5f291d41599acb3499f3f1639768a44388a78`; dirty: `True`.
 
 Hardware behavior: unverified. Measurements describe only the recorded test environment.
 
@@ -54,29 +61,29 @@ Null means unavailable; bytes use base 1024 for KiB conversions.
 
 | Metric | Candidate | Baseline | Delta | Reduction % |
 |---|---:|---:|---:|---:|
-| bootstrap_seconds | 16.578146437 | 20.921977645000002 | -4.343831208000001 | 20.76204879722784 |
-| complete_image_bytes | 42652672 | 275092480 | -232439808 | 84.49515159411119 |
-| cpu_percent | 11.810782738456897 | 16.88222863518813 | -5.071445896731234 | 30.040144617877456 |
-| idle_pss_bytes | 48998826.666666664 | 117296302.29787233 | -68297475.63120568 | 58.226452405775916 |
-| idle_rss_bytes | 58007978.666666664 | 128241838.29787233 | -70233859.63120568 | 54.76672867716598 |
-| image_host_allocated_bytes | 12660736 | 79142912 | -66482176 | 84.00269123279163 |
-| installed_rootfs_bytes | 12209235 | 63362683 | -51153448 | 80.7311899971155 |
-| kernel_bytes | 3941376 | 6657024 | -2715648 | 40.793724042455004 |
-| library_bytes | 9003952 | 18515107 | -9511155 | 51.36970042895242 |
-| onion_connection_seconds | 3.1683918219999967 | 2.2833709969999987 | 0.885020824999998 | -38.75939679372211 |
-| peak_process_rss_bytes | 59752448 | 130019328 | -70266880 | 54.04341114576442 |
-| peak_system_used_bytes | 89710592 | 160100352 | -70389760 | 43.96602450942769 |
-| persistent_storage_bytes | 16666886 | 11499552 | 5167334 | -44.9350896452314 |
-| production_peak_rss_bytes | 27508736 | None | None | None |
-| production_pss_bytes | 26570752 | None | None | None |
-| production_rss_bytes | 27037696 | None | None | None |
-| production_state_bytes | 8329029 | None | None | None |
-| production_state_free_bytes | 15736832 | None | None | None |
+| bootstrap_seconds | 19.722238735999998 | 20.921977645000002 | -1.1997389090000041 | 5.734347533282645 |
+| complete_image_bytes | 40495840 | 275092480 | -234596640 | 85.27919047441792 |
+| cpu_percent | 18.905216107316477 | 16.88222863518813 | 2.022987472128346 | -11.982940853625054 |
+| idle_pss_bytes | 41288521.95555556 | 117296302.29787233 | -76007780.34231678 | 64.7998094170915 |
+| idle_rss_bytes | 49291081.95555556 | 128241838.29787233 | -78950756.34231678 | 61.56396180077735 |
+| image_host_allocated_bytes | 10502144 | 79142912 | -68640768 | 86.73015215816169 |
+| installed_rootfs_bytes | 9318905 | 63362683 | -54043778 | 85.29275504321684 |
+| kernel_bytes | 2484960 | 6657024 | -4172064 | 62.6716082141209 |
+| library_bytes | 6232916 | 18515107 | -12282191 | 66.33605196016421 |
+| onion_connection_seconds | 3.9119959200000025 | 2.2833709969999987 | 1.6286249230000038 | -71.32546244739767 |
+| peak_process_rss_bytes | 53071872 | 130019328 | -76947456 | 59.18155183820055 |
+| peak_system_used_bytes | 78852096 | 160100352 | -81248256 | 50.74833064701819 |
+| persistent_storage_bytes | 16609951 | 11499552 | 5110399 | -44.4399834010925 |
+| production_peak_rss_bytes | 24084480 | None | None | None |
+| production_pss_bytes | 23244800 | None | None | None |
+| production_rss_bytes | 23724032 | None | None | None |
+| production_state_bytes | 8300625 | None | None | None |
+| production_state_free_bytes | 15765504 | None | None | None |
 | production_state_volume_bytes | 26464256 | None | None | None |
-| rootfs_bytes | 38711296 | 268435456 | -229724160 | 85.57891845703125 |
-| startup_seconds | 0.38846606300000097 | 6.326056145000001 | -5.937590082 | 93.85926943903212 |
-| throughput_bytes_per_second | 267306.4298971672 | 243826.73790498156 | 23479.69199218563 | -9.629662519348303 |
-| tor_executable_bytes | 2428664 | 3397272 | -968608 | 28.511346751157987 |
+| rootfs_bytes | 38010880 | 268435456 | -230424576 | 85.83984375 |
+| startup_seconds | 1.717394176 | 6.326056145000001 | -4.608661969000001 | 72.85205605774782 |
+| throughput_bytes_per_second | 198710.86818946814 | 243826.73790498156 | -45115.86971551343 | 18.50324952183666 |
+| tor_executable_bytes | 2207484 | 3397272 | -1189788 | 35.021864601951215 |
 
 ## Decision
 

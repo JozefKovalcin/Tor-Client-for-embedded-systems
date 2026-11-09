@@ -20,8 +20,11 @@ includes the build command and distinguishes the emulated measurements
 from physical USB device, Ethernet and NAND qualification.
 
 See the [technical handover](docs/HANDOFF.md) and [engineering roadmap](docs/ROADMAP.md)
-for the first physical milestone. The [executive report package](reports/executive/README.md)
-contains offline HTML, a printable PDF and the source-linked dataset.
+for the first physical milestone. The current [Slovak executive report](reports/executive/Tor_Executive_Report_SK.pdf)
+includes the two-PC QEMU demonstration. The [executive report package](reports/executive/README.md)
+also retains the earlier English HTML/PDF and source-linked dataset.
+The [2026-11-09 synchronization audit](reports/sync-2026-11-09/README.md)
+records repository alignment, checks and preserved local work.
 
 Repository: [JozefKovalcin/Tor-Client-for-embedded-systems](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems).
 
