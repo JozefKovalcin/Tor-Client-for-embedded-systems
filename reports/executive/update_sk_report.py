@@ -1,4 +1,4 @@
-"""Update only the launcher note on page six of the supplied Slovak report.
+"""Clarify the performance page and launcher note in the supplied Slovak report.
 
 Authoring dependency: PyMuPDF. The measured pages are preserved.
 """
@@ -11,6 +11,59 @@ NOTE = (
     'ponúkne aktualizáciu. Inštalácia aj aktualizácia vyžadujú potvrdenie.'
 )
 
+TITLE = 'Porovnanie výkonu pri 128 a 256 MiB RAM'
+
+
+def performance_page(document, font):
+    page = document[3]
+    if len(page.search_for('Obe skupiny so 128 MiB nesplnili výkonové kritériá')) != 1:
+        raise ValueError('expected the original performance-page layout')
+    page.add_redact_annot(pymupdf.Rect(44, 60, 916, 94), fill=(1, 1, 1))
+    page.add_redact_annot(pymupdf.Rect(44, 397, 916, 500), fill=(1, 1, 1))
+    page.apply_redactions(images=0, graphics=0)
+    page.insert_font(fontname='SegoeBody', fontfile=str(font))
+    page.insert_font(fontname='SegoeBold', fontfile=str(font.with_name('segoeuib.ttf')))
+    navy = (0.071, 0.176, 0.271)
+    teal = (0.0, 0.49, 0.45)
+
+    def text(rect, content, size, bold=False, color=navy):
+        remaining = page.insert_textbox(pymupdf.Rect(rect), content, fontsize=size,
+                                        fontname='SegoeBold' if bold else 'SegoeBody',
+                                        color=color, lineheight=1.16)
+        if remaining < 0:
+            raise ValueError('performance-page text does not fit: ' + content)
+
+    text((45, 57, 915, 96), TITLE, 24.75, bold=True)
+    cards = [
+        ((45, 398, 474, 450), 'ARMv7 / 128 MiB',
+         'Pripojenie k službe .onion: 4,32 s, povolené najviac 3,78 s.\n'
+         'Prenos cez Tor: 143,80 KiB/s, požadované minimum 153,33 KiB/s.'),
+        ((486, 398, 915, 450), 'x86-64 / 128 MiB',
+         'Lokálne TCP nedosiahlo požadovanú rýchlosť.\n'
+         'Pripojenie k sieti Tor trvalo dlhšie, než povoľoval limit.'),
+    ]
+    for bounds, heading, body in cards:
+        x0, y0, x1, y1 = bounds
+        page.draw_rect(pymupdf.Rect(bounds), color=None, fill=(1, 0.969, 0.91))
+        page.draw_rect(pymupdf.Rect(x0, y0, x0 + 3, y1), color=None, fill=(0.898, 0.682, 0.259))
+        text((x0 + 12, y0 + 3, x1 - 10, y0 + 18), heading, 10.5, bold=True)
+        text((x0 + 12, y0 + 18, x1 - 10, y1), body, 10.5)
+
+    page.draw_rect(pymupdf.Rect(45, 455, 915, 500), color=None, fill=(0.878, 0.949, 0.937))
+    page.draw_rect(pymupdf.Rect(45, 455, 49, 500), color=None, fill=teal)
+    text((57, 457, 903, 474), 'Pravidlo 20 % a kolísanie meraní', 11, bold=True, color=teal)
+    for baseline, content, bold in [
+        (481.5, 'Porovnávame 128 MiB s 256 MiB na rovnakej architektúre. '
+         'Čas smie byť najviac o 20 % dlhší, rýchlosť o 20 % nižšia.', False),
+        (495.5, 'Hodnoty sú mediány z troch opakovaní. '
+         'Prenos cez Tor na ARMv7 / 128 MiB kolísal od 90,80 do 299,40 KiB/s.', True),
+    ]:
+        face = font.with_name('segoeuib.ttf') if bold else font
+        if pymupdf.Font(fontfile=str(face)).text_length(content, fontsize=10) > 846:
+            raise ValueError('methodology line exceeds panel width')
+        page.insert_text((57, baseline), content, fontsize=10,
+                         fontname='SegoeBold' if bold else 'SegoeBody', color=navy)
+
 
 def update(source, output, font):
     if output.exists():
@@ -18,6 +71,7 @@ def update(source, output, font):
     document = pymupdf.open(source)
     if len(document) != 6:
         raise ValueError('expected the supplied six-page Slovak report')
+    performance_page(document, font)
     page = document[5]
     matches = page.search_for('Ak chýba')
     if len(matches) != 1:

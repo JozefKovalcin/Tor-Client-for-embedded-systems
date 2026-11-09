@@ -1,11 +1,15 @@
 # Executive report package
 
 The current Slovak report is [Tor_Executive_Report_SK.pdf](Tor_Executive_Report_SK.pdf),
-supplied on 2026-11-09. Its measurement pages match the archived data. Only the
-launcher note on page 6 changed to describe Ubuntu discovery and the opt-in
-upgrade offer. The [original supplied PDF](source/Tor_Executive_Report_SK_2026-11-06.pdf)
+supplied on 2026-11-09. Its measurement values match the archived data. Page 4
+now separates the ARMv7/x86 explanations and highlights the comparison rule,
+three-repeat medians and transfer variability. The launcher note on page 6
+describes Ubuntu discovery and the opt-in upgrade offer.
+The [original supplied PDF](source/Tor_Executive_Report_SK_2026-11-06.pdf)
 is preserved. See [the synchronization audit](../sync-2026-11-09/README.md) for
 checksums, package provenance, validation and current project limits.
+The [page 4 revision record](revisions/2026-11-09-page4.json) contains the current
+PDF checksum; the earlier audit retains the preceding revision's checksum.
 
 The following English HTML/PDF is the earlier 2026-11-05 report package.
 
@@ -55,7 +59,7 @@ includes only the versioned launchers plus those images. It excludes runtime
 state. `bash run-wsl.sh --check` checks dependencies without booting QEMU.
 The demo's 59-byte echo is separate from the frozen nine-test qualification.
 
-To reproduce the small Slovak PDF edit with authoring-only dependency PyMuPDF,
+To reproduce the Slovak PDF edits with authoring-only dependency PyMuPDF,
 run `update_sk_report.py --input source/Tor_Executive_Report_SK_2026-11-06.pdf
 --output /fresh/path/Tor_Executive_Report_SK.pdf --font /path/to/segoeui.ttf`
 from this directory. The earlier HTML generator does not regenerate this PDF.

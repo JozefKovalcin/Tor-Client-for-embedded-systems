@@ -19,7 +19,8 @@ Use `git log -1` for the current handover commit.
 The [2026-11-09 synchronization audit](../reports/sync-2026-11-09/README.md)
 aligns Windows, WSL and GitHub and preserves the earlier WSL work in a stash.
 The current [Slovak executive report](../reports/executive/Tor_Executive_Report_SK.pdf)
-retains the measured results; only its two-PC launcher note was updated.
+retains the measured results; its launcher note and performance explanation
+were clarified without changing values or decisions.
 Launcher sources and the image-checking packager are in `scripts/two_pc_demo/`
 and `scripts/build_two_pc_demo.py`. Generated ZIPs and images remain outside Git.
 

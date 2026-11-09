@@ -1,3 +1,14 @@
+# Slovak report readability revision — 2026-11-09
+
+Revised only page 4 of the current executive PDF: neutral RAM comparison
+title, separate ARMv7/x86 explanations and a prominent methodology panel
+covering the 20% rule, three-repeat medians and observed transfer variability.
+All measured values, charts, tables and acceptance decisions are unchanged.
+Visual review passed; all five other pages render identically to the previous
+revision, including the two-PC launcher note. Reproduction uses
+`reports/executive/update_sk_report.py`; [revision checksums and verification](../reports/executive/revisions/2026-11-09-page4.json)
+record the change. No new firmware or network measurements were required.
+
 # Repository and report synchronization — 2026-11-09
 
 Windows and GitHub initially matched `938b6d2`; the native WSL checkout was

@@ -1,0 +1,39 @@
+{
+  "date": "2026-11-09",
+  "previous_pdf_sha256": "a1007871fcd5a317400676b16638611f1149fc9fc6452151ecf62c1bf7c380b2",
+  "updated_pdf_sha256": "ef04cb43d7c19cb23577b59a3cf5a5ec2cab96c089cec050dec688a5e7216556",
+  "pages": [
+    {
+      "page": 1,
+      "render_identical_to_previous_revision": true
+    },
+    {
+      "page": 2,
+      "render_identical_to_previous_revision": true
+    },
+    {
+      "page": 3,
+      "render_identical_to_previous_revision": true
+    },
+    {
+      "page": 4,
+      "render_identical_to_previous_revision": false
+    },
+    {
+      "page": 5,
+      "render_identical_to_previous_revision": true
+    },
+    {
+      "page": 6,
+      "render_identical_to_previous_revision": true
+    }
+  ],
+  "page4_charts_table_and_other_regions_unchanged": true,
+  "new_title": "Porovnanie výkonu pri 128 a 256 MiB RAM",
+  "changes": [
+    "Separate ARMv7/x86 explanations",
+    "Prominent 20 percent rule, medians and observed transfer range"
+  ],
+  "measurement_values_and_decisions_changed": false,
+  "visual_review": "PASS"
+}
