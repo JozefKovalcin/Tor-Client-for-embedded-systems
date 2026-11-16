@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "dependency-policy-v1",
+  "scope": "Read-only developer tool presence and planning compatibility; not build qualification",
+  "tools": [
+    {"id": "python", "oses": ["windows", "linux"], "requirement": "Current Python >=3.12", "minimumVersion": [3, 12], "optional": false, "owner": "os-manual", "approval": "none"},
+    {"id": "git", "oses": ["windows", "linux"], "requirement": "Installed Git >=2.0 for provenance", "minimumVersion": [2, 0], "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "gcc", "oses": ["linux"], "requirement": "GNU GCC >=13.0 planning minimum", "minimumVersion": [13, 0], "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "gcc-target", "oses": ["linux"], "requirement": "Native x86_64-linux-gnu compiler target", "target": "x86_64-linux-gnu", "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "msys2-gcc", "oses": ["windows"], "requirement": "Installed MSYS2 UCRT64 GCC; version recorded", "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "msys2-gcc-target", "oses": ["windows"], "requirement": "MSYS2 UCRT64 x86_64-w64-mingw32 compiler", "target": "x86_64-w64-mingw32", "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "make", "oses": ["windows", "linux"], "requirement": "Installed GNU make >=4.0", "minimumVersion": [4, 0], "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "ld", "oses": ["windows", "linux"], "requirement": "Installed linker with version observation", "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "ar", "oses": ["windows", "linux"], "requirement": "Installed archive tool with version observation", "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "ranlib", "oses": ["windows", "linux"], "requirement": "Installed archive index tool with version observation", "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "strip", "oses": ["windows", "linux"], "requirement": "Installed symbol tool with version observation", "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "pkg-config", "oses": ["windows", "linux"], "requirement": "Installed pkg-config >=0.29", "minimumVersion": [0, 29], "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "perl", "oses": ["windows", "linux"], "requirement": "Installed Perl >=5.0", "minimumVersion": [5, 0], "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "tar", "oses": ["windows", "linux"], "requirement": "Installed tar with version observation", "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "patch", "oses": ["windows", "linux"], "requirement": "Installed patch with version observation", "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "bash", "oses": ["windows", "linux"], "requirement": "Installed Bash >=4.0; Windows requires MSYS2, not a WSL launcher", "minimumVersion": [4, 0], "optional": false, "owner": "package-manager", "approval": "user-consent"}
+  ]
+}
