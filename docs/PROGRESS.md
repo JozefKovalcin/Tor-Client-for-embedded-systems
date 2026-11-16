@@ -1,3 +1,28 @@
+# TASK 01 W3 — Native Linux build preflight — 2026-11-16
+
+W3 integrates W2 `239e5ad47de360a2c1b603a16f9456c97c43a957` (including W1).
+Selected native v1 target is Ubuntu 24.04 x86_64-linux-gnu/glibc 2.39.
+Read-only preflight checks trusted toolchain probes, libc headers, local source/
+license hashes, safe source/output/cache paths, clean Git provenance and native
+RAM/disk/cgroup-v2 limits. It emits reproducible input metadata and a descriptive
+DAG with every stage NOT RUN; no executor/build/download/install exists here.
+Only genuinely available required inputs permit a plan-mode BuildRequest.
+
+Executed on Windows/Python 3.14.2: isolated focused W3 **15 PASS**, no skips;
+full `python -B scripts/check.py` exit 0, 105 discovered, **103 PASS / 2 platform
+SKIPPED**; Windows source-pipeline **6 PASS**. Full offline tests used the
+permitted context outside known sandbox loopback/hardlink restrictions. Real
+Windows preflight returns exit 1/NOT RUN with no request/output creation;
+positive Linux readiness is synthetic test evidence only. No Linux runtime,
+ELF linkage, Tor compilation/public test, Buildroot/Yocto or physical-board
+qualification was run. Unsupported cgroup mappings remain UNKNOWN.
+
+Preservation audit: all 566 protected Git inputs are unchanged in W1/W2/W3.
+Initial raw-byte comparison flagged 36 checkout line-ending differences in each
+worktree; normalized content is identical, with no other differences. Original
+checkout files, main, both exact stashes and baseline tag remain unchanged. Shared contracts remain owned by W1; no W4–W15 implementation.
+See `docs/task01/W3-HANDOFF.md` for changed files, commands, limits and next gates.
+
 # TASK 01 W2 — Read-only dependency diagnostics — 2026-11-16
 
 W2 integrates W1 `3997fa567a2d24758a0266add4c9cf3049e5f7f6` and adds fixed,
