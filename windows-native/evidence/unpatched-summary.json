@@ -1,0 +1,225 @@
+{
+  "date": "2026-11-12",
+  "qualification": "FAIL",
+  "scope": "Native Windows build and client smoke pass; mandatory onion fixture fails.",
+  "platform": {
+    "os_version": "10.0.26100",
+    "display_version": "24H2",
+    "architecture": "AMD64",
+    "wine_used": false,
+    "wsl_or_linux_compilation_used": false,
+    "qemu_used": false,
+    "windows_10_tested": false
+  },
+  "native_clean_default_build": "PASS",
+  "native_smoke": [
+    {
+      "variant": "static",
+      "platform": "native Windows",
+      "tests": [
+        {
+          "id": "--version",
+          "status": "PASS",
+          "detail": "Tor version 0.4.9.14.\nTor is running on Windows 10 [or later] with Libevent 2.1.13-stable, OpenSSL 3.6.5, Zlib 1.3.2, Liblzma N/A, Libzstd N/A and Unknown N/A as libc.\nTor compiled with GCC version 16.2.0"
+        },
+        {
+          "id": "--help",
+          "status": "PASS",
+          "detail": "Copyright (c) 2001-2004, Roger Dingledine\nCopyright (c) 2004-2006, Roger Dingledine, Nick Mathewson\nCopyright (c) 2007-2021, The Tor Project, Inc.\n\ntor -f <torrc> [args]\nSee man page for options, or https://www.torproject.org/ for documentation."
+        },
+        {
+          "id": "shipped_configs",
+          "status": "PASS",
+          "detail": "Both deployment profiles verified by native Tor"
+        },
+        {
+          "id": "compiled_modules",
+          "status": "PASS",
+          "detail": "relay: no\ndirauth: no\ndircache: no\npow: no"
+        },
+        {
+          "id": "invalid_config_rejected",
+          "status": "PASS",
+          "detail": "Nonzero exit for an unknown option"
+        },
+        {
+          "id": "startup_and_writable_state",
+          "status": "PASS",
+          "detail": "Authenticated using generated control cookie"
+        },
+        {
+          "id": "public_bootstrap",
+          "status": "PASS",
+          "detail": "Authenticated control reports 100%"
+        },
+        {
+          "id": "socks_remote_dns",
+          "status": "PASS",
+          "detail": "curl --socks5-hostname uses a domain-name SOCKS request; Tor exit confirmed"
+        },
+        {
+          "id": "clean_shutdown",
+          "status": "PASS",
+          "detail": "Authenticated SIGNAL SHUTDOWN returned exit code 0"
+        },
+        {
+          "id": "restart",
+          "status": "PASS",
+          "detail": "Same writable DataDirectory restarted and shut down cleanly"
+        }
+      ],
+      "metrics": {
+        "bootstrap_seconds": 3.6451607,
+        "idle_working_set_bytes": 42799104,
+        "peak_working_set_bytes": 42799104
+      },
+      "measurement": "One process; Windows working set sampled after ten idle seconds; high-water mark through sampling. Not Linux RSS/PSS.",
+      "raw_result_sha256": "28a0dd8f42893600756d5bd62a8d390522b640d86cff1dadc8324917cdf32925"
+    },
+    {
+      "variant": "shared",
+      "platform": "native Windows",
+      "tests": [
+        {
+          "id": "--version",
+          "status": "PASS",
+          "detail": "Tor version 0.4.9.14.\nTor is running on Windows 10 [or later] with Libevent 2.1.13-stable, OpenSSL 3.6.5, Zlib 1.3.2, Liblzma N/A, Libzstd N/A and Unknown N/A as libc.\nTor compiled with GCC version 16.2.0"
+        },
+        {
+          "id": "--help",
+          "status": "PASS",
+          "detail": "Copyright (c) 2001-2004, Roger Dingledine\nCopyright (c) 2004-2006, Roger Dingledine, Nick Mathewson\nCopyright (c) 2007-2021, The Tor Project, Inc.\n\ntor -f <torrc> [args]\nSee man page for options, or https://www.torproject.org/ for documentation."
+        },
+        {
+          "id": "shipped_configs",
+          "status": "PASS",
+          "detail": "Both deployment profiles verified by native Tor"
+        },
+        {
+          "id": "compiled_modules",
+          "status": "PASS",
+          "detail": "relay: no\ndirauth: no\ndircache: no\npow: no"
+        },
+        {
+          "id": "invalid_config_rejected",
+          "status": "PASS",
+          "detail": "Nonzero exit for an unknown option"
+        },
+        {
+          "id": "startup_and_writable_state",
+          "status": "PASS",
+          "detail": "Authenticated using generated control cookie"
+        },
+        {
+          "id": "public_bootstrap",
+          "status": "PASS",
+          "detail": "Authenticated control reports 100%"
+        },
+        {
+          "id": "socks_remote_dns",
+          "status": "PASS",
+          "detail": "curl --socks5-hostname uses a domain-name SOCKS request; Tor exit confirmed"
+        },
+        {
+          "id": "clean_shutdown",
+          "status": "PASS",
+          "detail": "Authenticated SIGNAL SHUTDOWN returned exit code 0"
+        },
+        {
+          "id": "restart",
+          "status": "PASS",
+          "detail": "Same writable DataDirectory restarted and shut down cleanly"
+        }
+      ],
+      "metrics": {
+        "bootstrap_seconds": 3.6324131,
+        "idle_working_set_bytes": 42987520,
+        "peak_working_set_bytes": 42987520
+      },
+      "measurement": "One process; Windows working set sampled after ten idle seconds; high-water mark through sampling. Not Linux RSS/PSS.",
+      "raw_result_sha256": "7b7dbe3da78ef92b51b710811290e002706865476e303a7eabe774e72d65b58f"
+    }
+  ],
+  "packages": [
+    {
+      "variant": "static",
+      "tor_exe_bytes": 8642974,
+      "dll_bytes": 73308,
+      "executable_and_dll_bytes": 8716282,
+      "total_distribution_bytes": 8877414,
+      "tor_exe_sha256": "342f1a384a8eb6998fa987e5e5042f9d2c7488b1edad7f7801504970964b6980",
+      "dlls": [
+        "libwinpthread-1.dll"
+      ]
+    },
+    {
+      "variant": "shared",
+      "tor_exe_bytes": 2838019,
+      "dll_bytes": 6910678,
+      "executable_and_dll_bytes": 9748697,
+      "total_distribution_bytes": 9913360,
+      "tor_exe_sha256": "409f3294a920e8277ce740a4514d91795c89a46faabc1992dcdcdc293233f36e",
+      "dlls": [
+        "libcrypto-3-x64.dll",
+        "libevent-2-1-7.dll",
+        "libssl-3-x64.dll",
+        "libwinpthread-1.dll",
+        "zlib1.dll"
+      ]
+    }
+  ],
+  "mandatory_functional_counts": {
+    "PASS": 5,
+    "FAIL": 1,
+    "BLOCKED": 3,
+    "SKIPPED": 0
+  },
+  "unit_tests": {
+    "pipeline": {
+      "PASS": 5
+    },
+    "repository": {
+      "PASS": 41,
+      "SKIPPED": 2
+    }
+  },
+  "linux_kconfig": "BLOCKED: check_buildroot.py requires Linux; no Linux target inputs changed",
+  "linux_full_validation": "SKIPPED: existing Linux/ARM workflows and archives unchanged",
+  "windows_full_module_reference": "SKIPPED: optional command provided, no full-module reference built",
+  "packet_capture_dns_leak_proof": "SKIPPED: SOCKS hostname delegation tested; no packet capture",
+  "failure": {
+    "id": "onion_v3",
+    "detail": "ValueError: oversized fixture frame",
+    "sent_header_hex": "00010000",
+    "received_header_hex": "914fa2ba",
+    "observation": "Received marker matches fixture payload offset 28, consistent with 32 missing initial stream bytes. Root cause unresolved.",
+    "also_reproduced": [
+      "native CPython 3.14",
+      "native UCRT64 Python 3.14",
+      "Tor O0 diagnostic with unchanged optimized dependencies",
+      "shared dependency build"
+    ],
+    "downstream_tests": "two_node, bidirectional_integrity and reconnection BLOCKED; no full Windows parity claim"
+  },
+  "source_changes": {
+    "tor_c_patches": [],
+    "dependency_source_patches": []
+  },
+  "sha256_records": {
+    "tests\\run_all.py": "a8a834192b16beba4c12f1db339117c711ef261f433c6afd8a35870297d73506",
+    "tests\\echo_server.py": "c498c3edd9ccb9e102bf5c127752c186b974133eb7a460acbb22d8e73d651a47",
+    "windows-native\\source-manifest.json": "790d1c4c30aa14a998c831694e3799ac987f72a5a3425aba7c7124f3f5455f08",
+    "build\\windows-native-final-clean.log": "1728a5a1b186a842b6b8fa3af005af00efcc85ce3306eb0796cc1e2c78d7aec4",
+    "build\\windows-native-work\\2eb685debc753f0be256\\20261112T122715Z-1317\\build.log": "1728a5a1b186a842b6b8fa3af005af00efcc85ce3306eb0796cc1e2c78d7aec4",
+    "build\\windows-native-work\\2eb685debc753f0be256\\20261112T122715Z-1317\\orconfig.h": "06b2bb9552e35dbc316e20678f3f2c2080a610a081f3189c118569c19c5cc828",
+    "build\\windows-native-functional-06.log": "eb8b31c42777141f37348ba6eb2cb44aef9206a3cd1204148042d824bc2c6de0",
+    "build\\windows-native-shared-clean.log": "cf88bcae1aa1ab57c9b127a52b2735217bc9eabe08ac56913da6ec5d2df165e0",
+    "build\\windows-native-tools\\msys2-base.tar.xz": "850589091e731d14b234447084737ca62aee1cc1e3c10be62fcdc12b8263d70b"
+  },
+  "limitations": [
+    "Single Windows build/host only; Windows 10 not executed",
+    "Working-set samples are not Linux RSS/PSS or comparable ARM benchmarks",
+    "Onion latency/throughput and full integrity/reconnection are unmeasured because the prerequisite fails",
+    "Shared comparison reused source-built OpenSSL/zlib from its retained clean build; libevent and Tor rebuilt fresh after import-library fixes"
+  ]
+}

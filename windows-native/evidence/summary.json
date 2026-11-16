@@ -1,0 +1,107 @@
+{
+  "date": "2026-11-12",
+  "qualification": "PASS on tested native Windows host",
+  "platform": {
+    "os_version": "10.0.26100",
+    "display_version": "24H2",
+    "architecture": "AMD64",
+    "wine_used": false,
+    "wsl_or_linux_compilation_used": false,
+    "qemu_used": false,
+    "windows_10_tested": false
+  },
+  "clean_default_source_build": "PASS",
+  "default_functional_tests": {
+    "PASS": 9,
+    "FAIL": 0,
+    "BLOCKED": 0,
+    "SKIPPED": 0
+  },
+  "shared_functional_tests": {
+    "PASS": 9,
+    "FAIL": 0,
+    "BLOCKED": 0,
+    "SKIPPED": 0
+  },
+  "native_smokes": [
+    {
+      "variant": "static",
+      "status": "PASS"
+    },
+    {
+      "variant": "shared",
+      "status": "PASS"
+    }
+  ],
+  "packages": [
+    {
+      "variant": "static",
+      "tor_exe_bytes": 8642974,
+      "dll_bytes": 73308,
+      "executable_and_dll_bytes": 8716282,
+      "total_distribution_bytes": 8878896,
+      "tor_exe_sha256": "3a65024937320fb53a76615273d9cdf7718d9cf90855081dab4b73ae52d2c7f9",
+      "dlls": [
+        "libwinpthread-1.dll"
+      ],
+      "diagnostic_trace_in_release": false
+    },
+    {
+      "variant": "shared",
+      "tor_exe_bytes": 2838019,
+      "dll_bytes": 6910678,
+      "executable_and_dll_bytes": 9748697,
+      "total_distribution_bytes": 9914842,
+      "tor_exe_sha256": "af92c968ad2dacc770e96ddfcbe1f20aabe903a9ce8f9027bb3d368c5af9c331",
+      "dlls": [
+        "libcrypto-3-x64.dll",
+        "libevent-2-1-7.dll",
+        "libssl-3-x64.dll",
+        "libwinpthread-1.dll",
+        "zlib1.dll"
+      ],
+      "diagnostic_trace_in_release": false
+    }
+  ],
+  "unit_tests": {
+    "pipeline": {
+      "PASS": 6
+    },
+    "repository": {
+      "PASS": 41,
+      "SKIPPED": 2
+    }
+  },
+  "source_patch": [
+    {
+      "file": "patches/0001-queue-connected-before-reading.patch",
+      "sha256": "41af7660703631391db3aa86901d1f9a3270854b7891a3a75e955d5f3f199419",
+      "source_file": "src/core/or/connection_edge.c",
+      "before_sha256": "9da06b2657de46ecf4e8b9f84fa7f5f506f96128447733707fd81e399c5487dd",
+      "after_sha256": "288b3cd7e384ef1e1b977650131cb18e8bf4d96bf268a45c08ca4a92dadc465b",
+      "purpose": "Queue CONNECTED before re-enabling reads, which can synchronously process a buffered server greeting",
+      "upstream_status": "Local fix for pinned 0.4.9.14; not submitted upstream",
+      "license": "Tor BSD terms; see upstream LICENSE"
+    }
+  ],
+  "retained_rejections": "Unpatched ordering failures, patched shared reachability timeout and patched static reconnection timeout remain in functional-history.json. No assertion or timeout changed.",
+  "memory_run": "functional-memory.json is an actual Windows API measurement run with eight PASS and reconnection BLOCKED; memory/transfer values are not merged into the later nine-PASS run.",
+  "linux_kconfig": "BLOCKED: check_buildroot.py requires Linux; target build inputs unchanged",
+  "linux_full_validation": "SKIPPED: no Linux/ARM image rebuild or physical-board change",
+  "full_module_reference": "SKIPPED: PROFILE=reference command supplied; no full-featured Windows performance reference built",
+  "packet_capture_dns_proof": "SKIPPED: SOCKS hostname delegation executed; no packet capture",
+  "performance_acceptance": "No controlled performance qualification or direct ARM comparison claimed",
+  "shared_build_scope": "Source-built OpenSSL/zlib retained from clean shared build; libevent and Tor rebuilt from fresh sources with import-library fixes, then verified patch applied and optimized Tor rebuilt",
+  "source_provenance": "Exact upstream source/license SHA-256 pins; detached upstream signatures not independently verified",
+  "sha256_records": {
+    "tests\\run_all.py": "a8a834192b16beba4c12f1db339117c711ef261f433c6afd8a35870297d73506",
+    "tests\\echo_server.py": "c498c3edd9ccb9e102bf5c127752c186b974133eb7a460acbb22d8e73d651a47",
+    "windows-native\\source-manifest.json": "f360579ee9457721b29b546fe29bc0371111082edc07bfc9ada9ca42d2a442bf",
+    "windows-native\\patches\\0001-queue-connected-before-reading.patch": "41af7660703631391db3aa86901d1f9a3270854b7891a3a75e955d5f3f199419",
+    "windows-native\\scripts\\test-native.py": "2de3124b801d94e554bbd93377b06cdae7a076b2885be8138d6c468936279015",
+    "build\\windows-native-work\\476b40d867f74ebd3a59\\20261112T130354Z-131\\build.log": "cb0d36869ce874cfbe3bbdc8454974d03232fb567dea464deaa080ab8b86c7f9",
+    "build\\windows-native-work\\476b40d867f74ebd3a59\\20261112T130354Z-131\\orconfig.h": "42061d9cabecc2e2be5ce845b776a0bbaa5f89cc7871c9b0de34119b7fb49448",
+    "build\\windows-native-patched-clean.log": "cb0d36869ce874cfbe3bbdc8454974d03232fb567dea464deaa080ab8b86c7f9",
+    "build\\windows-native-tools\\msys2-base.tar.xz": "850589091e731d14b234447084737ca62aee1cc1e3c10be62fcdc12b8263d70b"
+  }
+}

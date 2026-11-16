@@ -1,0 +1,9 @@
+/.work/
+/dist*/
+/runtime/
+/evidence/local-*/
+__pycache__/
+**/data/
+**/data-onion/
+**/onion-service/
+**/test-results/

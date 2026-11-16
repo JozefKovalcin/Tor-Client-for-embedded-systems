@@ -1,0 +1,15 @@
+DataDirectory data-onion
+SocksPort 127.0.0.1:9150
+ControlPort 0
+ClientOnly 1
+SafeLogging 1
+AvoidDiskWrites 1
+RunAsDaemon 0
+Log notice stdout
+MaxMemInQueues 32 MB
+GeoIPFile ""
+GeoIPv6File ""
+DisableNetwork 0
+HiddenServiceDir onion-service
+HiddenServiceVersion 3
+HiddenServicePort 80 127.0.0.1:8081

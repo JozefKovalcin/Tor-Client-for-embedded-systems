@@ -1,0 +1,19 @@
+{
+  "source_page": "https://www.qemu.org/download/#windows",
+  "publisher_page": "https://qemu.weilnetz.de/w64/",
+  "installer_url": "https://qemu.weilnetz.de/w64/qemu-w64-setup-20260811.exe",
+  "checksum_url": "https://qemu.weilnetz.de/w64/qemu-w64-setup-20260811.sha512",
+  "installer_bytes": 206615928,
+  "sha512": "5bcf9eed634e8575a37b74f445af41a2fe4106da512d0c30c368301d4c105037fdfab40a5287367a28a957624cddebbc8c07e16c88ab6634f554cdf3d16bf543",
+  "published_sha512": "5bcf9eed634e8575a37b74f445af41a2fe4106da512d0c30c368301d4c105037fdfab40a5287367a28a957624cddebbc8c07e16c88ab6634f554cdf3d16bf543",
+  "authenticode_status": "UnknownError",
+  "authenticode_detail": "A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.",
+  "signer": "CN=Universität Mannheim, O=Universität Mannheim, S=Baden-Württemberg, C=DE",
+  "signer_thumbprint": "2F92CB990D57719BDCCA2D72134378614A040D9B",
+  "trust_boundary": "SHA-512 checked against publisher over HTTPS. Authenticode did not validate because the signer certificate expired; publisher documents expired signatures.",
+  "installation_directory": "LocalAppData/Programs/qemu",
+  "installer_exit_code": 0,
+  "version": "11.1.0 (v11.1.0-12130-ge470268ff4)",
+  "license": "GPL-2.0; see installed COPYING and licenses for bundled components",
+  "purpose": "Host emulator only; target dependencies and source locks unchanged"
+}

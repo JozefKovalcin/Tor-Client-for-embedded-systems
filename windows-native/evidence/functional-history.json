@@ -1,0 +1,1421 @@
+[
+  {
+    "run": "functional-final-08",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.01002139999945939
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.04788580000058573
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.2879088999998203
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.0007120999998733168
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 4.115919400001076
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "FAIL",
+        "detail": "ValueError: oversized fixture frame",
+        "seconds": 4.314313599999878
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.2877172000007704,
+      "bootstrap_seconds": 3.40030360000128,
+      "bootstrap_per_node_seconds": {
+        "A": 3.388135600000169,
+        "B": 3.40030360000128
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16342626
+    },
+    "raw_result_sha256": "3e729b9f3cf6457307145b538dfc1b7f4d6a04b493cf5f409cadecc1f2481f38"
+  },
+  {
+    "run": "functional-instrument-09",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.009543800000756164
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.43838809999942896
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.30516399999942223
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.0006993000006332295
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 8.621785700001055
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "FAIL",
+        "detail": "ValueError: oversized fixture frame",
+        "seconds": 2.588641899999857
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.3049198000007891,
+      "bootstrap_seconds": 7.927400799999305,
+      "bootstrap_per_node_seconds": {
+        "B": 6.921202100000301,
+        "A": 7.927400799999305
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16342626
+    },
+    "raw_result_sha256": "b205fce53290e640d0cc52243d030ceb5832cea1c8d39e365acd6b6320bdaf5e"
+  },
+  {
+    "run": "functional-instrument-10",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.012120399998821085
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.4727253999990353
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.2865605000006326
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.0006880999990244163
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 92.73776019999968
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "FAIL",
+        "detail": "ValueError: oversized fixture frame",
+        "seconds": 6.214442599999529
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.2863085000008141,
+      "bootstrap_seconds": 92.0246573000004,
+      "bootstrap_per_node_seconds": {
+        "B": 5.3856605000000854,
+        "A": 92.0246573000004
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16342626
+    },
+    "raw_result_sha256": "93c99900463ef16b38841888c6ac3b036160dfe29f3ff51bfd1d8d12ffbd65f2"
+  },
+  {
+    "run": "functional-instrument-11",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.009884999999485444
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.4198244999988674
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.3224241999996593
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.0006900999997014878
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 7.253801900000326
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "FAIL",
+        "detail": "ValueError: oversized fixture frame",
+        "seconds": 39.11058720000074
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.3221819000009418,
+      "bootstrap_seconds": 6.5766431000010925,
+      "bootstrap_per_node_seconds": {
+        "B": 4.46742599999925,
+        "A": 6.5766431000010925
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16342626
+    },
+    "raw_result_sha256": "a51ee5686261e01abaffb69ebf845c1fc2403550171e9f12d6ab6158f69c5786"
+  },
+  {
+    "run": "functional-instrument-12",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.010430800000904128
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.5034693999987212
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.3193807999996352
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.0008108000001811888
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 33.469554600000265
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "FAIL",
+        "detail": "ValueError: oversized fixture frame",
+        "seconds": 122.28494900000078
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.31915589999880467,
+      "bootstrap_seconds": 32.78431309999905,
+      "bootstrap_per_node_seconds": {
+        "A": 4.466154499999902,
+        "B": 32.78431309999905
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16342626
+    },
+    "raw_result_sha256": "dac4fa0c848b96e27e1ade02d519c917c3dac04f1cf722d531cb5734452995d4"
+  },
+  {
+    "run": "functional-native-01",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.009782299999642419
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.044911499999216176
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.28667119999954593
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.030991900001026806
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 12.145947499999238
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "FAIL",
+        "detail": "ValueError: oversized fixture frame",
+        "seconds": 125.42108619999999
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.2864743999998609,
+      "bootstrap_seconds": 11.4629305999988,
+      "bootstrap_per_node_seconds": {
+        "B": 3.4278276000004553,
+        "A": 11.4629305999988
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16357710
+    },
+    "raw_result_sha256": "1fac41342db7d848f669a1e728434505fbe46389fb1f974985017eb6e2aedb5a"
+  },
+  {
+    "run": "functional-native-02",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.009771899998668232
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.04092579999996815
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.3128333999993629
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.0008525000012014061
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 9.142284699999436
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "FAIL",
+        "detail": "ValueError: oversized fixture frame",
+        "seconds": 8.711176900000282
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.31255070000042906,
+      "bootstrap_seconds": 8.455626800001482,
+      "bootstrap_per_node_seconds": {
+        "B": 4.424822799999674,
+        "A": 8.455626800001482
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16338546
+    },
+    "raw_result_sha256": "02eb4f87937a59b7f578969ff1434ec50d33372e25a280ecd1087e7abc8c919f"
+  },
+  {
+    "run": "functional-native-03",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.009729499999593827
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.2529708000001847
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.28126549999979034
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.014617099999668426
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 20.358583199998975
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "FAIL",
+        "detail": "ValueError: oversized fixture frame",
+        "seconds": 155.44754430000103
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.28102949999993143,
+      "bootstrap_seconds": 19.650568200000635,
+      "bootstrap_per_node_seconds": {
+        "A": 3.468962400000237,
+        "B": 19.650568200000635
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16341339
+    },
+    "raw_result_sha256": "ae86a55f22b0caaed34549d769cf78b4b94d3fab51d51cfa79b30a17df3378f2"
+  },
+  {
+    "run": "functional-o0-05",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.00853119999919727
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.45589120000113326
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.31880959999944025
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.0007442999994964339
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 6.313951699999961
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "FAIL",
+        "detail": "ValueError: oversized fixture frame",
+        "seconds": 10.384683000000223
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.3185405999993236,
+      "bootstrap_seconds": 5.633227099999203,
+      "bootstrap_per_node_seconds": {
+        "B": 4.627426899998682,
+        "A": 5.633227099999203
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16342626
+    },
+    "raw_result_sha256": "56251dc2d4dd0362f44b26cfcc2d4ebc2cee53034bc02aaf698974fb8bef4b93"
+  },
+  {
+    "run": "functional-order-fixed-13",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.010266900000715395
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.470162600000549
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.2788364999996702
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.028212300001541735
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 8.393198100000518
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 45.589179600001444
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 2.6159986999991816
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 17.054660000001604
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 136.5086429999992
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.2786161000003631,
+      "bootstrap_seconds": 7.699634000000515,
+      "bootstrap_per_node_seconds": {
+        "B": 4.60640980000062,
+        "A": 7.699634000000515
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "onion_connection_seconds": 45.58879429999979,
+      "throughput_bytes_per_second": 140624.03329615685,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16345823
+    },
+    "raw_result_sha256": "076317b7c0139b4fe69b220cf5446d83b77cad661955d3373ae605335cf34e56"
+  },
+  {
+    "run": "functional-preface-06",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.009620799999538576
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.04702439999891794
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.28884280000056606
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.0005640999988827389
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 6.187069300000076
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "FAIL",
+        "detail": "ValueError: oversized fixture frame",
+        "seconds": 1.7747711000010895
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.28865030000088154,
+      "bootstrap_seconds": 5.475299800000357,
+      "bootstrap_per_node_seconds": {
+        "A": 5.475299800000357,
+        "B": 5.4721884000009595
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16342626
+    },
+    "raw_result_sha256": "6fc9bc2e8b282b7e0517b3eac3a5391b252162b66dbd5858b1235f6b315a818c"
+  },
+  {
+    "run": "functional-shared-07",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.008859599998686463
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.039385800000673044
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.28440279999995255
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.02909680000084336
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 33.38664790000075
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "FAIL",
+        "detail": "ValueError: oversized fixture frame",
+        "seconds": 3.6317252999997436
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.2841625999990356,
+      "bootstrap_seconds": 32.69590199999948,
+      "bootstrap_per_node_seconds": {
+        "A": 6.560132499998872,
+        "B": 32.69590199999948
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16342626
+    },
+    "raw_result_sha256": "10b797fd3e6fe3638cfe4f1851d611b5f58ed4366389d0ccf783e0158c86e7c8"
+  },
+  {
+    "run": "functional-shared-patched-14",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.013072699999611359
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.21221369999875606
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.32793089999904623
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.000845300000946736
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 6.149281399999381
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "onion reachability timeout: TimeoutError",
+        "seconds": 181.0185746999996
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.32767340000100376,
+      "bootstrap_seconds": 5.4733848000014405,
+      "bootstrap_per_node_seconds": {
+        "A": 3.423991900001056,
+        "B": 5.4733848000014405
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16342626
+    },
+    "raw_result_sha256": "f20999e86296d2613de921534cd1389732d2032aaed016c7ada1dc9f392ca642"
+  },
+  {
+    "run": "functional-shared-patched-15",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.012021599999570753
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.0468842999998742
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.331840300001204
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.014794699998674332
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 7.244012000001021
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 48.27481119999902
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 3.8484757999995054
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 87.62540719999924
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 38.41022630000043
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.3315626000003249,
+      "bootstrap_seconds": 6.58592519999911,
+      "bootstrap_per_node_seconds": {
+        "A": 5.550170200000139,
+        "B": 6.58592519999911
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "onion_connection_seconds": 48.27437970000028,
+      "throughput_bytes_per_second": 25505.781653472633,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16345838
+    },
+    "raw_result_sha256": "bf2f0d97277e84aea99983469724b2c4ad119d6d636fd1ac260c57bac1d96235"
+  },
+  {
+    "run": "functional-static-release-16",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.010942300003080163
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.26128089999838267
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.3116325000009965
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.015313800002331845
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 9.15629059999992
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 9.678720399999293
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 3.849002200000541
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 66.90919430000213
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reconnection after service crash timed out",
+        "seconds": 312.5125408999993
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.31136399999741116,
+      "bootstrap_seconds": 8.478473400002258,
+      "bootstrap_per_node_seconds": {
+        "A": 4.430618099999265,
+        "B": 8.478473400002258
+      },
+      "idle_rss_bytes": 89711511.51020408,
+      "idle_pss_bytes": null,
+      "onion_connection_seconds": 9.678325799999584,
+      "throughput_bytes_per_second": 34094.46637324911,
+      "peak_process_rss_bytes": 91496448,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16308777
+    },
+    "raw_result_sha256": "0144bbba4b37e9244888cf1f8657a35d22a5576b80f0e88133c3c5dca5db0d38"
+  },
+  {
+    "run": "functional-static-repeat-17",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.010525900001084665
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.046445400002994575
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.32145569999920554
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.0304415999999037
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 26.308080599999812
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 7.067873999996664
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 4.0391620000009425
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 62.17955919999804
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 42.761994100001175
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.3212424000012106,
+      "bootstrap_seconds": 25.659654499999306,
+      "bootstrap_per_node_seconds": {
+        "B": 13.491134100000636,
+        "A": 25.659654499999306
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "onion_connection_seconds": 7.067536499998823,
+      "throughput_bytes_per_second": 36268.943244928385,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16308782
+    },
+    "raw_result_sha256": "b0f9b0e833f9622065cf63306cbf4b3a777b6e0dc9b364da5608a1d02e10ee47"
+  },
+  {
+    "run": "functional-ucrt-python-04",
+    "tests": [
+      {
+        "id": "security_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.011604499999521067
+      },
+      {
+        "id": "tor_config",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.07043349999912607
+      },
+      {
+        "id": "tor_startup",
+        "mode": "offline",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.29193189999932656
+      },
+      {
+        "id": "socks5",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 0.0007317999989027157
+      },
+      {
+        "id": "public_bootstrap",
+        "mode": "online",
+        "status": "PASS",
+        "detail": "explicit assertions passed",
+        "seconds": 11.185827499999505
+      },
+      {
+        "id": "onion_v3",
+        "mode": "online",
+        "status": "FAIL",
+        "detail": "ValueError: oversized fixture frame",
+        "seconds": 4.3461251000007906
+      },
+      {
+        "id": "two_node",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "bidirectional_integrity",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      },
+      {
+        "id": "reconnection",
+        "mode": "online",
+        "status": "BLOCKED",
+        "detail": "reachable v3 service required",
+        "seconds": 0
+      }
+    ],
+    "metrics": {
+      "startup_seconds": 0.2915659999998752,
+      "bootstrap_seconds": 10.472449900000356,
+      "bootstrap_per_node_seconds": {
+        "A": 6.432313899998917,
+        "B": 10.472449900000356
+      },
+      "idle_rss_bytes": null,
+      "idle_pss_bytes": null,
+      "peak_process_rss_bytes": null,
+      "peak_system_used_bytes": null,
+      "cpu_percent": null,
+      "persistent_storage_bytes": 16342626
+    },
+    "raw_result_sha256": "aa466dc2fac66dcbe07576dcffbda439f2e475e22e845e3dbb4895e6ceb4cdab"
+  }
+]

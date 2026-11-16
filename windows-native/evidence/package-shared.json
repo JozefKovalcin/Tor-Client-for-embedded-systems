@@ -1,0 +1,259 @@
+{
+  "status": "PASS",
+  "scope": "build/package static inspection; native runtime is separate",
+  "pe": {
+    "tor.exe": {
+      "machine": "AMD64",
+      "format": "PE32+",
+      "dynamic_base": true,
+      "nx_compat": true,
+      "high_entropy_va": true,
+      "imports": [
+        "ADVAPI32.dll",
+        "api-ms-win-crt-conio-l1-1-0.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-private-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "IPHLPAPI.DLL",
+        "KERNEL32.dll",
+        "libcrypto-3-x64.dll",
+        "libevent-2-1-7.dll",
+        "libssl-3-x64.dll",
+        "SHELL32.dll",
+        "SHLWAPI.dll",
+        "WS2_32.dll",
+        "zlib1.dll"
+      ]
+    },
+    "zlib1.dll": {
+      "machine": "AMD64",
+      "format": "PE32+",
+      "dynamic_base": true,
+      "nx_compat": true,
+      "high_entropy_va": true,
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-private-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "KERNEL32.dll"
+      ]
+    },
+    "libssl-3-x64.dll": {
+      "machine": "AMD64",
+      "format": "PE32+",
+      "dynamic_base": true,
+      "nx_compat": true,
+      "high_entropy_va": true,
+      "imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-private-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "KERNEL32.dll",
+        "libcrypto-3-x64.dll",
+        "WS2_32.dll"
+      ]
+    },
+    "libcrypto-3-x64.dll": {
+      "machine": "AMD64",
+      "format": "PE32+",
+      "dynamic_base": true,
+      "nx_compat": true,
+      "high_entropy_va": true,
+      "imports": [
+        "ADVAPI32.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-private-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "CRYPT32.dll",
+        "KERNEL32.dll",
+        "USER32.dll",
+        "WS2_32.dll"
+      ]
+    },
+    "libevent-2-1-7.dll": {
+      "machine": "AMD64",
+      "format": "PE32+",
+      "dynamic_base": true,
+      "nx_compat": true,
+      "high_entropy_va": true,
+      "imports": [
+        "ADVAPI32.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-private-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "IPHLPAPI.DLL",
+        "KERNEL32.dll",
+        "libwinpthread-1.dll",
+        "SHELL32.dll",
+        "WS2_32.dll"
+      ]
+    },
+    "libwinpthread-1.dll": {
+      "machine": "AMD64",
+      "format": "PE32+",
+      "dynamic_base": true,
+      "nx_compat": true,
+      "high_entropy_va": true,
+      "imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-private-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "KERNEL32.dll"
+      ]
+    }
+  },
+  "files": {
+    "BUILD.md": {
+      "bytes": 7864,
+      "sha256": "f4b4e8831bfa7f1bf71785185fe4ccb2ffa1687e28f111bc358ad41a8b8ce861"
+    },
+    "libcrypto-3-x64.dll": {
+      "bytes": 5366487,
+      "sha256": "e3c9c7991b20fe0c05ab9352969febbebf56858e9e4bc86f58122576792eacbb"
+    },
+    "libevent-2-1-7.dll": {
+      "bytes": 395699,
+      "sha256": "083644780b2ad3df12ed5438aff9b06b036f104effa4ac8c69120aacb66c5167"
+    },
+    "libssl-3-x64.dll": {
+      "bytes": 981284,
+      "sha256": "ba9e1c34e720634a95a6778d16113ee293577b34d11d9f502f50e89cfb526cae"
+    },
+    "libwinpthread-1.dll": {
+      "bytes": 73308,
+      "sha256": "94334eab25e1a4043a3efdcf88636e722f387fe62fcc57c2533876a019baa04c"
+    },
+    "PORTING.md": {
+      "bytes": 7318,
+      "sha256": "ea3c0e28c15d92a37da6b4862abefd3607ce94377f5e46aff089a2099091d91a"
+    },
+    "README.md": {
+      "bytes": 1717,
+      "sha256": "5fcc6d708c3b116c1da175986749023708950dffd6ce16f07068d7ea699bbcb5"
+    },
+    "source-manifest.json": {
+      "bytes": 2644,
+      "sha256": "f360579ee9457721b29b546fe29bc0371111082edc07bfc9ada9ca42d2a442bf"
+    },
+    "start-tor.cmd": {
+      "bytes": 241,
+      "sha256": "d00a8f014478088554d303bc4ec192415b143bfabbd617eb5372008f7ed72bf5"
+    },
+    "tor.exe": {
+      "bytes": 2838019,
+      "sha256": "af92c968ad2dacc770e96ddfcbe1f20aabe903a9ce8f9027bb3d368c5af9c331"
+    },
+    "zlib1.dll": {
+      "bytes": 93900,
+      "sha256": "5f3f4f68ce5e2f8adcddce1029ec5265c291451864c57de13af3b0c2ccbf7c81"
+    },
+    "config/defaults-torrc": {
+      "bytes": 73,
+      "sha256": "9b7bf7d3d9a9f8b3d9b43e1dec6441b8efaec92e9f70c7963c11a8682b40e8be"
+    },
+    "config/torrc": {
+      "bytes": 283,
+      "sha256": "54864d2b33274d3aacb060ade66d61cfe92359e0fb02e81f06d4a70b5391d822"
+    },
+    "config/torrc-onion-service": {
+      "bytes": 297,
+      "sha256": "36206c5d228914a7f48a493abf759a6a1801077b27d21e39acc5020fd23a8a16"
+    },
+    "licenses/libevent-LICENSE.txt": {
+      "bytes": 4528,
+      "sha256": "ff02effc9b331edcdac387d198691bfa3e575e7d244ad10cb826aa51ef085670"
+    },
+    "licenses/openssl-LICENSE.txt": {
+      "bytes": 10175,
+      "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a"
+    },
+    "licenses/tor-LICENSE.txt": {
+      "bytes": 21086,
+      "sha256": "5dc29ea302cc75db6db4a7c88d7b5d4638b4e0f5f1d2e6d21ce71f707470b766"
+    },
+    "licenses/zlib-LICENSE.txt": {
+      "bytes": 1002,
+      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+    },
+    "licenses/crt/COPYING": {
+      "bytes": 2326,
+      "sha256": "99a69660981156c21336fdb5661f89341b013c94e4bf9e1c7467b4745718397f"
+    },
+    "licenses/crt/COPYING.MinGW-w64-runtime.txt": {
+      "bytes": 12155,
+      "sha256": "1db8da07b436c68833c0673ffee3d9fcb2526047f3820b81661865dfedc79a1f"
+    },
+    "licenses/crt/COPYING.MinGW-w64.txt": {
+      "bytes": 5905,
+      "sha256": "f38e6194bd3bfa1b654f118e5acefe0aead437bbe669eee43957ccc65a7127f1"
+    },
+    "licenses/gcc/COPYING.RUNTIME": {
+      "bytes": 3324,
+      "sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74"
+    },
+    "licenses/gcc/COPYING3": {
+      "bytes": 35147,
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+    },
+    "licenses/libgcc/COPYING.RUNTIME": {
+      "bytes": 3324,
+      "sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74"
+    },
+    "licenses/libgcc/COPYING3": {
+      "bytes": 35147,
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+    },
+    "licenses/libwinpthread/COPYING": {
+      "bytes": 2883,
+      "sha256": "63263614cdd29f2f93cba85e992f041b31f9fc7b4033692f31269489a8a1b177"
+    }
+  },
+  "tor_exe_bytes": 2838019,
+  "dll_bytes": 6910678,
+  "distribution_bytes_before_report": 9906136,
+  "metrics": {
+    "idle_rss_bytes": null,
+    "peak_rss_bytes": null,
+    "bootstrap_seconds": null,
+    "connection_latency_seconds": null,
+    "throughput_bytes_per_second": null
+  }
+}

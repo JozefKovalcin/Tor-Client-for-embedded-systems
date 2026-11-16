@@ -1,0 +1,62 @@
+{
+  "platform": "native Windows",
+  "tests": [
+    {
+      "id": "--version",
+      "status": "PASS",
+      "detail": "Tor version 0.4.9.14.\nTor is running on Windows 10 [or later] with Libevent 2.1.13-stable, OpenSSL 3.6.5, Zlib 1.3.2, Liblzma N/A, Libzstd N/A and Unknown N/A as libc.\nTor compiled with GCC version 16.2.0"
+    },
+    {
+      "id": "--help",
+      "status": "PASS",
+      "detail": "Copyright (c) 2001-2004, Roger Dingledine\nCopyright (c) 2004-2006, Roger Dingledine, Nick Mathewson\nCopyright (c) 2007-2021, The Tor Project, Inc.\n\ntor -f <torrc> [args]\nSee man page for options, or https://www.torproject.org/ for documentation."
+    },
+    {
+      "id": "shipped_configs",
+      "status": "PASS",
+      "detail": "Both deployment profiles verified by native Tor"
+    },
+    {
+      "id": "compiled_modules",
+      "status": "PASS",
+      "detail": "relay: no\ndirauth: no\ndircache: no\npow: no"
+    },
+    {
+      "id": "invalid_config_rejected",
+      "status": "PASS",
+      "detail": "Nonzero exit for an unknown option"
+    },
+    {
+      "id": "startup_and_writable_state",
+      "status": "PASS",
+      "detail": "Authenticated using generated control cookie"
+    },
+    {
+      "id": "public_bootstrap",
+      "status": "PASS",
+      "detail": "Authenticated control reports 100%"
+    },
+    {
+      "id": "socks_remote_dns",
+      "status": "PASS",
+      "detail": "curl --socks5-hostname uses a domain-name SOCKS request; Tor exit confirmed"
+    },
+    {
+      "id": "clean_shutdown",
+      "status": "PASS",
+      "detail": "Authenticated SIGNAL SHUTDOWN returned exit code 0"
+    },
+    {
+      "id": "restart",
+      "status": "PASS",
+      "detail": "Same writable DataDirectory restarted and shut down cleanly"
+    }
+  ],
+  "metrics": {
+    "bootstrap_seconds": 3.6324131,
+    "idle_working_set_bytes": 42987520,
+    "peak_working_set_bytes": 42987520
+  },
+  "measurement": "One process; Windows working set sampled after ten idle seconds; high-water mark through sampling. Not Linux RSS/PSS.",
+  "raw_result_sha256": "7b7dbe3da78ef92b51b710811290e002706865476e303a7eabe774e72d65b58f"
+}

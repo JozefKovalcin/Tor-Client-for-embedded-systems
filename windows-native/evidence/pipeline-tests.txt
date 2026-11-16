@@ -1,0 +1,11 @@
+test_bad_hash_rejected (test_pipeline.PipelineTests.test_bad_hash_rejected) ... ok
+test_pe_security_and_architecture (test_pipeline.PipelineTests.test_pe_security_and_architecture) ... ok
+test_reviewed_patch_hash (test_pipeline.PipelineTests.test_reviewed_patch_hash) ... ok
+test_source_pins_match_embedded (test_pipeline.PipelineTests.test_source_pins_match_embedded) ... ok
+test_traversal_and_links_rejected (test_pipeline.PipelineTests.test_traversal_and_links_rejected) ... ok
+test_unresolved_and_msys_dependencies_fail_closed (test_pipeline.PipelineTests.test_unresolved_and_msys_dependencies_fail_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.066s
+
+OK

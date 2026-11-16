@@ -1,0 +1,205 @@
+{
+  "cases": [
+    {
+      "architecture": "arm",
+      "bootstrap_observations": [
+        {
+          "progress": 0,
+          "seconds": 4.7216800000005605
+        },
+        {
+          "progress": 20,
+          "seconds": 5.750036999999793
+        },
+        {
+          "progress": 30,
+          "seconds": 6.795999699999811
+        },
+        {
+          "progress": 45,
+          "seconds": 10.121545300000435
+        },
+        {
+          "progress": 50,
+          "seconds": 11.706914000000324
+        },
+        {
+          "progress": 63,
+          "seconds": 13.714775200000076
+        },
+        {
+          "progress": 95,
+          "seconds": 15.406460000000152
+        },
+        {
+          "progress": 100,
+          "seconds": 16.433190100000502
+        }
+      ],
+      "finished": "2026-11-12T11:49:44.391400+00:00",
+      "guest_info": "armv7l\r\n1794484170\r\n2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000\r\n    inet 10.0.2.15/24 brd 10.0.2.255 scope global eth0\r\n       valid_lft forever preferred_lft forever\r\n/dev/root / squashfs ro,relatime,errors=continue 0 0\r\ndevtmpfs /dev devtmpfs rw,relatime,size=124932k,nr_inodes=31233,mode=755 0 0\r\nproc /proc proc rw,relatime 0 0\r\ndevpts /dev/pts devpts rw,relatime,gid=5,mode=620,ptmxmode=666 0 0\r\ntmpfs /dev/shm tmpfs rw,relatime 0 0\r\ntmpfs /tmp tmpfs rw,relatime 0 0\r\ntmpfs /run tmpfs rw,nosuid,nodev,relatime,mode=755 0 0\r\nsysfs /sys sysfs rw,relatime 0 0\r\n/dev/vda2 /var/lib/tor ext4 rw,nosuid,nodev,noexec,noatime 0 0\r\n8430a2d79d3b74620ea9629b9487411ee444cd44ffb31cf9bd8686a9fd2d5caf  /usr/bin/tor\r\nTor version 0.4.9.14.\r\nTor is running on Linux with Libevent 2.1.13-stable, OpenSSL 3.6.5, Zlib 1.3.2, Liblzma N/A, Libzstd N/A and Unknown N/A as libc.\r\nTor compiled with GCC version 15.3.0\r\n",
+      "image_sha256": {
+        "disk.img": "688786b1ea3198249cc6af5202d437fcb683872f46dc103d917b8a5ac4972f5c",
+        "zImage": "7ece8439f6adc4c06960aa475cf1d6e08d3e64d6772dee56ee7273bd1bbe5e63"
+      },
+      "memory_mib": 256,
+      "metrics": {
+        "boot_to_bootstrap_seconds": 16.433218599999236,
+        "clock_offset_seconds": -1.088843584060669
+      },
+      "observer_sha256": "64acffd4b203737041621c3e69b52d480b40f81dae648f48ccb484fb6bef1891",
+      "qemu_version": "QEMU emulator version 11.1.0 (v11.1.0-12130-ge470268ff4)",
+      "seconds": 16.492898700000296,
+      "security_info": "User tor\r\nDataDirectory /var/lib/tor\r\nPidFile /run/tor/tor.pid\r\nSocksPort 127.0.0.1:9050\r\nControlPort 127.0.0.1:9051\r\nCookieAuthentication 1\r\nCookieAuthFileGroupReadable 0\r\nClientOnly 1\r\nSafeLogging 1\r\nAvoidDiskWrites 1\r\nRunAsDaemon 1\r\nLog notice syslog\r\nGeoIPFile /dev/null\r\nGeoIPv6File /dev/null\r\nDisableNetwork 0\r\n# No inherited host defaults. Supported client queue budget; not a total RSS limit.\r\nMaxMemInQueues 32 MB\r\nName:\ttor\r\nUmask:\t0022\r\nState:\tR (running)\r\nTgid:\t111\r\nNgid:\t0\r\nPid:\t111\r\nPPid:\t1\r\nTracerPid:\t0\r\nUid:\t905\t905\t905\t905\r\nGid:\t905\t905\t905\t905\r\nFDSize:\t32\r\nGroups:\t905 \r\nNStgid:\t111\r\nNSpid:\t111\r\nNSpgid:\t110\r\nNSsid:\t110\r\nKthread:\t0\r\nVmPeak:\t    8836 kB\r\nVmSize:\t    8836 kB\r\nVmLck:\t       0 kB\r\nVmPin:\t       0 kB\r\nVmHWM:\t    5320 kB\r\nVmRSS:\t    5320 kB\r\nRssAnon:\t     868 kB\r\nRssFile:\t    4452 kB\r\nRssShmem:\t       0 kB\r\nVmData:\t     572 kB\r\nVmStk:\t     132 kB\r\nVmExe:\t    2084 kB\r\nVmLib:\t    5700 kB\r\nVmPTE:\t      16 kB\r\nVmSwap:\t       0 kB\r\nCoreDumping:\t0\r\nTHP_enabled:\t0\r\nuntag_mask:\t0xffffffff\r\nThreads:\t1\r\nSigQ:\t0/2029\r\nSigPnd:\t0000000000000000\r\nShdPnd:\t0000000000000000\r\nSigBlk:\t0000000000000000\r\nSigIgn:\t0000000000000000\r\nSigCgt:\t0000000001015a03\r\nCapInh:\t0000000000000000\r\nCapPrm:\t0000000000000000\r\nCapEff:\t0000000000000000\r\nCapBnd:\t000001ffffffffff\r\nCapAmb:\t0000000000000000\r\nNoNewPrivs:\t0\r\nSeccomp:\t0\r\nSeccomp_filters:\t0\r\nSpeculation_Store_Bypass:\tunknown\r\nSpeculationIndirectBranch:\tunsupported\r\nCpus_allowed:\t1\r\nCpus_allowed_list:\t0\r\nvoluntary_ctxt_switches:\t2\r\nnonvoluntary_ctxt_switches:\t20\r\n",
+      "started": "2026-11-12T11:49:27.805675+00:00",
+      "status": "PASS",
+      "tests": [
+        {
+          "detail": "Original kernel and disk booted in native Windows QEMU",
+          "id": "linux_boot",
+          "status": "PASS"
+        },
+        {
+          "detail": "VirtIO Ethernet acquired QEMU NAT address",
+          "id": "ethernet_dhcp",
+          "status": "PASS"
+        },
+        {
+          "detail": "Guest UTC compared with Windows clock",
+          "id": "valid_time",
+          "status": "PASS"
+        },
+        {
+          "detail": "Read-only SquashFS and separate writable ext4 state",
+          "id": "root_and_state",
+          "status": "PASS"
+        },
+        {
+          "detail": "Production init script; UID/GID 905; loopback listeners, cookie authentication and SafeLogging",
+          "id": "production_tor",
+          "status": "PASS"
+        },
+        {
+          "detail": "Guest loopback SOCKS5 negotiation returned 05 00 through read-only diagnostic agent",
+          "id": "socks5",
+          "status": "PASS"
+        },
+        {
+          "detail": "SAFECOOKIE authentication completed inside guest; no credentials exported",
+          "id": "authenticated_control",
+          "status": "PASS"
+        },
+        {
+          "detail": "Public Tor bootstrap reached 100%",
+          "id": "public_bootstrap",
+          "status": "PASS"
+        },
+        {
+          "detail": "Original sealed image hashes unchanged after snapshot run",
+          "id": "source_images_unchanged",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "architecture": "x86_64",
+      "bootstrap_observations": [
+        {
+          "progress": 0,
+          "seconds": 5.588007300000754
+        },
+        {
+          "progress": 30,
+          "seconds": 7.024282700000185
+        },
+        {
+          "progress": 45,
+          "seconds": 8.040246999998999
+        },
+        {
+          "progress": 52,
+          "seconds": 9.313734699999259
+        },
+        {
+          "progress": 55,
+          "seconds": 10.329693699999552
+        },
+        {
+          "progress": 62,
+          "seconds": 136.34805570000026
+        }
+      ],
+      "finished": "2026-11-12T11:52:50.179792+00:00",
+      "guest_info": "x86_64\r\n1794484187\r\n2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000\r\n    inet 10.0.2.15/24 brd 10.0.2.255 scope global eth0\r\n       valid_lft forever preferred_lft forever\r\n/dev/root / squashfs ro,relatime,errors=continue 0 0\r\ndevtmpfs /dev devtmpfs rw,relatime,size=119932k,nr_inodes=29983,mode=755 0 0\r\nproc /proc proc rw,relatime 0 0\r\ndevpts /dev/pts devpts rw,relatime,gid=5,mode=620,ptmxmode=666 0 0\r\ntmpfs /dev/shm tmpfs rw,relatime 0 0\r\ntmpfs /tmp tmpfs rw,relatime 0 0\r\ntmpfs /run tmpfs rw,nosuid,nodev,relatime,mode=755 0 0\r\nsysfs /sys sysfs rw,relatime 0 0\r\n/dev/vda2 /var/lib/tor ext4 rw,nosuid,nodev,noexec,noatime 0 0\r\n2b6ca1ee533e5b81715fa82df139c96071efb8b1fb17ee845780faff488157a7  /usr/bin/tor\r\ntsc: Refined TSC clocksource calibration: 4192.038 MHz\r\nclocksource: tsc: mask: 0xffffffffffffffff max_cycles: 0x3c6d0061708, max_idle_ns: 440795384967 ns\r\nclocksource: Switched to clocksource tsc\r\nTor version 0.4.9.14.\r\nTor is running on Linux with Libevent 2.1.13-stable, OpenSSL 3.6.5, Zlib 1.3.2, Liblzma N/A, Libzstd N/A and Unknown N/A as libc.\r\nTor compiled with GCC version 15.3.0\r\n",
+      "image_sha256": {
+        "bzImage": "34fc79461775223b9c59dcd7cfc2d1cb9a5ac1e788268c50e63a1056d18b88a7",
+        "disk.img": "5922f87495afc00acba6a2b9b10a07625168d5a82960f5c886185784e350fb6c"
+      },
+      "memory_mib": 256,
+      "metrics": {
+        "clock_offset_seconds": -1.7986345291137695
+      },
+      "observer_sha256": "6b54712a8a09b8e6bd02b19b14e82bcc5b93b5fc53794e98cb9aaa1ae7982128",
+      "qemu_version": "QEMU emulator version 11.1.0 (v11.1.0-12130-ge470268ff4)",
+      "seconds": 185.6480530000008,
+      "security_info": "User tor\r\nDataDirectory /var/lib/tor\r\nPidFile /run/tor/tor.pid\r\nSocksPort 127.0.0.1:9050\r\nControlPort 127.0.0.1:9051\r\nCookieAuthentication 1\r\nCookieAuthFileGroupReadable 0\r\nClientOnly 1\r\nSafeLogging 1\r\nAvoidDiskWrites 1\r\nRunAsDaemon 1\r\nLog notice syslog\r\nGeoIPFile /dev/null\r\nGeoIPv6File /dev/null\r\nDisableNetwork 0\r\n# No inherited host defaults. Supported client queue budget; not a total RSS limit.\r\nMaxMemInQueues 32 MB\r\nName:\ttor\r\nUmask:\t0022\r\nState:\tR (running)\r\nTgid:\t112\r\nNgid:\t0\r\nPid:\t112\r\nPPid:\t1\r\nTracerPid:\t0\r\nUid:\t905\t905\t905\t905\r\nGid:\t905\t905\t905\t905\r\nFDSize:\t64\r\nGroups:\t905 \r\nNStgid:\t112\r\nNSpid:\t112\r\nNSpgid:\t111\r\nNSsid:\t111\r\nKthread:\t0\r\nVmPeak:\t   11756 kB\r\nVmSize:\t   11756 kB\r\nVmLck:\t       0 kB\r\nVmPin:\t       0 kB\r\nVmHWM:\t    5456 kB\r\nVmRSS:\t    5456 kB\r\nRssAnon:\t    1376 kB\r\nRssFile:\t    4080 kB\r\nRssShmem:\t       0 kB\r\nVmData:\t     808 kB\r\nVmStk:\t     132 kB\r\nVmExe:\t    1444 kB\r\nVmLib:\t    4816 kB\r\nVmPTE:\t      56 kB\r\nVmSwap:\t       0 kB\r\nCoreDumping:\t0\r\nTHP_enabled:\t0\r\nuntag_mask:\t0xffffffffffffffff\r\nThreads:\t1\r\nSigQ:\t0/939\r\nSigPnd:\t0000000000000000\r\nShdPnd:\t0000000000000000\r\nSigBlk:\t0000000000000000\r\nSigIgn:\t0000000000000000\r\nSigCgt:\t0000000001015a03\r\nCapInh:\t0000000000000000\r\nCapPrm:\t0000000000000000\r\nCapEff:\t0000000000000000\r\nCapBnd:\t000001ffffffffff\r\nCapAmb:\t0000000000000000\r\nNoNewPrivs:\t0\r\nSeccomp:\t0\r\nSeccomp_filters:\t0\r\nSpeculation_Store_Bypass:\tnot vulnerable\r\nSpeculationIndirectBranch:\talways enabled\r\nCpus_allowed:\t1\r\nCpus_allowed_list:\t0\r\nvoluntary_ctxt_switches:\t1\r\nnonvoluntary_ctxt_switches:\t19\r\n",
+      "started": "2026-11-12T11:49:44.432048+00:00",
+      "status": "FAIL",
+      "tests": [
+        {
+          "detail": "Original kernel and disk booted in native Windows QEMU",
+          "id": "linux_boot",
+          "status": "PASS"
+        },
+        {
+          "detail": "VirtIO Ethernet acquired QEMU NAT address",
+          "id": "ethernet_dhcp",
+          "status": "PASS"
+        },
+        {
+          "detail": "Guest UTC compared with Windows clock",
+          "id": "valid_time",
+          "status": "PASS"
+        },
+        {
+          "detail": "Read-only SquashFS and separate writable ext4 state",
+          "id": "root_and_state",
+          "status": "PASS"
+        },
+        {
+          "detail": "Production init script; UID/GID 905; loopback listeners, cookie authentication and SafeLogging",
+          "id": "production_tor",
+          "status": "PASS"
+        },
+        {
+          "detail": "Guest loopback SOCKS5 negotiation returned 05 00 through read-only diagnostic agent",
+          "id": "socks5",
+          "status": "PASS"
+        },
+        {
+          "detail": "SAFECOOKIE authentication completed inside guest; no credentials exported",
+          "id": "authenticated_control",
+          "status": "PASS"
+        },
+        {
+          "detail": "Short-test bootstrap deadline exceeded",
+          "id": "public_bootstrap",
+          "status": "FAIL"
+        },
+        {
+          "detail": "Original sealed image hashes unchanged after snapshot run",
+          "id": "source_images_unchanged",
+          "status": "PASS"
+        }
+      ]
+    }
+  ],
+  "git": {
+    "commit": "bbcf1475230ec6cafb6f57ebc9ca15cdd20f0272",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dirty": true
+  },
+  "host": "Windows-11-10.0.26100-SP0",
+  "scope": "Short smoke test only; full nine-test integration suite and hardware qualification not executed",
+  "started": "2026-11-12T11:49:27.612663+00:00"
+}

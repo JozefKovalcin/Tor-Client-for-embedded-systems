@@ -1,5 +1,19 @@
 # Technical handover
 
+## Current additions — 2026-11-16
+
+Windows source builds and November 12 Windows QEMU smoke evidence are now
+included in the repository. Start at [windows-native/README.md](../windows-native/README.md)
+for COMPILE.cmd and the single TEST.cmd PC A/B launcher (local server 8081,
+SOCKS 9150). Sources are fetched from pinned archives, not bundled binaries;
+the source manifest also locks the reviewed CONNECTED-before-DATA patch.
+See [native Windows evidence](../windows-native/evidence/README.md) and
+[Windows QEMU smoke evidence](../reports/windows-qemu-2026-11-12/README.md).
+The native suite passed on one Windows host; the two-physical-PC helper was
+only checked locally/offline and remains a user-executed qualification step.
+Windows 10, long-duration Windows testing and the physical board milestone
+remain open. Historical ARM/ELF and QEMU acceptance decisions are unchanged.
+
 ## Mission and state
 
 Build two independent embedded Linux Tor endpoints. Each Windows PC uses

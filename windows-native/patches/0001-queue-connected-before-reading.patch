@@ -1,0 +1,42 @@
+From: Embedded Tor Windows native project
+Subject: [PATCH] Queue CONNECTED before re-enabling exit stream reads
+
+Pinned upstream: Tor 0.4.9.14; local fix, not submitted upstream.
+License: same BSD terms as Tor src/core/or/connection_edge.c (see LICENSE).
+Purpose: preserve a server-first TCP greeting on Windows when read readiness
+precedes the write-ready connection-completion callback. Starting reads can
+synchronously process conn->inbuf. Queueing CONNECTED first preserves relay
+message ordering and prevents the client dropping early DATA in CONNECT_WAIT.
+Security: no protocol, crypto, authentication, validation, entropy, routing or
+logging checks are removed. Buffered bytes are processed only after the normal
+successful-connect path and its CONNECTED enqueue. Linux builds do not apply
+this Windows-project-only patch.
+
+--- a/src/core/or/connection_edge.c
++++ b/src/core/or/connection_edge.c
+@@ -1033,10 +1033,6 @@
+ 
+   conn->state = EXIT_CONN_STATE_OPEN;
+ 
+-  connection_watch_events(conn, READ_EVENT); /* stop writing, keep reading */
+-  if (connection_get_outbuf_len(conn)) /* in case there are any queued relay
+-                                        * cells */
+-    connection_start_writing(conn);
+   /* deliver a 'connected' relay cell back through the circuit. */
+   if (connection_edge_is_rendezvous_stream(edge_conn)) {
+     if (connection_edge_send_command(edge_conn,
+@@ -1055,6 +1051,14 @@
+                         (char*)connected_payload, connected_payload_len) < 0)
+       return 0; /* circuit is closed, don't continue */
+   }
++  /* Queue CONNECTED before enabling reads: connection_start_reading() can
++   * synchronously process an already buffered server greeting. In particular,
++   * Windows can report read readiness before connect completion is handled.
++   * DATA sent before CONNECTED would be dropped by the waiting client. */
++  connection_watch_events(conn, READ_EVENT); /* stop writing, keep reading */
++  if (connection_get_outbuf_len(conn)) /* in case there are any queued relay
++                                        * cells */
++    connection_start_writing(conn);
+   tor_assert(edge_conn->package_window > 0);
+   /* in case the server has written anything */
+   return connection_edge_process_inbuf(edge_conn, 1);

@@ -1,0 +1,98 @@
+{
+  "tests": [
+    {
+      "id": "security_config",
+      "mode": "offline",
+      "status": "PASS",
+      "detail": "explicit assertions passed",
+      "seconds": 0.012021599999570753
+    },
+    {
+      "id": "tor_config",
+      "mode": "offline",
+      "status": "PASS",
+      "detail": "explicit assertions passed",
+      "seconds": 0.0468842999998742
+    },
+    {
+      "id": "tor_startup",
+      "mode": "offline",
+      "status": "PASS",
+      "detail": "explicit assertions passed",
+      "seconds": 0.331840300001204
+    },
+    {
+      "id": "socks5",
+      "mode": "online",
+      "status": "PASS",
+      "detail": "explicit assertions passed",
+      "seconds": 0.014794699998674332
+    },
+    {
+      "id": "public_bootstrap",
+      "mode": "online",
+      "status": "PASS",
+      "detail": "explicit assertions passed",
+      "seconds": 7.244012000001021
+    },
+    {
+      "id": "onion_v3",
+      "mode": "online",
+      "status": "PASS",
+      "detail": "explicit assertions passed",
+      "seconds": 48.27481119999902
+    },
+    {
+      "id": "two_node",
+      "mode": "online",
+      "status": "PASS",
+      "detail": "explicit assertions passed",
+      "seconds": 3.8484757999995054
+    },
+    {
+      "id": "bidirectional_integrity",
+      "mode": "online",
+      "status": "PASS",
+      "detail": "explicit assertions passed",
+      "seconds": 87.62540719999924
+    },
+    {
+      "id": "reconnection",
+      "mode": "online",
+      "status": "PASS",
+      "detail": "explicit assertions passed",
+      "seconds": 38.41022630000043
+    }
+  ],
+  "metrics": {
+    "startup_seconds": 0.3315626000003249,
+    "bootstrap_seconds": 6.58592519999911,
+    "bootstrap_per_node_seconds": {
+      "A": 5.550170200000139,
+      "B": 6.58592519999911
+    },
+    "idle_rss_bytes": null,
+    "idle_pss_bytes": null,
+    "onion_connection_seconds": 48.27437970000028,
+    "throughput_bytes_per_second": 25505.781653472633,
+    "peak_process_rss_bytes": null,
+    "peak_system_used_bytes": null,
+    "cpu_percent": null,
+    "persistent_storage_bytes": 16345838
+  },
+  "tor_version_output": "Tor version 0.4.9.14.\nTor is running on Windows 10 [or later] with Libevent 2.1.13-stable, OpenSSL 3.6.5, Zlib 1.3.2, Liblzma N/A, Libzstd N/A and Unknown N/A as libc.\nTor compiled with GCC version 16.2.0",
+  "per_node_memory": {
+    "A": {
+      "peak_rss_bytes": null,
+      "peak_pss_bytes": null
+    },
+    "B": {
+      "peak_rss_bytes": null,
+      "peak_pss_bytes": null
+    }
+  },
+  "platform": "native Windows",
+  "run": "functional-shared-patched-15",
+  "raw_result_sha256": "bf2f0d97277e84aea99983469724b2c4ad119d6d636fd1ac260c57bac1d96235",
+  "memory_observer": "Linux /proc unavailable; unmeasured memory values normalized to null"
+}

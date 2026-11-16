@@ -1,5 +1,14 @@
 # Tor Client for Embedded Systems
 
+## Natívny Windows projekt
+
+Kompilácia cez MSYS2 UCRT64: [stručný postup](windows-native/README.md).
+`windows-native/COMPILE.cmd` vytvorí `dist`; `dist/TEST.cmd` ponúkne PC A/B
+a spustí Tor aj testovací server na 8081. SOCKS používa 9150.
+Zdrojové archívy sa sťahujú a overujú podľa manifestu; výsledky a obmedzenia
+sú v [dôkazoch Windows validácie](windows-native/evidence/README.md).
+Generátor malého ZIPu je súčasťou zdrojov. Linux/ARM zostáva samostatný cieľ.
+
 **Built and tested under Ubuntu WSL2/QEMU.** The original Linux baseline and smaller embedded Tor candidates have executed public-network regression tests. Physical hardware remains unverified.
 
 See [actual measured builds and decisions](reports/measured/2026-11-04/README.md). The production variants omit Python and development test files; the compressed variant separates immutable system files from writable Tor state.

@@ -1,3 +1,97 @@
+# Repository synchronization — 2026-11-16
+
+Compared local main with freshly fetched origin/main at
+`bbcf1475230ec6cafb6f57ebc9ca15cdd20f0272`: no committed divergence.
+Added the previously local-only Windows source project, source preparation,
+reviewed patch, compile/test launchers, pipeline tests and November 12 native
+Windows/QEMU evidence. Updated entry-point documentation for COMPILE.cmd,
+TEST.cmd PC A/B, local port 8081 and exact upstream source locations.
+Historical evidence, Linux/ARM build inputs, failed runs and baseline are retained.
+
+Re-executed: Windows pipeline 6 PASS; repository 41 PASS, 2 SKIPPED
+(Windows symlink privilege and Linux shell); PowerShell parsing and shell syntax
+PASS; compact ZIP generation/CRC/one-README checks PASS. Linux Buildroot Kconfig
+resolution is BLOCKED on Windows. No new native Tor compilation, public-network
+qualification, full Linux image validation or physical-board test was run for
+this synchronization. Build outputs, downloaded upstream trees, runtime state
+and private keys are excluded from Git. See the
+[synchronization record](../reports/sync-2026-11-16/README.md).
+
+# Native Windows source build — 2026-11-12
+
+The compact delivery now combines compilation and tests with one short Slovak
+README. TEST.cmd selects PC A/B and starts/stops its own Tor and loopback echo
+server automatically. Both server and onion target use 8081; SOCKS remains
+9150. Native offline startup/cleanup passed for A and interactive selection B;
+the local mock-SOCKS 1 MiB SHA-256 round trip passed on 8081. A physical two-PC
+public-network run was not executed here. Tor sources/compiler flags are unchanged.
+
+Added an optional two-PC PowerShell/curl test pack with a loopback-only HTTP
+echo fixture, 1 MiB round-trip SHA-256 check and Slovak instructions. Its local
+HTTP/SOCKS-domain transport check passed, including a `NO_PROXY=*` environment;
+that helper check used a mock SOCKS proxy, not two physical PCs or public Tor.
+The actual two-PC and restart procedure is supplied for user execution.
+
+Added a separate compilation-only ZIP with 16 allowlisted files and a
+double-click `COMPILE.cmd` entry point. It checks/installs missing MSYS2 build
+tools and selects the optimized static profile. The extracted bundle's native
+launcher, standalone source preparation, verified patching and packaging were
+checked without the Linux tree, reports or tests. Six pipeline tests passed;
+Tor compiler flags and the reviewed source patch remain unchanged.
+
+Added an isolated `windows-native/` source project using native MSYS2 UCRT64,
+MinGW-w64 GCC 16.2.0 and the original Tor 0.4.9.14 Autotools build. Tor,
+OpenSSL 3.6.5, libevent 2.1.13 and zlib 1.3.2 source/license hashes match the
+embedded pins. No WSL, Linux or QEMU compilation is used. Relay, authority and
+directory-cache modules remain disabled; O2, section collection, stripping,
+stack protection and native PE hardening are retained. Existing Linux/ARM
+build inputs, sealed images, thresholds and the baseline tag are unchanged.
+
+Native server-first TCP testing exposed CONNECTED/DATA ordering loss. A
+reviewable, hash-locked Windows-only source patch queues CONNECTED before
+read activation can synchronously process an already buffered greeting. It
+preserves protocol, routing, crypto, authentication, entropy and logging.
+Initial failures and later public-network timeout results are retained.
+
+The clean default source build and PE/DLL checks passed. Both optimized static
+and shared releases passed all nine original public Tor assertions natively
+on Windows x64 build 26100, including bidirectional payload hashes and
+same-identity crash/restart. Configuration, remote-DNS SOCKS, authenticated
+clean shutdown and restart smoke tests also passed. Pipeline tests: 6 PASS;
+repository tests: 41 PASS, 2 Linux-specific SKIPPED. Linux Kconfig resolution
+requires Linux; full firmware and physical-board qualification were not rerun.
+
+Default Tor is 8,642,974 B plus a 73,308 B native MinGW DLL. The measured shared
+alternative totals 9,748,697 B for executable plus DLLs, versus 8,716,282 B for
+the default. Windows 10 was not separately executed. Public-network and Windows
+resident-memory samples are descriptive, not direct ARM comparisons or a
+controlled performance qualification. [Build, patch and executed evidence](../windows-native/evidence/README.md).
+
+# Native Windows QEMU short smoke test — 2026-11-12
+
+Installed QEMU 11.1.0 for Windows after verifying the publisher's SHA-512;
+the expired Authenticode certificate and HTTPS checksum trust boundary are
+recorded in [Windows test evidence](../reports/windows-qemu-2026-11-12/README.md).
+The preserved ARMv7 and x86_64 capacity32 images were exercised natively on
+Windows with TCG, one vCPU and 256 MiB RAM, using disposable snapshots and
+read-only diagnostic observers. Original image hashes remained unchanged.
+
+Both passed Linux/serial boot, Ethernet DHCP, valid time, immutable root and
+writable state checks, production UID/GID 905, SOCKS5 negotiation and guest-local
+SAFECOOKIE authentication. ARM reached public bootstrap 100% in 16.43 seconds
+from QEMU launch: short smoke PASS. x86 reached 62% before the requested short
+180-second bootstrap deadline: BLOCKED, not full validation or a demonstrated
+firmware failure. Raw timeout status FAIL is retained with an explicit reporting
+correction to BLOCKED. The reusable Windows runner now distinguishes this case.
+
+Repository checks ran 43 tests: 41 passed, 2 platform-specific SKIPPED. Full
+integration, Onion Service transfer, payload integrity, reconnection, performance,
+Kconfig/build and physical-board checks were not executed in this short scope.
+Historical qualification decisions and the normal 600-second bootstrap timeout
+are unchanged. Failed harness attempts and raw logs were preserved. The result
+PNG is labelled as a generated JSON evidence summary; window screenshot capture
+was stopped by Computer Use because it could not confidently verify browser URL.
+
 # Slovak report readability revision — 2026-11-09
 
 Revised only page 4 of the current executive PDF: neutral RAM comparison

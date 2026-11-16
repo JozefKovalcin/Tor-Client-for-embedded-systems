@@ -1,5 +1,11 @@
 # Engineering roadmap
 
+Native Windows source compilation and the two-PC test launcher are available
+in [windows-native](../windows-native/README.md). Separate follow-up work is
+a real two-PC public-network run, Windows 10 execution and sustained Windows
+testing. November 12 native-host results do not qualify embedded hardware.
+The physical embedded milestones below retain their order and exit gates.
+
 | Order | Milestone | Exit evidence |
 | --- | --- | --- |
 | Complete | ARM QEMU qualification | Pinned ARM build, original frozen online suite, and paired 128/256 MiB results. 256 MiB passes the full screen. |
