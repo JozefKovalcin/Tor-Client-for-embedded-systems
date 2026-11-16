@@ -1,0 +1,308 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:tor-client:contracts:v1:DeviceInfo",
+  "title": "DeviceInfo",
+  "description": "TASK 01 v1 contract. Cross-field invariants are enforced by scripts/contracts.py; see config/contracts/README.md.",
+  "$defs": {
+    "Ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(?:/[A-Za-z0-9][A-Za-z0-9_.-]*)*$(?![\\s\\S])",
+      "not": {
+        "anyOf": [
+          {
+            "pattern": "(?:^|/)(?:[cC][oO][nN][tT][rR][oO][lL]_[aA][uU][tT][hH]_[cC][oO][oO][kK][iI][eE]|[hH][sS]_[eE][dD]25519_[sS][eE][cC][rR][eE][tT]_[kK][eE][yY]|[pP][rR][iI][vV][aA][tT][eE]_[kK][eE][yY]|[dD][aA][tT][aA][dD][iI][rR][eE][cC][tT][oO][rR][yY]|[hH][iI][dD][dD][eE][nN]_[sS][eE][rR][vV][iI][cC][eE]|[dD][aA][tT][aA]-[oO][nN][iI][oO][nN]|[oO][nN][iI][oO][nN]-[sS][eE][rR][vV][iI][cC][eE])(?:/|$)"
+          },
+          {
+            "pattern": "\\.(?:[pP][eE][mM]|[kK][eE][yY]|[cC][oO][oO][kK][iI][eE]|[pP][fF][xX]|[pP]12)$(?![\\s\\S])"
+          }
+        ]
+      }
+    },
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "Metric": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "unit": {
+          "enum": [
+            "B",
+            "s",
+            "B/s",
+            "%",
+            "count"
+          ]
+        },
+        "method": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unavailableReason": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "method",
+        "unavailableReason"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "deviceId": {
+      "$ref": "#/$defs/Ref"
+    },
+    "targetId": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Ref"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "pairing": {
+      "enum": [
+        "unpaired",
+        "paired",
+        "revoked"
+      ]
+    },
+    "peerFingerprint": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "boardPart": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "carrierRevision": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "agentVersion": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "firmwareArtifactId": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Ref"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "kernelVersion": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "dtbSha256": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "bootSlot": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ramBytes": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "storageBytes": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "stateFreeBytes": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "usbRole": {
+      "enum": [
+        "device",
+        "host",
+        "unknown"
+      ]
+    },
+    "ethernetUp": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "clockSynchronized": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "entropyReady": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "torBootstrapPercent": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "observedAtUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "certainty": {
+      "enum": [
+        "verified",
+        "UNVERIFIED",
+        "ASSUMPTION",
+        "BLOCKED"
+      ]
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Ref"
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "deviceId",
+    "targetId",
+    "pairing",
+    "peerFingerprint",
+    "boardPart",
+    "carrierRevision",
+    "agentVersion",
+    "firmwareArtifactId",
+    "kernelVersion",
+    "dtbSha256",
+    "bootSlot",
+    "ramBytes",
+    "storageBytes",
+    "stateFreeBytes",
+    "usbRole",
+    "ethernetUp",
+    "clockSynchronized",
+    "entropyReady",
+    "torBootstrapPercent",
+    "capabilities",
+    "observedAtUtc",
+    "certainty",
+    "evidenceRefs"
+  ],
+  "additionalProperties": false
+}

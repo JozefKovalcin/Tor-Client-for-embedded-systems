@@ -1,0 +1,682 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:tor-client:contracts:v1:EvidenceManifest",
+  "title": "EvidenceManifest",
+  "description": "TASK 01 v1 contract. Cross-field invariants are enforced by scripts/contracts.py; see config/contracts/README.md.",
+  "$defs": {
+    "Ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(?:/[A-Za-z0-9][A-Za-z0-9_.-]*)*$(?![\\s\\S])",
+      "not": {
+        "anyOf": [
+          {
+            "pattern": "(?:^|/)(?:[cC][oO][nN][tT][rR][oO][lL]_[aA][uU][tT][hH]_[cC][oO][oO][kK][iI][eE]|[hH][sS]_[eE][dD]25519_[sS][eE][cC][rR][eE][tT]_[kK][eE][yY]|[pP][rR][iI][vV][aA][tT][eE]_[kK][eE][yY]|[dD][aA][tT][aA][dD][iI][rR][eE][cC][tT][oO][rR][yY]|[hH][iI][dD][dD][eE][nN]_[sS][eE][rR][vV][iI][cC][eE]|[dD][aA][tT][aA]-[oO][nN][iI][oO][nN]|[oO][nN][iI][oO][nN]-[sS][eE][rR][vV][iI][cC][eE])(?:/|$)"
+          },
+          {
+            "pattern": "\\.(?:[pP][eE][mM]|[kK][eE][yY]|[cC][oO][oO][kK][iI][eE]|[pP][fF][xX]|[pP]12)$(?![\\s\\S])"
+          }
+        ]
+      }
+    },
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "Metric": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "unit": {
+          "enum": [
+            "B",
+            "s",
+            "B/s",
+            "%",
+            "count"
+          ]
+        },
+        "method": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unavailableReason": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "method",
+        "unavailableReason"
+      ],
+      "additionalProperties": false
+    },
+    "TargetDescriptor": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "id": {
+          "$ref": "#/$defs/Ref"
+        },
+        "kind": {
+          "enum": [
+            "windows-native",
+            "linux-native",
+            "buildroot-qemu",
+            "pico-yocto"
+          ]
+        },
+        "os": {
+          "enum": [
+            "windows",
+            "linux"
+          ]
+        },
+        "architecture": {
+          "enum": [
+            "x86_64",
+            "armv7"
+          ]
+        },
+        "abi": {
+          "enum": [
+            "ucrt64",
+            "glibc",
+            "musl",
+            null
+          ]
+        },
+        "abiVersion": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "executionScope": {
+          "enum": [
+            "unit",
+            "host-native",
+            "simulation",
+            "physical"
+          ]
+        },
+        "boardPart": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "carrierRevision": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "machine": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dtbSha256": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "certainty": {
+          "enum": [
+            "verified",
+            "UNVERIFIED",
+            "ASSUMPTION",
+            "BLOCKED"
+          ]
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Ref"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "id",
+        "kind",
+        "os",
+        "architecture",
+        "abi",
+        "abiVersion",
+        "executionScope",
+        "boardPart",
+        "carrierRevision",
+        "machine",
+        "dtbSha256",
+        "capabilities",
+        "certainty",
+        "evidenceRefs"
+      ],
+      "additionalProperties": false
+    },
+    "BuildArtifact": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "id": {
+          "$ref": "#/$defs/Ref"
+        },
+        "taskId": {
+          "$ref": "#/$defs/Ref"
+        },
+        "targetId": {
+          "$ref": "#/$defs/Ref"
+        },
+        "kind": {
+          "enum": [
+            "runtime-package",
+            "kernel",
+            "dtb",
+            "rootfs",
+            "disk-image",
+            "bootloader",
+            "update-bundle"
+          ]
+        },
+        "imageProfile": {
+          "enum": [
+            "baseline",
+            "minimal",
+            null
+          ]
+        },
+        "pathRef": {
+          "$ref": "#/$defs/Ref"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "inputSha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "sourceManifestRef": {
+          "$ref": "#/$defs/Ref"
+        },
+        "licenseManifestRef": {
+          "$ref": "#/$defs/Ref"
+        },
+        "toolchainManifestRef": {
+          "$ref": "#/$defs/Ref"
+        },
+        "signature": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": [
+                "verified",
+                "failed",
+                "not-verified"
+              ]
+            },
+            "verifierKeyId": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Ref"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "evidenceRef": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Ref"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "status",
+            "verifierKeyId",
+            "evidenceRef"
+          ],
+          "additionalProperties": false
+        },
+        "compatibleTargetIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Ref"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "layoutId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "containsPrivateState": {
+          "const": false,
+          "type": "boolean"
+        },
+        "qualificationEvidenceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Ref"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "id",
+        "taskId",
+        "targetId",
+        "kind",
+        "imageProfile",
+        "pathRef",
+        "bytes",
+        "sha256",
+        "inputSha256",
+        "sourceManifestRef",
+        "licenseManifestRef",
+        "toolchainManifestRef",
+        "signature",
+        "compatibleTargetIds",
+        "layoutId",
+        "containsPrivateState",
+        "qualificationEvidenceRefs"
+      ],
+      "additionalProperties": false
+    },
+    "TestResult": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "runId": {
+          "$ref": "#/$defs/Ref"
+        },
+        "testId": {
+          "$ref": "#/$defs/Ref"
+        },
+        "taskId": {
+          "$ref": "#/$defs/Ref"
+        },
+        "targetId": {
+          "$ref": "#/$defs/Ref"
+        },
+        "scope": {
+          "enum": [
+            "unit",
+            "host-native",
+            "simulation",
+            "physical"
+          ]
+        },
+        "mode": {
+          "enum": [
+            "offline",
+            "online"
+          ]
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "SKIPPED",
+            "BLOCKED",
+            "NOT RUN"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "protocolId": {
+          "$ref": "#/$defs/Ref"
+        },
+        "policySha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "startedAtUtc": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "durationSeconds": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "rawExitCode": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "logRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Ref"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "artifactIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Ref"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/Metric"
+          }
+        },
+        "environmentRef": {
+          "$ref": "#/$defs/Ref"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "runId",
+        "testId",
+        "taskId",
+        "targetId",
+        "scope",
+        "mode",
+        "status",
+        "reason",
+        "protocolId",
+        "policySha256",
+        "startedAtUtc",
+        "durationSeconds",
+        "rawExitCode",
+        "logRefs",
+        "artifactIds",
+        "metrics",
+        "environmentRef"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "id": {
+      "$ref": "#/$defs/Ref"
+    },
+    "timestampUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$(?![\\s\\S])"
+        },
+        "dirty": {
+          "type": "boolean"
+        },
+        "inputManifestRef": {
+          "$ref": "#/$defs/Ref"
+        },
+        "inputSha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "sourceLockSha256": {
+          "$ref": "#/$defs/Sha256"
+        }
+      },
+      "required": [
+        "commit",
+        "dirty",
+        "inputManifestRef",
+        "inputSha256",
+        "sourceLockSha256"
+      ],
+      "additionalProperties": false
+    },
+    "target": {
+      "$ref": "#/$defs/TargetDescriptor"
+    },
+    "environmentRef": {
+      "$ref": "#/$defs/Ref"
+    },
+    "toolchainManifestRef": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Ref"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "policySha256": {
+      "$ref": "#/$defs/Sha256"
+    },
+    "protocolId": {
+      "$ref": "#/$defs/Ref"
+    },
+    "workloadRef": {
+      "$ref": "#/$defs/Ref"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/BuildArtifact"
+      }
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TestResult"
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/Metric"
+      }
+    },
+    "logs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "$ref": "#/$defs/Ref"
+          },
+          "sha256": {
+            "$ref": "#/$defs/Sha256"
+          }
+        },
+        "required": [
+          "ref",
+          "sha256"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "properties": {
+        "referenceId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "NOT RUN",
+            "INCOMPLETE",
+            "NON_COMPARABLE",
+            "REJECTED",
+            "ACCEPTED"
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "referenceId",
+        "status",
+        "reasons"
+      ],
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "redactionPolicyId": {
+      "$ref": "#/$defs/Ref"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "timestampUtc",
+    "source",
+    "target",
+    "environmentRef",
+    "toolchainManifestRef",
+    "policySha256",
+    "protocolId",
+    "workloadRef",
+    "artifacts",
+    "tests",
+    "metrics",
+    "logs",
+    "comparison",
+    "limitations",
+    "redactionPolicyId"
+  ],
+  "additionalProperties": false
+}

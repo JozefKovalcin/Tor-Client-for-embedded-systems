@@ -1,3 +1,24 @@
+# TASK 01 W1 — Contracts and fixtures — 2026-11-16
+
+Reviewed TASK 00 documentation is preserved separately at `67b9d423`.
+TechNexion PICO-IMX6UL is the primary physical v1 platform; DHCOM is historical
+only. Exact PICO SKU/carrier/DTB remain BLOCKED. No board work is included here.
+
+W1 adds eight versioned contract schemas, an offline stdlib validator, sixteen
+synthetic fixtures and 23 behavior tests. Shared contracts explicitly distinguish
+AVAILABLE/MISSING/INCOMPATIBLE/UNKNOWN/BLOCKED and interrupted app/runner tasks.
+Selected native Linux v1 is Ubuntu 24.04 x86_64-linux-gnu/glibc 2.39; generic
+future ABI descriptors do not imply supported implementations.
+
+Executed on native Windows with Python 3.14.2: focused W1 23 PASS; full
+`python -B scripts/check.py` exit 0, 66 discovered, **64 PASS / 2 SKIPPED**
+(Windows symlink privilege and Linux shell). Full offline check ran outside the
+sandbox for its known loopback/hardlink restrictions. CLI fixtures and
+preservation/whitespace checks PASS. No source/config threshold, existing test,
+historical result, Windows patch or baseline change. No compilation, public Tor,
+Buildroot/Yocto, install, download or flashing. W2 must integrate W1; W3 follows
+W2. See `docs/task01/W1-HANDOFF.md` for files, API and limits.
+
 # Repository synchronization — 2026-11-16
 
 Compared local main with freshly fetched origin/main at

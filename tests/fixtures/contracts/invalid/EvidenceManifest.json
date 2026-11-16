@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "id": "synthetic-evidence",
+  "timestampUtc": "2000-01-01T00:00:00Z",
+  "source": {
+    "commit": "0000000000000000000000000000000000000000",
+    "dirty": false,
+    "inputManifestRef": "synthetic-input-manifest",
+    "inputSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "sourceLockSha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "target": {
+    "schemaVersion": 1,
+    "id": "synthetic-linux-v1",
+    "kind": "linux-native",
+    "os": "linux",
+    "architecture": "x86_64",
+    "abi": "glibc",
+    "abiVersion": "2.39",
+    "executionScope": "host-native",
+    "boardPart": null,
+    "carrierRevision": null,
+    "machine": null,
+    "dtbSha256": null,
+    "capabilities": [
+      "plan-only"
+    ],
+    "certainty": "ASSUMPTION",
+    "evidenceRefs": []
+  },
+  "environmentRef": "synthetic-environment",
+  "toolchainManifestRef": null,
+  "policySha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "protocolId": "synthetic-protocol",
+  "workloadRef": "synthetic-workload",
+  "artifacts": [],
+  "tests": [
+    {
+      "schemaVersion": 1,
+      "runId": "synthetic-run",
+      "testId": "synthetic-test",
+      "taskId": "synthetic-task",
+      "targetId": "synthetic-linux-v1",
+      "scope": "host-native",
+      "mode": "offline",
+      "status": "NOT RUN",
+      "reason": "Synthetic fixture only; no target test executed",
+      "protocolId": "synthetic-protocol",
+      "policySha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "startedAtUtc": null,
+      "durationSeconds": null,
+      "rawExitCode": null,
+      "logRefs": [],
+      "artifactIds": [],
+      "metrics": {
+        "idle_rss_bytes": {
+          "value": null,
+          "unit": "B",
+          "method": null,
+          "unavailableReason": "Synthetic fixture; not measured"
+        }
+      },
+      "environmentRef": "synthetic-environment"
+    }
+  ],
+  "metrics": {},
+  "logs": [],
+  "comparison": {
+    "referenceId": null,
+    "status": "ACCEPTED",
+    "reasons": [
+      "Synthetic fixture only"
+    ]
+  },
+  "limitations": [
+    "Synthetic; no physical or runtime evidence"
+  ],
+  "redactionPolicyId": "synthetic-redaction-v1"
+}
