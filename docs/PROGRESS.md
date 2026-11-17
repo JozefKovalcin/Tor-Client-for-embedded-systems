@@ -1,3 +1,23 @@
+# TASK 01 W2 — Read-only dependency diagnostics — 2026-11-16
+
+W2 integrates W1 `3997fa567a2d24758a0266add4c9cf3049e5f7f6` and adds fixed,
+trusted-root tool/version/target probes plus OS/architecture/libc and resource
+facts. DependencyCheck output uses W1 validation and five distinct statuses.
+Discovery never invokes COMPILE.cmd, WSL startup, installers, downloads or builds.
+Use `python -B -m scripts.dependencies` for bytecode-free CLI startup.
+
+Executed: W2 focused **24 PASS**; full `python -B scripts/check.py` exit 0,
+90 discovered, **88 PASS / 2 platform SKIPPED**, outside known sandbox limits.
+Real CLI JSON outside sandbox: exit 1/non-ready, **15 AVAILABLE / 1 BLOCKED**;
+Git installed via user-local Scoop is outside conservative trusted roots.
+Sandbox observation separately retained: 10 AVAILABLE / 6 BLOCKED, including
+MSYS2 initialization status 0xC0000142. No repair/install attempted. Reporting
+non-ready is correct diagnostics, not a failed unit test or missing-tool claim.
+
+Source/policy/history/existing tests and baseline remain unchanged. Hardware
+and Yocto RAM are not W2 gates. W3 must integrate this commit after W1;
+`docs/task01/W2-HANDOFF.md` records changed files and remaining limits.
+
 # TASK 01 W1 — Contracts and fixtures — 2026-11-16
 
 Reviewed TASK 00 documentation is preserved separately at `67b9d423`.
