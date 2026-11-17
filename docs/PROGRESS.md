@@ -442,3 +442,13 @@ The ARM port and its archived QEMU evidence are committed at `a7edcb8`.
 The [technical handover](HANDOFF.md) and [roadmap](ROADMAP.md) define the
 next physical milestone. The [executive report](../reports/executive/index.html)
 uses the existing evidence and preserves the 128 MiB performance rejections.
+
+
+# TASK 03 Fix A — Integer semantics — 2026-11-17
+
+W1 now accepts finite integral JSON numbers independent of decimal/exponent
+spelling, while rejecting booleans, fractions and nonfinite values. Existing
+range/version constraints and legacy reports remain unchanged. Positive and
+negative fixtures plus regression tests cover 1, 1.0, 2e0 and range boundaries.
+Executed `python -B -m unittest discover -s tests -p test_contracts.py -v`: 26 PASS, zero skips; `git diff --check`: PASS. No build/install/download, Tor
+network test or later-phase implementation. Fix A belongs to PR #2 only.

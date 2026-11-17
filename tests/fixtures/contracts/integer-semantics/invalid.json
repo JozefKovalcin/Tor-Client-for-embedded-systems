@@ -1,0 +1,5 @@
+{
+  "description": "Synthetic non-integer values and nonfinite JSON tokens",
+  "values": [true, false, 1.5, -0.5, 1e-1],
+  "nonfiniteJson": ["NaN", "Infinity", "-Infinity", "1e999"]
+}

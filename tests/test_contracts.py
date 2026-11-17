@@ -21,6 +21,41 @@ def fixture(name):
 
 
 class ContractTests(unittest.TestCase):
+    def test_integral_json_representations_validate_from_positive_fixture(self):
+        positive = contracts.read_json_file(FIXTURES / "integer-semantics/valid.json")
+        for number in positive["values"]:
+            with self.subTest(number=number):
+                value = fixture("BuildRequest")
+                value["maxJobs"] = number
+                self.assertEqual(contracts.validate_contract("BuildRequest", value), [])
+        for spelling in ("1", "1.0", "1e0"):
+            value = fixture("BuildRequest")
+            value["schemaVersion"] = json.loads(spelling)
+            self.assertEqual(contracts.validate_contract("BuildRequest", value), [])
+        value["schemaVersion"] = json.loads("2e0")
+        self.assertTrue(contracts.validate_contract("BuildRequest", value))
+
+    def test_boolean_fractional_and_nonfinite_integer_fixtures_fail(self):
+        negative = contracts.read_json_file(FIXTURES / "integer-semantics/invalid.json")
+        values = negative["values"] + [json.loads(token) for token in negative["nonfiniteJson"]]
+        for number in values:
+            with self.subTest(number=number):
+                value = fixture("BuildRequest")
+                value["maxJobs"] = number
+                self.assertTrue(contracts.validate_contract("BuildRequest", value))
+                self.assertFalse(contracts._is_type(number, "integer"))
+
+    def test_integral_float_minimum_and_maximum_are_preserved(self):
+        value = fixture("BuildRequest")
+        for number in (0.0, -1.0):
+            value["maxJobs"] = number
+            self.assertTrue(contracts.validate_contract("BuildRequest", value))
+        task = fixture("TaskProgress")
+        task.update(state="failed", rawExitCode=4294967295.0)
+        self.assertEqual(contracts.validate_contract("TaskProgress", task), [])
+        task["rawExitCode"] = 4294967296.0
+        self.assertTrue(contracts.validate_contract("TaskProgress", task))
+
     def test_all_eight_valid_and_invalid_contract_fixtures(self):
         for name in contracts.CONTRACT_NAMES:
             with self.subTest(contract=name):
