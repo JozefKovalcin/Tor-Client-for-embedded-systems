@@ -51,12 +51,12 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable
         Pages = new(new[]
         {
             new PageViewModel("Dashboard", "Local workspace overview. Every observation below is SIMULATED; actual Tor monitoring is not connected.", ShowTasks: true,
-                Notices: new[] { new NoticeCard("Tor integration · NOT CONNECTED", "W5 owns authenticated control and managed processes. No real bootstrap, health or traffic is shown."),
+                Notices: new[] { new NoticeCard("Tor integration · NOT CONNECTED", "Authenticated Tor monitoring is not connected. Bootstrap, health and traffic are unavailable."),
                     new NoticeCard("Runtime qualification · NOT RUN", "Native Linux builds and physical PICO qualification require separate evidence.") }),
             new PageViewModel("Build Manager", "Build plan placeholder. No build, download or installer can be started here.",
                 Notices: new[] { FixtureNotice("BuildRequest", "Build request"), FixtureNotice("BuildArtifact", "Artifact inventory"),
-                    FixtureNotice("TargetDescriptor", "Selected target"), new NoticeCard("Executor integration · NOT CONNECTED", "W3 preflight and W6 executor will be connected through the W5 command boundary in a later integration task.") }),
-            new PageViewModel("Dependencies", "All five W1 dependency classifications, displayed from synthetic fixtures. No probe or repair is performed.", ShowDependencies: true),
+                    FixtureNotice("TargetDescriptor", "Selected target"), new NoticeCard("Executor integration · NOT CONNECTED", "Source preflight and build execution are not connected to this screen. No build can be started.") }),
+            new PageViewModel("Dependencies", "All five dependency states shown below are simulated. Host diagnostics and repair are not connected.", ShowDependencies: true),
             new PageViewModel("Devices", "No paired or physical endpoint is connected.", Notices: new[] { FixtureNotice("DeviceInfo", "PICO device · BLOCKED") }),
             new PageViewModel("Tests", "Synthetic test records never imply executed runtime acceptance.", Notices: new[] { FixtureNotice("TestResult", "Test record · NOT RUN") }),
             new PageViewModel("Reports", "Read-only synthetic evidence summary. Historical reports are not rewritten or imported as current success.", Notices: new[] { FixtureNotice("EvidenceManifest", "Evidence · NOT RUN") }),

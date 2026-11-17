@@ -122,3 +122,8 @@ The package contains only new desktop source/resources/pins, its independent
 C# harness, `tests/test_desktop_foundation.py` and this handoff. The integrator
 will add shared progress/overview in a separate documentation commit. See the
 PR's complete file list and the desktop README for build/restore commands.
+
+Integrator follow-up: screen notices now describe user-visible monitoring/build
+availability without internal work-package names. App and package-free
+presentation harness rebuilt from the approved local cache: zero warnings/errors,
+40 behavior assertions PASS. No network restore or functional behavior change.
