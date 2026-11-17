@@ -11,6 +11,8 @@ using Tor.Core;
 namespace Tor.Adapters.Windows;
 
 public sealed record TorProcessOutcome(uint RawExitCode, bool StopRequested);
+public sealed record TorRuntimeObservation(int? ProcessId, bool Authenticated, bool Authenticating = false,
+    int? BootstrapPercent = null, string? BootstrapTag = null, bool TerminationConfirmed = false);
 public sealed class TorProcessStartException(uint? rawExitCode, string phase, bool cancelled)
     : IOException("Managed Tor startup failed during " + phase)
 {
@@ -52,7 +54,8 @@ public sealed class ManagedTorSession : IAsyncDisposable
         // Raw Tor output can contain sensitive paths/identifiers; it is neither retained nor exported.
     }
     public static async Task<ManagedTorSession> StartOfflineAsync(PinnedWindowsRuntime runtime,
-        string existingPrivateParent, CancellationToken cancellationToken = default)
+        string existingPrivateParent, CancellationToken cancellationToken = default,
+        Action<TorRuntimeObservation>? observe = null)
     {
         if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("Windows runtime adapter");
         PrivateStorage.RequireOwnerOnly(existingPrivateParent);
@@ -102,6 +105,7 @@ public sealed class ManagedTorSession : IAsyncDisposable
             processStarted = true;
             job.Assign(process);
             session = new ManagedTorSession(process, job, locks);
+            observe?.Invoke(new(process.Id, false, Authenticating: true));
             using var startup = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             startup.CancelAfter(TimeSpan.FromSeconds(15));
             int port;
@@ -154,6 +158,8 @@ public sealed class ManagedTorSession : IAsyncDisposable
                 }
                 finally { job?.Dispose(); process?.Dispose(); foreach (var item in locks) item.Dispose(); }
             }
+            if (observedExit is not null)
+                observe?.Invoke(new(null, false, TerminationConfirmed: true));
             throw new TorProcessStartException(observedExit, phase, cancellationToken.IsCancellationRequested);
         }
     }
