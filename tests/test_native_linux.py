@@ -409,8 +409,18 @@ class CachedArchiveTests(unittest.TestCase):
                 ("st_dev", "st_ino", "st_mode", "st_size", "st_mtime_ns", "st_ctime_ns")})
             identity.st_ino = replacement.st_ino
             self.assertNotEqual(identity.st_ino, before.st_ino)
-            with patch.object(Path, "stat", side_effect=[before, identity]):
+            real_stat = Path.stat
+            archive_stats = []
+            def replaced_stat(queried, *args, **kwargs):
+                if queried == path and kwargs.get("follow_symlinks") is False:
+                    archive_stats.append(queried)
+                    return before if len(archive_stats) == 1 else identity
+                return real_stat(queried, *args, **kwargs)
+            # pathlib.resolve also stats directories on Python 3.12/POSIX.
+            # Only the archive's explicit no-follow observations are replaced.
+            with patch.object(Path, "stat", autospec=True, side_effect=replaced_stat):
                 checks, _ = native.inspect_sources(folder, [pin], self.policy)
+            self.assertEqual(len(archive_stats), 2)
             self.assertEqual(checks[0]["status"], "INCOMPATIBLE")
 
     @unittest.skipUnless(os.name == "posix", "POSIX atomic replacement of an open archive")

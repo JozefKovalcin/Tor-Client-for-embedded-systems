@@ -481,3 +481,11 @@ Windows ctime inconsistency, handled as above. The first Windows pipeline
 attempt was sandbox-blocked on temporary directories; its log is preserved,
 and rerunning outside that restriction passed all six tests. No builds,
 installations, downloads, public Tor tests or later-phase implementation ran.
+
+TASK 03 CI follow-up: the initial updated W3 CI failed in the new simulated
+identity test because a global stat call-count mock also intercepted Python
+3.12 POSIX pathlib.resolve directory checks. The real POSIX atomic-replace
+regression passed. The mock now intercepts only explicit no-follow stats of
+the tested archive; unrelated filesystem calls remain real. This is a test
+portability correction, with no product behavior change. Full local validation
+was repeated after correction; the first CI failure remains preserved.

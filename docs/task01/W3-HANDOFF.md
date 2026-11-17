@@ -149,3 +149,11 @@ Limits: this read-only observation cannot lock the cache after it returns;
 a future executor must reverify its own consumed inputs. No extraction,
 compilation, installation, download or network qualification was performed.
 W3 depends on corrected W1 through W2; no W4–W15 implementation is authorized.
+
+TASK 03 CI follow-up: the initial updated W3 CI failed in the new simulated
+identity test because a global stat call-count mock also intercepted Python
+3.12 POSIX pathlib.resolve directory checks. The real POSIX atomic-replace
+regression passed. The mock now intercepts only explicit no-follow stats of
+the tested archive; unrelated filesystem calls remain real. This is a test
+portability correction, with no product behavior change. Full local validation
+was repeated after correction; the first CI failure remains preserved.
