@@ -1,3 +1,28 @@
+# TASK 01 W3 — Native Linux build preflight — 2026-11-16
+
+W3 integrates W2 `239e5ad47de360a2c1b603a16f9456c97c43a957` (including W1).
+Selected native v1 target is Ubuntu 24.04 x86_64-linux-gnu/glibc 2.39.
+Read-only preflight checks trusted toolchain probes, libc headers, local source/
+license hashes, safe source/output/cache paths, clean Git provenance and native
+RAM/disk/cgroup-v2 limits. It emits reproducible input metadata and a descriptive
+DAG with every stage NOT RUN; no executor/build/download/install exists here.
+Only genuinely available required inputs permit a plan-mode BuildRequest.
+
+Executed on Windows/Python 3.14.2: isolated focused W3 **15 PASS**, no skips;
+full `python -B scripts/check.py` exit 0, 105 discovered, **103 PASS / 2 platform
+SKIPPED**; Windows source-pipeline **6 PASS**. Full offline tests used the
+permitted context outside known sandbox loopback/hardlink restrictions. Real
+Windows preflight returns exit 1/NOT RUN with no request/output creation;
+positive Linux readiness is synthetic test evidence only. No Linux runtime,
+ELF linkage, Tor compilation/public test, Buildroot/Yocto or physical-board
+qualification was run. Unsupported cgroup mappings remain UNKNOWN.
+
+Preservation audit: all 566 protected Git inputs are unchanged in W1/W2/W3.
+Initial raw-byte comparison flagged 36 checkout line-ending differences in each
+worktree; normalized content is identical, with no other differences. Original
+checkout files, main, both exact stashes and baseline tag remain unchanged. Shared contracts remain owned by W1; no W4–W15 implementation.
+See `docs/task01/W3-HANDOFF.md` for changed files, commands, limits and next gates.
+
 # TASK 01 W2 — Read-only dependency diagnostics — 2026-11-16
 
 W2 integrates W1 `3997fa567a2d24758a0266add4c9cf3049e5f7f6` and adds fixed,
@@ -427,3 +452,40 @@ range/version constraints and legacy reports remain unchanged. Positive and
 negative fixtures plus regression tests cover 1, 1.0, 2e0 and range boundaries.
 Executed `python -B -m unittest discover -s tests -p test_contracts.py -v`: 26 PASS, zero skips; `git diff --check`: PASS. No build/install/download, Tor
 network test or later-phase implementation. Fix A belongs to PR #2 only.
+
+
+# TASK 03 Fixes B/C — W3 integration and archive consistency — 2026-11-17
+
+W3 consumes classified W2 checks for every required tool (including the running
+Python interpreter alias); raw availability cannot override MISSING,
+INCOMPATIBLE, UNKNOWN or BLOCKED. W2 implementation/policy remain unchanged.
+Archive hashing and bounded license inspection now share one unbuffered open
+descriptor. A second full digest plus file identity/state checks rejects
+in-place changes and pathname replacement without extraction or cache writes.
+Windows ctime has inconsistent path/descriptor semantics; content digests and
+identity remain mandatory, with ctime additionally checked on POSIX.
+
+Executed locally on Windows/Python 3.14: W1 contracts 26 PASS; W2 dependencies
+24 PASS; W3 preflight 22 PASS / 1 POSIX-only SKIPPED; full portable suite 116
+discovered / 113 PASS / 3 platform SKIPPED, exit 0; Windows pipeline 6 PASS;
+`git diff --check` PASS. Logs and original before/after reproductions retained
+under ignored `build/task03-checks/`. The five original outdated-tool vectors
+now reject BuildRequest; maxJobs 1.0 now validates. The original pathname-reopen
+archive hook is no longer reached; equivalent same-descriptor mutation and
+replacement regressions reject the archive. Linux CI must execute the POSIX
+replacement regression before merge readiness is declared.
+
+An initial mutation regression exposed buffered stale reads; using an
+unbuffered descriptor fixed it. A subsequent positive regression exposed
+Windows ctime inconsistency, handled as above. The first Windows pipeline
+attempt was sandbox-blocked on temporary directories; its log is preserved,
+and rerunning outside that restriction passed all six tests. No builds,
+installations, downloads, public Tor tests or later-phase implementation ran.
+
+TASK 03 CI follow-up: the initial updated W3 CI failed in the new simulated
+identity test because a global stat call-count mock also intercepted Python
+3.12 POSIX pathlib.resolve directory checks. The real POSIX atomic-replace
+regression passed. The mock now intercepts only explicit no-follow stats of
+the tested archive; unrelated filesystem calls remain real. This is a test
+portability correction, with no product behavior change. Full local validation
+was repeated after correction; the first CI failure remains preserved.
