@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "synthetic-linux-v1",
+  "kind": "linux-native",
+  "os": "linux",
+  "architecture": "x86_64",
+  "abi": "glibc",
+  "abiVersion": "2.39",
+  "executionScope": "host-native",
+  "boardPart": null,
+  "carrierRevision": null,
+  "machine": null,
+  "dtbSha256": null,
+  "capabilities": [
+    "plan-only"
+  ],
+  "certainty": "ASSUMPTION",
+  "evidenceRefs": []
+}

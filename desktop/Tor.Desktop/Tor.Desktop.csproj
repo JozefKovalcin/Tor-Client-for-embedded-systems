@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net11.0</TargetFramework>
+    <RuntimeFrameworkVersion>11.0.0</RuntimeFrameworkVersion>
+    <RootNamespace>TorManager.Desktop</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode>true</RestoreLockedMode>
+    <NuGetAudit>true</NuGetAudit>
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="[12.1.6]" />
+    <PackageReference Include="Avalonia.Desktop" Version="[12.1.6]" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="[12.1.6]" />
+    <EmbeddedResource Include="SampleData/*.json" LogicalName="TorManager.Desktop.SampleData.%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>
