@@ -7,6 +7,27 @@ namespace TorManager.Desktop.Services;
 internal interface IUiDispatcher
 {
     void Post(Action update);
+
+    Task ApplyAsync(Action update, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        var applied = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        Post(() =>
+        {
+            if (token.IsCancellationRequested)
+            {
+                applied.TrySetCanceled(token);
+                return;
+            }
+            try
+            {
+                update();
+                applied.SetResult();
+            }
+            catch (Exception error) { applied.SetException(error); }
+        });
+        return applied.Task.WaitAsync(token);
+    }
 }
 
 // UI seam only. W5 owns production contract bindings and task orchestration.

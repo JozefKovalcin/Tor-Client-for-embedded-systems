@@ -62,12 +62,24 @@ class DesktopFoundationTests(unittest.TestCase):
         graph = lock["dependencies"]["net11.0"]
         direct = {name: node["resolved"] for name, node in graph.items() if node["type"] == "Direct"}
         self.assertEqual(direct, {name: "12.1.6" for name in ("Avalonia", "Avalonia.Desktop", "Avalonia.Themes.Fluent")})
-        for name, node in graph.items():
+        packages = {name: node for name, node in graph.items() if node["type"] != "Project"}
+        self.assertEqual(len(packages), 25)
+        for name, node in packages.items():
             with self.subTest(package=name):
                 self.assertEqual(len(base64.b64decode(node["contentHash"], validate=True)), 64)
                 self.assertTrue(node["resolved"])
                 self.assertNotIn("*", node["resolved"])
-                self.assertTrue(set(node.get("dependencies", {})) <= set(graph))
+                self.assertTrue(set(node.get("dependencies", {})) <= set(packages))
+        projects = {name: node for name, node in graph.items() if node["type"] == "Project"}
+        expected_projects = {
+            "tor.application": {"Tor.Adapters.Windows", "Tor.Core"},
+            "tor.adapters.windows": {"Tor.Control", "Tor.Core"},
+            "tor.control": set(),
+            "tor.core": {"Tor.Contracts"},
+            "tor.contracts": set(),
+        }
+        self.assertEqual({name: set(node.get("dependencies", {})) for name, node in projects.items()},
+                         expected_projects)
 
 
 if __name__ == "__main__":

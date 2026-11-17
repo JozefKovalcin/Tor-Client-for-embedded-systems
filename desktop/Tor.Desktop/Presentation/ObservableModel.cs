@@ -19,31 +19,33 @@ internal abstract class ObservableModel : INotifyPropertyChanged
     }
 }
 
-internal sealed class ActionCommand(Action execute) : ICommand
+internal sealed class ActionCommand(Action execute, Func<bool>? canExecute = null) : ICommand
 {
-    public bool CanExecute(object? parameter) => true;
-    public void Execute(object? parameter) => execute();
-    public event EventHandler? CanExecuteChanged { add { } remove { } }
+    public bool CanExecute(object? parameter) => canExecute?.Invoke() ?? true;
+    public void Execute(object? parameter) { if (CanExecute(parameter)) execute(); }
+    public event EventHandler? CanExecuteChanged;
+    public void Invalidate() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
 }
 
-internal sealed class AsyncCommand(Func<Task> execute, Action onFailure) : ICommand
+internal sealed class AsyncCommand(Func<Task> execute, Action onFailure, Func<bool>? canExecute = null) : ICommand
 {
     private bool _running;
-    public bool CanExecute(object? parameter) => !_running;
+    public bool CanExecute(object? parameter) => !_running && (canExecute?.Invoke() ?? true);
     public event EventHandler? CanExecuteChanged;
+    public void Invalidate() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
 
     public async void Execute(object? parameter)
     {
-        if (_running) return;
+        if (!CanExecute(parameter)) return;
         _running = true;
-        CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        Invalidate();
         try { await execute(); }
         catch (OperationCanceledException) { }
         catch (Exception) { onFailure(); }
         finally
         {
             _running = false;
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            Invalidate();
         }
     }
 }

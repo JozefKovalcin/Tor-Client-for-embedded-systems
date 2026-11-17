@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Tor.Application;
 using TorManager.Desktop.Presentation;
 using TorManager.Desktop.Services;
 
@@ -16,18 +17,59 @@ public sealed partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var model = new ShellViewModel(new SimulationTaskFeed(), new UiDispatcher(), SettingsStore.ForCurrentUser());
+            var (offline, unavailable) = CreateOfflineService(desktop.Args ?? []);
+            var model = new ShellViewModel(new SimulationTaskFeed(), new UiDispatcher(), SettingsStore.ForCurrentUser(),
+                offline, unavailable, showRealWhenUnavailable: OperatingSystem.IsWindows());
             model.PropertyChanged += (_, change) =>
             {
                 if (change.PropertyName == nameof(model.Theme))
                     ApplyTheme(model.Theme);
             };
             ApplyTheme(model.Theme);
-            desktop.MainWindow = new MainWindow { DataContext = model };
-            desktop.MainWindow.Opened += (_, _) => model.ReplayCommand.Execute(null);
-            desktop.MainWindow.Closed += (_, _) => model.Dispose();
+            var window = new MainWindow { DataContext = model };
+            desktop.MainWindow = window;
+            window.Opened += async (_, _) => await model.OpenAsync();
+            var closing = false;
+            var closeReady = false;
+            window.Closing += async (_, args) =>
+            {
+                if (closeReady) return;
+                args.Cancel = true;
+                if (closing) return;
+                closing = true;
+                await Task.Yield();
+                try { await model.DisposeAsync(); }
+                catch (Exception)
+                {
+                    model.ReportCloseFailure();
+                    closeReady = true;
+                    return;
+                }
+                closeReady = true;
+                window.Close();
+            };
         }
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static (IOfflineTorService? Service, string? Error) CreateOfflineService(string[] args)
+    {
+        if (!OperatingSystem.IsWindows())
+            return (null, "Real Offline requires Windows. Demo uses simulated data.");
+        try
+        {
+            var options = OfflineLaunchOptions.Read(args);
+            return (OfflineTorService.CreateWindows(options.PackageDirectory, options.PrivateDirectory), null);
+        }
+        catch (ArgumentException)
+        {
+            return (null, "Use absolute folders with --tor-package and --state-dir. Keep private state separate from the installation and runtime.");
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidOperationException
+            or System.Security.SecurityException)
+        {
+            return (null, "Offline workspace setup failed. Verify the selected private directory and try again.");
+        }
     }
 
     private void ApplyTheme(string theme) => RequestedThemeVariant = theme switch
