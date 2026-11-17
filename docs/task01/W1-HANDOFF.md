@@ -57,3 +57,12 @@ remain consumer responsibilities; W1 adds no orchestrator or legacy migrator.
 All fixtures are synthetic. Exact PICO SKU/carrier/DTB remain BLOCKED; Yocto RAM
 does not block W1–W3. No sources, Tor patch, Buildroot configuration, historical
 results, thresholds, existing tests, stashes or baseline were changed.
+
+## TASK 03 Fix A — 2026-11-17
+
+Updated `scripts/contracts.py`, `tests/test_contracts.py`, two JSON fixtures
+under `tests/fixtures/contracts/integer-semantics/`, this handoff and additive
+PROGRESS evidence. Numeric integer validation accepts finite integral float
+representations; bool/fraction/nonfinite rejection, ranges and version const
+remain enforced. Focused contract suite: **26 PASS, 0 SKIPPED**; whitespace
+check PASS. Original TASK 01/TASK 02 results above remain historical.

@@ -116,7 +116,11 @@ def _is_type(value, kind):
         "string": lambda: isinstance(value, str),
         "boolean": lambda: isinstance(value, bool),
         "null": lambda: value is None,
-        "integer": lambda: isinstance(value, int) and not isinstance(value, bool),
+        # JSON Schema defines integers by numeric value, not lexical spelling
+        # or Python's int/float storage type (1, 1.0 and 1e0 are equivalent).
+        "integer": lambda: not isinstance(value, bool) and (
+            isinstance(value, int) or
+            isinstance(value, float) and math.isfinite(value) and value.is_integer()),
         "number": lambda: isinstance(value, (int, float)) and not isinstance(value, bool),
     }[kind]()
 
