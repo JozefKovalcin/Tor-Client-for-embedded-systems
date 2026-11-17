@@ -314,7 +314,9 @@ class ReadOnlyProbe:
             if "clang" in output.lower():
                 return _record("INCOMPATIBLE", "Compiler banner identifies Clang rather than GNU GCC",
                                version=".".join(str(x) for x in parsed), code=0, command=command, path=executable)
-            if not re.search(r"(?im)^(?:[^\s]+[/-])?[^\s]*gcc(?:\.exe)?(?:[\s(]|$)", output):
+            # Resolving distro symlinks can select gcc-13 rather than gcc.
+            # Accept only a numeric release suffix, retaining the family gate.
+            if not re.search(r"(?im)^(?:[^\s]+[/-])?[^\s]*gcc(?:-[0-9]+(?:\.[0-9]+)*)?(?:\.exe)?(?:[\s(]|$)", output):
                 return _record("UNKNOWN", "Compiler version does not establish GNU GCC family",
                                version=".".join(str(x) for x in parsed), code=0, command=command, path=executable)
         if name == "make" and not re.search(r"(?m)^GNU Make\s", output):
