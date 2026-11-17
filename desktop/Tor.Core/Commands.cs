@@ -27,7 +27,7 @@ public sealed record ResourceRequest(int Slots, long MemoryBytes, long DiskBytes
 public sealed record TaskSubmission(string Id, TaskCommand Command, IReadOnlyList<string> DependsOn,
     ResourceRequest Resources, string? RetryOfTaskId = null);
 public sealed record TaskExecutionResult(uint? ExitCode, int? Signal = null,
-    IReadOnlyList<VerifiedFile>? Outputs = null, string? BlockedReason = null)
+    IReadOnlyList<VerifiedFile>? Outputs = null, string? BlockedReason = null, string? FailureReason = null)
 {
     public static TaskExecutionResult Success => new(0);
 }

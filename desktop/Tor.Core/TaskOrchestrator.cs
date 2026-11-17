@@ -249,6 +249,8 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
                     CompleteCancellation(item, result.ExitCode, result.Signal);
                 else if (result.BlockedReason is not null)
                     Set(item, "blocked", TaskPhase.Complete, TaskMessage.Blocked, result.ExitCode, result.Signal, "adapter-blocked");
+                else if (result.FailureReason is not null)
+                    Set(item, "failed", TaskPhase.Complete, TaskMessage.Failed, result.ExitCode, result.Signal, "adapter-failed");
                 else if (result.ExitCode != 0 || result.Signal is not null)
                     Set(item, "failed", TaskPhase.Complete, TaskMessage.Failed, result.ExitCode, result.Signal, "process-failed");
                 else

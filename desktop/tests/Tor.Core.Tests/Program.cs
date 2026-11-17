@@ -51,7 +51,7 @@ static class Program
             ("heavy-memory-and-output-reservations", Reservations), ("cycle-and-capacity-rejection", Admission),
             ("interrupted-recovery-no-reexecution", Recovery), ("bounded-stream-and-logs", Streams),
             ("reference-security-and-output-verification", References), ("contract-binding-invalid-values", Binding),
-            ("bounded-task-deadline", Deadline)
+            ("bounded-task-deadline", Deadline), ("unexpected-zero-exit-is-not-success", UnexpectedExit)
         };
         foreach (var (name, test) in tests) { await test(); Console.WriteLine("PASS " + name); }
         if (args.Length == 1) File.WriteAllText(args[0], JsonSerializer.Serialize(Export, ContractJson.Options));
@@ -225,5 +225,13 @@ static class Program
             maximumTaskDuration: TimeSpan.FromMilliseconds(30));
         core.Submit([w.Probe("deadline")]); await core.RunUntilIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
         Check.That(core.Snapshot().Single().State == "cancelled" && core.Snapshot().Single().ReasonCode == "deadline-exceeded", "Deadline lost or mislabeled");
+    }
+    static async Task UnexpectedExit()
+    {
+        using var w = new Workspace();
+        var handler = new Handler(CommandKind.DependencyProbe, (_, _, _) => Task.FromResult(new TaskExecutionResult(0, FailureReason: "unexpected-exit")));
+        await using var core = new TaskOrchestrator([handler], w.Files, w.Journal(), Capacity);
+        core.Submit([w.Probe("unexpected")]); await core.RunUntilIdleAsync();
+        Check.That(core.Snapshot().Single().State == "failed" && core.Snapshot().Single().RawExitCode == 0, "Unexpected exit0 hidden as success");
     }
 }
