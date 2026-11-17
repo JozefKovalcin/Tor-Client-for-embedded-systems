@@ -37,6 +37,17 @@ writes, and use a single-writer OS file lock. Logs contain allowlisted event
 codes, task references and raw exit fields, never adapter stdout or exceptions.
 The last 256 log events are retained as a bounded ring, not an archival audit.
 
+The scheduler reserves resources and invokes a handler only after both the
+start log and task snapshot are saved. A failed start becomes `blocked` with
+`journal-start-failed`; the caller receives the storage error and a retry must
+use a new task ID. If an otherwise successful result cannot be published, the
+task is `failed` with `journal-result-failed` and keeps the observed exit code.
+Cancellation still signals every selected adapter and waits for cleanup.
+The core attempts to preserve the corrected task snapshot during the outage,
+and reconciles the in-memory snapshot and log before starting further work.
+A failed publication does not send a progress event. Callers can inspect the
+in-memory snapshot after the error and retry the scheduler once storage recovers.
+
 On startup, unreconciled running/cancelling work becomes `interrupted` with
 `app-crash`, `runner-crash` or `runner-lost`; queued work becomes blocked for
 review. No commands or side effects are automatically reconstructed. Recovery

@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Threading.Channels;
 using Tor.Contracts;
 
@@ -29,6 +30,7 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
     private readonly int maximumTasks;
     private readonly TimeSpan maximumTaskDuration;
     private readonly SemaphoreSlim pump = new(1, 1);
+    private bool journalNeedsRepair;
     private bool disposed;
     private bool stopping;
 
@@ -150,7 +152,8 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
                 throw;
             }
             foreach (var item in staged) entries.Add(item.Progress.TaskId, item);
-            logs.Clear(); foreach (var row in proposedLogs) logs.Enqueue(row);
+            ReplaceLogs(proposedLogs);
+            journalNeedsRepair = false;
             foreach (var item in staged)
                 foreach (var subscriber in subscribers) subscriber.Writer.TryWrite(item.Progress);
         }
@@ -195,11 +198,17 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
     public async Task RunUntilIdleAsync(CancellationToken cancellationToken = default)
     {
         await pump.WaitAsync(cancellationToken).ConfigureAwait(false);
-        using var cancellation = cancellationToken.Register(() =>
+        var failures = new List<Exception>();
+        void CancelPending()
         {
             lock (gate)
-                foreach (var row in entries.Values.Where(x => x.Progress.State is "running" or "queued").ToArray()) Cancel(row.Progress.TaskId);
-        });
+                foreach (var row in entries.Values.Where(x => x.Progress.State is "running" or "queued").ToArray())
+                {
+                    try { Cancel(row.Progress.TaskId); }
+                    catch (Exception error) when (error is not OutOfMemoryException and not StackOverflowException) { failures.Add(error); }
+                }
+        }
+        using var cancellation = cancellationToken.Register(CancelPending);
         try
         {
             while (true)
@@ -208,24 +217,18 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
                 lock (gate)
                 {
                     ObjectDisposedException.ThrowIf(disposed || stopping, this);
-                    if (cancellationToken.IsCancellationRequested)
-                        foreach (var row in entries.Values.Where(x => x.Progress.State is "running" or "queued").ToArray()) Cancel(row.Progress.TaskId);
-                    foreach (var row in entries.Values.Where(x => x.Progress.State == "queued").ToArray())
+                    var cancelling = cancellationToken.IsCancellationRequested;
+                    if (cancelling) CancelPending();
+                    // A fault is reported once. A later run can reconcile storage and continue.
+                    var completed = active.Where(t => t.IsCompleted).ToArray();
+                    foreach (var task in completed) active.Remove(task);
+                    failures.AddRange(completed.Where(t => t.IsFaulted).SelectMany(t => t.Exception!.InnerExceptions));
+                    if ((!cancelling || active.Count == 0) && failures.Count > 0)
                     {
-                        var task = row.Submission!;
-                        if (task.DependsOn.Any(id => Terminal(entries[id].Progress.State) && entries[id].Progress.State != "succeeded"))
-                            Set(row, "blocked", TaskPhase.Complete, TaskMessage.Blocked, reason: "dependency-unsuccessful");
-                        else if (Exceeds(task.Resources, capacity))
-                            Set(row, "blocked", TaskPhase.Complete, TaskMessage.Blocked, reason: "resource-budget-exceeded");
-                        else if (!cancellationToken.IsCancellationRequested && task.DependsOn.All(id => entries[id].Progress.State == "succeeded") && CanAdmit(task))
-                        {
-                            row.Active = true;
-                            Set(row, "running", TaskPhase.Preparing, TaskMessage.Started);
-                            active.Add(ExecuteAsync(row));
-                        }
+                        if (failures.Count == 1) ExceptionDispatchInfo.Capture(failures[0]).Throw();
+                        throw new AggregateException("Task execution failed", failures);
                     }
-                    foreach (var completedTask in active.Where(t => t.IsCompleted)) completedTask.GetAwaiter().GetResult();
-                    active.RemoveAll(t => t.IsCompleted);
+                    if (!cancelling) StartReadyWork(cancellationToken);
                     running = active.ToList();
                     if (running.Count == 0) break;
                 }
@@ -234,6 +237,30 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
             }
         }
         finally { pump.Release(); }
+    }
+
+    private void StartReadyWork(CancellationToken cancellationToken)
+    {
+        if (journalNeedsRepair)
+        {
+            journal.WriteLogs(logs.ToArray());
+            Persist();
+            journalNeedsRepair = false;
+        }
+        foreach (var row in entries.Values.Where(x => x.Progress.State == "queued").ToArray())
+        {
+            var task = row.Submission!;
+            if (task.DependsOn.Any(id => Terminal(entries[id].Progress.State) && entries[id].Progress.State != "succeeded"))
+                Set(row, "blocked", TaskPhase.Complete, TaskMessage.Blocked, reason: "dependency-unsuccessful");
+            else if (Exceeds(task.Resources, capacity))
+                Set(row, "blocked", TaskPhase.Complete, TaskMessage.Blocked, reason: "resource-budget-exceeded");
+            else if (!cancellationToken.IsCancellationRequested && task.DependsOn.All(id => entries[id].Progress.State == "succeeded") && CanAdmit(task))
+            {
+                Set(row, "running", TaskPhase.Preparing, TaskMessage.Started);
+                row.Active = true;
+                active.Add(ExecuteAsync(row));
+            }
+        }
     }
     private readonly List<Task> active = [];
     private static bool Exceeds(ResourceRequest request, ResourceRequest available) =>
@@ -256,23 +283,45 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
         await Task.Yield();
         try
         {
-            foreach (var input in item.Submission!.Command.Inputs) files.Verify(input);
-            item.Cancellation.CancelAfter(maximumTaskDuration);
-            item.Cancellation.Token.ThrowIfCancellationRequested();
-            var context = new TaskExecutionContext((phase, done, total, unit) =>
+            TaskExecutionResult? result = null;
+            try
             {
-                lock (gate)
+                foreach (var input in item.Submission!.Command.Inputs) files.Verify(input);
+                item.Cancellation.CancelAfter(maximumTaskDuration);
+                item.Cancellation.Token.ThrowIfCancellationRequested();
+                var context = new TaskExecutionContext((phase, done, total, unit) =>
                 {
-                    if (item.Progress.State == "running") Set(item, "running", phase, TaskMessage.Progress, done: done, total: total, unit: unit);
+                    lock (gate)
+                    {
+                        if (item.Progress.State == "running") Set(item, "running", phase, TaskMessage.Progress, done: done, total: total, unit: unit);
+                    }
+                });
+                var observed = await handlers[item.Submission.Command.Kind].ExecuteAsync(item.Submission.Command, context, item.Cancellation.Token).ConfigureAwait(false);
+                if (observed.Signal is < 1 or > 127 || (observed.Signal is not null && observed.ExitCode is not null))
+                    throw new InvalidDataException("Invalid adapter process result");
+                if (!item.Cancellation.IsCancellationRequested && observed.BlockedReason is null &&
+                    observed.FailureReason is null && observed.ExitCode == 0 && observed.Signal is null)
+                {
+                    var outputs = observed.Outputs ?? Array.Empty<VerifiedFile>();
+                    if (outputs.Select(x => x.Ref).Distinct(StringComparer.Ordinal).Count() != outputs.Count ||
+                        !outputs.Select(x => x.Ref).Order().SequenceEqual(item.Submission.Command.OutputRefs.Order()))
+                        throw new InvalidDataException("Produced outputs differ from verified claims");
+                    foreach (var output in outputs) files.Verify(output);
                 }
-            });
-            var result = await handlers[item.Submission.Command.Kind].ExecuteAsync(item.Submission.Command, context, item.Cancellation.Token).ConfigureAwait(false);
+                result = observed;
+            }
+            catch (Exception error) when (error is not OutOfMemoryException and not StackOverflowException)
+            {
+                // Handler/verification details may contain credentials. Classify without logging them.
+            }
+
+            // Journal faults here must surface to the pump instead of being mistaken for a handler failure.
             lock (gate)
             {
-                if (result.Signal is < 1 or > 127 || (result.Signal is not null && result.ExitCode is not null))
-                    throw new InvalidDataException("Invalid adapter process result");
                 if (item.Cancellation.IsCancellationRequested)
-                    CompleteCancellation(item, result.ExitCode, result.Signal);
+                    CompleteCancellation(item, result?.ExitCode, result?.Signal);
+                else if (result is null)
+                    Set(item, "failed", TaskPhase.Complete, TaskMessage.Failed, reason: "adapter-or-verification-failed");
                 else if (result.BlockedReason is not null)
                     Set(item, "blocked", TaskPhase.Complete, TaskMessage.Blocked, result.ExitCode, result.Signal, "adapter-blocked");
                 else if (result.FailureReason is not null)
@@ -280,32 +329,19 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
                 else if (result.ExitCode != 0 || result.Signal is not null)
                     Set(item, "failed", TaskPhase.Complete, TaskMessage.Failed, result.ExitCode, result.Signal, "process-failed");
                 else
-                {
-                    var outputs = result.Outputs ?? Array.Empty<VerifiedFile>();
-                    if (outputs.Select(x => x.Ref).Distinct(StringComparer.Ordinal).Count() != outputs.Count ||
-                        !outputs.Select(x => x.Ref).Order().SequenceEqual(item.Submission.Command.OutputRefs.Order()))
-                        throw new InvalidDataException("Produced outputs differ from verified claims");
-                    foreach (var output in outputs) files.Verify(output);
                     Set(item, "succeeded", TaskPhase.Complete, TaskMessage.Succeeded, result.ExitCode);
-                }
             }
-        }
-        catch (OperationCanceledException) when (item.Cancellation.IsCancellationRequested)
-        {
-            lock (gate) CompleteCancellation(item);
-        }
-        catch (Exception exception) when (exception is not OutOfMemoryException and not StackOverflowException)
-        {
-            // Exception messages may contain argv, paths, credentials or raw control replies.
-            lock (gate) Set(item, "failed", TaskPhase.Complete, TaskMessage.Failed, reason: "adapter-or-verification-failed");
         }
         finally { lock (gate) item.Active = false; }
     }
 
     private void CompleteCancellation(Entry item, uint? exit = null, int? signal = null)
     {
-        if (item.Progress.State == "running") Set(item, "cancelling", TaskPhase.Stopping, TaskMessage.Cancelling, reason: item.CancellationReason);
-        Set(item, "cancelled", TaskPhase.Complete, TaskMessage.Cancelled, exit, signal, item.CancellationReason);
+        try
+        {
+            if (item.Progress.State == "running") Set(item, "cancelling", TaskPhase.Stopping, TaskMessage.Cancelling, reason: item.CancellationReason);
+        }
+        finally { Set(item, "cancelled", TaskPhase.Complete, TaskMessage.Cancelled, exit, signal, item.CancellationReason); }
     }
 
     private void Set(Entry item, string state, TaskPhase phase, TaskMessage message, uint? exit = null,
@@ -317,17 +353,57 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
             Total = total, Unit = unit, ReasonCode = reason, RawExitCode = exit, TerminationSignal = signal,
             CancellationSupported = state is "running" or "queued" };
         row.Validate();
+        var proposedLogs = WithLog(row, message);
+        bool logWritten = false;
+        try
+        {
+            journal.WriteLogs(proposedLogs);
+            logWritten = true;
+            journal.Write(entries.Values.Select(x => x == item ? row : x.Progress).ToArray());
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException)
+        {
+            RecordPublicationFailure(item, row, message, logWritten);
+            throw;
+        }
         item.Progress = row;
-        Persist(); // Durable state always precedes event publication/adapter launch.
-        Publish(row, message);
-    }
-    private void Persist() => journal.Write(entries.Values.Select(x => x.Progress).ToArray());
-    private void Publish(TaskProgress row, TaskMessage message)
-    {
-        logs.Enqueue(new TaskLog(row.TimestampUtc, row.TaskId, row.Sequence, message, row.RawExitCode, row.TerminationSignal));
-        while (logs.Count > 256) logs.Dequeue();
-        journal.WriteLogs(logs.ToArray());
+        ReplaceLogs(proposedLogs);
+        journalNeedsRepair = false;
         foreach (var subscriber in subscribers) subscriber.Writer.TryWrite(row);
+    }
+
+    private void RecordPublicationFailure(Entry item, TaskProgress row, TaskMessage message, bool logWritten)
+    {
+        if (message is TaskMessage.Started or TaskMessage.Succeeded)
+        {
+            // Running/success was never committed. If a proposed log reached disk, leave its sequence unused.
+            var starting = message == TaskMessage.Started;
+            message = starting ? TaskMessage.Blocked : TaskMessage.Failed;
+            row = row with { State = starting ? "blocked" : "failed", Phase = "complete", Message = message.ToString(),
+                ReasonCode = starting ? "journal-start-failed" : "journal-result-failed", CancellationSupported = false,
+                Sequence = logWritten ? checked(row.Sequence + 1) : row.Sequence };
+        }
+        ReplaceLogs(WithLog(row, message));
+        item.Progress = row;
+        journalNeedsRepair = true;
+        // Preserve the authoritative task state even if a log cannot be written. Reconcile both files
+        // before a later run can schedule work. The original exception is still reported to the caller.
+        try { Persist(); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException) { }
+        if (logWritten)
+        {
+            try { journal.WriteLogs(logs.ToArray()); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException) { }
+        }
+    }
+
+    private void Persist() => journal.Write(entries.Values.Select(x => x.Progress).ToArray());
+    private TaskLog[] WithLog(TaskProgress row, TaskMessage message) => logs.Append(
+        new TaskLog(row.TimestampUtc, row.TaskId, row.Sequence, message, row.RawExitCode, row.TerminationSignal)).TakeLast(256).ToArray();
+    private void ReplaceLogs(TaskLog[] rows)
+    {
+        logs.Clear();
+        foreach (var row in rows) logs.Enqueue(row);
     }
     private static bool Terminal(string state) => state is "succeeded" or "failed" or "blocked" or "cancelled" or "interrupted";
     public static bool Allowed(string from, string to) => from switch
