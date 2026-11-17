@@ -79,8 +79,16 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
             ObjectDisposedException.ThrowIf(disposed || stopping, this);
             if (graph.Count == 0 || graph.Count > maximumTasks - entries.Count)
                 throw new InvalidOperationException("Bounded task queue capacity exceeded");
-            var incoming = graph.ToDictionary(x => x.Id, StringComparer.Ordinal);
-            foreach (var task in graph)
+            // Freeze/recognize every command before mutating queue state. A public
+            // unsupported subtype must reject the complete graph, not only its tail.
+            var prepared = graph.Select(task =>
+            {
+                if (task.DependsOn.Count > maximumTasks || task.Command.Inputs.Count > 64 || task.Command.OutputRefs.Count > 32)
+                    throw new InvalidDataException("Task edge/input/output capacity exceeded");
+                return task with { DependsOn = task.DependsOn.ToArray(), Command = Freeze(task.Command) };
+            }).ToArray();
+            var incoming = prepared.ToDictionary(x => x.Id, StringComparer.Ordinal);
+            foreach (var task in prepared)
             {
                 ContractReference.Require(task.Id);
                 if (entries.ContainsKey(task.Id)) throw new InvalidDataException("Task ID already used");
@@ -117,17 +125,19 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
                 visiting.Remove(id); visited.Add(id);
             }
             foreach (var id in incoming.Keys) Visit(id);
-            foreach (var task in graph)
+            foreach (var task in prepared)
             {
-                // Freeze caller-owned collections; mutation must never change an admitted DAG/output claim.
-                var command = Freeze(task.Command);
-                var frozen = task with { DependsOn = task.DependsOn.ToArray(), Command = command };
                 var progress = new TaskProgress(1, task.Id, null, 0, DateTimeOffset.UtcNow, "queued", "queued",
                     null, null, null, "Task queued", true, task.RetryOfTaskId, null, null, null, "task-logs.json");
-                entries.Add(task.Id, new Entry(frozen, progress));
+                entries.Add(task.Id, new Entry(task, progress));
             }
-            Persist();
-            foreach (var task in graph) Publish(entries[task.Id].Progress, TaskMessage.Queued);
+            try { Persist(); }
+            catch
+            {
+                foreach (var task in prepared) { entries[task.Id].Cancellation.Dispose(); entries.Remove(task.Id); }
+                throw;
+            }
+            foreach (var task in prepared) Publish(entries[task.Id].Progress, TaskMessage.Queued);
         }
     }
 
@@ -149,9 +159,10 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
             else if (item.Progress.State == "running")
             {
                 item.CancellationReason = "user-cancelled";
-                Set(item, "cancelling", TaskPhase.Stopping, TaskMessage.Cancelling, reason: "user-cancelled");
-                item.Cancellation.Cancel();
+                try { Set(item, "cancelling", TaskPhase.Stopping, TaskMessage.Cancelling, reason: "user-cancelled"); }
+                finally { item.Cancellation.Cancel(); } // Disk/log failure must never prevent process cancellation.
             }
+            else if (item.Progress.State == "cancelling") item.Cancellation.Cancel();
         }
     }
 
@@ -327,16 +338,27 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
     }
     public async ValueTask DisposeAsync()
     {
+        var failures = new List<Exception>();
         lock (gate)
         {
             if (disposed || stopping) return;
             stopping = true;
-            foreach (var item in entries.Values.Where(x => x.Progress.State is "queued" or "running").ToArray()) Cancel(item.Progress.TaskId);
+            foreach (var item in entries.Values.Where(x => x.Progress.State is "queued" or "running" or "cancelling").ToArray())
+            {
+                try { Cancel(item.Progress.TaskId); }
+                catch (Exception error) when (error is not OutOfMemoryException and not StackOverflowException) { failures.Add(error); }
+            }
+            foreach (var item in entries.Values.Where(x => x.Active && !x.Cancellation.IsCancellationRequested))
+            {
+                try { item.Cancellation.Cancel(); }
+                catch (Exception error) when (error is not OutOfMemoryException and not StackOverflowException) { failures.Add(error); }
+            }
         }
         await pump.WaitAsync().ConfigureAwait(false);
         try
         {
-            await Task.WhenAll(active).ConfigureAwait(false);
+            try { await Task.WhenAll(active).ConfigureAwait(false); }
+            catch (Exception error) when (error is not OutOfMemoryException and not StackOverflowException) { failures.Add(error); }
         }
         finally
         {
@@ -349,5 +371,6 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
             }
             pump.Release();
         }
+        if (failures.Count > 0) throw new AggregateException("Task cleanup completed with journal/adapter failures", failures);
     }
 }

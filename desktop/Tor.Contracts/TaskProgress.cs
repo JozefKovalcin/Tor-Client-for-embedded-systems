@@ -19,7 +19,7 @@ public sealed record TaskProgress(
         if (SchemaVersion != 1 || Sequence < 0 || TimestampUtc.Offset != TimeSpan.Zero)
             throw new InvalidDataException("Unsupported progress version/sequence/time");
         ContractReference.Require(TaskId);
-        foreach (var value in new[] { ParentTaskId, RetryOfTaskId, LogRef })
+        foreach (var value in new[] { ParentTaskId, RetryOfTaskId, ReasonCode, LogRef })
             if (value is not null) ContractReference.Require(value);
         if (State is not ("queued" or "running" or "cancelling" or "cancelled" or
             "succeeded" or "failed" or "blocked" or "interrupted"))

@@ -15,6 +15,7 @@ sealed class Handler(CommandKind kind, Func<TaskCommand, TaskExecutionContext, C
     public CommandKind Kind => kind;
     public Task<TaskExecutionResult> ExecuteAsync(TaskCommand command, TaskExecutionContext context, CancellationToken token) => run(command, context, token);
 }
+sealed record UnsupportedCommand() : TaskCommand(CommandKind.DependencyProbe, Array.Empty<VerifiedFile>(), Array.Empty<string>());
 
 sealed class Workspace : IDisposable
 {
@@ -51,7 +52,9 @@ static class Program
             ("heavy-memory-and-output-reservations", Reservations), ("cycle-and-capacity-rejection", Admission),
             ("interrupted-recovery-no-reexecution", Recovery), ("bounded-stream-and-logs", Streams),
             ("reference-security-and-output-verification", References), ("contract-binding-invalid-values", Binding),
-            ("bounded-task-deadline", Deadline), ("unexpected-zero-exit-is-not-success", UnexpectedExit)
+            ("bounded-task-deadline", Deadline), ("unexpected-zero-exit-is-not-success", UnexpectedExit),
+            ("unsupported-command-rejects-whole-graph", AtomicCommandRejection),
+            ("journal-failure-still-cancels-and-cleans-up", JournalFailureCancellation)
         };
         foreach (var (name, test) in tests) { await test(); Console.WriteLine("PASS " + name); }
         if (args.Length == 1) File.WriteAllText(args[0], JsonSerializer.Serialize(Export, ContractJson.Options));
@@ -199,6 +202,7 @@ static class Program
         Check.Throws<InvalidDataException>(() => (row with { State = "interrupted" }).Validate());
         Check.Throws<InvalidDataException>(() => (row with { State = "succeeded", RawExitCode = 9 }).Validate());
         Check.Throws<InvalidDataException>(() => (row with { SchemaVersion = 2 }).Validate());
+        Check.Throws<InvalidDataException>(() => (row with { State = "failed", ReasonCode = "private_key" }).Validate());
         Check.That(!TaskOrchestrator.Allowed("succeeded", "running"), "Terminal state reopened");
         var json = JsonSerializer.Serialize(row with { State = "failed", RawExitCode = uint.MaxValue }, ContractJson.Options);
         foreach (var spellings in new[] { ("1.0", "2e0", "4294967295.0"), ("1e0", "2.0", "4.294967295e9") })
@@ -233,5 +237,44 @@ static class Program
         await using var core = new TaskOrchestrator([handler], w.Files, w.Journal(), Capacity);
         core.Submit([w.Probe("unexpected")]); await core.RunUntilIdleAsync();
         Check.That(core.Snapshot().Single().State == "failed" && core.Snapshot().Single().RawExitCode == 0, "Unexpected exit0 hidden as success");
+    }
+    static async Task AtomicCommandRejection()
+    {
+        using var w = new Workspace(); int calls = 0;
+        var handler = new Handler(CommandKind.DependencyProbe, (_, _, _) => { calls++; return Task.FromResult(Success()); });
+        await using var core = new TaskOrchestrator([handler], w.Files, w.Journal(), Capacity);
+        Check.Throws<InvalidDataException>(() => core.Submit([w.Probe("valid-before-unsupported"),
+            new("unsupported", new UnsupportedCommand(), [], new(1, 1, 1, false))]));
+        Check.That(core.Snapshot().Count == 0, "Rejected graph was partially queued");
+        await core.RunUntilIdleAsync(); Check.That(calls == 0, "Rejected graph executed a command");
+    }
+    static async Task JournalFailureCancellation()
+    {
+        foreach (var cancelFirst in new[] { true, false })
+        {
+            using var w = new Workspace(); int started = 0, cleaned = 0;
+            var bothStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var handler = new Handler(CommandKind.DependencyProbe, async (_, _, token) =>
+            {
+                if (Interlocked.Increment(ref started) == 2) bothStarted.SetResult();
+                try { await Task.Delay(Timeout.Infinite, token); }
+                finally { Interlocked.Increment(ref cleaned); }
+                return Success();
+            });
+            var core = new TaskOrchestrator([handler], w.Files, w.Journal(), Capacity);
+            core.Submit([w.Probe("first"), w.Probe("second")]); var running = core.RunUntilIdleAsync();
+            await bothStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            var path = Path.Combine(w.Root, "tasks.json"); File.Move(path, path + ".preserved"); Directory.CreateDirectory(path);
+            Exception? cancellationError = null, disposalError = null, runnerError = null;
+            if (cancelFirst) { try { core.Cancel("first"); } catch (Exception error) { cancellationError = error; } }
+            try { await core.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(5)); }
+            catch (Exception error) { disposalError = error; }
+            try { await running; } catch (Exception error) { runnerError = error; }
+            if (cancelFirst) Check.That(cancellationError is IOException or UnauthorizedAccessException, "Expected cancellation journal failure");
+            Check.That(disposalError is AggregateException, "Expected aggregated disposal journal failure, got " + disposalError?.GetType().Name);
+            Check.That(runnerError is IOException or UnauthorizedAccessException or ObjectDisposedException, "Unexpected runner storage-failure classification");
+            Check.That(cleaned == 2, "Journal failure prevented an adapter from receiving/finishing cancellation");
+            using var reopened = w.Journal(); // Disposal must release single-writer ownership despite recorded failures.
+        }
     }
 }

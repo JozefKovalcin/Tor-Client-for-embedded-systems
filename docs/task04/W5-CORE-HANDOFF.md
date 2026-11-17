@@ -25,13 +25,19 @@ The prior absence of SDK was resolved by the user's installation, not by the
 agent. No external NuGet test framework is needed.
 
 - BCL backend build: PASS, zero warnings/errors.
-- Console behavior harness: **12 groups PASS**, including DAG ordering,
+- Console behavior harness: **14 groups PASS**, including DAG ordering,
   exact raw exit `0xC0000142`, cancellation cleanup, retry hashing, heavy/memory/
   ancestor-output serialization, rejected cycles/budgets, crash recovery,
   bounded logs/events, missing outputs, required-field and integer-spelling
   compatibility (bool/fraction/nonfinite/overflow rejected), and task deadline.
   A separate regression verifies unexpected adapter exit0 remains FAILED while
   preserving the actual0 through the explicit FailureReason result axis.
+  Subsequent review regressions cover whole-graph rejection of an unsupported
+  public command subtype, cancellation/complete adapter teardown despite a
+  deterministic journal I/O failure, and W1 reasonCode reference rejection.
+  All commands are now frozen before queue mutation; cancellation delivery is
+  independent of persistence success; shutdown attempts every adapter and
+  releases journal ownership before reporting aggregated failures.
 - W1 validation of 11 representative emitted synthetic snapshots: PASS;
   all eight task states plus determinate/indeterminate progress covered.
 - `python -B scripts/check.py`: **118 discovered / 115 PASS / 3 platform
