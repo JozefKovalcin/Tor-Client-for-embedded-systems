@@ -55,11 +55,17 @@ static class Program
             ("bounded-task-deadline", Deadline), ("unexpected-zero-exit-is-not-success", UnexpectedExit),
             ("unsupported-command-rejects-whole-graph", AtomicCommandRejection),
             ("journal-failure-still-cancels-and-cleans-up", JournalFailureCancellation),
-            ("log-publication-failure-rejects-admission", LogFailureAdmission)
+            ("log-publication-failure-rejects-admission", LogFailureAdmission),
+            ("launch-task-state-write-failure-releases-reservation", () => LaunchWriteFailure("tasks.json")),
+            ("launch-log-write-failure-releases-reservation", () => LaunchWriteFailure("task-logs.json")),
+            ("terminal-log-write-failure-does-not-report-success", TerminalWriteFailure),
+            ("pump-cancellation-awaits-all-adapters-during-journal-failure", PumpCancellationWriteFailure)
         };
-        foreach (var (name, test) in tests) { await test(); Console.WriteLine("PASS " + name); }
+        var selected = args is ["--test", var group] ? tests.Where(t => t.Name == group).ToArray() : tests;
+        Check.That(selected.Length > 0, "Unknown test group");
+        foreach (var (name, test) in selected) { await Task.Run(test).WaitAsync(TimeSpan.FromSeconds(15)); Console.WriteLine("PASS " + name); }
         if (args.Length == 1) File.WriteAllText(args[0], JsonSerializer.Serialize(Export, ContractJson.Options));
-        Console.WriteLine($"{tests.Length} backend behavior groups PASS");
+        Console.WriteLine($"{selected.Length} backend behavior groups PASS");
     }
 
     static async Task Dag()
@@ -299,5 +305,143 @@ static class Program
         await core.RunUntilIdleAsync(); Check.That(calls == 1, "Rejected graph executed after log storage recovered");
         using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(w.Root, "tasks.json")));
         Check.That(document.RootElement.GetArrayLength() == 1, "Rejected graph remained in durable task journal");
+    }
+
+    static async Task RequireWriteFailure(Task operation)
+    {
+        try { await operation.WaitAsync(TimeSpan.FromSeconds(5)); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { return; }
+        throw new Exception("Expected an observable journal write failure");
+    }
+
+    static async Task LaunchWriteFailure(string destination)
+    {
+        using var w = new Workspace();
+        using var journal = w.Journal();
+        int calls = 0;
+        var handler = new Handler(CommandKind.DependencyProbe, (_, _, _) =>
+        { Interlocked.Increment(ref calls); return Task.FromResult(Success()); });
+        await using var core = new TaskOrchestrator([handler], w.Files, journal, new(1, 100, 100, true));
+        core.Submit([w.Probe("first"), w.Probe("independent")]);
+        var queued = core.Snapshot().Single(x => x.TaskId == "first");
+        var path = Path.Combine(w.Root, destination);
+        var preserved = path + ".preserved";
+        File.Move(path, preserved);
+        Directory.CreateDirectory(path);
+        try
+        {
+            await RequireWriteFailure(core.RunUntilIdleAsync());
+            var blocked = core.Snapshot().Single(x => x.TaskId == "first");
+            Console.WriteLine($"{destination}: handler calls={calls}, state={blocked.State}, reason={blocked.ReasonCode}");
+            Check.That(calls == 0 && blocked.State == "blocked" && blocked.Sequence > queued.Sequence &&
+                blocked.ReasonCode == "journal-start-failed", "Failed launch retained a running task or ran an adapter");
+            Check.That(core.Logs().All(x => x.Event != TaskMessage.Started), "Failed launch published a started event");
+            if (destination == "task-logs.json")
+                Check.That(journal.Read().SequenceEqual(core.Snapshot()), "Durable task state did not record the blocked launch");
+        }
+        finally
+        {
+            Directory.Delete(path);
+            File.Move(preserved, path);
+        }
+
+        await core.RunUntilIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
+        Check.That(calls == 1 && core.Snapshot().Single(x => x.TaskId == "independent").State == "succeeded",
+            "Failed launch leaked its reservation or replayed unexpectedly");
+        Check.That(core.Snapshot().Single(x => x.TaskId == "first").State == "blocked", "Failed launch was replayed");
+        Check.That(journal.Read().SequenceEqual(core.Snapshot()), "Recovered scheduler and durable task state disagree");
+
+        core.Retry("first", "retry");
+        await core.RunUntilIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
+        Check.That(calls == 2 && core.Snapshot().Single(x => x.TaskId == "retry") is
+            { State: "succeeded", RetryOfTaskId: "first" }, "An explicit retry did not run after storage recovered");
+    }
+
+    static async Task TerminalWriteFailure()
+    {
+        using var w = new Workspace();
+        using var journal = w.Journal();
+        var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int calls = 0;
+        var handler = new Handler(CommandKind.DependencyProbe, async (_, _, token) =>
+        {
+            if (Interlocked.Increment(ref calls) != 1) return Success();
+            started.SetResult();
+            await release.Task.WaitAsync(token);
+            return Success();
+        });
+        await using var core = new TaskOrchestrator([handler], w.Files, journal, new(1, 100, 100, true));
+        core.Submit([w.Probe("first"), w.Probe("dependent", ["first"])]);
+        var run = core.RunUntilIdleAsync();
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        var path = Path.Combine(w.Root, "task-logs.json");
+        var preserved = path + ".preserved";
+        File.Move(path, preserved);
+        Directory.CreateDirectory(path);
+        try
+        {
+            release.SetResult();
+            Console.WriteLine("Injecting a log write failure after the first adapter returns exit zero");
+            await RequireWriteFailure(run);
+            Check.That(calls == 1 && core.Snapshot().Single(x => x.TaskId == "first") is
+                { State: "failed", ReasonCode: "journal-result-failed", RawExitCode: 0 }, "Failed terminal publication was not reported accurately");
+            Check.That(journal.Read().SequenceEqual(core.Snapshot()), "Durable tasks falsely claim a completed result");
+        }
+        finally
+        {
+            Directory.Delete(path);
+            File.Move(preserved, path);
+        }
+
+        core.Submit([w.Probe("independent")]);
+        await core.RunUntilIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
+        Check.That(calls == 2 && core.Snapshot().Single(x => x.TaskId == "dependent").State == "blocked",
+            "Faulted task remained in the pump or its dependent executed");
+    }
+
+    static async Task PumpCancellationWriteFailure()
+    {
+        using var w = new Workspace();
+        using var token = new CancellationTokenSource();
+        using var journal = w.Journal();
+        var bothStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int started = 0, cleaned = 0;
+        var handler = new Handler(CommandKind.DependencyProbe, async (_, _, cancellation) =>
+        {
+            if (Interlocked.Increment(ref started) == 2) bothStarted.SetResult();
+            try { await Task.Delay(Timeout.Infinite, cancellation); }
+            catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+            finally { Interlocked.Increment(ref cleaned); }
+            return new TaskExecutionResult(23);
+        });
+        await using var core = new TaskOrchestrator([handler], w.Files, journal, new(2, 100, 100, true));
+        core.Submit([w.Probe("first"), w.Probe("second"), w.Probe("queued", ["first"])]);
+        var run = core.RunUntilIdleAsync(token.Token);
+        await bothStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        var path = Path.Combine(w.Root, "tasks.json");
+        var preserved = path + ".preserved";
+        File.Move(path, preserved);
+        Directory.CreateDirectory(path);
+        try
+        {
+            token.Cancel();
+            Exception? failure = null;
+            try { await run.WaitAsync(TimeSpan.FromSeconds(5)); }
+            catch (AggregateException error) { failure = error; }
+            Check.That(failure is AggregateException aggregate && aggregate.InnerExceptions.Count >= 2 &&
+                aggregate.InnerExceptions.All(error => error is IOException or UnauthorizedAccessException),
+                "Pump cancellation did not report the journal failures");
+            Check.That(cleaned == 2 && started == 2, "Cancellation did not wait for both adapters or started queued work");
+            Check.That(core.Snapshot().All(row => row.State == "cancelled" && row.RawExitCode == (row.TaskId == "queued" ? null : 23)),
+                "Cancellation returned without recording the observed cleanup and original result");
+        }
+        finally
+        {
+            Directory.Delete(path);
+            File.Move(preserved, path);
+        }
+        await core.RunUntilIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
+        Check.That(journal.Read().SequenceEqual(core.Snapshot()), "The pump did not reconcile durable cancellation after storage recovered");
     }
 }
