@@ -121,3 +121,30 @@ A wrong or stale approval therefore creates no reservation file, output or
 process. The focused wrong-approval regression asserts the reservation is
 never entered. This remains an execution admission check, not permission to
 run a real build for TASK 04.
+
+
+## Actual supported-host observation — 2026-11-17
+
+The existing lightweight CI supplied a real native Ubuntu 24.04/glibc 2.39
+x86_64 host. Both pre- and post-GCC-fix W3 observations are retained separately
+in reports/task04/w6-native-ci-preflight-{before,after}-gcc-fix.json with exact
+CI run/job/head metadata. They are real host facts, with an explicitly empty
+unit-test archive cache; they do not inventory any operator/global cache.
+
+Run 44066030954 at b2138d0 observed GCC 13.3.0 UNKNOWN because W2 rejected the
+version-suffixed banner. Separate W2 PR #8 corrects only that family detection;
+ordinary merge 6b47405 propagates it. Run 44106907712 / job 134121605126 at
+code head df733a58fcf9972714d9e0b566dca5d9c9bd0485 passed with GCC 13.3.0,
+GNU Make 4.3.0, pkg-config 1.8.1 and all required tool observations AVAILABLE.
+Host: four CPUs, 16,464,306,176 B total RAM, 15,472,259,072 B available RAM,
+94,946,373,632 B free disk at that observation. This is not a reservation.
+
+All five archives are MISSING only in the declared empty test cache. The
+preflight remains NOT RUN with no BuildRequest; no download/source build was
+performed. OS/ABI/tool observations do not qualify a native Tor build, runtime
+or distribution. Original incompatible WSL observation is retained unchanged.
+
+Final code-head CI portable suite: 137 discovered / 134 PASS / three
+Windows-only SKIPPED, plus 15 Kconfig profiles resolved. This evidence-only
+follow-up changes no executable code; JSON structure/scope and whitespace
+checks passed. Packaging planning remains a separate dependent PR.
