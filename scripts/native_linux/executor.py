@@ -449,6 +449,11 @@ def execute_build(source_dir, output_dir, archive_cache, *, approved_input_sha25
     output = Path(output_dir)
     if not output.parent.is_dir():
         raise BuildBlocked("create and review the native workspace parent before approval")
+    # Validate paths, facts and exact approval before creating even a writer
+    # lock. Recheck after reserving so admission cannot reuse a stale report.
+    plan = execution_plan(source_dir, output_dir, archive_cache, root=root)
+    if not plan["readyForExecution"] or plan["executionInputSha256"] != approved_input_sha256:
+        raise BuildBlocked("fresh qualification or approved input digest differs")
     with workspace_reservation(output.parent):
         plan = execution_plan(source_dir, output_dir, archive_cache, root=root)
         if not plan["readyForExecution"] or plan["executionInputSha256"] != approved_input_sha256:

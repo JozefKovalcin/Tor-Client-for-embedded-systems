@@ -144,11 +144,12 @@ class RecipeTests(unittest.TestCase):
             with self.assertRaises(build.BuildBlocked):
                 build.execute_build("/tmp/source", "/tmp/output", "/tmp/cache")
             with tempfile.TemporaryDirectory() as tmp, \
-                    patch.object(build, "workspace_reservation", return_value=nullcontext()), \
+                    patch.object(build, "workspace_reservation", return_value=nullcontext()) as reservation, \
                     patch.object(build, "execution_plan", return_value={"readyForExecution": True, "executionInputSha256": "c" * 64}) as fresh:
                 with self.assertRaisesRegex(build.BuildBlocked, "digest differs"):
                     build.execute_build("/tmp/source", str(Path(tmp) / "new"), "/tmp/cache", approved_input_sha256="b" * 64)
                 fresh.assert_called_once()
+                reservation.assert_not_called()
             engine.assert_not_called()
 
     def test_unqualified_w3_report_is_not_promoted_and_creates_no_output(self):

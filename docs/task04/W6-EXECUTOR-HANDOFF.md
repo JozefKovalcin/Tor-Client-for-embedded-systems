@@ -112,3 +112,12 @@ The integrator must inspect that CI output before claiming supported host
 facts. Source build, complete qualification and runtime gates remain NOT RUN.
 This adds one Linux-only case: Windows now 20 discovered / 17 PASS / 3 skipped;
 CI/Linux should execute the case rather than skip it.
+
+## Admission side-effect hardening
+
+Read-only fresh qualification and exact digest comparison now precede even
+workspace-lock creation; the executor requalifies again under the writer lock.
+A wrong or stale approval therefore creates no reservation file, output or
+process. The focused wrong-approval regression asserts the reservation is
+never entered. This remains an execution admission check, not permission to
+run a real build for TASK 04.
