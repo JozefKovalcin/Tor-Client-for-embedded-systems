@@ -8,6 +8,7 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Tor.Application/Tor.Application.csproj" />
     <Compile Include="Program.cs" />
     <Compile Include="OfflineDesktopTests.cs" />
     <Compile Include="../../Tor.Desktop/Presentation/*.cs" Link="Presentation/%(Filename)%(Extension)" />
