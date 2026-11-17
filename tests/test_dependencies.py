@@ -100,6 +100,21 @@ class ProbeBehaviorTests(unittest.TestCase):
         self.assertEqual(result["version"], "x86_64-linux-gnu")
         self.assertEqual(result["architecture"], "x86_64")
 
+    def test_version_suffixed_gcc_banners_retain_family_and_version_checks(self):
+        for banner in ("gcc-13 (Ubuntu 13.3.0-6ubuntu2) 13.3.0",
+                       "x86_64-linux-gnu-gcc-13 (Ubuntu 13.3.0-6ubuntu2) 13.3.0",
+                       "/usr/bin/x86_64-linux-gnu-gcc-13 (GCC) 13.3.0",
+                       "x86_64-w64-mingw32-gcc-13.3.0.exe (GCC) 13.3.0"):
+            with self.subTest(banner=banner):
+                observed = self.run_tool(output=banner)
+                self.assertEqual(observed["status"], "AVAILABLE")
+                self.assertEqual(observed["version"], "13.3.0")
+        old = self.run_tool(output="x86_64-linux-gnu-gcc-11 (GCC) 11.4.0")
+        self.assertEqual(checker._classified_tool({"minimumVersion": [13]}, old)[0], "INCOMPATIBLE")
+        for banner in ("gcc-preview 13.3.0", "gcc-13-wrapper 13.3.0"):
+            with self.subTest(banner=banner):
+                self.assertEqual(self.run_tool(output=banner)["status"], "UNKNOWN")
+
     def test_target_cannot_include_shell_or_extra_lines(self):
         for text in ("x86_64-linux-gnu; curl example.invalid", "x86_64-linux-gnu\nother"):
             self.assertEqual(self.run_tool("gcc-target", text)["status"], "UNKNOWN")
