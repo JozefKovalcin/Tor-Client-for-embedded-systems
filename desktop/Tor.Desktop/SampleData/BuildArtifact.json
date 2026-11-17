@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "synthetic-artifact",
+  "taskId": "synthetic-task",
+  "targetId": "synthetic-linux-v1",
+  "kind": "runtime-package",
+  "imageProfile": null,
+  "pathRef": "build/native-linux/synthetic/package.tar",
+  "bytes": 0,
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "inputSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "sourceManifestRef": "synthetic-source-manifest",
+  "licenseManifestRef": "synthetic-license-manifest",
+  "toolchainManifestRef": "synthetic-toolchain-manifest",
+  "signature": {
+    "status": "not-verified",
+    "verifierKeyId": null,
+    "evidenceRef": null
+  },
+  "compatibleTargetIds": [
+    "synthetic-linux-v1"
+  ],
+  "layoutId": null,
+  "containsPrivateState": false,
+  "qualificationEvidenceRefs": []
+}

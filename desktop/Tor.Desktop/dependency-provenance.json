@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "purpose": "W4 desktop foundation only; no embedded .NET requirement",
+  "sdk": {
+    "version": "11.0.100",
+    "targetFramework": "net11.0",
+    "runtimeVersion": "11.0.0",
+    "supportChannel": "STS",
+    "reason": "Use the stable SDK already installed by the user; no additional SDK download",
+    "source": "https://dotnet.microsoft.com/en-us/download/dotnet/11.0"
+  },
+  "packages": [
+    {
+      "id": "Avalonia",
+      "version": "12.1.6",
+      "license": "MIT",
+      "source": "https://www.nuget.org/packages/Avalonia/12.1.6"
+    },
+    {
+      "id": "Avalonia.Desktop",
+      "version": "12.1.6",
+      "license": "MIT",
+      "source": "https://www.nuget.org/packages/Avalonia.Desktop/12.1.6"
+    },
+    {
+      "id": "Avalonia.Themes.Fluent",
+      "version": "12.1.6",
+      "license": "MIT",
+      "source": "https://www.nuget.org/packages/Avalonia.Themes.Fluent/12.1.6"
+    }
+  ],
+  "compatibilityEvidence": {
+    "packageTarget": ".NET 8.0 or higher; selected TFM net11.0",
+    "release": "https://github.com/AvaloniaUI/Avalonia/releases/tag/12.1.6",
+    "intendedHosts": [
+      "Windows 11 x64",
+      "Ubuntu 24.04 x86_64/glibc 2.39 with supported desktop display libraries"
+    ],
+    "status": "Windows compile/actual launch/navigation/Dark+Light visual inspection PASS with SDK11.0.100; Linux launch NOT RUN"
+  },
+  "transitiveLock": {
+    "path": "packages.lock.json",
+    "status": "verified",
+    "resolvedPackages": 25,
+    "reason": "User-approved scoped restore generated actual resolved versions/content hashes; each matched restored NuGet metadata, and raw signed archives were hashed separately; locked restore is required thereafter"
+  },
+  "trust": "Official NuGet HTTPS source and exact direct pins; package hash lock is not an independent source-signature verification claim",
+  "reviewedDate": "2026-11-17"
+}

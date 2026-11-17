@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "synthetic-python",
+  "targetId": "synthetic-linux-v1",
+  "status": "BLOCKED",
+  "requirement": "Python 3.12 or newer",
+  "detectedVersion": null,
+  "architecture": null,
+  "requiredFor": [
+    "developer"
+  ],
+  "optional": false,
+  "owner": "package-manager",
+  "approval": "user-consent",
+  "expectedSha256": null,
+  "observedSha256": null,
+  "reason": "Synthetic permission denied; no probe executed",
+  "remediationPlanRef": null,
+  "evidenceRefs": [],
+  "certainty": "BLOCKED"
+}

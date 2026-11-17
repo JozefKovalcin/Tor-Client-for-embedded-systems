@@ -1,0 +1,153 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:TorManager.Desktop.Presentation"
+        x:Class="TorManager.Desktop.MainWindow"
+        Title="Tor Manager · Simulation workspace"
+        Width="1240" Height="860" MinWidth="920" MinHeight="620"
+        Background="{DynamicResource WorkspaceBackground}" FontFamily="Segoe UI, sans-serif"
+        x:CompileBindings="False">
+  <Window.Styles>
+    <Style Selector="TextBlock"><Setter Property="Foreground" Value="{DynamicResource WorkspaceForeground}" /></Style>
+    <Style Selector="TextBlock.muted"><Setter Property="Foreground" Value="{DynamicResource WorkspaceMuted}" /></Style>
+    <Style Selector="Border.card">
+      <Setter Property="Background" Value="{DynamicResource WorkspaceCard}" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="18" />
+      <Setter Property="Margin" Value="0,0,0,12" />
+    </Style>
+    <Style Selector="Button"><Setter Property="Padding" Value="16,9" /></Style>
+    <Style Selector="ListBoxItem"><Setter Property="Padding" Value="18,12" /></Style>
+  </Window.Styles>
+  <Window.DataTemplates>
+    <DataTemplate DataType="{x:Type vm:PageViewModel}">
+      <ScrollViewer>
+        <StackPanel Margin="32,26" Spacing="16">
+          <TextBlock Text="{Binding Title}" FontSize="30" FontWeight="SemiBold" />
+          <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Classes="muted" MaxWidth="840" HorizontalAlignment="Left" />
+          <ItemsControl ItemsSource="{Binding Notices}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Classes="card">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding Detail}" Classes="muted" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <StackPanel IsVisible="{Binding ShowTasks}" Spacing="10">
+            <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,10">
+              <TextBlock Text="Tasks · SIMULATION" FontWeight="SemiBold" VerticalAlignment="Center" />
+              <Button Grid.Column="1" Content="Replay simulation" Command="{Binding $parent[Window].DataContext.ReplayCommand}" />
+            </Grid>
+            <ItemsControl ItemsSource="{Binding $parent[Window].DataContext.Tasks}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Classes="card">
+                    <StackPanel Spacing="9">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                          <TextBlock Text="{Binding TaskId}" FontWeight="SemiBold" />
+                          <TextBlock Text="{Binding Phase}" Classes="muted" />
+                        </StackPanel>
+                        <Border Grid.Column="1" Background="#111820" CornerRadius="4" Padding="8,3">
+                          <TextBlock Text="{Binding StateLabel}" Foreground="{Binding StateColor}" FontWeight="SemiBold" />
+                        </Border>
+                      </Grid>
+                      <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                      <ProgressBar Minimum="0" Maximum="100" Value="{Binding ProgressValue}" Height="5"
+                                   IsVisible="{Binding ShowProgress}" IsIndeterminate="{Binding IsActiveIndeterminate}" />
+                      <TextBlock Text="{Binding ProgressText}" FontSize="12" Classes="muted" />
+                      <TextBlock Text="{Binding Detail}" FontSize="12" Classes="muted" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock Text="Event log · newest retained within 100 entries" FontWeight="SemiBold" />
+            <ItemsControl ItemsSource="{Binding $parent[Window].DataContext.Logs}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Background="{DynamicResource WorkspaceLog}" Padding="12" Margin="0,0,0,4" CornerRadius="4">
+                    <StackPanel Spacing="4">
+                      <TextBlock Text="{Binding TaskId}" FontSize="12" Foreground="{DynamicResource WorkspaceLink}" />
+                      <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                      <TextBlock Text="{Binding Detail}" Classes="muted" TextWrapping="Wrap" FontSize="12" />
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+          <ItemsControl IsVisible="{Binding ShowDependencies}" ItemsSource="{Binding $parent[Window].DataContext.Dependencies}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Classes="card">
+                  <StackPanel Spacing="9">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Text="{Binding Requirement}" FontWeight="SemiBold" />
+                      <Border Grid.Column="1" Background="#111820" CornerRadius="4" Padding="8,3">
+                        <TextBlock Text="{Binding Status}" Foreground="{Binding StateColor}" FontWeight="SemiBold" />
+                      </Border>
+                    </Grid>
+                    <TextBlock Text="{Binding Version}" Classes="muted" />
+                    <TextBlock Text="{Binding Reason}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <Border IsVisible="{Binding ShowSettings}" Classes="card">
+            <StackPanel Spacing="16">
+              <TextBlock Text="Application preferences" FontSize="19" FontWeight="SemiBold" />
+              <TextBlock Text="Appearance" />
+              <ComboBox Width="230" HorizontalAlignment="Left"
+                        ItemsSource="{Binding $parent[Window].DataContext.Themes}"
+                        SelectedItem="{Binding $parent[Window].DataContext.Theme, Mode=TwoWay}" />
+              <CheckBox Content="Animate the bounded simulated task stream"
+                        IsChecked="{Binding $parent[Window].DataContext.AnimateSimulation, Mode=TwoWay}" />
+              <TextBlock Text="Your workspace mode is selected in the header. Preferences do not authorize installation, builds or device actions."
+                         Classes="muted" TextWrapping="Wrap" />
+              <Button Content="Save UI preferences" HorizontalAlignment="Left"
+                      Command="{Binding $parent[Window].DataContext.SaveSettingsCommand}" />
+              <TextBlock Text="{Binding $parent[Window].DataContext.SettingsNotice}" TextWrapping="Wrap" Classes="muted" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+    </DataTemplate>
+  </Window.DataTemplates>
+  <Grid ColumnDefinitions="232,*" RowDefinitions="84,*,72">
+    <Border Grid.RowSpan="3" Background="{DynamicResource WorkspaceSidebar}" BorderBrush="{DynamicResource WorkspaceBorder}" BorderThickness="0,0,1,0">
+      <Grid RowDefinitions="105,*,100">
+        <StackPanel Margin="22,26" Spacing="6">
+          <TextBlock Text="TOR MANAGER" FontWeight="Bold" FontSize="19" />
+          <TextBlock Text="Desktop foundation" FontSize="12" Classes="muted" />
+        </StackPanel>
+        <ListBox Grid.Row="1" ItemsSource="{Binding Pages}" SelectedItem="{Binding CurrentPage, Mode=TwoWay}"
+                 Background="Transparent" BorderThickness="0" Margin="10,0">
+          <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Title}" /></DataTemplate></ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel Grid.Row="2" Margin="22,16" Spacing="6">
+          <TextBlock Text="LOCAL WORKSPACE" FontSize="11" Classes="muted" />
+          <TextBlock Text="Simulation mode" Foreground="{DynamicResource WorkspaceAccent}" FontWeight="SemiBold" />
+          <TextBlock Text="No Tor process connected" FontSize="11" Classes="muted" />
+        </StackPanel>
+      </Grid>
+    </Border>
+    <Border Grid.Column="1" BorderBrush="{DynamicResource WorkspaceBorder}" BorderThickness="0,0,0,1" Padding="32,16">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Spacing="5">
+          <TextBlock Text="SIMULATED DATA · NOT RUNTIME EVIDENCE" Foreground="{DynamicResource WorkspaceAccent}" FontWeight="SemiBold" FontSize="12" />
+          <TextBlock Text="{Binding TaskSummary}" Classes="muted" FontSize="12" />
+        </StackPanel>
+        <ComboBox Grid.Column="1" ItemsSource="{Binding Modes}" SelectedItem="{Binding SelectedMode, Mode=TwoWay}" Width="165" />
+      </Grid>
+    </Border>
+    <ContentControl Grid.Column="1" Grid.Row="1" Content="{Binding CurrentPage}" />
+    <Border Grid.Column="1" Grid.Row="2" Background="{DynamicResource WorkspaceSidebar}" Padding="24,16" BorderBrush="{DynamicResource WorkspaceBorder}" BorderThickness="0,1,0,0">
+      <TextBlock Text="{Binding ModeDescription}" TextWrapping="Wrap" Classes="muted" FontSize="12" VerticalAlignment="Center" />
+    </Border>
+  </Grid>
+</Window>

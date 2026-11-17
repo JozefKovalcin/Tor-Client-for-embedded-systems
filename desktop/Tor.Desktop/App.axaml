@@ -1,0 +1,36 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="TorManager.Desktop.App"
+             RequestedThemeVariant="Dark">
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="WorkspaceBackground">#111820</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceSidebar">#151F29</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceCard">#1B2632</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceBorder">#2A3745</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceForeground">#E4EBF2</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceMuted">#A6B3C1</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceLog">#151F29</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceAccent">#E8C36B</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceLink">#8ABEFF</SolidColorBrush>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="WorkspaceBackground">#F4F7FA</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceSidebar">#E7EEF5</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceCard">#FFFFFF</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceBorder">#CBD5E1</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceForeground">#162332</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceMuted">#4E6175</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceLog">#EDF3F8</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceAccent">#8A5D00</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceLink">#185DA7</SolidColorBrush>
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+  <Application.Styles>
+    <FluentTheme />
+  </Application.Styles>
+</Application>

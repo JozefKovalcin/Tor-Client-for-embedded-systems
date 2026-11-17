@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net11.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="../../Tor.Desktop/Presentation/*.cs" Link="Presentation/%(Filename)%(Extension)" />
+    <Compile Include="../../Tor.Desktop/Services/*.cs" Link="Services/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="../../Tor.Desktop/SampleData/*.json" LogicalName="TorManager.Desktop.SampleData.%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>
