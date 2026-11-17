@@ -14,7 +14,7 @@ import tempfile
 import threading
 import time
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from scripts.contracts import validate_contract
 from scripts.native_linux import executor as build
@@ -70,6 +70,40 @@ class SourceSafetyTests(unittest.TestCase):
         snapshot.write_bytes(b"changed bytes")
         with self.assertRaisesRegex(ValueError, "changed"):
             build.extract_snapshot(snapshot, self.root / "sources", pin, byte_budget=1024)
+
+    def test_growing_archive_is_rejected_without_exceeding_admitted_size(self):
+        cache, snapshots = self.root / "cache", self.root / "snapshots"
+        name, content = "growing.tar", b"original"
+        archive = cache / name
+        archive.write_bytes(content)
+        pin = {"archive": name, "sha256": hashlib.sha256(content).hexdigest()}
+        open_stream = os.fdopen
+
+        class GrowingStream(io.FileIO):
+            def read(self, size=-1):
+                if self.tell() == 0:
+                    with archive.open("ab") as writer:
+                        writer.write(b"x" * 100_000)
+                return super().read(size)
+
+        def wrap(descriptor, mode, **kwargs):
+            return GrowingStream(descriptor, mode) if mode == "rb" else open_stream(descriptor, mode, **kwargs)
+
+        with patch.object(build, "MAX_FILE_BYTES", 16), patch.object(build.os, "fdopen", side_effect=wrap):
+            with self.assertRaises(ValueError):
+                build.snapshot_source(cache, snapshots, pin)
+        # Even failed partial evidence must respect the admitted eight bytes.
+        self.assertLessEqual((snapshots / name).stat().st_size, len(content))
+
+    def test_snapshot_copy_checks_cancellation_between_chunks(self):
+        cache, snapshots = self.root / "cache", self.root / "snapshots"
+        name, content = "interrupt.tar", b"x" * (1024 * 1024 + 1)
+        (cache / name).write_bytes(content)
+        pin = {"archive": name, "sha256": hashlib.sha256(content).hexdigest()}
+        checkpoint = Mock(side_effect=[None, InterruptedError("cancelled")])
+        with self.assertRaises(InterruptedError):
+            build.snapshot_source(cache, snapshots, pin, checkpoint=checkpoint)
+        self.assertEqual((snapshots / name).stat().st_size, 1024 * 1024)
 
     def test_path_traversal_absolute_backslash_and_wrong_root_are_refused(self):
         for index, path in enumerate(("../escape", "/absolute", "synthetic/../escape", "synthetic\\evil", "other/file", "synthetic/C:bad")):
@@ -305,6 +339,83 @@ class EngineTests(unittest.TestCase):
         plan["buildRequest"].update(mode="build", inputSha256=plan["executionInputSha256"])
         return plan
 
+    @unittest.skipUnless(sys.platform == "linux", "Linux workspace permission enforcement")
+    def test_shared_workspace_parent_is_refused_before_lock_or_execution(self):
+        parent = self.root / "shared"
+        parent.mkdir()
+        output = parent / "new"
+        approval = {"readyForExecution": True, "executionInputSha256": "b" * 64}
+        for mode in (0o777, 0o770, 0o1777):
+            with self.subTest(mode=oct(mode)):
+                parent.chmod(mode)
+                with patch.object(build, "execution_plan", return_value=approval), \
+                        patch.object(build, "_run_verified") as engine:
+                    with self.assertRaisesRegex(build.BuildBlocked, "workspace.*private"):
+                        build.execute_build(str(self.root / "sources"), str(output), str(self.root / "cache"),
+                                            approved_input_sha256=approval["executionInputSha256"])
+                    engine.assert_not_called()
+                self.assertEqual(list(parent.iterdir()), [])
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux workspace permission enforcement")
+    def test_workspace_rejects_wrong_owner_symlink_and_unsafe_ancestor(self):
+        parent = self.root / "private"
+        parent.mkdir(mode=0o700)
+        link = self.root / "link"
+        link.symlink_to(parent, target_is_directory=True)
+        shared = self.root / "shared"
+        shared.mkdir()
+        shared.chmod(0o777)
+        nested = shared / "private"
+        nested.mkdir(mode=0o700)
+        approval = {"readyForExecution": True, "executionInputSha256": "b" * 64}
+        with patch.object(build, "execution_plan", return_value=approval), \
+                patch.object(build, "_run_verified") as engine:
+            def execute(destination):
+                return build.execute_build(str(self.root / "sources"), str(destination), str(self.root / "cache"),
+                                           approved_input_sha256=approval["executionInputSha256"])
+
+            with self.assertRaisesRegex(build.BuildBlocked, "symlink"):
+                execute(link / "run")
+            with self.assertRaisesRegex(build.BuildBlocked, "ancestor"):
+                execute(nested / "run")
+            with patch.object(build.os, "geteuid", return_value=os.geteuid() + 1):
+                with self.assertRaises(build.BuildBlocked):
+                    execute(parent / "run")
+            engine.assert_not_called()
+        self.assertEqual(list(parent.iterdir()), [])
+        self.assertEqual(list(nested.iterdir()), [])
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux workspace identity enforcement")
+    def test_workspace_replacement_cannot_receive_final_evidence(self):
+        plan = self.synthetic_plan()
+        plan["readyForExecution"] = True
+        output = self.root / "run"
+        preserved = self.root / "original"
+        runner = Mock()
+
+        def replace_run(command, log_path, cancellation):
+            self.assertEqual(Path(command.cwd).parent, output / "sources")
+            Path(log_path).write_bytes(b"synthetic retained log")
+            log_sha = build.native.hash_file(log_path)
+            output.rename(preserved)
+            output.mkdir(mode=0o700)
+            return {"returnCode": 23, "rawExitCode": 23, "terminationSignal": None,
+                    "reason": None, "logSha256": log_sha}
+
+        runner.run.side_effect = replace_run
+        with patch.object(build, "execution_plan", return_value=plan), \
+                patch.object(build, "ProcessRunner", return_value=runner):
+            result = build.execute_build(str(self.root / "sources"), str(output), str(self.root / "cache"),
+                                         approved_input_sha256=plan["executionInputSha256"])
+        runner.run.assert_called_once()
+        self.assertEqual(result["status"], "BLOCKED")
+        self.assertEqual(list(output.iterdir()), [])
+        manifest = json.loads((preserved / "build-manifest.json").read_text())
+        self.assertEqual(manifest["status"], "BLOCKED")
+        self.assertEqual(manifest["commands"][0]["rawExitCode"], 23)
+        saved_log = preserved / "logs/00-zlib-configure.log"
+        self.assertEqual(manifest["commands"][0]["logSha256"], build.native.hash_file(saved_log))
+
     def test_synthetic_engine_success_emits_valid_w1_progress_and_output_digest(self):
         plan, output = self.synthetic_plan(), self.root / "run"
         class FakeRunner:
@@ -350,6 +461,15 @@ class EngineTests(unittest.TestCase):
         runner.return_value.run.assert_not_called()
         self.assertEqual(result["status"], "CANCELLED")
         self.assertEqual(result["commands"], [])
+
+    def test_build_deadline_already_applies_during_source_preparation(self):
+        output = self.root / "expired"
+        with patch.object(build, "BUILD_TIMEOUT", 0), patch.object(build, "ProcessRunner") as runner:
+            result = build._run_verified(self.synthetic_plan(), output, self.root / "cache", threading.Event())
+        runner.return_value.run.assert_not_called()
+        self.assertEqual(result["status"], "FAIL")
+        self.assertEqual(result["errorType"], "TimeoutError")
+        self.assertEqual(list((output / "snapshots").iterdir()), [])
 
 
 if __name__ == "__main__":

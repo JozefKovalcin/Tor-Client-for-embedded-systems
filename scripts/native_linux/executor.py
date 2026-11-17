@@ -112,7 +112,25 @@ def _same_file(metadata):
     return value + ((metadata.st_ctime_ns,) if os.name == "posix" else ())
 
 
-def snapshot_source(cache, snapshots, pin):
+def _source_blocks(stream, checkpoint):
+    while True:
+        if checkpoint is not None:
+            checkpoint()
+        block = stream.read(1024 * 1024)
+        if not block:
+            return
+        yield block
+
+
+def _source_digest(stream, checkpoint):
+    stream.seek(0)
+    digest = hashlib.sha256()
+    for block in _source_blocks(stream, checkpoint):
+        digest.update(block)
+    return digest.hexdigest()
+
+
+def snapshot_source(cache, snapshots, pin, *, checkpoint=None):
     """Copy one descriptor into a private immutable-by-policy verified snapshot."""
     name = pin["archive"]
     if PurePosixPath(name).name != name or "\\" in name or name in ("", ".", ".."):
@@ -123,38 +141,55 @@ def snapshot_source(cache, snapshots, pin):
         raise ValueError("source must be a regular file, never a symlink")
     if before.st_size <= 0 or before.st_size > MAX_FILE_BYTES:
         raise ValueError("compressed source snapshot byte budget exceeded")
-    fd = os.open(source_path, os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0))
+    fd = os.open(source_path, os.O_RDONLY | getattr(os, "O_BINARY", 0) |
+                 getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
     digest = hashlib.sha256()
     with os.fdopen(fd, "rb", buffering=0) as source, destination.open("xb") as target:
         opened = os.fstat(source.fileno())
         if _same_file(opened) != _same_file(before):
             raise ValueError("source replaced before snapshot")
-        for block in iter(lambda: source.read(1024 * 1024), b""):
+        remaining = opened.st_size
+        while remaining:
+            if checkpoint is not None:
+                checkpoint()
+            block = source.read(min(1024 * 1024, remaining))
+            if not block or len(block) > remaining:
+                raise ValueError("source size changed during snapshot")
+            remaining -= len(block)
             digest.update(block)
             target.write(block)
-        if (_same_file(os.fstat(source.fileno())) != _same_file(opened) or
+        if checkpoint is not None:
+            checkpoint()
+        if (source.read(1) or _same_file(os.fstat(source.fileno())) != _same_file(opened) or
                 _same_file(source_path.stat(follow_symlinks=False)) != _same_file(before)):
             raise ValueError("source changed during snapshot")
-    if digest.hexdigest() != pin["sha256"] or native.hash_file(destination) != pin["sha256"]:
-        raise ValueError("snapshot SHA-256 differs from pinned archive")
+    with destination.open("rb") as saved:
+        if digest.hexdigest() != pin["sha256"] or _source_digest(saved, checkpoint) != pin["sha256"]:
+            raise ValueError("snapshot SHA-256 differs from pinned archive")
     destination.chmod(0o400)
     return destination
 
 
-def extract_snapshot(snapshot, source_root, pin, *, byte_budget):
+def extract_snapshot(snapshot, source_root, pin, *, byte_budget, checkpoint=None):
     """Extract only unique regular files/directories under the pinned top directory.
 
     No tarfile.extract API, links, devices, ownership or archive permissions are
     trusted. Rejecting links is intentionally conservative for an unqualified
     source release. A failed run is retained rather than cleaned or reused.
     """
-    if native.hash_file(snapshot) != pin["sha256"]:
-        raise ValueError("snapshot changed before extraction")
     seen, total = set(), 0
-    root = Path(source_root).resolve(strict=True)
+    # Keep the held workspace directory reference during extraction.
+    root = Path(source_root).absolute()
+    if not root.is_dir():
+        raise FileNotFoundError("source extraction root must already exist")
     with Path(snapshot).open("rb", buffering=0) as stream:
+        if _source_digest(stream, checkpoint) != pin["sha256"]:
+            raise ValueError("snapshot changed before extraction")
+        stream.seek(0)
         with tarfile.open(fileobj=stream, mode="r:*") as archive:
             for member in archive:
+                if checkpoint is not None:
+                    checkpoint()
                 if len(seen) >= MAX_MEMBERS:
                     raise ValueError("archive member budget exceeded")
                 path = PurePosixPath(member.name)
@@ -181,7 +216,7 @@ def extract_snapshot(snapshot, source_root, pin, *, byte_budget):
                     raise ValueError("unreadable source member")
                 copied = 0
                 with content, destination.open("xb") as target:
-                    for block in iter(lambda: content.read(1024 * 1024), b""):
+                    for block in _source_blocks(content, checkpoint):
                         copied += len(block)
                         if copied > member.size:
                             raise ValueError("member size mismatch")
@@ -189,12 +224,13 @@ def extract_snapshot(snapshot, source_root, pin, *, byte_budget):
                 if copied != member.size:
                     raise ValueError("truncated member")
                 destination.chmod(0o700 if member.mode & 0o111 else 0o600)
-        if native._hash_stream(stream) != pin["sha256"]:
+        if _source_digest(stream, checkpoint) != pin["sha256"]:
             raise ValueError("snapshot changed during extraction")
     directory = root / pin["directory"]
     license_path = directory / pin["license_file"]
-    if native.hash_file(license_path) != pin["license_sha256"]:
-        raise ValueError("extracted license differs from pin")
+    with license_path.open("rb") as license_stream:
+        if _source_digest(license_stream, checkpoint) != pin["license_sha256"]:
+            raise ValueError("extracted license differs from pin")
     return directory, total
 
 
@@ -254,8 +290,9 @@ def build_commands(plan, output):
 
 class ProcessRunner:
     """Bounded output/deadline and POSIX process-group teardown, no shell."""
-    def __init__(self, *, timeout=COMMAND_TIMEOUT, max_log_bytes=MAX_LOG_BYTES, grace_seconds=2):
+    def __init__(self, *, timeout=COMMAND_TIMEOUT, max_log_bytes=MAX_LOG_BYTES, grace_seconds=2, deadline=None):
         self.timeout, self.max_log_bytes, self.grace_seconds = timeout, max_log_bytes, grace_seconds
+        self.deadline = deadline
 
     def run(self, command, log_path, cancellation):
         # Claim the log before spawning: denied/existing logs cannot orphan a
@@ -282,9 +319,11 @@ class ProcessRunner:
                         read_error.append(type(exc).__name__)
                 reader = threading.Thread(target=copy_output, daemon=True)
                 reader.start()
-                started = time.monotonic()
+                deadline = time.monotonic() + self.timeout
+                if self.deadline is not None:
+                    deadline = min(deadline, self.deadline)
                 while process.poll() is None:
-                    if cancellation.is_set() or overflow.is_set() or read_error or time.monotonic() - started >= self.timeout:
+                    if cancellation.is_set() or overflow.is_set() or read_error or time.monotonic() >= deadline:
                         reason = ("cancelled" if cancellation.is_set() else "log-budget" if overflow.is_set()
                                   else "log-write-failure" if read_error else "timeout")
                         break
@@ -352,15 +391,53 @@ class Progress:
 
 
 @contextmanager
-def workspace_reservation(parent):
-    """One native source writer per workspace parent, released on runner exit."""
-    if os.name != "posix":
-        raise BuildBlocked("native Linux executor requires POSIX locks/process groups")
-    import fcntl
-    descriptor = os.open(Path(parent) / ".tor-native-build.lock",
-                         os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+def _open_workspace_parent(parent):
+    """Admit an owner-only destination reached through trusted directories."""
+    if sys.platform != "linux" or os.name != "posix":
+        raise BuildBlocked("native Linux executor requires Linux directory handles")
+    if parent.anchor != "/" or len(parent.parts) < 2 or ".." in parent.parts:
+        raise BuildBlocked("workspace parent must be an absolute native path")
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    owner = os.geteuid()
+    descriptor = os.open("/", flags)
     try:
-        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+        try:
+            metadata = os.fstat(descriptor)
+            for part in parent.parts[1:]:
+                # A sticky shared ancestor such as /tmp protects its trusted
+                # child from replacement by other unprivileged writers.
+                unprotected = metadata.st_mode & 0o022 and not metadata.st_mode & stat.S_ISVTX
+                if metadata.st_uid not in (0, owner) or unprotected:
+                    raise BuildBlocked("workspace ancestor permits untrusted directory replacement")
+                child = os.open(part, flags, dir_fd=descriptor)
+                os.close(descriptor)
+                descriptor = child
+                metadata = os.fstat(descriptor)
+            if metadata.st_uid != owner or metadata.st_mode & 0o077:
+                raise BuildBlocked("workspace parent must be private and owned by the build user")
+            anchor = Path("/proc/self/fd") / str(descriptor)
+            if not os.path.samestat(metadata, anchor.stat()):
+                raise BuildBlocked("workspace directory handle is unavailable through procfs")
+        except OSError as exc:
+            raise BuildBlocked("workspace directory is missing, inaccessible or contains a symlink") from exc
+        yield descriptor
+    finally:
+        os.close(descriptor)
+
+
+@contextmanager
+def workspace_reservation(parent_fd):
+    """One native source writer per workspace parent, released on runner exit."""
+    import fcntl
+    try:
+        descriptor = os.open(".tor-native-build.lock", os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK,
+                             0o600, dir_fd=parent_fd)
+    except OSError as exc:
+        raise BuildBlocked("cannot open the private workspace lock") from exc
+    try:
+        metadata = os.fstat(descriptor)
+        if (not stat.S_ISREG(metadata.st_mode) or metadata.st_uid != os.geteuid() or
+                metadata.st_mode & 0o077 or metadata.st_nlink != 1):
             raise BuildBlocked("invalid workspace lock")
         try:
             fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -371,11 +448,58 @@ def workspace_reservation(parent):
         os.close(descriptor)
 
 
-def _run_verified(plan, output, archive_cache, cancellation, *, runner=None):
+def _check_workspace_path(output, parent_fd, run_fd=None):
+    """Check the human-readable path used by the fixed toolchain recipe."""
+    with _open_workspace_parent(output.parent) as current_parent:
+        if not os.path.samestat(os.fstat(parent_fd), os.fstat(current_parent)):
+            raise BuildBlocked("workspace parent changed during execution")
+        if run_fd is not None:
+            try:
+                current_run = os.stat(output.name, dir_fd=current_parent, follow_symlinks=False)
+            except OSError as exc:
+                raise BuildBlocked("workspace run directory disappeared during execution") from exc
+            if (not os.path.samestat(os.fstat(run_fd), current_run) or
+                    current_run.st_uid != os.geteuid() or current_run.st_mode & 0o077):
+                raise BuildBlocked("workspace run directory changed during execution")
+
+
+@contextmanager
+def _create_workspace_run(output, parent_fd):
+    _check_workspace_path(output, parent_fd)
+    # Exclusive creation in the admitted directory, even if its name moves.
+    os.mkdir(output.name, mode=0o700, dir_fd=parent_fd)
+    descriptor = os.open(output.name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent_fd)
+    try:
+        _check_workspace_path(output, parent_fd, descriptor)
+        yield descriptor
+    finally:
+        os.close(descriptor)
+
+
+def _run_verified(plan, output, archive_cache, cancellation, *, runner=None, workspace=None):
     """Internal engine; public entry obtains fresh qualification and approval."""
-    runner = runner or ProcessRunner()
+    deadline = time.monotonic() + BUILD_TIMEOUT
+    runner = runner or ProcessRunner(deadline=deadline)
     output = Path(output)
-    output.mkdir(mode=0o700)  # Atomic refusal to reuse existing/failed output.
+    recipe_output = output
+    if workspace is None:
+        output.mkdir(mode=0o700)  # Portable synthetic engine tests.
+    else:
+        # Evidence and sources stay in the original owned inode even if an
+        # already trusted writer changes the directory's public name.
+        output = Path("/proc/self/fd") / str(workspace[1])
+
+    def check_workspace():
+        if workspace is not None:
+            _check_workspace_path(recipe_output, *workspace)
+
+    def checkpoint():
+        if cancellation.is_set():
+            raise InterruptedError("build cancelled")
+        if time.monotonic() >= deadline:
+            raise TimeoutError("build wall-clock budget exceeded")
+
+    check_workspace()
     for folder in ("sources", "snapshots", "prefix", "logs", "home", "tmp"):
         (output / folder).mkdir(mode=0o700)
     # Input hashes identify reusable inputs; task IDs identify distinct attempts.
@@ -393,23 +517,23 @@ def _run_verified(plan, output, archive_cache, cancellation, *, runner=None):
         used = 0
         budget = plan["preflight"]["buildRequest"]["diskBudgetBytes"]
         for pin in plan["inputs"]["sources"]:
-            if cancellation.is_set():
-                raise InterruptedError("cancelled before source preparation")
-            snapshot = snapshot_source(archive_cache, output / "snapshots", pin)
-            _, size = extract_snapshot(snapshot, output / "sources", pin, byte_budget=budget - used)
+            checkpoint()
+            check_workspace()
+            snapshot = snapshot_source(archive_cache, output / "snapshots", pin, checkpoint=checkpoint)
+            _, size = extract_snapshot(snapshot, output / "sources", pin, byte_budget=budget - used,
+                                       checkpoint=checkpoint)
             used += size
-        started = time.monotonic()
-        for index, command in enumerate(build_commands(plan, output)):
-            if cancellation.is_set():
-                raise InterruptedError("cancelled before next command")
-            if time.monotonic() - started >= BUILD_TIMEOUT:
-                raise TimeoutError("build wall-clock budget exceeded")
+        for index, command in enumerate(build_commands(plan, recipe_output)):
+            checkpoint()
             _verify_tools(plan["inputs"]["tools"])
             if shutil.disk_usage(output).free < budget:
                 raise BuildBlocked("native disk headroom below approved reservation")
             progress.emit("running", command.name, "Running fixed native source recipe; progress indeterminate")
+            checkpoint()
+            check_workspace()
             result = runner.run(command, output / "logs" / f"{index:02d}-{command.name}.log", cancellation)
             manifest["commands"].append({"name": command.name, "argv": list(command.argv), **result})
+            check_workspace()
             write_json(output / "build-manifest.json", manifest)
             if result["returnCode"] != 0 or result["reason"]:
                 state = "cancelled" if result["reason"] == "cancelled" else "failed"
@@ -418,6 +542,8 @@ def _run_verified(plan, output, archive_cache, cancellation, *, runner=None):
                               result=result, reason=result["reason"] or "process-failure")
                 break
         else:
+            checkpoint()
+            check_workspace()
             tor = output / "prefix/bin/tor"
             if not tor.is_file() or tor.is_symlink() or tor.stat().st_size == 0:
                 raise ValueError("successful commands did not produce a regular nonempty Tor executable")
@@ -447,18 +573,18 @@ def execute_build(source_dir, output_dir, archive_cache, *, approved_input_sha25
     if not native.SHA256.fullmatch(approved_input_sha256 or ""):
         raise BuildBlocked("explicit SHA-256-scoped source compilation approval required")
     output = Path(output_dir)
-    if not output.parent.is_dir():
-        raise BuildBlocked("create and review the native workspace parent before approval")
     # Validate paths, facts and exact approval before creating even a writer
     # lock. Recheck after reserving so admission cannot reuse a stale report.
     plan = execution_plan(source_dir, output_dir, archive_cache, root=root)
     if not plan["readyForExecution"] or plan["executionInputSha256"] != approved_input_sha256:
         raise BuildBlocked("fresh qualification or approved input digest differs")
-    with workspace_reservation(output.parent):
+    with _open_workspace_parent(output.parent) as parent_fd, workspace_reservation(parent_fd):
         plan = execution_plan(source_dir, output_dir, archive_cache, root=root)
         if not plan["readyForExecution"] or plan["executionInputSha256"] != approved_input_sha256:
             raise BuildBlocked("fresh qualification or approved input digest differs")
-        return _run_verified(plan, output, archive_cache, cancellation or threading.Event())
+        with _create_workspace_run(output, parent_fd) as run_fd:
+            return _run_verified(plan, output, archive_cache, cancellation or threading.Event(),
+                                 workspace=(parent_fd, run_fd))
 
 
 def main(argv=None):
