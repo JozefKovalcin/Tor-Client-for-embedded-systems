@@ -189,6 +189,43 @@ class RecipeTests(unittest.TestCase):
             with self.assertRaisesRegex(build.BuildBlocked, "tool bytes"):
                 build._verify_tools(tools)
 
+    @unittest.skipUnless(sys.platform == "linux", "Actual Linux preflight observation")
+    def test_real_linux_preflight_records_observation_without_building(self):
+        root = Path(__file__).resolve().parents[1]
+        policy = build.native._load_json(root / "config/native-linux/v1.json")
+        with tempfile.TemporaryDirectory(prefix="tor-w6-preflight-") as temporary:
+            folder = Path(temporary)
+            cache, output = folder / "explicit-empty-cache", folder / "never-created-output"
+            cache.mkdir()
+            before = set(folder.rglob("*"))
+            report = build.native.preflight(str(root), str(output), str(cache), root=root)
+            self.assertEqual(report["executionStatus"], "NOT RUN")
+            self.assertFalse(report["readyForBuildPlan"])
+            self.assertIsNone(report["buildRequest"])
+            self.assertFalse(output.exists())
+            self.assertEqual(before, set(folder.rglob("*")))
+            self.assertTrue(all(item["status"] == "MISSING" for item in report["sourceObservations"]))
+            host = report["environment"]["host"]
+            selected = all(host.get(name) == wanted for name, wanted in (
+                ("os", "linux"), ("architecture", "x86_64"), ("distroId", "ubuntu"),
+                ("distroVersion", "24.04"), ("libcName", "glibc"), ("libcVersion", "2.39")))
+            observation = {"schemaVersion": 1, "kind": "actual-w6-preflight-observation",
+                           "scope": "host-native" if not host.get("isWsl") else "wsl-host",
+                           "selectedHostFactsMatch": selected, "host": host,
+                           "resources": report["environment"]["resources"],
+                           "sourceCheckout": str(root), "output": str(output), "archiveCache": str(cache),
+                           "cacheScope": "Explicit newly-created empty unit-test cache only; no global cache discovery",
+                           "tools": {name: {key: row.get(key) for key in ("status", "version", "path", "architecture")}
+                                     for name, row in report["toolchainManifest"].items()},
+                           "archives": report["sourceObservations"],
+                           "requiredNotAvailable": report["requiredNotAvailable"],
+                           "executionStatus": "NOT RUN", "buildRequest": None,
+                           "limitation": "Environment observation only; missing archives deliberately scoped to empty cache, no build/runtime qualification"}
+        evidence = root / "build/task04-checks/native-ci-preflight.json"
+        evidence.parent.mkdir(parents=True, exist_ok=True)
+        evidence.write_text(json.dumps(observation, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+        print("W6_NATIVE_PREFLIGHT_OBSERVATION=" + json.dumps(observation, sort_keys=True))
+
 
 class ProcessTests(unittest.TestCase):
     def command(self, code, cwd):

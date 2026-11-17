@@ -93,3 +93,22 @@ Progress insertion for the integrator: W6 adds opt-in exact-input native
 source execution infrastructure and synthetic process/archive regression
 coverage; actual WSL observation is incompatible/missing inputs, so real
 build and package/runtime qualification remain BLOCKED/NOT RUN.
+
+## Real Linux CI observation follow-up
+
+A Linux-only offline smoke now executes the actual W3 probes on whichever
+Linux test host is running. It records host/ABI, actual tool versions/statuses,
+resources and source/archive statuses in ignored
+`build/task04-checks/native-ci-preflight.json` and the job-log sentinel
+`W6_NATIVE_PREFLIGHT_OBSERVATION=`. Source probing uses the actual checkout;
+the cache is an explicitly empty temporary test cache, so MISSING applies to
+that cache only and is not a global archive-inventory claim. The test proves
+no build output/cache mutation and never calls the executor.
+
+The existing CI runner may provide real Ubuntu 24.04 / glibc 2.39 environment
+observation even though the available local WSL host differs. Supported-host
+matching is recorded from observed facts, not assumed from the workflow label.
+The integrator must inspect that CI output before claiming supported host
+facts. Source build, complete qualification and runtime gates remain NOT RUN.
+This adds one Linux-only case: Windows now 20 discovered / 17 PASS / 3 skipped;
+CI/Linux should execute the case rather than skip it.
