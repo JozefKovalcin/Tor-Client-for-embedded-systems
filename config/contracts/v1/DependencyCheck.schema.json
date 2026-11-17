@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:tor-client:contracts:v1:DependencyCheck",
+  "title": "DependencyCheck",
+  "description": "TASK 01 v1 contract. Cross-field invariants are enforced by scripts/contracts.py; see config/contracts/README.md.",
+  "$defs": {
+    "Ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(?:/[A-Za-z0-9][A-Za-z0-9_.-]*)*$(?![\\s\\S])",
+      "not": {
+        "anyOf": [
+          {
+            "pattern": "(?:^|/)(?:[cC][oO][nN][tT][rR][oO][lL]_[aA][uU][tT][hH]_[cC][oO][oO][kK][iI][eE]|[hH][sS]_[eE][dD]25519_[sS][eE][cC][rR][eE][tT]_[kK][eE][yY]|[pP][rR][iI][vV][aA][tT][eE]_[kK][eE][yY]|[dD][aA][tT][aA][dD][iI][rR][eE][cC][tT][oO][rR][yY]|[hH][iI][dD][dD][eE][nN]_[sS][eE][rR][vV][iI][cC][eE]|[dD][aA][tT][aA]-[oO][nN][iI][oO][nN]|[oO][nN][iI][oO][nN]-[sS][eE][rR][vV][iI][cC][eE])(?:/|$)"
+          },
+          {
+            "pattern": "\\.(?:[pP][eE][mM]|[kK][eE][yY]|[cC][oO][oO][kK][iI][eE]|[pP][fF][xX]|[pP]12)$(?![\\s\\S])"
+          }
+        ]
+      }
+    },
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "Metric": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "unit": {
+          "enum": [
+            "B",
+            "s",
+            "B/s",
+            "%",
+            "count"
+          ]
+        },
+        "method": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unavailableReason": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "method",
+        "unavailableReason"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "id": {
+      "$ref": "#/$defs/Ref"
+    },
+    "targetId": {
+      "$ref": "#/$defs/Ref"
+    },
+    "status": {
+      "enum": [
+        "AVAILABLE",
+        "MISSING",
+        "INCOMPATIBLE",
+        "UNKNOWN",
+        "BLOCKED"
+      ]
+    },
+    "requirement": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "detectedVersion": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "architecture": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "requiredFor": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "run-only",
+          "developer",
+          "embedded"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "optional": {
+      "type": "boolean"
+    },
+    "owner": {
+      "enum": [
+        "bundled",
+        "app-local",
+        "package-manager",
+        "os-manual",
+        "hardware"
+      ]
+    },
+    "approval": {
+      "enum": [
+        "none",
+        "user-consent",
+        "privileged-manual"
+      ]
+    },
+    "expectedSha256": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "observedSha256": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "remediationPlanRef": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Ref"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Ref"
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "certainty": {
+      "enum": [
+        "verified",
+        "UNVERIFIED",
+        "ASSUMPTION",
+        "BLOCKED"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "targetId",
+    "status",
+    "requirement",
+    "detectedVersion",
+    "architecture",
+    "requiredFor",
+    "optional",
+    "owner",
+    "approval",
+    "expectedSha256",
+    "observedSha256",
+    "reason",
+    "remediationPlanRef",
+    "evidenceRefs",
+    "certainty"
+  ],
+  "additionalProperties": false
+}

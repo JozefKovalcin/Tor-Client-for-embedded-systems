@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "runId": "synthetic-run",
+  "testId": "synthetic-test",
+  "taskId": "synthetic-task",
+  "targetId": "synthetic-linux-v1",
+  "scope": "host-native",
+  "mode": "offline",
+  "status": "NOT RUN",
+  "reason": "Synthetic fixture only; no target test executed",
+  "protocolId": "synthetic-protocol",
+  "policySha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "startedAtUtc": null,
+  "durationSeconds": null,
+  "rawExitCode": null,
+  "logRefs": [],
+  "artifactIds": [],
+  "metrics": {
+    "idle_rss_bytes": {
+      "value": null,
+      "unit": "B",
+      "method": null,
+      "unavailableReason": null
+    }
+  },
+  "environmentRef": "synthetic-environment"
+}

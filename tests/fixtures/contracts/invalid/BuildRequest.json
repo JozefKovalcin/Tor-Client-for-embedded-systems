@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "requestId": "synthetic-plan",
+  "targetId": "synthetic-linux-v1",
+  "imageProfile": null,
+  "existingProfileId": null,
+  "sourceCommit": "0000000000000000000000000000000000000000",
+  "dirtyInputManifestRef": null,
+  "sourceLockSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "configSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "toolchainManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "inputSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "adapterId": "native-linux-plan-v1",
+  "outputScopeRef": "build/native-linux/synthetic",
+  "mode": "plan",
+  "maxJobs": true,
+  "ramBudgetBytes": 1,
+  "diskBudgetBytes": 1,
+  "cancellationId": "synthetic-cancel",
+  "consentReceiptRefs": []
+}

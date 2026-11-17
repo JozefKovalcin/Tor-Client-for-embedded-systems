@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "taskId": "synthetic-task",
+  "parentTaskId": null,
+  "sequence": 1,
+  "timestampUtc": "2000-01-01T00:00:00Z",
+  "phase": "preflight",
+  "state": "interrupted",
+  "completed": null,
+  "total": null,
+  "unit": null,
+  "message": "Synthetic runner loss; outcome unknown",
+  "cancellationSupported": false,
+  "retryOfTaskId": null,
+  "rawExitCode": null,
+  "terminationSignal": null,
+  "reasonCode": null,
+  "logRef": "reports/synthetic-task/events.json"
+}
