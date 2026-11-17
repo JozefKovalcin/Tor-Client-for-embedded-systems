@@ -14,19 +14,19 @@ from scripts.native_linux import packaging as package
 
 def synthetic_elf(*, kind=3, machine=62, executable_stack=False, relro=True,
                   now=True, needed="libc.so.6", search_path=False, textrel=False,
-                  flag_textrel=False):
+                  flag_textrel=False, overlapping_load=False):
     """Small structural ELF fixture, deliberately not executable program code."""
     data = bytearray(1024)
     ident = b"\x7fELF\x02\x01\x01" + bytes(9)
     struct.pack_into("<16sHHIQQQIHHHHHH", data, 0, ident, kind, machine, 1, 0x400200,
-                     64, 0, 0, 64, 56, 5, 0, 0, 0)
+                     64, 0, 0, 64, 56, 6 if overlapping_load else 5, 0, 0, 0)
     def segment(index, tag, flags, offset, address, size):
         struct.pack_into("<IIQQQQQQ", data, 64 + index * 56, tag, flags, offset,
                          address, address, size, size, 8)
     segment(0, 1, 5, 0, 0x400000, 1024)
     loader = package.LOADER.encode() + b"\0"
-    data[352:352 + len(loader)] = loader
-    segment(1, 3, 4, 352, 0x400000 + 352, len(loader))
+    data[416:416 + len(loader)] = loader
+    segment(1, 3, 4, 416, 0x400000 + 416, len(loader))
     strings = b"\0" + needed.encode() + b"\0"
     data[800:800 + len(strings)] = strings
     tags = [(5, 0x400000 + 800), (10, len(strings)), (1, 1), (30, (8 if now else 0) | (4 if flag_textrel else 0))]
@@ -42,6 +42,27 @@ def synthetic_elf(*, kind=3, machine=62, executable_stack=False, relro=True,
     segment(2, 2, 6, 512, 0x400000 + 512, len(tags) * 16)
     segment(3, 0x6474E551, 7 if executable_stack else 6, 0, 0, 0)
     segment(4, 0x6474E552 if relro else 4, 4, 512, 0x400000 + 512, 16)
+    if overlapping_load:
+        segment(5, 1, 6, 512, 0x400000 + 512, 8)
+    return bytes(data)
+
+
+def synthetic_loader_tag(tag, name, string_table):
+    data = bytearray(synthetic_elf())
+    offset = 800 + len(b"\0libc.so.6\0")
+    name = name.encode("ascii") + b"\0"
+    data[offset:offset + len(name)] = name
+    struct.pack_into("<qQ", data, 512 + 16, 10, offset - 800 + len(name))
+    struct.pack_into("<qQ", data, 512 + 4 * 16, tag, offset - 800)
+    # Extend PT_DYNAMIC for the new tag and the following DT_NULL.
+    struct.pack_into("<QQ", data, 64 + 2 * 56 + 32, 6 * 16, 6 * 16)
+    if string_table != "valid":
+        # Remove DT_NEEDED so the old inventory would skip string validation.
+        struct.pack_into("<qQ", data, 512 + 2 * 16, 21, 0)  # DT_DEBUG
+        if string_table == "missing":
+            struct.pack_into("<qQ", data, 512, 21, 0)
+        else:
+            struct.pack_into("<qQ", data, 512, 5, 0)
     return bytes(data)
 
 
@@ -93,6 +114,35 @@ class ElfTests(unittest.TestCase):
         struct.pack_into("<qQ", invalid, 512 + 4 * 16, 99, 99)
         with self.assertRaisesRegex(ValueError, "unterminated"):
             package.inspect_elf(bytes(invalid))
+
+    def test_relro_requires_one_load_to_map_the_whole_range(self):
+        relro_address = 64 + 4 * 56 + 16
+        relro_file_offset = 64 + 4 * 56 + 8
+        relro_memory_size = 64 + 4 * 56 + 40
+        for field, value in ((relro_address, 0x700000),
+                             (relro_memory_size, 513),
+                             (relro_file_offset, 520)):
+            with self.subTest(field=field, value=value):
+                invalid = bytearray(synthetic_elf())
+                struct.pack_into("<Q", invalid, field, value)
+                result = package.inspect_elf(bytes(invalid))
+                self.assertFalse(result["checks"]["relro"])
+                self.assertEqual(result["metadataStatus"], "FAIL")
+        result = package.inspect_elf(synthetic_elf(overlapping_load=True))
+        self.assertFalse(result["checks"]["relro"])
+        self.assertEqual(result["metadataStatus"], "FAIL")
+
+    def test_relro_rejects_overflowing_addresses_and_malformed_alignment(self):
+        relro_address = 64 + 4 * 56 + 16
+        load_alignment = 64 + 48
+        for field, value, reason in ((relro_address, (1 << 64) - 8, "virtual range"),
+                                     (load_alignment, 3, "alignment"),
+                                     (load_alignment, 1 << 23, "alignment")):
+            with self.subTest(field=field, value=value):
+                invalid = bytearray(synthetic_elf())
+                struct.pack_into("<Q", invalid, field, value)
+                with self.assertRaisesRegex(ValueError, reason):
+                    package.inspect_elf(bytes(invalid))
 
 
 class PackagePlanTests(unittest.TestCase):
@@ -218,6 +268,21 @@ class PackagePlanTests(unittest.TestCase):
                 self.write_manifest()
                 with self.assertRaisesRegex(ValueError, "ELF metadata"):
                     self.plan()
+
+    def test_unsupported_loader_tags_block_packaging(self):
+        path = self.folder / "prefix/bin/tor"
+        tags = {0x6FFFFEFC: "DT_AUDIT", 0x6FFFFEFB: "DT_DEPAUDIT",
+                0x7FFFFFFD: "DT_AUXILIARY", 0x7FFFFFFF: "DT_FILTER"}
+        for tag, tag_name in tags.items():
+            for name, table in (("libexample.so", "valid"), ("/fixture/libexample.so", "valid"),
+                                ("../libexample.so", "valid"), ("libexample.so", "missing"),
+                                ("libexample.so", "invalid")):
+                with self.subTest(tag=tag_name, name=name, table=table):
+                    path.write_bytes(synthetic_loader_tag(tag, name, table))
+                    self.manifest["outputs"][0]["sha256"] = package.native.hash_file(path)
+                    self.write_manifest()
+                    with self.assertRaisesRegex(ValueError, tag_name):
+                        self.plan()
 
 
 if __name__ == "__main__":

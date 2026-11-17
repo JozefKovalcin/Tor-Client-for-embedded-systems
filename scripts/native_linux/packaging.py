@@ -24,6 +24,11 @@ SYSTEM_SONAMES = frozenset(("libc.so.6", "libm.so.6", "libdl.so.2", "libpthread.
                            "librt.so.1", "ld-linux-x86-64.so.2", "libgcc_s.so.1"))
 LOADER = "/lib64/ld-linux-x86-64.so.2"
 SONAME = re.compile(r"^[A-Za-z0-9_+.-]+\.so(?:\.[0-9]+)*$")
+PT_LOAD = 1
+PT_GNU_RELRO = 0x6474E552
+X86_64_PAGE_SIZE = 4096
+UNSUPPORTED_LOADER_TAGS = {0x6FFFFEFC: "DT_AUDIT", 0x6FFFFEFB: "DT_DEPAUDIT",
+                           0x7FFFFFFD: "DT_AUXILIARY", 0x7FFFFFFF: "DT_FILTER"}
 
 
 def stable_bytes(path, maximum, *, allow_empty=False):
@@ -62,6 +67,22 @@ def scoped_file(root, relative):
     return path
 
 
+def _mapped_relro(relro, loads):
+    """Require an unambiguous memory range and matching file-backed bytes."""
+    if relro is None or relro["size"] == 0:
+        return False
+    start, end = relro["address"], relro["memory_end"]
+    intersecting = [load for load in loads
+                    if max(load["address"], start) < min(load["memory_end"], end)]
+    if len(intersecting) != 1:
+        return False
+    load = intersecting[0]
+    displacement = start - load["address"]
+    return (displacement >= 0 and end <= load["memory_end"] and
+            relro["offset"] == load["offset"] + displacement and
+            displacement + relro["size"] <= load["size"])
+
+
 def inspect_elf(data):
     """Decode bounded ELF64 LE x86_64 metadata without executing any code."""
     if len(data) < 64 or len(data) > MAX_ELF_BYTES or data[:7] != b"\x7fELF\x02\x01\x01":
@@ -78,18 +99,27 @@ def inspect_elf(data):
     segments = []
     for index in range(phcount):
         segment = struct.unpack_from("<IIQQQQQQ", data, phoff + index * phsize)
-        ptype, flags, offset, address, _, file_size, memory_size, _ = segment
+        ptype, flags, offset, address, _, file_size, memory_size, alignment = segment
         read(offset, file_size)
         if file_size > memory_size:
             raise ValueError("ELF segment file size exceeds memory size")
+        memory_end = address + memory_size
+        if ptype in (PT_LOAD, PT_GNU_RELRO):
+            if memory_end >= 1 << 64:
+                raise ValueError("ELF segment virtual range overflows")
+            if alignment > 1 and (alignment & (alignment - 1) or (address - offset) % alignment):
+                raise ValueError("invalid ELF segment alignment")
+        if ptype == PT_LOAD and (address - offset) % X86_64_PAGE_SIZE:
+            raise ValueError("invalid x86_64 ELF load page alignment")
         segments.append({"type": ptype, "flags": flags, "offset": offset,
-                         "address": address, "size": file_size})
+                         "address": address, "size": file_size, "memory_end": memory_end})
+    loads = [item for item in segments if item["type"] == PT_LOAD]
     def one(ptype):
         matches = [item for item in segments if item["type"] == ptype]
         if len(matches) > 1:
             raise ValueError("duplicate critical ELF segment")
         return matches[0] if matches else None
-    interp, dynamic, stack, relro = [one(value) for value in (3, 2, 0x6474E551, 0x6474E552)]
+    interp, dynamic, stack, relro = [one(value) for value in (3, 2, 0x6474E551, PT_GNU_RELRO)]
     interpreter = None
     if interp:
         raw = read(interp["offset"], interp["size"])
@@ -104,6 +134,8 @@ def inspect_elf(data):
             tag, value = struct.unpack_from("<qQ", data, offset)
             if tag == 0:
                 break
+            if tag in UNSUPPORTED_LOADER_TAGS:
+                raise ValueError("unsupported ELF loader tag: " + UNSUPPORTED_LOADER_TAGS[tag])
             tags.append((tag, value))
         else:
             raise ValueError("unterminated ELF dynamic table")
@@ -117,8 +149,8 @@ def inspect_elf(data):
     if needed_offsets:
         if string_address is None or string_size is None or not 0 < string_size <= 1024 * 1024:
             raise ValueError("missing bounded dynamic string table")
-        mappings = [item for item in segments if item["type"] == 1 and
-                    item["address"] <= string_address and
+        mappings = [item for item in loads
+                    if item["address"] <= string_address and
                     string_address + string_size <= item["address"] + item["size"]]
         if len(mappings) != 1:
             raise ValueError("ambiguous ELF dynamic string mapping")
@@ -135,7 +167,7 @@ def inspect_elf(data):
     bind_now = any(tag == 24 for tag, _ in tags) or bool(flags & 8) or bool(flags1 & 1)
     checks = {"elf64X86_64": True, "pie": kind == 3 and entry != 0 and interpreter == LOADER,
               "nonExecutableStack": stack is not None and not bool(stack["flags"] & 1),
-              "relro": relro is not None and relro["size"] > 0, "bindNow": bind_now,
+              "relro": _mapped_relro(relro, loads), "bindNow": bind_now,
               "noTextRelocations": not any(tag == 22 for tag, _ in tags) and not bool(flags & 4),
               "noEmbeddedSearchPaths": not any(tag in (15, 29) for tag, _ in tags),
               "onlyDeclaredSystemDependencies": all(name in SYSTEM_SONAMES for name in needed)}

@@ -25,9 +25,12 @@ There is no `--execute`, downloader, shell, ldd or binary invocation.
 - Exact expected `prefix/bin/tor` size/hash, then bounded ELF64 little-endian
   x86_64 metadata parsing. Validate program/dynamic/string bounds and duplicate
   critical properties. No malformed dependency path or arbitrary loader.
-- PIE/interpreter, non-executable stack, RELRO, immediate binding, no text
-  relocations (both DT_TEXTREL and DT_FLAGS/DF_TEXTREL), no embedded search
-  paths and a conservative declared system-SONAME inventory.
+- PIE/interpreter, non-executable stack, structurally mapped RELRO, immediate
+  binding, no text relocations (both DT_TEXTREL and DT_FLAGS/DF_TEXTREL),
+  no embedded search paths and a conservative declared system-SONAME inventory.
+  RELRO must map to a single aligned, nonoverlapping load segment with
+  consistent memory bounds and file offsets. The policy rejects DT_AUDIT,
+  DT_DEPAUDIT, DT_AUXILIARY and DT_FILTER.
   Other crypto/event/compression runtime dependencies are not silently promoted
   to OS dependencies: the executor plans static private dependency libraries.
 - Original pinned source licenses checked again and referenced individually.
@@ -48,9 +51,9 @@ packageArtifact = null
 readyForDistribution = false
 ```
 
-ELF headers cannot prove stack protector/fortify coverage, successful loading,
-GLIBC symbol compatibility or complete runtime closure. The next separately
-authorized packaging implementation must:
+ELF headers cannot prove effective runtime RELRO, W^X, stack protector/fortify
+coverage, successful loading, GLIBC symbol compatibility or complete runtime
+closure. The next separately authorized packaging implementation must:
 
 1. Verify the selected 24.04/2.39 ABI and inspect GLIBC symbol requirements,
    final link map, fortify and stack-check symbols; reject unsupported closure.
