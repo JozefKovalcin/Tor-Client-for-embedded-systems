@@ -131,6 +131,7 @@ try
     try { await foreach (var _ in feed.WatchAsync(cancellation.Token)) { } }
     catch (OperationCanceledException) { cancelled = true; }
     Check(cancelled, "feed cancellation observed");
+    await OfflineDesktopTests.RunAsync(feed, store, Check);
 }
 finally
 {
