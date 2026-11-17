@@ -31,7 +31,11 @@ python3 -B -m scripts.native_linux.executor \
 authorization inferred from an old JSON report. A caller must obtain the
 separate compilation authorization required by TASK 04. The executor reacquires
 fresh W3 facts and fails if approval no longer matches. It never downloads or
-installs missing inputs. A private existing workspace parent is required.
+installs missing inputs. Use an existing workspace parent owned by the build
+user with mode 0700. Path components must be directories under trusted
+ownership. Group- or other-writable ancestors are refused unless sticky
+protection covers the child. Select a different private location if an
+existing directory does not meet these conditions.
 
 ## Fixed execution behavior
 
@@ -41,8 +45,13 @@ installs missing inputs. A private existing workspace parent is required.
 - New exclusive mode-0700 run directory. Existing output, failed logs and partial
   sources are never cleaned, overwritten or reused. A retry needs a new output
   and task ID; there is no silent automatic resume.
+- The lock and run directory are created relative to the admitted parent
+  directory handle. The executor keeps a run directory handle open and uses
+  Linux procfs to keep evidence and source writes bound to that run. It checks
+  the named workspace around toolchain invocations and stops on identity changes.
 - SHA-256 checked private snapshots of local pinned archives, with descriptor
-  identity/state checks during copy. Extraction uses unique regular files and
+  identity/state checks during copy and a strict byte bound at the admitted
+  file length. Extraction uses unique regular files and
   directories only, rejects traversal, links/devices/duplicates, bounds member
   counts, file sizes and expanded bytes, and rechecks archive/license hashes.
 - Build zlib, OpenSSL, libevent, libseccomp and Tor in that order into the isolated
@@ -59,8 +68,9 @@ installs missing inputs. A private existing workspace parent is required.
   sandbox. Building third-party code still needs host containment and review.
 - Recheck tool bytes before each command. Fresh W3 RAM/disk checks, one make
   job, a four-hour build deadline, 30-minute command deadline and 16 MiB log cap
-  bound execution. Disk headroom is rechecked between commands; no claim of a
-  hard cgroup RAM/disk reservation is made.
+  bound execution. Source preparation checks cancellation and the build deadline
+  during copies, extraction and hash reads. Disk headroom is rechecked between
+  commands by the application.
 - POSIX process-group termination on cancel/deadline/log overflow, bounded grace
   then kill. Exclusive log creation precedes spawning; all failures tear down
   children. Original nonnegative exits and termination signals stay separate.
