@@ -1,3 +1,18 @@
+# TASK 07 — Windows offline desktop — 2026-11-17
+
+TASK 04 PRs #5, #10, #8, #6, #9 and #7 landed as merge commits. Their combined
+tree at `3a33f1a83461674b5c9301bbea59ec2ea7d64931` matches the reviewed TASK 06
+tree. Windows portable checks passed 155 with 10 skips. WSL portable checks
+passed 160 with five skips. All 15 cached Kconfig profiles, six Windows
+pipeline tests, 19 task-core groups, nine control groups, seven native offline
+Tor groups and 46 desktop presentation assertions passed on that main tree.
+
+The [Windows offline desktop guide](../desktop/packaging/WINDOWS-OFFLINE.md)
+covers the offline application and local GUI preview. The self-contained
+package is BLOCKED on the missing Windows x64 runtime packs and reviewed RID
+lock. Clean-host qualification remains NOT RUN. The local Tor validation uses
+the existing separately verified Windows runtime and a new private state scope.
+
 # TASK 04 — Parallel W4/W5/W6 foundations — 2026-11-17
 
 Started from verified remote main `1120723c806a01f9a923f5c4e489bc8a7ae23798`.
