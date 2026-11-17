@@ -38,6 +38,36 @@ def hash_file(path):
     return digest.hexdigest()
 
 
+class ArchiveChangedError(ValueError):
+    """The cache no longer identifies the bytes inspected by this probe."""
+
+
+def _file_state(metadata):
+    state = (metadata.st_dev, metadata.st_ino, metadata.st_mode, metadata.st_size,
+             metadata.st_mtime_ns)
+    # Windows path stat and descriptor fstat can disagree on ctime semantics.
+    # Identity plus full content digests remain mandatory on every platform.
+    return state + ((metadata.st_ctime_ns,) if os.name == "posix" else ())
+
+
+def _hash_stream(stream):
+    """Hash the already-open archive, without resolving its pathname again."""
+    stream.seek(0)
+    digest = hashlib.sha256()
+    for block in iter(lambda: stream.read(1024 * 1024), b""):
+        digest.update(block)
+    return digest.hexdigest()
+
+
+def _assert_archive_unchanged(path, source, initial, digest):
+    # A second complete digest detects in-place writes even if size and mtime
+    # are preserved. Identity checks also catch atomic pathname replacement.
+    if (_hash_stream(source) != digest or
+            _file_state(os.fstat(source.fileno())) != _file_state(initial) or
+            _file_state(path.stat(follow_symlinks=False)) != _file_state(initial)):
+        raise ArchiveChangedError("archive changed during verification")
+
+
 def _load_json(path):
     def reject(value):
         raise ValueError("non-finite JSON constant: " + value)
@@ -129,33 +159,46 @@ def inspect_sources(cache, pins, policy):
                "expectedLicenseSha256": pin["license_sha256"], "observedLicenseSha256": None}
         status, reason = "UNKNOWN", "source observation not completed"
         try:
-            mode = path.stat(follow_symlinks=False).st_mode
+            initial = path.stat(follow_symlinks=False)
+            mode = initial.st_mode
             if stat.S_ISLNK(mode) or path.parent.resolve() != cache.resolve():
                 status, reason = "INCOMPATIBLE", "archive symlink or cache escape refused"
             elif not stat.S_ISREG(mode):
                 status, reason = "INCOMPATIBLE", "archive is not a regular file"
             else:
-                row["observedSha256"] = hash_file(path)
-                if row["observedSha256"] != pin["sha256"]:
-                    status, reason = "INCOMPATIBLE", "archive SHA-256 mismatch; original retained"
-                else:
-                    with tarfile.open(path, "r:*") as archive:
-                        member_name = pin["directory"] + "/" + pin["license_file"]
-                        members = [member for member in archive if member.name == member_name]
-                        if len(members) != 1:
-                            raise ValueError("license member missing or duplicated")
-                        member = members[0]
-                        if not member.isfile() or member.size <= 0 or member.size > 1024 * 1024:
-                            raise ValueError("license member must be a regular file <=1 MiB")
-                        stream = archive.extractfile(member)
-                        if stream is None:
-                            raise ValueError("license member unreadable")
-                        with stream:
-                            row["observedLicenseSha256"] = hashlib.sha256(stream.read(1024 * 1024 + 1)).hexdigest()
-                    if row["observedLicenseSha256"] != pin["license_sha256"]:
-                        status, reason = "INCOMPATIBLE", "license SHA-256 mismatch"
+                flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0)
+                descriptor = os.open(path, flags)
+                # No Python read buffer may replay pre-mutation bytes during
+                # the final digest after tarfile seeks through the archive.
+                with os.fdopen(descriptor, "rb", buffering=0) as source:
+                    opened = os.fstat(source.fileno())
+                    if not stat.S_ISREG(opened.st_mode) or _file_state(opened) != _file_state(initial):
+                        raise ArchiveChangedError("archive identity changed before verification")
+                    row["observedSha256"] = _hash_stream(source)
+                    if row["observedSha256"] != pin["sha256"]:
+                        status, reason = "INCOMPATIBLE", "archive SHA-256 mismatch; original retained"
                     else:
-                        status, reason = "AVAILABLE", "cached archive and license member match existing SHA-256 pins"
+                        source.seek(0)
+                        with tarfile.open(fileobj=source, mode="r:*") as archive:
+                            member_name = pin["directory"] + "/" + pin["license_file"]
+                            members = [member for member in archive if member.name == member_name]
+                            if len(members) != 1:
+                                raise ValueError("license member missing or duplicated")
+                            member = members[0]
+                            if not member.isfile() or member.size <= 0 or member.size > 1024 * 1024:
+                                raise ValueError("license member must be a regular file <=1 MiB")
+                            stream = archive.extractfile(member)
+                            if stream is None:
+                                raise ValueError("license member unreadable")
+                            with stream:
+                                row["observedLicenseSha256"] = hashlib.sha256(stream.read(1024 * 1024 + 1)).hexdigest()
+                        _assert_archive_unchanged(path, source, opened, row["observedSha256"])
+                        if row["observedLicenseSha256"] != pin["license_sha256"]:
+                            status, reason = "INCOMPATIBLE", "license SHA-256 mismatch"
+                        else:
+                            status, reason = "AVAILABLE", "stable archive and license match existing SHA-256 pins"
+        except ArchiveChangedError:
+            status, reason = "INCOMPATIBLE", "archive changed during verification; cache retained"
         except FileNotFoundError:
             status, reason = "MISSING", "pinned archive absent or disappeared; no download attempted"
         except (PermissionError, OSError) as exc:
@@ -249,6 +292,29 @@ def _version_tuple(value):
     return tuple(map(int, match.groups())) if match else None
 
 
+def _w2_tool_snapshot(environment, policy):
+    """Use one classified W2 observation; python3 names the running interpreter."""
+    decisions = {}
+    for check in environment.get("checks", []):
+        require_valid("DependencyCheck", check)
+        if check["id"] in decisions:
+            raise ValueError("duplicate W2 dependency check IDs")
+        decisions[check["id"]] = check
+    snapshot = {}
+    for name in policy["requiredTools"]:
+        dependency_id = "python" if name == "python3" else name
+        decision = decisions.get(dependency_id)
+        raw = environment.get("observations", {}).get(dependency_id, {})
+        snapshot[name] = {
+            **raw,
+            "status": decision["status"] if decision else "UNKNOWN",
+            "version": decision["detectedVersion"] if decision else None,
+            "architecture": decision["architecture"] if decision else None,
+            "reason": decision["reason"] if decision else "W2 classification not available",
+        }
+    return snapshot
+
+
 def evaluate_environment(environment, observations, policy):
     """Assess v1 requirements without using another profile's readiness gate."""
     checks = []
@@ -269,8 +335,10 @@ def evaluate_environment(environment, observations, policy):
                              detected_version=str(actual) if actual is not None else None,
                              architecture=host.get("architecture") if host.get("architecture") != "unknown" else None))
     # WSL may plan this ABI, but it is explicitly not native runtime qualification.
+    # Raw executable availability never overrides W2's compatibility decision.
+    classified = _w2_tool_snapshot(environment, policy)
     for name in policy["requiredTools"]:
-        item = observations.get(name, {})
+        item = classified[name]
         status = item.get("status", "UNKNOWN")
         version = item.get("version")
         reason = item.get("reason", "tool not observed")
@@ -509,7 +577,7 @@ def preflight(source_dir, output_dir, archive_cache, *, root=ROOT, probe=None):
     environment = collect_report(profile="developer", target_id=policy["targetId"], probe=probe,
                                  resource_path=_nearest_existing(output_dir))
     apply_linux_memory_limits(environment)
-    observations = {name: probe.tool(name) for name in policy["requiredTools"]}
+    observations = _w2_tool_snapshot(environment, policy)
     checks = evaluate_environment(environment, observations, policy)
     path_checks = inspect_paths(source_dir, output_dir, archive_cache, policy)
     checks.extend(path_checks)

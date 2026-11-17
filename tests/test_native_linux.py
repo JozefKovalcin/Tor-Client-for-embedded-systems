@@ -1,5 +1,6 @@
 """Synthetic native Linux plan behavior; never build, fetch, or qualify Tor."""
 import copy
+from contextlib import contextmanager
 import hashlib
 import io
 import json
@@ -35,6 +36,22 @@ def synthetic_environment(policy):
     return {"host": host, "resources": resources}, observations
 
 
+def classified_environment(environment, tools, policy):
+    """Run real W2 classification on injected observations, without subprocesses."""
+    class Probe:
+        def host(self):
+            return dict(environment["host"], reason="synthetic Linux host", osVersion="synthetic")
+
+        def resources(self, path=None):
+            return copy.deepcopy(environment["resources"])
+
+        def tool(self, name):
+            return dict(tools["python3" if name == "python" else name],
+                        command=[], rawExitCode=0)
+
+    return native.collect_report(target_id=policy["targetId"], probe=Probe())
+
+
 class NativePlanTests(unittest.TestCase):
     def setUp(self):
         self.policy = native._load_json(ROOT / "config/native-linux/v1.json")
@@ -44,6 +61,7 @@ class NativePlanTests(unittest.TestCase):
     def plan(self, environment=None, tools=None, statuses=None):
         environment = environment or self.environment
         tools = tools or self.tools
+        environment = classified_environment(environment, tools, self.policy)
         checks = native.evaluate_environment(environment, tools, self.policy)
         for name in ("native-paths", "native-libc-headers", "source-provenance"):
             checks.append(native._check(name, "AVAILABLE", "synthetic observation only", self.policy))
@@ -95,6 +113,46 @@ class NativePlanTests(unittest.TestCase):
                 self.assertFalse(result["readyForBuildPlan"])
                 self.assertIn("native-tool-gcc", result["requiredNotAvailable"])
                 self.assertIsNone(result["buildRequest"])
+
+    def test_outdated_w2_required_tools_cannot_generate_a_request(self):
+        outdated = {"make": "3.81.0", "gcc": "12.3.0", "pkg-config": "0.1.0",
+                    "bash": "3.2.0", "git": "1.0.0", "perl": "4.0.0", "python3": "3.11.9"}
+        for name, version in outdated.items():
+            with self.subTest(tool=name, version=version):
+                tools = copy.deepcopy(self.tools)
+                tools[name]["version"] = version
+                environment = classified_environment(self.environment, tools, self.policy)
+                dependency_id = "python" if name == "python3" else name
+                w2 = next(check for check in environment["checks"] if check["id"] == dependency_id)
+                self.assertEqual(w2["status"], "INCOMPATIBLE")
+                result = self.plan(tools=tools)
+                check = next(row for row in result["checks"] if row["id"] == "native-tool-" + name)
+                self.assertEqual(check["status"], "INCOMPATIBLE")
+                self.assertFalse(result["readyForBuildPlan"])
+                self.assertIsNone(result["buildRequest"])
+
+    def test_every_required_tool_preserves_each_unavailable_w2_status(self):
+        for name in self.policy["requiredTools"]:
+            for status in ("MISSING", "INCOMPATIBLE", "UNKNOWN", "BLOCKED"):
+                with self.subTest(tool=name, status=status):
+                    tools = copy.deepcopy(self.tools)
+                    tools[name].update(status=status, version=None)
+                    result = self.plan(tools=tools)
+                    check = next(row for row in result["checks"] if row["id"] == "native-tool-" + name)
+                    self.assertEqual(check["status"], status)
+                    self.assertFalse(result["readyForBuildPlan"])
+                    self.assertIsNone(result["buildRequest"])
+
+    def test_raw_availability_cannot_override_classified_or_missing_w2_result(self):
+        for status in ("MISSING", "INCOMPATIBLE", "UNKNOWN", "BLOCKED"):
+            tools = copy.deepcopy(self.tools)
+            tools["make"].update(status=status, version=None)
+            environment = classified_environment(self.environment, tools, self.policy)
+            checks = native.evaluate_environment(environment, self.tools, self.policy)
+            self.assertEqual(next(row for row in checks if row["id"] == "native-tool-make")["status"], status)
+        environment["checks"] = [row for row in environment["checks"] if row["id"] != "make"]
+        checks = native.evaluate_environment(environment, self.tools, self.policy)
+        self.assertEqual(next(row for row in checks if row["id"] == "native-tool-make")["status"], "UNKNOWN")
 
     def test_native_budget_is_independent_of_yocto_and_unknown_is_not_zero(self):
         env = copy.deepcopy(self.environment)
@@ -192,7 +250,9 @@ class NativePlanTests(unittest.TestCase):
             report = native.preflight(str(ROOT), "/home/test/never-created", "/home/test/cache", probe=Probe())
         self.assertFalse(report["readyForBuildPlan"])
         self.assertEqual(report["environment"]["scope"], "read-only-discovery")
-        self.assertTrue(set(self.policy["requiredTools"]) <= set(calls))
+        expected_calls = {"python" if name == "python3" else name for name in self.policy["requiredTools"]}
+        self.assertTrue(expected_calls <= set(calls))
+        self.assertTrue(all(calls.count(name) == 1 for name in expected_calls))
         self.assertEqual(report["sourceObservations"], [])
         for check in report["checks"]:
             self.assertEqual(validate_contract("DependencyCheck", check), [])
@@ -261,6 +321,118 @@ class CachedArchiveTests(unittest.TestCase):
         member = tarfile.TarInfo(name)
         member.size = len(content)
         return member, content
+
+    def snapshot_archive(self, payload):
+        output = io.BytesIO()
+        with tarfile.open(fileobj=output, mode="w") as stream:
+            for member, content in (self.member(), self.member("synthetic-1/source.c", payload)):
+                stream.addfile(member, io.BytesIO(content))
+        return output.getvalue()
+
+    def test_hash_and_license_use_one_descriptor_without_path_reopening(self):
+        with tempfile.TemporaryDirectory(dir=TEST_TMP) as tmp:
+            folder = Path(tmp)
+            path = self.archive(folder, [self.member()])
+            pin = self.pin(path)
+            real_open = native.os.open
+            real_tar_open = native.tarfile.open
+            with patch.object(native.os, "open", wraps=real_open) as opened, \
+                 patch.object(native.tarfile, "open", wraps=real_tar_open) as tar_open, \
+                 patch.object(native, "hash_file", side_effect=AssertionError("pathname hashing not allowed")):
+                checks, _ = native.inspect_sources(folder, [pin], self.policy)
+            self.assertEqual(checks[0]["status"], "AVAILABLE", checks)
+            self.assertEqual(opened.call_count, 1)
+            self.assertFalse(tar_open.call_args.args)
+            self.assertIsNotNone(tar_open.call_args.kwargs["fileobj"])
+
+    def test_in_place_change_between_hash_and_license_is_rejected(self):
+        with tempfile.TemporaryDirectory(dir=TEST_TMP) as tmp:
+            folder = Path(tmp)
+            path = folder / "synthetic-1.tar"
+            first, second = self.snapshot_archive(b"source A"), self.snapshot_archive(b"source B")
+            self.assertEqual(len(first), len(second))
+            path.write_bytes(first)
+            pin = self.pin(path)
+            before = path.stat()
+            real_hash = native._hash_stream
+            calls = []
+            def mutate_after_hash(source):
+                digest = real_hash(source)
+                calls.append(source.fileno())
+                if len(calls) == 1:
+                    path.write_bytes(second)
+                    os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+                return digest
+            with patch.object(native, "_hash_stream", side_effect=mutate_after_hash):
+                checks, observed = native.inspect_sources(folder, [pin], self.policy)
+            self.assertEqual(checks[0]["status"], "INCOMPATIBLE")
+            self.assertIn("changed", checks[0]["reason"])
+            self.assertEqual(observed[0]["observedLicenseSha256"], pin["license_sha256"])
+            self.assertEqual(path.stat().st_size, before.st_size)
+            self.assertEqual(path.stat().st_mtime_ns, before.st_mtime_ns)
+            self.assertNotEqual(native.hash_file(path), pin["sha256"])
+
+    def test_change_after_license_with_unchanged_metadata_is_rejected_by_digest(self):
+        with tempfile.TemporaryDirectory(dir=TEST_TMP) as tmp:
+            folder = Path(tmp)
+            path = folder / "synthetic-1.tar"
+            path.write_bytes(self.snapshot_archive(b"source A"))
+            pin = self.pin(path)
+            metadata = path.stat()
+            replacement = self.snapshot_archive(b"source B")
+            real_open = native.tarfile.open
+            @contextmanager
+            def mutate_after_license(*args, **kwargs):
+                with real_open(*args, **kwargs) as archive:
+                    yield archive
+                path.write_bytes(replacement)
+                os.utime(path, ns=(metadata.st_atime_ns, metadata.st_mtime_ns))
+            # Even spoofed/restored metadata cannot substitute for content checks.
+            with patch.object(native.tarfile, "open", side_effect=mutate_after_license), \
+                 patch.object(native.os, "fstat", return_value=metadata), \
+                 patch.object(Path, "stat", return_value=metadata):
+                checks, _ = native.inspect_sources(folder, [pin], self.policy)
+            self.assertEqual(checks[0]["status"], "INCOMPATIBLE")
+            self.assertIn("changed", checks[0]["reason"])
+
+    def test_replaced_path_identity_is_rejected_even_with_verified_open_bytes(self):
+        with tempfile.TemporaryDirectory(dir=TEST_TMP) as tmp:
+            folder = Path(tmp)
+            path = self.archive(folder, [self.member()])
+            pin = self.pin(path)
+            before = path.stat()
+            other = folder / "replacement.tar.gz"
+            other.write_bytes(path.read_bytes())
+            replacement = other.stat()
+            # The replacement's inode differs; bytes/dates/size may be identical.
+            identity = SimpleNamespace(**{name: getattr(before, name) for name in
+                ("st_dev", "st_ino", "st_mode", "st_size", "st_mtime_ns", "st_ctime_ns")})
+            identity.st_ino = replacement.st_ino
+            self.assertNotEqual(identity.st_ino, before.st_ino)
+            with patch.object(Path, "stat", side_effect=[before, identity]):
+                checks, _ = native.inspect_sources(folder, [pin], self.policy)
+            self.assertEqual(checks[0]["status"], "INCOMPATIBLE")
+
+    @unittest.skipUnless(os.name == "posix", "POSIX atomic replacement of an open archive")
+    def test_atomic_file_replacement_is_rejected_on_posix(self):
+        with tempfile.TemporaryDirectory(dir=TEST_TMP) as tmp:
+            folder = Path(tmp)
+            path, replacement = folder / "synthetic-1.tar", folder / "replacement.tar"
+            path.write_bytes(self.snapshot_archive(b"source A"))
+            replacement.write_bytes(self.snapshot_archive(b"source B"))
+            pin = self.pin(path)
+            real_hash = native._hash_stream
+            calls = []
+            def replace_after_hash(source):
+                digest = real_hash(source)
+                calls.append(source.fileno())
+                if len(calls) == 1:
+                    os.replace(replacement, path)
+                return digest
+            with patch.object(native, "_hash_stream", side_effect=replace_after_hash):
+                checks, _ = native.inspect_sources(folder, [pin], self.policy)
+            self.assertEqual(checks[0]["status"], "INCOMPATIBLE")
+            self.assertIn("changed", checks[0]["reason"])
 
     def test_hash_and_bounded_regular_license_verified_without_extraction(self):
         with tempfile.TemporaryDirectory(dir=TEST_TMP) as tmp:

@@ -452,3 +452,32 @@ range/version constraints and legacy reports remain unchanged. Positive and
 negative fixtures plus regression tests cover 1, 1.0, 2e0 and range boundaries.
 Executed `python -B -m unittest discover -s tests -p test_contracts.py -v`: 26 PASS, zero skips; `git diff --check`: PASS. No build/install/download, Tor
 network test or later-phase implementation. Fix A belongs to PR #2 only.
+
+
+# TASK 03 Fixes B/C — W3 integration and archive consistency — 2026-11-17
+
+W3 consumes classified W2 checks for every required tool (including the running
+Python interpreter alias); raw availability cannot override MISSING,
+INCOMPATIBLE, UNKNOWN or BLOCKED. W2 implementation/policy remain unchanged.
+Archive hashing and bounded license inspection now share one unbuffered open
+descriptor. A second full digest plus file identity/state checks rejects
+in-place changes and pathname replacement without extraction or cache writes.
+Windows ctime has inconsistent path/descriptor semantics; content digests and
+identity remain mandatory, with ctime additionally checked on POSIX.
+
+Executed locally on Windows/Python 3.14: W1 contracts 26 PASS; W2 dependencies
+24 PASS; W3 preflight 22 PASS / 1 POSIX-only SKIPPED; full portable suite 116
+discovered / 113 PASS / 3 platform SKIPPED, exit 0; Windows pipeline 6 PASS;
+`git diff --check` PASS. Logs and original before/after reproductions retained
+under ignored `build/task03-checks/`. The five original outdated-tool vectors
+now reject BuildRequest; maxJobs 1.0 now validates. The original pathname-reopen
+archive hook is no longer reached; equivalent same-descriptor mutation and
+replacement regressions reject the archive. Linux CI must execute the POSIX
+replacement regression before merge readiness is declared.
+
+An initial mutation regression exposed buffered stale reads; using an
+unbuffered descriptor fixed it. A subsequent positive regression exposed
+Windows ctime inconsistency, handled as above. The first Windows pipeline
+attempt was sandbox-blocked on temporary directories; its log is preserved,
+and rerunning outside that restriction passed all six tests. No builds,
+installations, downloads, public Tor tests or later-phase implementation ran.

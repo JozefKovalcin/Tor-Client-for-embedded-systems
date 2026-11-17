@@ -107,3 +107,45 @@ NOT RUN; no historical acceptance outcome is replaced.
   worktree; EOL-normalized contents match with no other differences. Original
   checkout files, exact stashes, main and baseline unchanged.
 - Whitespace/scope review PASS. No later implementation phase started.
+
+
+## TASK 03 corrections — 2026-11-17
+
+Parent propagation is an ordinary merge: W1 fix `6346445535a4454e4eb3fc10e6e5f8906763d6f7`
+into W2 `c554422b101d78767f50d226f7a7fb8e34aa54ba`, then W3 merge
+`171a6742601211d3ad58e47c0daa7e32e5cdcfa3`. Original commits remain ancestors.
+
+Fix B uses W2 DependencyCheck status/version as authoritative for all required
+tools, maps python3 to W2's current-interpreter check, and never reprobes tools
+to replace classified compatibility. Missing classification is UNKNOWN.
+Regressions cover outdated Make/GCC/pkg-config/bash/Git/Perl/Python and every
+required tool in each unavailable state. W2 behavior is unchanged.
+
+Fix C opens each archive once, without following a final symlink on POSIX,
+and binds hashing/license-member reads to that descriptor. It verifies a second
+complete content digest and file identity/state before returning AVAILABLE.
+Tests cover mutation between hash/license, mutation after license despite
+unchanged metadata, replaced pathname identity, and real POSIX atomic replace.
+The positive regression prohibits pathname-based hashing/reopening. Existing
+unique regular <=1 MiB license checks and SHA-256 pins are preserved.
+
+Executed commands/results (Windows, Python 3.14):
+- `python -B -m unittest discover -s tests -p test_contracts.py -v`: 26 PASS.
+- `python -B -m unittest discover -s tests -p test_dependencies.py -v`: 24 PASS.
+- `python -B -m unittest discover -s tests -p test_native_linux.py -v`:
+  23 discovered, 22 PASS, one POSIX atomic-replace SKIPPED.
+- `python -B scripts/check.py`: 116 discovered, 113 PASS, three platform SKIPPED.
+- `python -B -m unittest discover -s windows-native/tests -v`: 6 PASS.
+- `git diff --check`: PASS.
+
+Full suite/Windows pipeline ran outside sandbox temporary-file restrictions;
+the earlier sandbox-blocked pipeline log remains preserved. Original TASK 02
+reproductions and new before/after evidence are retained in ignored build
+folders. Initial new-test failures identified buffered replay and Windows
+ctime inconsistency, both corrected; final focused/full results above passed.
+POSIX CI results and final heads are recorded by the integration reviewer.
+
+Limits: this read-only observation cannot lock the cache after it returns;
+a future executor must reverify its own consumed inputs. No extraction,
+compilation, installation, download or network qualification was performed.
+W3 depends on corrected W1 through W2; no W4–W15 implementation is authorized.
