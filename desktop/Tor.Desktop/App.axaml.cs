@@ -39,6 +39,6 @@ public sealed partial class App : Application
 
     private sealed class UiDispatcher : IUiDispatcher
     {
-        public void Post(Action update) => Dispatcher.UIThread.Post(update);
+        public void Post(Action update) => Dispatcher.UIThread.Post(update, DispatcherPriority.Background);
     }
 }

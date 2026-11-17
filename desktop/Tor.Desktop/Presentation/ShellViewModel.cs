@@ -82,11 +82,34 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable
     public async Task ReplayAsync()
     {
         if (!AnimateSimulation) return;
+        var token = _lifetime.Token;
         Tasks.Clear();
         Logs.Clear();
         foreach (var task in _feed.InitialTasks) Apply(task);
-        await foreach (var task in _feed.WatchAsync(_lifetime.Token).ConfigureAwait(false))
-            _dispatcher.Post(() => { if (!_lifetime.IsCancellationRequested) Apply(task); });
+        await foreach (var task in _feed.WatchAsync(token).ConfigureAwait(false))
+            await ApplyOnUiAsync(task, token).ConfigureAwait(false);
+    }
+
+    private Task ApplyOnUiAsync(TaskCard task, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        // Backpressure preserves every accepted terminal update and limits queued work to one callback.
+        var applied = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _dispatcher.Post(() =>
+        {
+            if (token.IsCancellationRequested)
+            {
+                applied.TrySetCanceled(token);
+                return;
+            }
+            try
+            {
+                Apply(task);
+                applied.SetResult();
+            }
+            catch (Exception error) { applied.SetException(error); }
+        });
+        return applied.Task.WaitAsync(token);
     }
 
     private void Apply(TaskCard task)

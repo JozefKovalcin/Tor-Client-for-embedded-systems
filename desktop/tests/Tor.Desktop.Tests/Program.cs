@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading.Channels;
 using TorManager.Desktop.Presentation;
 using TorManager.Desktop.Services;
 
@@ -93,6 +94,37 @@ try
         Check(burst.Tasks.Single(x => x.TaskId == "demo-running").Sequence == 301 && !burst.Logs.Any(x => x.Message == "stale event"),
             "stale sequence cannot roll back task progress or append a log");
     }
+    var dispatcher = new QueuedDispatcher();
+    using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+    using (var queued = new ShellViewModel(new QueuedBurstFeed(feed), dispatcher, store))
+    {
+        var replay = queued.ReplayAsync();
+        Check(dispatcher.Posted == 1 && !replay.IsCompleted,
+            "slow dispatcher applies backpressure after the first of 50000 updates");
+        await dispatcher.DrainAsync(replay, deadline.Token);
+        Check(dispatcher.MaximumPending == 1 && queued.Logs.Count == 100,
+            "pending dispatch and displayed logs stay bounded throughout the burst");
+        Check(queued.Tasks.Single(x => x.TaskId == "demo-running") is { State: "succeeded", Sequence: 50002 } &&
+            queued.Tasks.Single(x => x.TaskId == "demo-failed") is { State: "failed", RawExitCode: 17 } &&
+            queued.Tasks.Single(x => x.TaskId == "demo-interrupted") is { State: "interrupted", ReasonCode: "runner-crash" } &&
+            !queued.Logs.Any(x => x.Message == "stale event"),
+            "queued dispatch delivers terminal results and rejects stale updates");
+        var again = queued.ReplayAsync();
+        Check(!again.IsCompleted && queued.Tasks.Single(x => x.TaskId == "demo-running").Sequence == 1,
+            "replay resets the sequence after prior dispatch drains");
+        await dispatcher.DrainAsync(again, deadline.Token);
+        Check(queued.Tasks.Single(x => x.TaskId == "demo-running").Sequence == 50002,
+            "replay delivers the terminal update again");
+    }
+    var closing = new ShellViewModel(new QueuedBurstFeed(feed), dispatcher, store);
+    var interruptedReplay = closing.ReplayAsync();
+    closing.Dispose();
+    var closeCancelled = false;
+    try { await interruptedReplay.WaitAsync(deadline.Token); }
+    catch (OperationCanceledException) when (!deadline.IsCancellationRequested) { closeCancelled = true; }
+    dispatcher.RunNext();
+    Check(closeCancelled && closing.Tasks.Single(x => x.TaskId == "demo-running").Sequence == 1,
+        "closing unblocks replay and a pending callback leaves the closed model untouched");
     using var cancellation = new CancellationTokenSource();
     cancellation.Cancel();
     var cancelled = false;
@@ -111,6 +143,54 @@ Console.WriteLine($"{passed} behavioral assertions PASS; Avalonia render/launch 
 internal sealed class ImmediateDispatcher : IUiDispatcher
 {
     public void Post(Action update) => update();
+}
+
+internal sealed class QueuedDispatcher : IUiDispatcher
+{
+    private readonly Channel<Action> _updates = Channel.CreateUnbounded<Action>();
+    public int Posted { get; private set; }
+    public int MaximumPending { get; private set; }
+
+    public void Post(Action update)
+    {
+        Posted++;
+        MaximumPending = Math.Max(MaximumPending, _updates.Reader.Count + 1);
+        _updates.Writer.TryWrite(update);
+    }
+
+    public void RunNext()
+    {
+        if (!_updates.Reader.TryRead(out var update)) throw new InvalidOperationException("No queued UI update");
+        update();
+    }
+
+    public async Task DrainAsync(Task replay, CancellationToken token)
+    {
+        while (!replay.IsCompleted)
+        {
+            var pending = _updates.Reader.WaitToReadAsync(token).AsTask();
+            if (await Task.WhenAny(replay, pending) == pending && await pending) RunNext();
+        }
+        await replay;
+    }
+}
+
+internal sealed class QueuedBurstFeed(SimulationTaskFeed source) : ITaskFeed
+{
+    public IReadOnlyList<TaskCard> InitialTasks => source.InitialTasks;
+    public IReadOnlyList<DependencyCard> Dependencies => source.Dependencies;
+    public async IAsyncEnumerable<TaskCard> WatchAsync([System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken token)
+    {
+        await Task.CompletedTask;
+        var task = InitialTasks.Single(row => row.TaskId == "demo-running");
+        for (var sequence = 2; sequence <= 50001; sequence++)
+        {
+            token.ThrowIfCancellationRequested();
+            yield return task with { Sequence = sequence };
+        }
+        yield return task with { Sequence = 50002, State = "succeeded", RawExitCode = 0 };
+        yield return task with { Sequence = 50001, Message = "stale event" };
+    }
 }
 
 internal sealed class BurstFeed(SimulationTaskFeed source) : ITaskFeed
