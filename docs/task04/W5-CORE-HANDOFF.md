@@ -25,7 +25,7 @@ The prior absence of SDK was resolved by the user's installation, not by the
 agent. No external NuGet test framework is needed.
 
 - BCL backend build: PASS, zero warnings/errors.
-- Console behavior harness: **14 groups PASS**, including DAG ordering,
+- Console behavior harness: **15 groups PASS**, including DAG ordering,
   exact raw exit `0xC0000142`, cancellation cleanup, retry hashing, heavy/memory/
   ancestor-output serialization, rejected cycles/budgets, crash recovery,
   bounded logs/events, missing outputs, required-field and integer-spelling
@@ -38,6 +38,11 @@ agent. No external NuGet test framework is needed.
   All commands are now frozen before queue mutation; cancellation delivery is
   independent of persistence success; shutdown attempts every adapter and
   releases journal ownership before reporting aggregated failures.
+  Final admission regression injects failure in the structured-log destination:
+  the complete progress/log batch is staged and written before mutating queue,
+  log ring or subscriber events. Rejection preserves old snapshots, restores
+  the prior durable task journal where storage permits, and cannot execute
+  rejected work after storage recovers. Failed rollback is explicitly reported.
 - W1 validation of 11 representative emitted synthetic snapshots: PASS;
   all eight task states plus determinate/indeterminate progress covered.
 - `python -B scripts/check.py`: **118 discovered / 115 PASS / 3 platform

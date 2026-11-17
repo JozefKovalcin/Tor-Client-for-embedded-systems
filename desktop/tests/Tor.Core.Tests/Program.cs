@@ -54,7 +54,8 @@ static class Program
             ("reference-security-and-output-verification", References), ("contract-binding-invalid-values", Binding),
             ("bounded-task-deadline", Deadline), ("unexpected-zero-exit-is-not-success", UnexpectedExit),
             ("unsupported-command-rejects-whole-graph", AtomicCommandRejection),
-            ("journal-failure-still-cancels-and-cleans-up", JournalFailureCancellation)
+            ("journal-failure-still-cancels-and-cleans-up", JournalFailureCancellation),
+            ("log-publication-failure-rejects-admission", LogFailureAdmission)
         };
         foreach (var (name, test) in tests) { await test(); Console.WriteLine("PASS " + name); }
         if (args.Length == 1) File.WriteAllText(args[0], JsonSerializer.Serialize(Export, ContractJson.Options));
@@ -276,5 +277,27 @@ static class Program
             Check.That(cleaned == 2, "Journal failure prevented an adapter from receiving/finishing cancellation");
             using var reopened = w.Journal(); // Disposal must release single-writer ownership despite recorded failures.
         }
+    }
+    static async Task LogFailureAdmission()
+    {
+        using var w = new Workspace(); int calls = 0;
+        var handler = new Handler(CommandKind.DependencyProbe, (_, _, _) => { calls++; return Task.FromResult(Success()); });
+        await using var core = new TaskOrchestrator([handler], w.Files, w.Journal(), Capacity);
+        core.Submit([w.Probe("kept")]); await core.RunUntilIdleAsync();
+        var beforeRows = core.Snapshot().ToArray(); var beforeLogs = core.Logs().ToArray();
+        using var cancel = new CancellationTokenSource();
+        await using var subscriber = core.WatchProgressAsync(cancel.Token).GetAsyncEnumerator();
+        var pending = subscriber.MoveNextAsync().AsTask();
+        var path = Path.Combine(w.Root, "task-logs.json"); File.Move(path, path + ".preserved"); Directory.CreateDirectory(path);
+        Exception? rejected = null;
+        try { core.Submit([w.Probe("rejected-log")]); } catch (Exception error) { rejected = error; }
+        Check.That(rejected is IOException or UnauthorizedAccessException, "Expected log publication I/O failure");
+        Check.That(core.Snapshot().SequenceEqual(beforeRows) && core.Logs().SequenceEqual(beforeLogs), "Rejected graph altered old queue/log snapshots");
+        Check.That(!pending.IsCompleted, "Rejected graph published a queued event");
+        cancel.Cancel(); try { await pending; } catch (OperationCanceledException) { }
+        Directory.Delete(path); File.Move(path + ".preserved", path); // Only undo this test's empty fault-injection directory.
+        await core.RunUntilIdleAsync(); Check.That(calls == 1, "Rejected graph executed after log storage recovered");
+        using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(w.Root, "tasks.json")));
+        Check.That(document.RootElement.GetArrayLength() == 1, "Rejected graph remained in durable task journal");
     }
 }

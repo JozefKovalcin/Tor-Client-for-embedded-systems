@@ -125,19 +125,34 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
                 visiting.Remove(id); visited.Add(id);
             }
             foreach (var id in incoming.Keys) Visit(id);
-            foreach (var task in prepared)
+            var staged = prepared.Select(task =>
             {
                 var progress = new TaskProgress(1, task.Id, null, 0, DateTimeOffset.UtcNow, "queued", "queued",
                     null, null, null, "Task queued", true, task.RetryOfTaskId, null, null, null, "task-logs.json");
-                entries.Add(task.Id, new Entry(task, progress));
-            }
-            try { Persist(); }
-            catch
+                return new Entry(task, progress);
+            }).ToArray();
+            var previousRows = entries.Values.Select(x => x.Progress).ToArray();
+            var proposedLogs = logs.Concat(staged.Select(item => new TaskLog(item.Progress.TimestampUtc,
+                item.Progress.TaskId, item.Progress.Sequence, TaskMessage.Queued, null, null))).TakeLast(256).ToArray();
+            try
             {
-                foreach (var task in prepared) { entries[task.Id].Cancellation.Dispose(); entries.Remove(task.Id); }
+                // Both durable writes must succeed before admission is acknowledged,
+                // mutable queue/log state changes, or subscribers see a queued event.
+                journal.Write(previousRows.Concat(staged.Select(x => x.Progress)).ToArray());
+                journal.WriteLogs(proposedLogs);
+            }
+            catch (Exception admissionError) when (admissionError is not OutOfMemoryException and not StackOverflowException)
+            {
+                foreach (var item in staged) item.Cancellation.Dispose();
+                try { journal.Write(previousRows); }
+                catch (Exception rollbackError) when (rollbackError is not OutOfMemoryException and not StackOverflowException)
+                { throw new AggregateException("Admission rejected; durable journal rollback also failed", admissionError, rollbackError); }
                 throw;
             }
-            foreach (var task in prepared) Publish(entries[task.Id].Progress, TaskMessage.Queued);
+            foreach (var item in staged) entries.Add(item.Progress.TaskId, item);
+            logs.Clear(); foreach (var row in proposedLogs) logs.Enqueue(row);
+            foreach (var item in staged)
+                foreach (var subscriber in subscribers) subscriber.Writer.TryWrite(item.Progress);
         }
     }
 
