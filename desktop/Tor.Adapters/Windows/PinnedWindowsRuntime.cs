@@ -28,4 +28,32 @@ public sealed class PinnedWindowsRuntime
         }
         catch { foreach (var stream in locked) stream.Dispose(); throw; }
     }
+    internal static (string ExecutablePath, IReadOnlyList<FileStream> Locks) StageVerifiedFiles(
+        IReadOnlyList<FileStream> verifiedSources, string freshDirectory)
+    {
+        var pins = new[] { Executable, ThreadLibrary };
+        if (verifiedSources.Count != pins.Length) throw new InvalidDataException("Runtime staging requires the exact pinned file set");
+        PrivateStorage.CreateNewDirectory(freshDirectory);
+        var locked = new List<FileStream>();
+        try
+        {
+            for (int index = 0; index < pins.Length; index++)
+            {
+                var destination = Path.Combine(freshDirectory, pins[index].Ref);
+                // Copy only the verified open streams. Never enumerate/copy package
+                // neighbors, manifests, .local redirection or other DLLs by pathname.
+                verifiedSources[index].Position = 0;
+                using (var output = new FileStream(destination, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                {
+                    verifiedSources[index].CopyTo(output); output.Flush(flushToDisk: true);
+                }
+                var staged = new FileStream(destination, FileMode.Open, FileAccess.Read, FileShare.Read);
+                locked.Add(staged);
+                if (!CryptographicOperations.FixedTimeEquals(SHA256.HashData(staged), Convert.FromHexString(pins[index].Sha256)))
+                    throw new InvalidDataException("Staged runtime hash differs from reviewed static package");
+            }
+            return (Path.Combine(freshDirectory, Executable.Ref), locked);
+        }
+        catch { foreach (var stream in locked) stream.Dispose(); throw; }
+    }
 }

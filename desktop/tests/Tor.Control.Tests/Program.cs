@@ -250,6 +250,28 @@ static class Program
         await Assert.Throws<InvalidDataException>(() => ManagedTorSession.StartOfflineAsync(new PinnedWindowsRuntime(unverified), parent));
         Assert.That(Directory.GetDirectories(parent, "session-*").Length == before, "Unverified runtime created managed state");
         Console.WriteLine("PASS unverified runtime hash rejected before process/state creation");
+        var neighbors = Path.Combine(parent, "package-neighbors-" + Guid.NewGuid().ToString("N"));
+        PrivateStorage.CreateNewDirectory(neighbors);
+        foreach (var file in new[] { PinnedWindowsRuntime.Executable.Ref, PinnedWindowsRuntime.ThreadLibrary.Ref })
+            File.Copy(Path.Combine(package, file), Path.Combine(neighbors, file));
+        await File.WriteAllTextAsync(Path.Combine(neighbors, "version.dll"), "harmless synthetic non-PE DLL fixture; never executed");
+        await File.WriteAllTextAsync(Path.Combine(neighbors, "tor.exe.manifest"), "harmless synthetic ignored external manifest fixture");
+        Directory.CreateDirectory(Path.Combine(neighbors, "tor.exe.local"));
+        await File.WriteAllTextAsync(Path.Combine(neighbors, "tor.exe.local/unlisted.dll"), "harmless synthetic redirection fixture; never executed");
+        await using (var isolated = await ManagedTorSession.StartOfflineAsync(new PinnedWindowsRuntime(neighbors), parent))
+        {
+            using var observed = Process.GetProcessById(isolated.ProcessId);
+            var executable = observed.MainModule?.FileName ?? throw new Exception("Managed executable location unavailable");
+            var executionDirectory = Path.GetDirectoryName(executable)!;
+            Assert.That(!executable.StartsWith(neighbors + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase), "Original package directory remained executable search scope");
+            Assert.That(Directory.GetFileSystemEntries(executionDirectory).Select(Path.GetFileName).Order(StringComparer.OrdinalIgnoreCase)
+                .SequenceEqual(new[] { "libwinpthread-1.dll", "tor.exe" }, StringComparer.OrdinalIgnoreCase), "Unverified package neighbor/redirection reached private execution directory");
+            foreach (ProcessModule module in observed.Modules)
+                Assert.That(!module.FileName.StartsWith(neighbors + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase), "A module loaded from unverified package directory");
+            Assert.That((await isolated.StopAsync()).RawExitCode == 0, "Isolated staged Tor shutdown failed");
+        }
+        Assert.That(File.Exists(Path.Combine(neighbors, "version.dll")) && Directory.Exists(Path.Combine(neighbors, "tor.exe.local")), "Source package neighbors were unexpectedly modified");
+        Console.WriteLine("PASS unlisted DLL/external manifest/.local neighbors excluded from private verified execution and loaded modules");
         var contents = Directory.GetFiles(parent, "*.json", SearchOption.AllDirectories)
             .Select(File.ReadAllText).ToArray();
         Assert.That(contents.All(x => !x.Contains("AUTHENTICATE ", StringComparison.Ordinal) && !x.Contains("SERVERNONCE=", StringComparison.Ordinal)), "Control authentication material was persisted");

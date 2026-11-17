@@ -67,6 +67,10 @@ No public-network traffic or SOCKS listener was enabled:
 - Core command cancellation waits for Tor teardown and retains raw exit0: PASS.
 - Killing only the owning test application leaves no Tor orphan: PASS.
 - Unverified executable hash rejected before process/state creation: PASS.
+- Unlisted root DLL, external manifest and `.local` redirection fixtures are
+  excluded from the fresh verified execution directory and loaded modules:
+  PASS. Only the two pinned open file streams are copied; staged copies are
+  rehashed/read-locked. Source package neighbors remain unchanged.
 
 Commands/results retained under ignored `build/task04-checks/`:
 
@@ -120,3 +124,20 @@ unavailable in shareable logs. Private session data requires a future explicit
 retention policy; it is never erased automatically here. Networking enablement,
 run-only distribution and real GUI wiring remain NOT RUN/unimplemented in this
 foundation. No W7–W15, firmware build, public test or hardware action was started.
+
+## Final runtime-integrity review correction
+
+Review confirmed that launching the original verified executable in a package
+directory containing unverified neighbors would still expose that directory to
+Windows DLL search/redirection. The adapter now stages only the two pinned
+runtime file streams into a fresh owner-only execution directory, verifies and
+locks those copies, and excludes the original package from executable location,
+working directory and PATH. This is a runtime-integrity fix; no core/schema or
+source-lock change. A harmless non-PE `version.dll`, external manifest and
+`.local` folder fixture are retained in an otherwise valid source package;
+actual offline launch verifies that none is copied/searched/loaded and the
+source package remains intact. No malicious code is created or executed.
+Temporary staging adds approximately8.7MB per retained session; staged binaries
+and private state remain ignored and are not automatically deleted. The OS and
+current user identity remain trusted. Official search/redirection documentation
+is linked in the adapter README.

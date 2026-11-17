@@ -64,6 +64,10 @@ public sealed class ManagedTorSession : IAsyncDisposable
             cancellationToken.ThrowIfCancellationRequested();
             var root = Path.Combine(existingPrivateParent, "session-" + Guid.NewGuid().ToString("N"));
             PrivateStorage.CreateNewDirectory(root);
+            phase = "runtime-staging";
+            var staged = PinnedWindowsRuntime.StageVerifiedFiles(locks, Path.Combine(root, "runtime"));
+            locks = locks.Concat(staged.Locks).ToArray();
+            cancellationToken.ThrowIfCancellationRequested();
             var data = Path.Combine(root, "state"); PrivateStorage.CreateNewDirectory(data);
             var temporary = Path.Combine(root, "temporary"); PrivateStorage.CreateNewDirectory(temporary);
             var cookiePath = Path.Combine(root, "control-cookie");
@@ -81,7 +85,7 @@ public sealed class ManagedTorSession : IAsyncDisposable
                 "DisableNetwork 1\nSafeLogging 1\nLog warn stdout\n" +
                 $"__OwningControllerProcess {Environment.ProcessId.ToString(CultureInfo.InvariantCulture)}\n";
             await File.WriteAllTextAsync(config, torrc, new UTF8Encoding(false), cancellationToken).ConfigureAwait(false);
-            var start = new ProcessStartInfo(runtime.ExecutablePath)
+            var start = new ProcessStartInfo(staged.ExecutablePath)
             {
                 UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = root,
                 RedirectStandardOutput = true, RedirectStandardError = true
@@ -90,7 +94,7 @@ public sealed class ManagedTorSession : IAsyncDisposable
             var windows = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
             start.Environment.Clear();
             start.Environment["SystemRoot"] = windows; start.Environment["WINDIR"] = windows;
-            start.Environment["PATH"] = Path.GetDirectoryName(runtime.ExecutablePath) + Path.PathSeparator + Path.Combine(windows, "System32");
+            start.Environment["PATH"] = Path.GetDirectoryName(staged.ExecutablePath) + Path.PathSeparator + Path.Combine(windows, "System32");
             start.Environment["TEMP"] = temporary; start.Environment["TMP"] = temporary;
             job = new WindowsJob(); process = new Process { StartInfo = start };
             phase = "process-start";

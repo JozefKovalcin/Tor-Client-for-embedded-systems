@@ -7,12 +7,23 @@ compiler flag, source lock, build launcher or historical report is modified.
 Changing a runtime version/hash requires a separate provenance review.
 
 `ManagedTorSession.StartOfflineAsync` rehashes and read-locks both runtime files,
-creates a fresh owner-only state directory, writes its own defaults/config, and
+copies only those verified open streams into a fresh owner-only execution
+directory, then rehashes and read-locks the staged copies. It creates private
+state, writes its own defaults/config, and
 starts Tor directly with an argument array/minimal environment. It never invokes
 COMPILE.cmd, a package manager, shell, installer or downloader. No caller-supplied
 torrc or arbitrary Tor arguments are accepted. Networking is fixed disabled:
 `DisableNetwork 1`, `SocksPort 0`, loopback ephemeral ControlPort and SAFECOOKIE.
 There is no online-enable command in this PR.
+
+The original package directory is excluded from the executable directory,
+working directory and PATH used by the child. Extra DLLs, external manifests
+and `.local` loader-redirection entries are never staged or searched. This
+protects the verified package boundary without modifying the source package.
+Windows system DLLs remain OS dependencies. The caller's user account and OS
+are trusted; this is not protection against a compromised same-user process.
+See [Microsoft DLL search order](https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order)
+and [redirection](https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-redirection).
 
 Cookie/state/config remain within that private session scope and are neither
 packaged nor exported. Existing state is never overwritten or automatically
