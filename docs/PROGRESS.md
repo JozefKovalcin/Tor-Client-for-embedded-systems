@@ -1,3 +1,46 @@
+# TASK 04 — Parallel W4/W5/W6 foundations — 2026-11-17
+
+Started from verified remote main `1120723c806a01f9a923f5c4e489bc8a7ae23798`.
+Three independent agents/worktrees implemented separate desktop, core/Windows
+control, and Linux execution/inventory boundaries. Draft PRs: W4 #7; W5 core
+#5 and Windows #10; W6 executor #6 and package plan #9. A real supported-host
+probe exposed the narrow W2 version-suffixed GCC banner defect; separate PR #8
+fixes it and precedes #6. No PR was merged and no history was rewritten.
+
+W4 pins the user-installed SDK11.0.100/net11.0 and Avalonia12.1.6; the user
+explicitly approved the isolated 25-package NuGet restore. Genuine lock and
+provenance are committed. Actual Windows GUI build/launch/navigation and
+Dark/Light checks PASS, 40 compiled UI assertions and five W1/pin/lock guards
+PASS. The GUI remains explicitly simulated and does not execute shell commands.
+
+W5 adds BCL-only typed orchestration, durable W1 progress and bounded lifecycle/
+resource/log handling, then separate SAFECOOKIE/managed Windows control.
+Core15 and protocol9 compiled groups PASS. Actual verified existing Tor offline
+smoke PASS: unauthorized514, authenticated bootstrap0/stop/raw0, unexpected
+exit, cancellation, owner crash/no orphan, hash rejection and verified-only
+runtime staging. Networking/SOCKS remain disabled; private state stays ignored.
+Owning-core atomicity, journal-failure cancellation and ref-validation defects
+were corrected with independent before/after reproductions and preserved logs.
+
+W6 adds exact-input approved execution infrastructure and separate bounded ELF/
+package planning. Actual native Ubuntu24.04/glibc2.39 CI observed all required
+tools AVAILABLE after PR #8; the explicit empty test cache has no sources and
+no BuildRequest. Before/after and incompatible WSL observations are retained.
+No real source build or package artifact was produced. Distribution readiness
+remains false, signature trust unchanged, and runtime/ABI acceptance NOT RUN.
+
+Combined validation: Windows156 discovered/149PASS/7platformSKIPPED; native
+Linux unit snapshot156/151PASS/5SKIPPED (including two explicit absent-Linux-SDK
+compiled gates). Core/control also compile in applicable Linux CI. Existing
+Windows pipeline6PASS; combined app build0warnings/errors; whitespace PASS.
+No Tor compilation, public-network Tor test, full Buildroot/Yocto, deployment,
+flashing or W7–W15 implementation. Baseline, stashes, protected source/configs,
+historical evidence and thresholds are preserved. Linux GUI/clean-host release
+and actual local UI/backend wiring remain unverified or unimplemented.
+
+See [TASK 04 integration overview](task04/INTEGRATION.md) and its per-lane
+handoffs for branch/commit/PR mapping, commands, dependencies and remaining gates.
+
 # TASK 01 W3 — Native Linux build preflight — 2026-11-16
 
 W3 integrates W2 `239e5ad47de360a2c1b603a16f9456c97c43a957` (including W1).
