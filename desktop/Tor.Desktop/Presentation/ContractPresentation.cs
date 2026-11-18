@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using Tor.Contracts;
 
 namespace TorManager.Desktop.Presentation;
 
@@ -7,7 +8,7 @@ namespace TorManager.Desktop.Presentation;
 // Production feeds must validate full W1 v1 schemas before crossing this seam.
 internal sealed record TaskCard(string TaskId, long Sequence, string Phase, string State,
     double? Completed, double? Total, string? Unit, string Message, long? RawExitCode,
-    string? ReasonCode, string? LogRef)
+    string? ReasonCode, string? LogRef, int? TerminationSignal = null)
 {
     public string StateLabel => State == "succeeded" ? "Completed (succeeded)" : CultureInfo.InvariantCulture.TextInfo.ToTitleCase(State);
     public string StateColor => State switch
@@ -25,8 +26,17 @@ internal sealed record TaskCard(string TaskId, long Sequence, string Phase, stri
     {
         ReasonCode is null ? null : "Reason: " + ReasonCode,
         RawExitCode is null ? null : "Exit code: " + RawExitCode.Value.ToString(CultureInfo.InvariantCulture),
+        TerminationSignal is null ? null : "Termination signal: " + TerminationSignal.Value.ToString(CultureInfo.InvariantCulture),
         LogRef is null ? null : "Log reference: " + LogRef
     }.Where(value => value is not null));
+
+    public static TaskCard FromProgress(TaskProgress value)
+    {
+        value.Validate();
+        return new(value.TaskId, value.Sequence, value.Phase, value.State, value.Completed,
+            value.Total, value.Unit, value.Message, value.RawExitCode, value.ReasonCode,
+            value.LogRef, value.TerminationSignal);
+    }
 
     public static TaskCard FromJson(JsonElement value)
     {

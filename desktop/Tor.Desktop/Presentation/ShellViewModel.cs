@@ -1,23 +1,31 @@
 using System.Collections.ObjectModel;
 using System.Text.Json;
+using Tor.Application;
 using TorManager.Desktop.Services;
 
 namespace TorManager.Desktop.Presentation;
 
 internal sealed record NoticeCard(string Title, string Detail);
 internal sealed record PageViewModel(string Title, string Description, bool ShowTasks = false,
-    bool ShowDependencies = false, bool ShowSettings = false, IReadOnlyList<NoticeCard>? Notices = null);
+    bool ShowDependencies = false, bool ShowSettings = false, IReadOnlyList<NoticeCard>? Notices = null,
+    bool ShowOffline = false);
 internal sealed record LogCard(string Sequence, string TaskId, string Message, string Detail);
 
-internal sealed class ShellViewModel : ObservableModel, IDisposable
+internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDisposable
 {
     private readonly ITaskFeed _feed;
     private readonly IUiDispatcher _dispatcher;
     private readonly SettingsStore _settings;
     private readonly CancellationTokenSource _lifetime = new();
+    private readonly IReadOnlyList<PageViewModel> _demoPages;
+    private readonly IReadOnlyList<PageViewModel> _offlinePages;
     private PageViewModel _currentPage;
     private string _selectedMode, _theme, _settingsNotice;
     private bool _animateSimulation;
+    private bool _isDemo;
+    private bool _closing;
+    private Task? _close;
+    private string? _closeNotice;
     public ObservableCollection<PageViewModel> Pages { get; }
     public ObservableCollection<TaskCard> Tasks { get; } = new();
     public ObservableCollection<DependencyCard> Dependencies { get; }
@@ -26,6 +34,18 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable
     public IReadOnlyList<string> Themes { get; } = new[] { "System", "Dark", "Light" };
     public AsyncCommand ReplayCommand { get; }
     public ActionCommand SaveSettingsCommand { get; }
+    public ActionCommand ShowDemoCommand { get; }
+    public ActionCommand ShowRealOfflineCommand { get; }
+    public OfflineTorViewModel? Offline { get; }
+    public string? OfflineUnavailableReason { get; }
+    public bool HasOfflineUnavailableReason => OfflineUnavailableReason is not null;
+    public bool HasOffline => Offline is not null;
+    public bool IsDemo => _isDemo;
+    public string ModeHeading => IsDemo ? "Demo · simulated data" : "Real Offline";
+    public string TaskHeading => IsDemo ? "Simulated tasks" : "Offline Tor tasks";
+    public string SidebarStatus => IsDemo ? "Example data" : Offline?.SessionText ?? "Runtime unavailable";
+    public IEnumerable<TaskCard> VisibleTasks => IsDemo ? Tasks : Offline?.Tasks ?? [];
+    public IEnumerable<LogCard> VisibleLogs => IsDemo ? Logs : Offline?.Logs ?? [];
     public PageViewModel CurrentPage { get => _currentPage; set => Set(ref _currentPage, value); }
     public string SettingsNotice { get => _settingsNotice; private set => Set(ref _settingsNotice, value); }
     public string SelectedMode
@@ -35,20 +55,24 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable
     }
     public string Theme { get => _theme; set { if (Themes.Contains(value)) Set(ref _theme, value); } }
     public bool AnimateSimulation { get => _animateSimulation; set => Set(ref _animateSimulation, value); }
-    public string ModeDescription => SelectedMode switch
+    public string ModeDescription => _closeNotice ?? (IsDemo && !HasOffline && HasOfflineUnavailableReason
+        ? OfflineUnavailableReason! : IsDemo ? SelectedMode switch
     {
         "Developer" => "Developer · Tools and builds require separate consent; this shell runs simulations only.",
         "Embedded" => "Embedded · PICO device pairing and deployment BLOCKED; no device connection is attempted.",
         _ => "Run Only · No compiler, package installation or build operation is started by this application."
-    };
-    public string TaskSummary => $"{Tasks.Count} simulated tasks · {Tasks.Count(x => x.State == "running")} running · {Tasks.Count(x => x.State == "blocked")} blocked";
+    } : "Tor runs with networking and SOCKS disabled. Control uses authenticated loopback.");
+    public string TaskSummary => IsDemo
+        ? $"{Tasks.Count} simulated tasks · {Tasks.Count(x => x.State == "running")} running · {Tasks.Count(x => x.State == "blocked")} blocked"
+        : Offline?.TaskText ?? "Runtime unavailable";
 
-    public ShellViewModel(ITaskFeed feed, IUiDispatcher dispatcher, SettingsStore settings)
+    public ShellViewModel(ITaskFeed feed, IUiDispatcher dispatcher, SettingsStore settings,
+        IOfflineTorService? offline = null, string? offlineUnavailableReason = null, bool showRealWhenUnavailable = false)
     {
         _feed = feed; _dispatcher = dispatcher; _settings = settings;
         var stored = settings.Load(out _settingsNotice);
         _selectedMode = stored.Mode; _theme = stored.Theme; _animateSimulation = stored.AnimateSimulation;
-        Pages = new(new[]
+        _demoPages = new[]
         {
             new PageViewModel("Dashboard", "Local workspace overview. Every observation below is SIMULATED; actual Tor monitoring is not connected.", ShowTasks: true,
                 Notices: new[] { new NoticeCard("Tor integration · NOT CONNECTED", "Authenticated Tor monitoring is not connected. Bootstrap, health and traffic are unavailable."),
@@ -62,11 +86,33 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable
             new PageViewModel("Reports", "Read-only synthetic evidence summary. Historical reports are not rewritten or imported as current success.", Notices: new[] { FixtureNotice("EvidenceManifest", "Evidence · NOT RUN") }),
             new PageViewModel("Logs and Progress", "Bounded simulation log and task details, including raw exits and interrupted-run reasons.", ShowTasks: true),
             new PageViewModel("Settings", "UI preferences only. No Tor identity, cookie, credential or device configuration is stored.", ShowSettings: true)
-        });
+        };
+        _offlinePages = new[]
+        {
+            new PageViewModel("Dashboard", "Start and monitor the verified Windows Tor runtime.", ShowOffline: true),
+            new PageViewModel("Logs and Progress", "Task history and sanitized lifecycle events from this workspace.", ShowTasks: true),
+            new PageViewModel("Settings", "Save your appearance and Demo preferences.", ShowSettings: true)
+        };
+        Offline = offline is null ? null : new(offline, dispatcher);
+        OfflineUnavailableReason = offlineUnavailableReason;
+        _isDemo = offline is null && !showRealWhenUnavailable;
+        Pages = new(_isDemo ? _demoPages : _offlinePages);
         _currentPage = Pages[0];
         Dependencies = new(feed.Dependencies);
         foreach (var task in feed.InitialTasks) Apply(task);
-        ReplayCommand = new(ReplayAsync, () => _dispatcher.Post(() => SettingsNotice = "Simulation feed failed; no real task or process was started."));
+        ReplayCommand = new(ReplayAsync, () => SettingsNotice = "The Demo replay could not finish.",
+            () => IsDemo && !_closing);
+        ShowDemoCommand = new(ShowDemo, () => !_closing && !IsDemo && (Offline?.CanSwitchToDemo ?? true));
+        ShowRealOfflineCommand = new(ShowRealOffline, () => !_closing && IsDemo && (HasOffline || showRealWhenUnavailable));
+        if (Offline is not null) Offline.PropertyChanged += (_, change) =>
+        {
+            if (change.PropertyName == nameof(Offline.CanSwitchToDemo)) ShowDemoCommand.Invalidate();
+            if (IsDemo) return;
+            if (change.PropertyName == nameof(Offline.Tasks)) Changed(nameof(VisibleTasks));
+            if (change.PropertyName == nameof(Offline.Logs)) Changed(nameof(VisibleLogs));
+            if (change.PropertyName == nameof(Offline.SessionText)) Changed(nameof(SidebarStatus));
+            if (change.PropertyName == nameof(Offline.TaskText)) Changed(nameof(TaskSummary));
+        };
         SaveSettingsCommand = new(() =>
         {
             try
@@ -76,40 +122,55 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable
             }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException or JsonException or ArgumentException)
             { SettingsNotice = "Settings could not be saved; existing file was preserved."; }
-        });
+        }, () => !_closing);
+    }
+
+    public async Task OpenAsync()
+    {
+        if (IsDemo) ReplayCommand.Execute(null);
+        if (Offline is not null) await Offline.OpenAsync();
+    }
+
+    public void ShowDemo()
+    {
+        if (_closing || IsDemo || Offline?.CanSwitchToDemo == false) return;
+        SelectWorkspace(true, _demoPages);
+    }
+
+    public void ShowRealOffline()
+    {
+        if (!ShowRealOfflineCommand.CanExecute(null)) return;
+        SelectWorkspace(false, _offlinePages);
+    }
+
+    private void SelectWorkspace(bool isDemo, IReadOnlyList<PageViewModel> pages)
+    {
+        _isDemo = isDemo;
+        Pages.Clear();
+        foreach (var page in pages) Pages.Add(page);
+        CurrentPage = Pages[0];
+        Changed(nameof(IsDemo));
+        Changed(nameof(ModeHeading));
+        Changed(nameof(TaskHeading));
+        Changed(nameof(SidebarStatus));
+        Changed(nameof(VisibleTasks));
+        Changed(nameof(VisibleLogs));
+        Changed(nameof(TaskSummary));
+        Changed(nameof(ModeDescription));
+        ReplayCommand.Invalidate();
+        ShowDemoCommand.Invalidate();
+        ShowRealOfflineCommand.Invalidate();
     }
 
     public async Task ReplayAsync()
     {
-        if (!AnimateSimulation) return;
+        if (!IsDemo || _closing || !AnimateSimulation) return;
         var token = _lifetime.Token;
         Tasks.Clear();
         Logs.Clear();
         foreach (var task in _feed.InitialTasks) Apply(task);
         await foreach (var task in _feed.WatchAsync(token).ConfigureAwait(false))
-            await ApplyOnUiAsync(task, token).ConfigureAwait(false);
-    }
-
-    private Task ApplyOnUiAsync(TaskCard task, CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-        // Backpressure preserves every accepted terminal update and limits queued work to one callback.
-        var applied = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        _dispatcher.Post(() =>
-        {
-            if (token.IsCancellationRequested)
-            {
-                applied.TrySetCanceled(token);
-                return;
-            }
-            try
-            {
-                Apply(task);
-                applied.SetResult();
-            }
-            catch (Exception error) { applied.SetException(error); }
-        });
-        return applied.Task.WaitAsync(token);
+            await _dispatcher.ApplyAsync(() => Apply(task), token).ConfigureAwait(false);
     }
 
     private void Apply(TaskCard task)
@@ -145,5 +206,27 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable
         return new(title, "SIMULATION · " + detail);
     }
 
-    public void Dispose() { _lifetime.Cancel(); _lifetime.Dispose(); }
+    public void Dispose() => DisposeAsync().AsTask().GetAwaiter().GetResult();
+
+    public ValueTask DisposeAsync() => new(_close ??= CloseAsync());
+
+    internal void ReportCloseFailure()
+    {
+        _closeNotice = "Shutdown could not confirm cleanup. Review the task status. Close again to exit.";
+        Changed(nameof(ModeDescription));
+    }
+
+    private async Task CloseAsync()
+    {
+        _closing = true;
+        _lifetime.Cancel();
+        _lifetime.Dispose();
+        _closeNotice = "Closing the offline workspace…";
+        Changed(nameof(ModeDescription));
+        ReplayCommand.Invalidate();
+        ShowDemoCommand.Invalidate();
+        ShowRealOfflineCommand.Invalidate();
+        SaveSettingsCommand.Invalidate();
+        if (Offline is not null) await Offline.DisposeAsync().ConfigureAwait(false);
+    }
 }

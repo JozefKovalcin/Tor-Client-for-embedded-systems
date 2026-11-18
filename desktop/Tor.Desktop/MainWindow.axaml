@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:TorManager.Desktop.Presentation"
         x:Class="TorManager.Desktop.MainWindow"
-        Title="Tor Manager · Simulation workspace"
+        Title="Tor Manager"
         Width="1240" Height="860" MinWidth="920" MinHeight="620"
         Background="{DynamicResource WorkspaceBackground}" FontFamily="Segoe UI, sans-serif"
         x:CompileBindings="False">
@@ -36,12 +36,63 @@
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
+          <StackPanel IsVisible="{Binding ShowOffline}" Spacing="10">
+            <Border Classes="card" IsVisible="{Binding $parent[Window].DataContext.HasOfflineUnavailableReason}">
+              <TextBlock Text="{Binding $parent[Window].DataContext.OfflineUnavailableReason}" TextWrapping="Wrap" />
+            </Border>
+            <StackPanel IsVisible="{Binding $parent[Window].DataContext.HasOffline}"
+                        DataContext="{Binding $parent[Window].DataContext.Offline}" Spacing="10">
+              <Border Classes="card">
+                <StackPanel Spacing="12">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Spacing="5">
+                      <TextBlock Text="Tor session" FontSize="20" FontWeight="SemiBold" />
+                      <TextBlock Text="{Binding SessionText}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                      <Button Content="Check runtime" Command="{Binding RefreshCommand}" />
+                      <Button Content="Start Tor" Command="{Binding StartCommand}" />
+                      <Button Content="Stop Tor" Command="{Binding StopCommand}" />
+                    </StackPanel>
+                  </Grid>
+                  <TextBlock Text="{Binding PackageText}" TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding ProcessText}" Classes="muted" />
+                </StackPanel>
+              </Border>
+              <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Border Classes="card">
+                  <StackPanel Spacing="6">
+                    <TextBlock Text="Control connection" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding ControlText}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Classes="card">
+                  <StackPanel Spacing="6">
+                    <TextBlock Text="Bootstrap" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding BootstrapText}" TextWrapping="Wrap" />
+                    <TextBlock Text="Network access is disabled in this workspace." Classes="muted" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Border>
+              </Grid>
+              <Border Classes="card">
+                <StackPanel Spacing="6">
+                  <TextBlock Text="Current task" FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding TaskText}" />
+                  <TextBlock Text="{Binding OutcomeText}" Classes="muted" TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding RecoveryText}" Classes="muted" TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding ErrorText}" IsVisible="{Binding HasError}"
+                             Foreground="{DynamicResource WorkspaceAccent}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Border>
+            </StackPanel>
+          </StackPanel>
           <StackPanel IsVisible="{Binding ShowTasks}" Spacing="10">
             <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,10">
-              <TextBlock Text="Tasks · SIMULATION" FontWeight="SemiBold" VerticalAlignment="Center" />
-              <Button Grid.Column="1" Content="Replay simulation" Command="{Binding $parent[Window].DataContext.ReplayCommand}" />
+              <TextBlock Text="{Binding $parent[Window].DataContext.TaskHeading}" FontWeight="SemiBold" VerticalAlignment="Center" />
+              <Button Grid.Column="1" Content="Replay simulation" Command="{Binding $parent[Window].DataContext.ReplayCommand}"
+                      IsVisible="{Binding $parent[Window].DataContext.IsDemo}" />
             </Grid>
-            <ItemsControl ItemsSource="{Binding $parent[Window].DataContext.Tasks}">
+            <ItemsControl ItemsSource="{Binding $parent[Window].DataContext.VisibleTasks}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
                   <Border Classes="card">
@@ -66,7 +117,7 @@
               </ItemsControl.ItemTemplate>
             </ItemsControl>
             <TextBlock Text="Event log · newest retained within 100 entries" FontWeight="SemiBold" />
-            <ItemsControl ItemsSource="{Binding $parent[Window].DataContext.Logs}">
+            <ItemsControl ItemsSource="{Binding $parent[Window].DataContext.VisibleLogs}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
                   <Border Background="{DynamicResource WorkspaceLog}" Padding="12" Margin="0,0,0,4" CornerRadius="4">
@@ -107,8 +158,6 @@
                         SelectedItem="{Binding $parent[Window].DataContext.Theme, Mode=TwoWay}" />
               <CheckBox Content="Animate the bounded simulated task stream"
                         IsChecked="{Binding $parent[Window].DataContext.AnimateSimulation, Mode=TwoWay}" />
-              <TextBlock Text="Your workspace mode is selected in the header. Preferences do not authorize installation, builds or device actions."
-                         Classes="muted" TextWrapping="Wrap" />
               <Button Content="Save UI preferences" HorizontalAlignment="Left"
                       Command="{Binding $parent[Window].DataContext.SaveSettingsCommand}" />
               <TextBlock Text="{Binding $parent[Window].DataContext.SettingsNotice}" TextWrapping="Wrap" Classes="muted" />
@@ -123,26 +172,29 @@
       <Grid RowDefinitions="105,*,100">
         <StackPanel Margin="22,26" Spacing="6">
           <TextBlock Text="TOR MANAGER" FontWeight="Bold" FontSize="19" />
-          <TextBlock Text="Desktop foundation" FontSize="12" Classes="muted" />
         </StackPanel>
         <ListBox Grid.Row="1" ItemsSource="{Binding Pages}" SelectedItem="{Binding CurrentPage, Mode=TwoWay}"
                  Background="Transparent" BorderThickness="0" Margin="10,0">
           <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Title}" /></DataTemplate></ListBox.ItemTemplate>
         </ListBox>
         <StackPanel Grid.Row="2" Margin="22,16" Spacing="6">
-          <TextBlock Text="LOCAL WORKSPACE" FontSize="11" Classes="muted" />
-          <TextBlock Text="Simulation mode" Foreground="{DynamicResource WorkspaceAccent}" FontWeight="SemiBold" />
-          <TextBlock Text="No Tor process connected" FontSize="11" Classes="muted" />
+          <TextBlock Text="{Binding ModeHeading}" Foreground="{DynamicResource WorkspaceAccent}" FontWeight="SemiBold" />
+          <TextBlock Text="{Binding SidebarStatus}" FontSize="11" Classes="muted" />
         </StackPanel>
       </Grid>
     </Border>
     <Border Grid.Column="1" BorderBrush="{DynamicResource WorkspaceBorder}" BorderThickness="0,0,0,1" Padding="32,16">
       <Grid ColumnDefinitions="*,Auto">
         <StackPanel Spacing="5">
-          <TextBlock Text="SIMULATED DATA · NOT RUNTIME EVIDENCE" Foreground="{DynamicResource WorkspaceAccent}" FontWeight="SemiBold" FontSize="12" />
+          <TextBlock Text="{Binding ModeHeading}" FontWeight="SemiBold" FontSize="17" />
           <TextBlock Text="{Binding TaskSummary}" Classes="muted" FontSize="12" />
         </StackPanel>
-        <ComboBox Grid.Column="1" ItemsSource="{Binding Modes}" SelectedItem="{Binding SelectedMode, Mode=TwoWay}" Width="165" />
+        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+          <ComboBox ItemsSource="{Binding Modes}" SelectedItem="{Binding SelectedMode, Mode=TwoWay}"
+                    IsVisible="{Binding IsDemo}" Width="120" />
+          <Button Content="Demo" Command="{Binding ShowDemoCommand}" />
+          <Button Content="Real Offline" Command="{Binding ShowRealOfflineCommand}" />
+        </StackPanel>
       </Grid>
     </Border>
     <ContentControl Grid.Column="1" Grid.Row="1" Content="{Binding CurrentPage}" />
