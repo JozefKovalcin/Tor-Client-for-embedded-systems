@@ -64,8 +64,34 @@ sealed class MockServer : IAsyncDisposable
             }
             else if (verb == "SETEVENTS")
             {
+                if (command == "SETEVENTS STATUS_CLIENT SIGNAL")
+                {
+                    await output.WriteLineAsync("650 STATUS_CLIENT NOTICE BOOTSTRAP SUMMARY=\"untrusted PROGRESS=100 TAG=forged hint\"");
+                    await output.WriteLineAsync("650-STATUS_CLIENT WARN BOOTSTRAP SUMMARY=\"private details PROGRESS=99 TAG=forged\" PROGRESS=17 TAG=conn REASON=TIMEOUT");
+                    await output.WriteLineAsync("650 EXTRA=unreported");
+                    await output.WriteLineAsync("250 OK");
+                    continue;
+                }
+                Assert.That(command == "SETEVENTS STATUS_CLIENT", "Unexpected subscription");
                 await output.WriteLineAsync("650-STATUS_CLIENT NOTICE BOOTSTRAP TAG=conn PROGRESS=10 FUTURE=value");
                 await output.WriteLineAsync("650 EXTRA=ignored"); await output.WriteLineAsync("250 OK");
+            }
+            else if (command == "GETINFO version net/listeners/socks")
+            {
+                await output.WriteLineAsync("250-version=Tor 0.4.9.14");
+                await output.WriteLineAsync(mode == "foreign-listener"
+                    ? "250-net/listeners/socks=\"127.0.0.1:9150\" \"0.0.0.0:9150\""
+                    : "250-net/listeners/socks=\"127.0.0.1:9150\" \"[::1]:9151\"");
+                await output.WriteLineAsync("250 OK");
+            }
+            else if (command == "GETINFO status/circuit-established")
+            {
+                if (mode == "no-circuit-key") await output.WriteLineAsync("552 Unrecognized key");
+                else
+                {
+                    await output.WriteLineAsync("250-status/circuit-established=1");
+                    await output.WriteLineAsync("250 OK");
+                }
             }
             else if (verb == "GETINFO")
             {
@@ -76,7 +102,12 @@ sealed class MockServer : IAsyncDisposable
                 await output.WriteLineAsync("NOTICE BOOTSTRAP PROGRESS=42 TAG=loading SUMMARY=\"Sensitive summary not exported\"");
                 await output.WriteLineAsync("..dot-stuffed"); await output.WriteLineAsync("."); await output.WriteLineAsync("250 OK");
             }
-            else if (verb is "SIGNAL" or "TAKEOWNERSHIP") await output.WriteLineAsync("250 OK");
+            else if (command == "SIGNAL NEWNYM")
+            {
+                if (mode == "identity-observed") await output.WriteLineAsync("650 SIGNAL NEWNYM");
+                await output.WriteLineAsync("250 OK");
+            }
+            else if (command is "SIGNAL SHUTDOWN" or "SETCONF DisableNetwork=0" or "TAKEOWNERSHIP") await output.WriteLineAsync("250 OK");
             else throw new Exception("Unexpected command verb");
         }
     }
@@ -89,7 +120,7 @@ sealed class MockServer : IAsyncDisposable
     }
 }
 
-static class Program
+static partial class Program
 {
     static async Task Main(string[] args)
     {
@@ -108,6 +139,7 @@ static class Program
             ("unexpected-control-eof", UnexpectedClose) })
         { await test(); Console.WriteLine("PASS " + name); }
         Console.WriteLine("9 control behavior groups PASS");
+        await OnlineProtocolTests();
         if (args.Length == 3 && args[0] == "--windows-smoke")
         {
             if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("Native Windows smoke");
