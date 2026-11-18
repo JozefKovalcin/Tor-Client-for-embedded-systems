@@ -9,6 +9,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RestoreLockedMode>true</RestoreLockedMode>
+    <NuGetLockFilePath Condition="'$(RuntimeIdentifier)' == 'win-x64'">$(MSBuildThisFileDirectory)packages.win-x64.lock.json</NuGetLockFilePath>
     <NuGetAudit>true</NuGetAudit>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>

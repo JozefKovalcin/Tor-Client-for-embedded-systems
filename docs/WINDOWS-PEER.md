@@ -4,16 +4,19 @@
 
 1. Start each Manager with its verified native Tor runtime and select
    **Real Online**.
-2. In **Peer messaging**, explicitly create the first local peer identity.
+2. In **Peers**, explicitly create the first local peer identity.
    Exchange **Your certificate SHA-256** over a trusted authenticated channel.
-   On each side enter a contact name and the other party's 64-character
-   fingerprint, confirm the comparison, and select **Pair contact**. Select
-   that contact before hosting or connecting.
+   On each side open **Pair a contact or replace a certificate**, enter a
+   contact name and the other party's 64-character fingerprint, confirm the
+   comparison, and select **Pair contact**. Select that contact before hosting
+   or connecting. The same page supports pairing and queueing in **Real Offline**.
 3. On both PCs choose the SOCKS port and select **Start Tor**. Wait for
    authenticated control, an owned SOCKS listener and bootstrap at 100%.
-   On A, select **Host Onion Service**. Share the displayed v3 address with
+   On A, select **Create and host saved address** on first use, or **Host saved
+   address** on a later launch. Share the displayed v3 address with
    B. Registration may precede Tor's descriptor publication. On B, enter the
-   full address and select **Connect to Peer**. A transient connection
+   full address, select **Save contact address** to retain it, and select
+   **Connect to Peer**. A transient connection
    failure triggers up to four retry attempts. While the UI remains open,
    a replacement Tor session can resume the same pinned destination. Editing
    the onion or contact or choosing **Disconnect** cancels that intent.
@@ -23,12 +26,27 @@
    passes first. **Disconnect** closes the peer session. On A it also
    removes the service.
 
+Use **Recent connection events** on the selected contact for the last
+12 transitions in this app session. To replace a remote certificate, select
+the original contact, verify the new full fingerprint out of band, and
+choose **Revoke old pin and pair replacement**. The replacement starts a
+new conversation. The revoked pin retains its historical association with
+the old queue.
+
 ## Architecture and trust
 
 A binds an exclusive IPv4 `127.0.0.1` listener on a free OS-selected port.
-Authenticated Tor Control registers `NEW:ED25519-V3` for virtual port 80 with
-`DiscardPK`. The management connection owns the registration. The application
-never gets the onion private key. B connects to the owned local Tor SOCKS5
+The authenticated management connection owns the virtual port 80 registration.
+**Host temporarily** uses `NEW:ED25519-V3 Flags=DiscardPK`. Creating a
+saved address requests the key from Tor, then stores it in an owner-private
+DPAPI record under the current profile's `onion-hosting` directory. The
+record is separate from the application TLS certificate and contact pins.
+On restore, the app supplies the key through authenticated Control and checks
+the returned service ID against the saved one. A corrupt or inaccessible
+record blocks hosting. Rotation requires confirmation of the current saved
+address and changes it only after the new registration and protected write
+succeed. Share the new address following rotation.
+B connects to the owned local Tor SOCKS5
 socket and sends the onion hostname as a SOCKS domain field. The application
 performs no local DNS lookup and has no direct fallback or rendezvous server.
 
@@ -83,10 +101,11 @@ durable exactly-once processing. Status events are typed and do not include
 raw diagnostics, credentials or message payloads. Message text is shown only
 in the live messaging panel.
 
-The onion is temporary. It remains available during peer reconnect while A's
-host operation and Tor stay alive. Restarting A or its Tor requires a new
-onion registration. Restarting the app with the same intact private profile
-retains its TLS fingerprint and active contact pins.
+An active saved host registers the same address when the replacement Tor
+session becomes ready. After a Manager restart, select the paired contact and
+choose **Host saved address**. The same intact private profile also retains its
+TLS fingerprint and active contact pins. A temporary host gets a new address
+for each new registration.
 
 ## Reliable protocol version 2
 
@@ -162,8 +181,9 @@ records the launch as NOT RUN until an operator records the actual steps.
 4. While A remains active, stop B's Tor, queue one message on B, and start
    Tor again. Verify same-pin reconnect, one reception and a transition
    from pending to delivered. Repeat with B's app restarted using the same
-   test state. When A or its Tor restarts, share its newly registered onion
-   and confirm that its TLS fingerprint remained unchanged.
+   test state. Restart A's Tor and verify that it rehosts the identical saved
+   address. Reopen A's Manager in its same test profile and select **Host
+   saved address**. B must reconnect to the original address and fingerprint.
 5. Exercise explicit disconnect and close both apps. Confirm owned Tor
    PIDs exit. Preserve independent private state locally.
 

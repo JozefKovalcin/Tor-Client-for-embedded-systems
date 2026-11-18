@@ -83,6 +83,14 @@ public sealed class PeerProfileStore
 
     public TrustedPeer Pair(PeerIdentity identity, string label, string remoteFingerprint, string? onion,
         bool comparedOverTrustedChannel)
+        => AddPin(identity, label, remoteFingerprint, onion, comparedOverTrustedChannel, null);
+
+    public TrustedPeer Rotate(PeerIdentity identity, TrustedPeer current, string label, string remoteFingerprint,
+        string? onion, bool comparedOverTrustedChannel)
+        => AddPin(identity, label, remoteFingerprint, onion, comparedOverTrustedChannel, current);
+
+    private TrustedPeer AddPin(PeerIdentity identity, string label, string remoteFingerprint, string? onion,
+        bool comparedOverTrustedChannel, TrustedPeer? replacing)
     {
         if (!comparedOverTrustedChannel) throw new InvalidOperationException("Confirm the independently compared fingerprint.");
         var fingerprint = Convert.ToHexString(PeerIdentity.ParseFingerprint(remoteFingerprint.Trim()));
@@ -94,8 +102,22 @@ public sealed class PeerProfileStore
         if (contacts.Any(item => item.Fingerprint == peer.Fingerprint))
             throw new InvalidOperationException("This fingerprint already has a trust or revocation record.");
         if (contacts.Count >= MaxPeers) throw new InvalidOperationException("The private contact store is full.");
-        Save(identity, [.. contacts, peer]);
+        if (replacing is not null && (replacing.Revoked || !contacts.Contains(replacing)))
+            throw new InvalidOperationException("The contact changed; reload it before rotating its pin.");
+        Save(identity, [.. contacts.Select(item => item == replacing ? item with { Revoked = true } : item), peer]);
         return peer;
+    }
+
+    public TrustedPeer UpdateEndpoint(PeerIdentity identity, TrustedPeer current, string? onion)
+    {
+        var updated = current with { Onion = string.IsNullOrWhiteSpace(onion) ? null : OnionAddress.Parse(onion.Trim()).Host };
+        using var gate = Lock();
+        var contacts = ReadContacts(identity).ToArray();
+        int index = Array.IndexOf(contacts, current);
+        if (current.Revoked || index < 0) throw new InvalidOperationException("The contact changed; reload it before editing.");
+        contacts[index] = updated;
+        Save(identity, contacts);
+        return updated;
     }
 
     public void Revoke(PeerIdentity identity, string fingerprint)
@@ -154,12 +176,16 @@ public sealed class PeerProfileStore
         if (data.Length is < 1 or > Limit) throw new InvalidDataException("Private peer data exceeds its storage limit.");
         string path = Path.Combine(root, name);
         string temp = Path.Combine(root, "pending-" + Guid.NewGuid().ToString("N"));
-        using (var file = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+        try
         {
-            file.Write(data);
-            file.Flush(flushToDisk: true);
+            using (var file = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                file.Write(data);
+                file.Flush(flushToDisk: true);
+            }
+            PrivateStorage.RequireOwnerOnlyFile(temp);
+            File.Move(temp, path, overwrite: replace);
         }
-        try { File.Move(temp, path, overwrite: replace); }
         finally { if (File.Exists(temp)) File.Delete(temp); }
     }
 

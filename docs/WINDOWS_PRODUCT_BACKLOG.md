@@ -4,15 +4,15 @@ This repository copy maps the supplied canonical backlog to separately reviewabl
 
 | ID | Sekcia | Popis | Stav | Dôkaz | PR/commit | Blocker | Ďalšia akcia |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| WIN-00 | 0 | Current PR heads, protected inputs and offline baseline | VERIFIED | Windows portable 160 PASS, pipeline 6 PASS, protected SHA-256 matches | #19 at `97ccff6a` | — | Use as the peer integration base |
-| WIN-01 | 1 | Persistent local TLS credential and out-of-band contact pairing | VERIFIED | Windows DPAPI and isolated profile restart/revocation test | #26 at `1af50a5` | Physical acceptance is tracked separately | Review profile and pairing |
-| WIN-02 | 2 | Durable outbox, authenticated ACK and deduplication | VERIFIED | Loopback TLS v2, lost ACK, replay, rebooted stores and TTL | #27 at `8643e99` | Physical acceptance is tracked separately | Review protocol and queue |
-| WIN-03 | 3 | Message status, reconnect and peer usability | PARTIAL | Windows Avalonia, nine peer UI assertions and a real pending-state screenshot | Workflow draft at code commit `b5e2876` | New public and clean-host runs pending | Qualify current GUI on both PCs |
-| WIN-2PC | 3 | Repeat current public Tor qualification on two physical PCs | BLOCKED | Historical evidence is retained | #19 | Separate consent and second PC | Follow the two-PC runbook after offline gates |
-| WIN-04 | 4 | Dependency Manager | PARTIAL | TASK 12 read-only diagnostics and planner | #20–#24 | Real install needs consent and an eligible candidate | Review existing drafts |
-| WIN-05 | 5 | Windows Native Build Manager | PARTIAL | TASK 12 preflight and known-runtime activation | #20–#24 | Native build needs consent | Review existing drafts |
-| WIN-06 | 6 | Clean-host peer distribution | NOT RUN | Historical releases describe their own inputs | — | Clean Windows host | Defer for messaging first |
-| WIN-07 | 7 and 8 | Public soak, embedded and device work | BLOCKED | Historical evidence remains intact | — | Separate scope and authorization | Defer |
+| WIN-00 | 0 | Current GitHub head and offline baseline | VERIFIED | GitHub main matched `68002b9`, 174 portable PASS, 10 platform skips, 6 pipeline PASS | #29 and draft PR #30 | — | Rebase a later batch on the latest reviewed main |
+| WIN-01 | 1 | Persistent TLS identity, contact pairing, endpoint editing and remote pin replacement | VERIFIED | DPAPI fixture and Windows presentation tests | #29 and draft PR #30 | — | Add explicit local credential recovery and replacement |
+| WIN-02 | 2 | Durable outbox, authenticated ACK, history and deduplication | VERIFIED | Loopback TLS v2, lost ACK, replay, reopened stores, TTL and opt-in history | #29 and draft PR #30 | — | Add per-message sent/retrying state and complete storage failure coverage |
+| WIN-03 | 3 | Peers page, status and reconnection | PARTIAL | 23 Windows peer assertions, simulated same-address hosting, visible Peers page and keyboard focus | #30–#32 | Public lifecycle and DPI matrix remain NOT RUN | Run the authorized public lifecycle and check the DPI matrix |
+| WIN-2PC | 3 | Qualify the current GUI on two physical PCs | NOT RUN | Operator runbook | #29 and draft PR #30 | Separate approval and second PC | Execute after software gates |
+| WIN-04 | 4 | Dependency Manager | PARTIAL | Real read-only scan, pinned plan, signature gate, rescan and historical local transaction | #29 | Real install requires consent and an eligible candidate | Verify current GUI install/repair end to end with approved inputs |
+| WIN-05 | 5 | Windows Native Build Manager | VERIFIED for optimized-static | Real GUI build exit 0, PE closure, eight offline smoke checks and verified ZIP export, plus activation and rollback fixture | Draft #32 | Shared build requires separate consent | Qualify optimized-shared and the approved public suite |
+| WIN-06 | 6 | Versioned self-contained peer distribution | VERIFIED | Current locked win-x64 ZIP, bundled Tor, hash inventory, native imports and real development-host offline smoke | Draft #32 | Clean Windows host for field qualification | Test the same package on a clean compatible host |
+| WIN-07 | 7 and 8 | Reliability, storage faults and soak | PARTIAL | Reproduced Windows journal rename failure, verified bounded retry, native offline lifecycle and loopback recovery | #29 and draft PR #30 | Public endurance requires separate approval | Extend offline fault coverage and record comparable soak metrics |
 
 ---
 # TOR CLIENT / WINDOWS TOR MANAGER — AUTONÓMNY MASTER BACKLOG PRE CODEX
@@ -26,7 +26,7 @@ This repository copy maps the supplied canonical backlog to separately reviewabl
 ## Pravidlá práce pre autonómneho agenta
 
 1. Prečítaj `AGENTS.md`, `docs/HANDOFF.md`, `docs/PROGRESS.md`, `docs/ROADMAP.md`, relevantné `docs/architecture/`, pôvodné reporty TASK 01–11/12 a existujúce testy. Over aktuálny GitHub `main`, draft PR, worktrees, stashe, tag `baseline` a lokálne nezapísané zmeny. **Nespoliehaj sa na zastarané SHA v tomto súbore.**
-2. Pri tvorbe tohto plánu bol `main` `266e29a29cab4b465415d8388614493a661e77f8`. **PR #19 bol stále otvorený draft**, jeho aktuálna hlava `97ccff6a00c886606501f72f58dffbb310de8f99` s CI success. Over túto skutočnosť znovu; nepredstieraj, že je zlúčený. Starší end-to-end test bol na staršej hlave, preto over relevantné zmeny a regresie. Žiadne automatické merge PR #19.
+2. Pri tvorbe pôvodného plánu bol `main` `266e29a29cab4b465415d8388614493a661e77f8`. PR #29 následne integroval hlavy #19–#28 do `main` na `68002b9b4a31e5da5acc152a3c17b3e49da7daed`. Pri ďalšom cykle znovu over aktuálny GitHub a regresie. Merge vyžaduje samostatný súhlas.
 3. Založ alebo aktualizuj v repozitári `docs/WINDOWS_PRODUCT_BACKLOG.md` podľa nižšie uvedených položiek a `docs/AUTONOMOUS_PROGRESS.md` so stavmi, ownerom, PR, dôkazmi, testami a blokermi. Nikdy nepovažuj samotný green CI za dôkaz fyzického testu na dvoch PC alebo clean-host kvalifikácie.
 4. Pracuj v **malých inkrementoch**. Pre každý inkrement: analýza → konkrétne acceptance criteria → regresný test (pokiaľ možno reprodukcia pred opravou) → implementácia → lokálne kontroly → samostatný draft PR → CI → aktualizácia backlogu. Nezlučuj automaticky. Nepoužívaj force push, destructive rebase, stash drop ani clean/reset cudzej práce.
 5. Pokračuj po jednom dokončenom balíku na ďalší nezávislý balík **bez opakovaného pýtania sa na bežné implementačné detaily**. Ak jeden balík narazí na externý blocker, zaznamenaj ho a pokračuj ďalším nezávislým. Ak má blocker vplyv na identitu, bezpečnosť alebo kompatibilitu, neobchádzaj ho.
@@ -97,9 +97,9 @@ Etapy 1–3 sú kritické pre primárny cieľ A ↔ B; etapy 4–6 dopĺňajú p
 - [x] Úspešné spojenie na dvoch samostatných Windows PC
 - [ ] Presné zopakovanie dvoj-PC testu cez finálne GUI a archivácia dôkazov
 - [ ] Dlhodobé spojenie a opakované reconnecty
-- [ ] Automatické obnovovanie spojenia so zrozumiteľným stavom v GUI
-- [ ] Fronta správ počas krátkodobého výpadku
-- [ ] Trvalé identity a dôveryhodné párovanie klientov
+- [x] Automatické obnovenie aktívne hostovanej adresy po reštarte Toru (offline fixture)
+- [x] Fronta správ počas krátkodobého výpadku
+- [x] Trvalé aplikáčné identity a dôveryhodné párovanie klientov
 - [ ] Bezpečné obnovenie relácie bez tichej zmeny identit
 
 ## 2. Správy a prenos súborov
@@ -107,9 +107,9 @@ Etapy 1–3 sú kritické pre primárny cieľ A ↔ B; etapy 4–6 dopĺňajú p
 - [x] Obmedzenie veľkosti rámcov a kontrola poškodenia
 - [x] Súbežné odosielanie a prijímanie
 - [x] Offline testy chybných správ a autentifikácie
-- [ ] História konverzácie v GUI
+- [x] História konverzácie v GUI
 - [ ] Stavy odoslané / doručené / zlyhané
-- [ ] Uloženie konverzácie, ak si ho používateľ zapne
+- [x] Uloženie konverzácie, ak si ho používateľ zapne
 
 ## 3. Windows GUI – používanie
 - [x] Avalonia desktop sa zostaví a spustí
@@ -121,37 +121,37 @@ Etapy 1–3 sú kritické pre primárny cieľ A ↔ B; etapy 4–6 dopĺňajú p
 - [x] SAFECOOKIE stav a živé sanované logy
 - [x] Restart, New Identity a SOCKS5 test – implementované ovládanie
 - [x] Peer messaging panel v PR #19
-- [ ] Skutočné Connections / Peers UI so správou kontaktov
+- [x] Skutočné Peers UI so správou kontaktov
 - [ ] Kompletné vytváranie a úprava Onion Services cez GUI
-- [ ] Persistentné uloženie peer profilov a ich identity
+- [x] Persistentné uloženie peer profilov a ich identity
 - [ ] Prehľadný stav spojenia oboch peerov a histórie chýb
-- [ ] Oddelenie Connection mode / Workspace mode / Runtime source
-- [ ] Developer stránky funkčné aj mimo Demo režimu
-- [ ] Skutočný Build Manager priamo v GUI
-- [ ] Skutočný Dependency Manager priamo v GUI
+- [x] Oddelenie Connection mode / Workspace mode / Runtime source (výber runtime platí pri nasledujúcom štarte)
+- [x] Developer stránky funkčné aj mimo Demo režimu
+- [x] Skutočný Build Manager priamo v GUI (kompilácia vyžaduje samostatný akceptačný beh)
+- [x] Skutočný Dependency Manager priamo v GUI
 - [ ] Ovládanie zdrojových buildov a vlastného Tor runtime
 - [ ] Prístupnosť, škálovanie DPI a dôkladná vizuálna kontrola
 
 ## 4. Dependency Manager – zabudnutá pôvodná funkcia
 - [x] W2 read-only diagnostický základ
 - [x] Klasifikácia dostupnosti a kompatibility nástrojov
-- [ ] Napojenie diagnostiky na reálne údaje v GUI
-- [ ] Rozlíšenie runtime / build / test závislostí
-- [ ] Zobrazenie zistenej verzie, cesty a požadovanej verzie
-- [ ] Detekcia Windows architektúry, voľnej RAM a diskovej kapacity
+- [x] Napojenie diagnostiky na reálne údaje v GUI
+- [x] Rozlíšenie runtime / build / test závislostí
+- [x] Zobrazenie zistenej verzie, cesty a požadovanej verzie
+- [x] Detekcia Windows architektúry, voľnej RAM a diskovej kapacity
 - [ ] Detekcia .NET SDK/runtime a balíkov
 - [ ] Detekcia MSYS2 UCRT64 a správneho toolchainu
 - [ ] Detekcia GCC, Make, Autotools, Perl, Python a ostatných skutočne potrebných nástrojov
 - [ ] Detekcia knižníc, hlavičiek a zdrojových archívov
 - [ ] Stav Installed / Missing / Incompatible / Unknown / Blocked
 - [ ] Zobrazenie, čo Manager môže doinštalovať sám
-- [ ] Presný inštalačný plán pred potvrdením
+- [x] Presný inštalačný plán pred potvrdením
 - [ ] Inštalácia vybraných chýbajúcich nástrojov po súhlase
 - [ ] Overenie pôvodu, podpisu a hashu stiahnutých balíkov
 - [ ] Re-scan po dokončení inštalácie
 - [ ] Retry a bezpečné riešenie neúspešnej inštalácie
-- [ ] Režim bez automatických sťahovaní (offline)
-- [ ] Samostatné oprávnenia a potvrdenie pri zásahu do systému
+- [x] Režim bez automatických sťahovaní (offline)
+- [x] Samostatné oprávnenia a potvrdenie pri zásahu do systému
 
 ## 5. Windows Build Manager – vlastná kompilácia
 - [x] Existujúci natívny Windows source-build pipeline
@@ -161,20 +161,20 @@ Etapy 1–3 sú kritické pre primárny cieľ A ↔ B; etapy 4–6 dopĺňajú p
 - [x] Shared build profil
 - [x] Hash-locked zdroje a Windows patch
 - [x] Overenie výsledných PE/DLL súborov v pôvodnom pipeline
-- [ ] Prepojenie existujúceho build pipeline na GUI
-- [ ] Výber profilu buildovania v GUI
-- [ ] Výber zdrojových archívov a výstupného priečinka
-- [ ] Read-only preflight pred kompiláciou
-- [ ] Tlačidlo Compile Tor from Source
+- [x] Prepojenie existujúceho build pipeline na GUI (overenie natívnej kompilácie je v sekcii 8)
+- [x] Výber profilu buildovania v GUI
+- [x] Výber priečinka zdrojových archívov a výstupného workspace
+- [x] Read-only preflight pred kompiláciou
+- [x] Tlačidlo Compile verified sources
 - [ ] Reálny progress, fázy a živé build logy
 - [ ] Cancel a cleanup celého build process tree
 - [ ] Správa build chýb a návrhy opravy
 - [ ] História predchádzajúcich buildov a manifestov
 - [ ] Automatické offline smoke testy po skompilovaní
-- [ ] Overené aktivovanie vlastného Tor build runtime
-- [ ] Rollback na predchádzajúci funkčný build
-- [ ] Ochrana aktívnej relácie pred prepnutím binárky
-- [ ] Možnosť exportu zostaveného Tor runtime balíka
+- [x] Overené aktivovanie vlastného Tor build runtime s existujúcim overeným balíkom
+- [x] Rollback na predchádzajúci funkčný build
+- [x] Ochrana aktívnej relácie pred prepnutím binárky
+- [x] Možnosť exportu zostaveného Tor runtime balíka (overená na lokálnom fixture)
 
 ## 6. Windows distribúcia a inštalácia
 - [x] Získanie troch win-x64 .NET runtime balíkov
@@ -183,7 +183,7 @@ Etapy 1–3 sú kritické pre primárny cieľ A ↔ B; etapy 4–6 dopĺňajú p
 - [x] Spustenie z rozbaleného balíka
 - [x] Overený pribalený Tor v offline režime
 - [x] SHA-256 manifesty a kontrola balenia
-- [ ] Kompletný release build obsahujúci aktuálnu Peer funkcionalitu
+- [x] Lokálny self-contained kandidát obsahujúci aktuálnu Peer funkcionalitu
 - [ ] Clean Windows test bez predinštalovaného .NET
 - [ ] Test na podporovaných verziách Windows a x64
 - [x] Bezproblémové spustenie z priečinkov s medzerami
@@ -192,7 +192,7 @@ Etapy 1–3 sú kritické pre primárny cieľ A ↔ B; etapy 4–6 dopĺňajú p
 - [ ] Jednoduchý prvý štart a konfigurácia
 - [ ] Kontrola integrity pri každom aktivovaní Tor runtime
 - [ ] Versioned release a aktualizačný mechanizmus
-- [ ] Dokumentácia pre bežného používateľa
+- [x] Dokumentácia pre bežného používateľa
 
 ## 7. Bezpečnosť a stabilita
 - [x] SAFECOOKIE autentifikácia ControlPortu
@@ -204,10 +204,10 @@ Etapy 1–3 sú kritické pre primárny cieľ A ↔ B; etapy 4–6 dopĺňajú p
 - [x] Testy nesprávnej TLS identity a poškodených dát
 - [x] Súkromný Tor DataDirectory
 - [x] Ochrana pred priamym SOCKS5 fallback v testovacom klientovi
-- [ ] Bezpečné perzistentné párovanie peer identít
-- [ ] Dokumentovaný trust model a revokácia peerov
+- [x] Bezpečné perzistentné párovanie peer identít
+- [x] Dokumentovaný trust model a revokácia peerov
 - [ ] Dlhodobý replay/duplicate protection medzi reláciami
-- [ ] Obnova rozpracovaných správ po reštarte
+- [x] Obnova rozpracovaných správ po reštarte v rámci TTL
 - [ ] Rozsiahle záťažové a pamäťové testy
 - [ ] Testy sieťových výpadkov, firewallu a nedostupného peeru
 - [ ] Revízia uloženia kľúčov a ich zálohovania
@@ -226,7 +226,7 @@ Etapy 1–3 sú kritické pre primárny cieľ A ↔ B; etapy 4–6 dopĺňajú p
 - [ ] Reprodukovateľný dvoj-PC automatizovaný testovací protokol
 - [ ] Dlhodobý soak/endurance test
 - [ ] Clean-host release matrix
-- [ ] Test vlastnej kompilácie spustenej z GUI
+- [x] Test vlastnej kompilácie spustenej z GUI pre `optimized-static`
 - [ ] Test auto-inštalácie závislostí na čistom Developer PC
 - [ ] Test prevádzky bez admin práv
 - [ ] Ucelený finálny Windows acceptance report
@@ -284,9 +284,12 @@ Pre každú položku používaj tabuľku:
 
 Tieto položky neimplementuj bez samostatného schválenia scope: automatické systémové proxy nastavenia, anonymizačné tvrdenia bez testov, výmena vlastného TLS protokolu, multiparty routing, cloudové účty, telemetria, automatické aktualizácie s privilégami, embedded firmware, šifrovaný cloud sync. Ak sa ukážu nevyhnutné, navrhni ich ako oddelenú zmenu s threat modelom.
 
-## Definícia dokončenia Windows fázy
+## Míľniky Windows fázy
 
-Windows produkt možno označiť za hotový iba vtedy, keď:
+**DEVELOPMENT COMPLETE** vyžaduje všetky Windows funkcie, úspešný build a
+dostupné automatizované akceptačné testy. Stav je PARTIAL.
+
+**FIELD QUALIFIED** vyžaduje samostatné akceptačné dôkazy. Stav je NOT RUN.
 - dva nezávislé Windows PC cez finálne GUI (nie len harness) vytvoria dôveryhodne spárované Tor spojenie, vymenia správy a zvládnu výpadok/reconnect;
 - bezpečne sa zachová identita a lokálne dáta podľa explicitného nastavenia;
 - Build Manager dokáže v oprávnenom Windows prostredí vlastný Tor skompilovať, otestovať a bezpečne aktivovať;

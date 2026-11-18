@@ -16,6 +16,7 @@ public sealed class PinnedWindowsRuntime
     public string PackageDirectory { get; }
     public VerifiedFile ExecutablePin { get; }
     public IReadOnlyList<VerifiedFile> RuntimePins { get; }
+    public bool IsCustom => generation is not null;
     public PinnedWindowsRuntime(string existingPackageDirectory) : this(existingPackageDirectory, null, null, false, null) { }
     internal PinnedWindowsRuntime(string existingPackageDirectory, RuntimeCandidateFile[]? inputs,
         WindowsRuntimeSelection? selection, bool checkSelection, string? generation)

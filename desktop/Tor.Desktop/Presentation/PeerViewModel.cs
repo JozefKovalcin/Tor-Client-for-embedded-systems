@@ -13,12 +13,17 @@ internal enum PeerState
 {
     WaitingForTor, Ready, CredentialNeeded, CredentialFailed, InvalidPeerInput, UntrustedPeer, Registering, Connecting,
     Hosting, Connected, Disconnected, WaitingForReconnect, RejectedPeer, AuthenticationFailed,
-    OperationFailed, SendFailed, CleanupUnconfirmed, Retrying
+    OperationFailed, SendFailed, CleanupUnconfirmed, Retrying, EndpointSaved, ContactChanged
 }
 
 internal sealed record PeerMessageRow(string Id, string Direction, string Status, string? Text);
+internal sealed record PeerConnectionEvent(DateTimeOffset At, string Status)
+{
+    public string Display => $"{At.ToLocalTime():g} · {Status}";
+}
 
-internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profile = null, IUiDispatcher? dispatcher = null)
+internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profile = null, IUiDispatcher? dispatcher = null,
+    HostedOnionStore? hostingStore = null)
     : ObservableModel, IAsyncDisposable
 {
     private const int MaximumReconnectAttempts = 4;
@@ -31,11 +36,14 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
     private PeerState state;
     private string draft = "", lastMessage = "";
     private string label = "";
+    private string pairingAddress = "";
     private bool comparedFingerprint;
     private IReadOnlyList<TrustedPeer> contacts = [];
     private TrustedPeer? selectedPeer;
     private bool canCreate;
-    private (OnionAddress Address, string Fingerprint)? resumeAfterTor;
+    private (OnionAddress Address, string Fingerprint, bool Hosting)? resumeAfterTor;
+    private OnionAddress? savedHostingAddress;
+    private bool invalidHostingIdentity, approveHostingRotation;
     private int retry;
     private long revision = -1;
     private PeerDeliveryStore? delivery;
@@ -44,17 +52,33 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
     private IReadOnlyList<PeerMessageRow> historyRows = [];
     private bool saveHistory;
     private string deliveryNotice = "";
+    private readonly Dictionary<string, PeerConnectionEvent[]> connectionHistory = new(StringComparer.Ordinal);
 
-    private ActionCommand? hostCommand, connectCommand, createIdentityCommand, savePeerCommand, revokePeerCommand;
+    private ActionCommand? hostCommand, connectCommand, createIdentityCommand, savePeerCommand, revokePeerCommand,
+        saveEndpointCommand, rotatePeerCommand, createHostingCommand, rotateHostingCommand, transientHostCommand;
     private AsyncCommand? sendCommand, disconnectCommand;
-    public ActionCommand HostCommand => hostCommand ??= new(() => Begin(hosting: true), CanBegin);
+    public ActionCommand HostCommand => hostCommand ??= new(
+        () => Begin(hosting: true, hostAction: hostingStore is null ? null : HostingIdentityAction.Restore),
+        () => CanBegin() && (hostingStore is null || savedHostingAddress is not null && !invalidHostingIdentity));
+    public ActionCommand CreateHostingCommand => createHostingCommand ??= new(
+        () => Begin(hosting: true, hostAction: HostingIdentityAction.Create),
+        () => CanBegin() && hostingStore is not null && savedHostingAddress is null && !invalidHostingIdentity);
+    public ActionCommand RotateHostingCommand => rotateHostingCommand ??= new(
+        () => Begin(hosting: true, hostAction: HostingIdentityAction.Rotate),
+        () => CanBegin() && CanApproveHostingRotation && ApproveHostingRotation);
+    public ActionCommand TransientHostCommand => transientHostCommand ??= new(() => Begin(hosting: true),
+        () => CanBegin() && !invalidHostingIdentity);
     public ActionCommand ConnectCommand => connectCommand ??= new(() => Begin(hosting: false), CanBegin);
     public AsyncCommand SendCommand => sendCommand ??= new(SendAsync, () => SetStatus(PeerState.SendFailed),
         () => (delivery is not null || connection is not null && profile is null) && !stopping && !closed && Draft.Length > 0);
     public AsyncCommand DisconnectCommand => disconnectCommand ??= new(DisconnectAsync,
         () => SetStatus(PeerState.CleanupUnconfirmed), () => (attempt is not null || resumeAfterTor is not null) && !stopping);
     public ActionCommand CreateIdentityCommand => createIdentityCommand ??= new(CreateProfile, () => canCreate && CanEditPeer);
-    public ActionCommand SavePeerCommand => savePeerCommand ??= new(Pair, () => profile is not null && identity is not null && ComparedFingerprint && CanEditPeer);
+    public ActionCommand SavePeerCommand => savePeerCommand ??= new(() => Pair(rotate: false), CanPair);
+    public ActionCommand RotatePeerCommand => rotatePeerCommand ??= new(() => Pair(rotate: true), () => CanPair() && SelectedPeer is not null);
+    public ActionCommand SaveEndpointCommand => saveEndpointCommand ??= new(SaveEndpoint,
+        () => profile is not null && identity is not null && CanEditPeer && SelectedPeer is { } peer &&
+            !string.Equals(OnionAddress.Trim(), peer.Onion ?? "", StringComparison.OrdinalIgnoreCase));
     public ActionCommand RevokePeerCommand => revokePeerCommand ??= new(Revoke, () => profile is not null && identity is not null && SelectedPeer is not null && CanEditPeer);
 
     public string Fingerprint => identity?.Fingerprint ?? "";
@@ -77,14 +101,31 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
         PeerState.OperationFailed => "Peer operation ended. Check Tor, the onion address and the exchanged fingerprints.",
         PeerState.SendFailed => "The message could not be sent.",
         PeerState.CleanupUnconfirmed => "Peer cleanup could not be confirmed.",
+        PeerState.EndpointSaved => "Onion address saved for the selected contact.",
+        PeerState.ContactChanged => "The contact could not be updated. Check for an existing or revoked fingerprint and reload the profile if another window changed it.",
         _ => "Start Tor in Real Online to host or connect."
     };
     public string HostedAddress => hostedAddress;
+    public string SavedHostingAddress => savedHostingAddress?.Host ?? "";
+    public bool CanApproveHostingRotation => hostingStore is not null && savedHostingAddress is not null &&
+        !invalidHostingIdentity && CanEditPeer;
+    public bool ApproveHostingRotation
+    {
+        get => approveHostingRotation;
+        set { if (Set(ref approveHostingRotation, value)) RotateHostingCommand.Invalidate(); }
+    }
+    public string HostingStatus => invalidHostingIdentity
+        ? "The protected hosting identity could not be read. Restore access to the saved identity before hosting."
+        : savedHostingAddress is null
+            ? "Create a saved address when Tor is online and a paired contact is selected."
+            : "The saved address can be hosted again after restarting Tor Manager.";
     public string LastMessage => lastMessage;
     public bool HasDurableDelivery => profile is not null;
     public IReadOnlyList<PeerMessageRow> DeliveryRows { get => deliveryRows; private set => Set(ref deliveryRows, value); }
     public IReadOnlyList<PeerMessageRow> HistoryRows { get => historyRows; private set => Set(ref historyRows, value); }
     public bool HasDeliveryTarget => delivery is not null;
+    public IReadOnlyList<PeerConnectionEvent> ConnectionHistory =>
+        SelectedPeer is { } peer && connectionHistory.TryGetValue(peer.Fingerprint, out var history) ? history : [];
     public bool SaveHistory
     {
         get => saveHistory;
@@ -106,6 +147,7 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
     }
     public string DeliveryNotice { get => deliveryNotice; private set => Set(ref deliveryNotice, value); }
     public bool CanEditPeer => attempt is null && !stopping && !closed;
+    public bool CanEditSelectedPeer => CanEditPeer && SelectedPeer is not null;
     public string PeerFingerprint
     {
         get => peerFingerprint;
@@ -119,18 +161,39 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
             if (!Set(ref onionAddress, value)) return;
             resumeAfterTor = null;
             DisconnectCommand.Invalidate();
+            SaveEndpointCommand.Invalidate();
         }
     }
     public string Draft { get => draft; set { if (Set(ref draft, value)) SendCommand.Invalidate(); } }
     public string Label { get => label; set => Set(ref label, value); }
-    public bool ComparedFingerprint { get => comparedFingerprint; set { if (Set(ref comparedFingerprint, value)) SavePeerCommand.Invalidate(); } }
+    public string PairingAddress { get => pairingAddress; set => Set(ref pairingAddress, value); }
+    public bool ComparedFingerprint
+    {
+        get => comparedFingerprint;
+        set
+        {
+            if (!Set(ref comparedFingerprint, value)) return;
+            SavePeerCommand.Invalidate();
+            RotatePeerCommand.Invalidate();
+        }
+    }
     public IReadOnlyList<TrustedPeer> Contacts { get => contacts; private set => Set(ref contacts, value); }
     public TrustedPeer? SelectedPeer
     {
         get => selectedPeer;
         set
         {
-            if (!CanEditPeer || !Set(ref selectedPeer, value)) return;
+            if (!CanEditPeer) return;
+            bool recipientChanged = selectedPeer?.Fingerprint != value?.Fingerprint;
+            if (!Set(ref selectedPeer, value)) return;
+            if (recipientChanged)
+            {
+                Draft = "";
+                lastMessage = "";
+                Changed(nameof(LastMessage));
+                ComparedFingerprint = false;
+                SetStatus(available ? PeerState.Ready : PeerState.WaitingForTor);
+            }
             resumeAfterTor = null;
             OnionAddress = value?.Onion ?? "";
             DeliveryNotice = "";
@@ -153,6 +216,7 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
                 }
             }
             Changed(nameof(HasDeliveryTarget));
+            Changed(nameof(ConnectionHistory));
             Invalidate();
         }
     }
@@ -170,7 +234,9 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
 
     public void ReadExistingProfile()
     {
-        if (closed || identity is not null || profile is null && !available) return;
+        if (closed) return;
+        ReadHostingIdentity();
+        if (identity is not null || profile is null && !available) return;
         try
         {
             identity = profile is null ? new PeerIdentity() : profile.OpenIdentity();
@@ -180,6 +246,27 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
         }
         catch (Exception error) when (ProfileFailure(error)) { SetStatus(PeerState.CredentialFailed); canCreate = false; }
         Changed(nameof(Fingerprint));
+        Invalidate();
+    }
+
+    private void ReadHostingIdentity()
+    {
+        if (hostingStore is null) return;
+        try
+        {
+            var address = hostingStore.ReadAddress();
+            if (savedHostingAddress != address) ApproveHostingRotation = false;
+            savedHostingAddress = address;
+            invalidHostingIdentity = false;
+        }
+        catch (Exception error) when (ProfileFailure(error))
+        {
+            invalidHostingIdentity = true;
+            savedHostingAddress = null;
+            ApproveHostingRotation = false;
+        }
+        Changed(nameof(SavedHostingAddress));
+        Changed(nameof(HostingStatus));
         Invalidate();
     }
 
@@ -207,19 +294,36 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
         SelectedPeer = Contacts.FirstOrDefault(peer => peer.Fingerprint == selection);
     }
 
-    private void Pair()
+    private bool CanPair() => profile is not null && identity is not null && ComparedFingerprint && CanEditPeer;
+
+    private void Pair(bool rotate)
     {
         try
         {
-            var peer = profile!.Pair(identity!, Label, PeerFingerprint, OnionAddress, ComparedFingerprint);
+            var peer = rotate
+                ? profile!.Rotate(identity!, SelectedPeer!, Label, PeerFingerprint, PairingAddress, ComparedFingerprint)
+                : profile!.Pair(identity!, Label, PeerFingerprint, PairingAddress, ComparedFingerprint);
             LoadContacts(peer.Fingerprint);
-            Label = PeerFingerprint = "";
+            Label = PeerFingerprint = PairingAddress = "";
             SetStatus(available ? PeerState.Ready : PeerState.WaitingForTor);
         }
         catch (FormatException) { SetStatus(PeerState.InvalidPeerInput); }
-        catch (InvalidOperationException) { SetStatus(PeerState.UntrustedPeer); }
+        catch (InvalidOperationException) { SetStatus(PeerState.ContactChanged); }
         catch (Exception error) when (ProfileFailure(error)) { SetStatus(PeerState.CredentialFailed); }
         finally { ComparedFingerprint = false; }
+    }
+
+    private void SaveEndpoint()
+    {
+        try
+        {
+            var updated = profile!.UpdateEndpoint(identity!, SelectedPeer!, OnionAddress);
+            LoadContacts(updated.Fingerprint);
+            SetStatus(PeerState.EndpointSaved);
+        }
+        catch (FormatException) { SetStatus(PeerState.InvalidPeerInput); }
+        catch (InvalidOperationException) { SetStatus(PeerState.ContactChanged); }
+        catch (Exception error) when (ProfileFailure(error)) { SetStatus(PeerState.CredentialFailed); }
     }
 
     private void Revoke()
@@ -242,9 +346,14 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
     private static bool ProfileFailure(Exception error) => error is CryptographicException or IOException
         or UnauthorizedAccessException or InvalidDataException or JsonException or InvalidOperationException or System.Security.SecurityException;
 
-    private void Begin(bool hosting)
+    private void Begin(bool hosting, HostingIdentityAction? hostAction = null)
     {
         if (!CanBegin() || tor.GetPeerTransport() is not { } transport) return;
+        if (hostAction is not null && transport is not IPersistentOnionPeerTransport)
+        {
+            SetStatus(PeerState.OperationFailed);
+            return;
+        }
         OnionAddress? address;
         var fingerprint = SelectedPeer?.Fingerprint ?? PeerFingerprint.Trim();
         try
@@ -267,15 +376,19 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
         lastMessage = "";
         Changed(nameof(LastMessage));
         SetStatus(hosting ? PeerState.Registering : PeerState.Connecting);
+        var confirmedAddress = savedHostingAddress;
+        ApproveHostingRotation = false;
         Invalidate();
-        worker = RunAsync(transport, identity!, fingerprint, address, request, delivery);
+        worker = RunAsync(transport, identity!, fingerprint, address, request, delivery, hostAction, confirmedAddress);
     }
 
     private async Task RunAsync(IOnionPeerTransport transport, PeerIdentity local, string fingerprint,
-        OnionAddress? remote, CancellationTokenSource request, PeerDeliveryStore? store)
+        OnionAddress? remote, CancellationTokenSource request, PeerDeliveryStore? store,
+        HostingIdentityAction? hostAction, OnionAddress? confirmedAddress)
     {
         await Task.Yield();
         var token = request.Token;
+        OnionAddress? registeredPersistent = null;
         try
         {
             var protocol = store is null ? PeerProtocol.Transient : PeerProtocol.Reliable;
@@ -286,7 +399,15 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
                 return;
             }
 
-            await using var host = await PeerHost.StartAsync(transport, local, fingerprint, token, protocol);
+            Func<int, CancellationToken, Task<OnionAddress>>? register = hostAction is { } action
+                ? (port, ct) => hostingStore!.RegisterAsync((IPersistentOnionPeerTransport)transport, port, action, confirmedAddress, ct)
+                : null;
+            await using var host = await PeerHost.StartAsync(transport, local, fingerprint, token, protocol, register);
+            if (hostAction is not null)
+            {
+                registeredPersistent = host.Address;
+                ReadHostingIdentity();
+            }
             hostedAddress = host.Address.Host;
             Changed(nameof(HostedAddress));
             SetStatus(PeerState.Hosting);
@@ -311,9 +432,7 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
         catch (Exception error) when (token.IsCancellationRequested &&
             error is OperationCanceledException or IOException or SocketException or ObjectDisposedException)
         {
-            resumeAfterTor = store is not null && remote is not null && !stopping && !closed && transport.Lifetime.IsCancellationRequested
-                ? (remote, fingerprint) : null;
-            SetStatus(resumeAfterTor is not null ? PeerState.WaitingForTor : PeerState.Disconnected);
+            SetStatus(PeerState.Disconnected);
         }
         catch (AuthenticationException) { SetStatus(PeerState.AuthenticationFailed); }
         catch (Exception error) when (error is InvalidDataException or UnauthorizedAccessException or JsonException)
@@ -323,10 +442,17 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
         { SetStatus(PeerState.OperationFailed); }
         finally
         {
+            if (store is not null && (remote ?? registeredPersistent) is { } reopen &&
+                !stopping && !closed && transport.Lifetime.IsCancellationRequested)
+            {
+                resumeAfterTor = (reopen, fingerprint, registeredPersistent is not null);
+                SetStatus(PeerState.WaitingForTor);
+            }
             attempt = null;
             request.Dispose();
             hostedAddress = "";
             Changed(nameof(HostedAddress));
+            if (hostAction is not null) ReadHostingIdentity();
             Invalidate();
             TryResume(transport);
         }
@@ -360,10 +486,11 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
     private void TryResume(IOnionPeerTransport? previous = null)
     {
         if (resumeAfterTor is { } request && request.Fingerprint == SelectedPeer?.Fingerprint
-            && string.Equals(request.Address.Host, OnionAddress.Trim(), StringComparison.OrdinalIgnoreCase)
-            && CanBegin() && tor.GetPeerTransport() is { } current && !ReferenceEquals(current, previous)
+            && (request.Hosting ? !invalidHostingIdentity && request.Address == savedHostingAddress
+                : string.Equals(request.Address.Host, OnionAddress.Trim(), StringComparison.OrdinalIgnoreCase))
+            && CanBegin() && tor.GetPeerTransport() is { } current && (previous is null || current.Lifetime != previous.Lifetime)
             && !current.Lifetime.IsCancellationRequested)
-            Begin(hosting: false);
+            Begin(request.Hosting, request.Hosting ? HostingIdentityAction.Restore : null);
     }
 
     private async Task ReadPeerAsync(PeerConnection peer, CancellationToken token, PeerDeliveryStore? store)
@@ -462,7 +589,17 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
         finally { identity?.Dispose(); }
     }
 
-    private void SetStatus(PeerState value) => Set(ref state, value, nameof(Status));
+    private void SetStatus(PeerState value)
+    {
+        if (!Set(ref state, value, nameof(Status)) || SelectedPeer is not { } peer ||
+            value is not (PeerState.Registering or PeerState.Connecting or PeerState.Hosting or PeerState.Connected
+                or PeerState.Disconnected or PeerState.WaitingForReconnect or PeerState.RejectedPeer
+                or PeerState.AuthenticationFailed or PeerState.OperationFailed or PeerState.CleanupUnconfirmed or PeerState.Retrying)
+                && !(value == PeerState.WaitingForTor && resumeAfterTor is not null)) return;
+        connectionHistory.TryGetValue(peer.Fingerprint, out var history);
+        connectionHistory[peer.Fingerprint] = [new(DateTimeOffset.UtcNow, Status), .. (history ?? []).Take(11)];
+        Changed(nameof(ConnectionHistory));
+    }
 
     private void ApplyDelivery(PeerDeliverySnapshot snapshot)
     {
@@ -480,7 +617,11 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
     private void Invalidate()
     {
         Changed(nameof(CanEditPeer));
+        Changed(nameof(CanEditSelectedPeer));
+        Changed(nameof(CanApproveHostingRotation));
         HostCommand.Invalidate(); ConnectCommand.Invalidate(); SendCommand.Invalidate(); DisconnectCommand.Invalidate();
         CreateIdentityCommand.Invalidate(); SavePeerCommand.Invalidate(); RevokePeerCommand.Invalidate();
+        SaveEndpointCommand.Invalidate(); RotatePeerCommand.Invalidate();
+        CreateHostingCommand.Invalidate(); RotateHostingCommand.Invalidate(); TransientHostCommand.Invalidate();
     }
 }

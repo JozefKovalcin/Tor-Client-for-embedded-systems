@@ -84,6 +84,9 @@
                   <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Display}" /></DataTemplate></ComboBox.ItemTemplate>
                 </ComboBox>
                 <Button Content="Run offline smoke" Command="{Binding SmokeCommand}" />
+                <Button Content="Export verified runtime ZIP" Command="{Binding ExportCommand}" />
+                <TextBlock Text="Export is available after an offline smoke test passes. The ZIP is saved in the workspace’s exports folder."
+                           TextWrapping="Wrap" Classes="muted" />
                 <CheckBox Content="I approve this verified local build for future Tor sessions" IsChecked="{Binding ApproveRuntime}" IsEnabled="{Binding Idle}" />
                 <WrapPanel>
                   <Button Content="Activate approved build" Command="{Binding ActivateCommand}" Margin="0,0,8,0" />
@@ -177,82 +180,6 @@
                   <TextBlock Text="{Binding OnlineNotice}" IsVisible="{Binding HasOnlineNotice}" TextWrapping="Wrap" />
                 </StackPanel>
               </Border>
-              <Border Classes="card" IsVisible="{Binding IsOnline}">
-                <StackPanel DataContext="{Binding Peer}" Spacing="8">
-                  <TextBlock Text="Peer messaging" FontSize="20" FontWeight="SemiBold" />
-                  <TextBlock Text="{Binding Status}" TextWrapping="Wrap" />
-                  <TextBlock Text="Exchange fingerprints through a trusted channel before connecting." Classes="muted" TextWrapping="Wrap" />
-                  <TextBlock Text="Your certificate SHA-256" />
-                  <TextBox Text="{Binding Fingerprint, Mode=OneWay}" IsReadOnly="True" AutomationProperties.Name="Your certificate fingerprint" />
-                  <Button Content="Create local peer identity" Command="{Binding CreateIdentityCommand}" />
-                  <TextBlock Text="Paired contact" />
-                  <ComboBox ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedPeer}" IsEnabled="{Binding CanEditPeer}"
-                            AutomationProperties.Name="Paired contact">
-                    <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Label}" /></DataTemplate></ComboBox.ItemTemplate>
-                  </ComboBox>
-                  <SelectableTextBlock Text="{Binding SelectedPeer.Fingerprint}" TextWrapping="Wrap"
-                                       AutomationProperties.Name="Selected contact fingerprint" />
-                  <Button Content="Revoke selected contact" Command="{Binding RevokePeerCommand}" />
-                  <TextBox Text="{Binding Label}" IsEnabled="{Binding CanEditPeer}" MaxLength="64"
-                           PlaceholderText="New contact name" AutomationProperties.Name="New contact name" />
-                  <TextBox Text="{Binding PeerFingerprint, Mode=TwoWay}" IsEnabled="{Binding CanEditPeer}" MaxLength="64"
-                           PlaceholderText="New contact certificate SHA-256" AutomationProperties.Name="New contact certificate fingerprint" />
-                  <TextBox Text="{Binding OnionAddress, Mode=TwoWay}" IsEnabled="{Binding CanEditPeer}" MaxLength="62"
-                           PlaceholderText="Peer v3 onion address" AutomationProperties.Name="Peer v3 onion address" />
-                  <CheckBox IsChecked="{Binding ComparedFingerprint}" IsEnabled="{Binding CanEditPeer}"
-                            Content="I compared this fingerprint over a trusted channel" />
-                  <Button Content="Pair contact" Command="{Binding SavePeerCommand}" />
-                  <StackPanel Orientation="Horizontal" Spacing="8">
-                    <Button Content="Host Onion Service" Command="{Binding HostCommand}" />
-                    <Button Content="Connect to Peer" Command="{Binding ConnectCommand}" />
-                    <Button Content="Disconnect" Command="{Binding DisconnectCommand}" />
-                  </StackPanel>
-                  <TextBox Text="{Binding HostedAddress, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Your hosted v3 onion address"
-                           AutomationProperties.Name="Your hosted v3 onion address" />
-                  <TextBox Text="{Binding Draft, Mode=TwoWay}" PlaceholderText="Message" MaxLength="8192"
-                           AutomationProperties.Name="Message" />
-                  <Button Content="Send or queue" Command="{Binding SendCommand}" HorizontalAlignment="Left" />
-                  <TextBlock Text="{Binding DeliveryNotice}" TextWrapping="Wrap" />
-                  <StackPanel IsVisible="{Binding HasDurableDelivery}" Spacing="6">
-                    <TextBlock Text="Recent messages" FontWeight="SemiBold" />
-                    <TextBlock Text="Pending and received text is encrypted locally during the 15-minute delivery window."
-                               Classes="muted" TextWrapping="Wrap" />
-                    <ItemsControl ItemsSource="{Binding DeliveryRows}">
-                      <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                          <StackPanel Margin="0,4" Spacing="2">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                              <TextBlock Text="{Binding Direction}" FontWeight="SemiBold" />
-                              <TextBlock Text="{Binding Status}" />
-                              <TextBlock Text="{Binding Id}" Classes="muted" />
-                            </StackPanel>
-                            <SelectableTextBlock Text="{Binding Text}" TextWrapping="Wrap" />
-                          </StackPanel>
-                        </DataTemplate>
-                      </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <Expander Header="Encrypted history">
-                      <StackPanel Spacing="5">
-                        <CheckBox Content="Archive new delivered messages" IsChecked="{Binding SaveHistory}"
-                                  IsEnabled="{Binding HasDeliveryTarget}" />
-                        <TextBlock Text="Up to 64 messages for seven days. Turning this off stops new archival."
-                                   Classes="muted" TextWrapping="Wrap" />
-                        <ItemsControl ItemsSource="{Binding HistoryRows}">
-                          <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                              <StackPanel Margin="0,4" Spacing="2">
-                                <TextBlock Text="{Binding Direction}" FontWeight="SemiBold" />
-                                <SelectableTextBlock Text="{Binding Text}" TextWrapping="Wrap" />
-                              </StackPanel>
-                            </DataTemplate>
-                          </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                      </StackPanel>
-                    </Expander>
-                  </StackPanel>
-                  <TextBlock Text="{Binding LastMessage}" TextWrapping="Wrap" />
-                </StackPanel>
-              </Border>
               <Border Classes="card">
                 <StackPanel Spacing="6">
                   <TextBlock Text="Current task" FontWeight="SemiBold" />
@@ -264,6 +191,116 @@
                 </StackPanel>
               </Border>
             </StackPanel>
+          </StackPanel>
+          <StackPanel IsVisible="{Binding ShowPeers}">
+            <Border Classes="card" DataContext="{Binding $parent[Window].DataContext.Offline.Peer}">
+              <StackPanel Spacing="8">
+                <TextBlock Text="{Binding Status}" TextWrapping="Wrap" />
+                <TextBlock Text="Exchange fingerprints through a trusted channel before connecting." Classes="muted" TextWrapping="Wrap" />
+                <TextBlock Text="Your certificate SHA-256" />
+                <TextBox Text="{Binding Fingerprint, Mode=OneWay}" IsReadOnly="True" AutomationProperties.Name="Your certificate fingerprint" />
+                <Button Content="Create local peer identity" Command="{Binding CreateIdentityCommand}" />
+                <TextBlock Text="Paired contact" />
+                <ComboBox ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedPeer}" IsEnabled="{Binding CanEditPeer}"
+                          HorizontalAlignment="Stretch" PlaceholderText="Select a paired contact"
+                          AutomationProperties.Name="Paired contact">
+                  <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Label}" /></DataTemplate></ComboBox.ItemTemplate>
+                </ComboBox>
+                <SelectableTextBlock Text="{Binding SelectedPeer.Fingerprint}" TextWrapping="Wrap"
+                                     AutomationProperties.Name="Selected contact fingerprint" />
+                <TextBox Text="{Binding OnionAddress, Mode=TwoWay}" IsEnabled="{Binding CanEditSelectedPeer}" MaxLength="62"
+                         PlaceholderText="Selected contact’s v3 onion address" AutomationProperties.Name="Selected contact onion address" />
+                <Button Content="Save contact address" Command="{Binding SaveEndpointCommand}" />
+                <Button Content="Revoke selected contact" Command="{Binding RevokePeerCommand}" />
+                <Expander Header="Pair a contact or replace a certificate">
+                  <StackPanel Spacing="6">
+                    <TextBox Text="{Binding Label}" IsEnabled="{Binding CanEditPeer}" MaxLength="64"
+                             PlaceholderText="Contact name" AutomationProperties.Name="Contact name for pairing" />
+                    <TextBox Text="{Binding PeerFingerprint, Mode=TwoWay}" IsEnabled="{Binding CanEditPeer}" MaxLength="64"
+                             PlaceholderText="Certificate SHA-256" AutomationProperties.Name="Certificate fingerprint for pairing" />
+                    <TextBox Text="{Binding PairingAddress, Mode=TwoWay}" IsEnabled="{Binding CanEditPeer}" MaxLength="62"
+                             PlaceholderText="Optional v3 onion address" AutomationProperties.Name="Onion address for pairing" />
+                    <CheckBox IsChecked="{Binding ComparedFingerprint}" IsEnabled="{Binding CanEditPeer}"
+                              Content="I compared this fingerprint over a trusted channel" />
+                    <Button Content="Pair contact" Command="{Binding SavePeerCommand}" />
+                    <Button Content="Revoke old pin and pair replacement" Command="{Binding RotatePeerCommand}" />
+                    <TextBlock Text="Replacing the selected contact’s certificate starts a fresh conversation. Queued messages stay with the old certificate."
+                               Classes="muted" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Expander>
+                <TextBlock Text="Onion Service hosting" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding HostingStatus}" Classes="muted" TextWrapping="Wrap" />
+                <TextBox Text="{Binding SavedHostingAddress, Mode=OneWay}" IsReadOnly="True"
+                         PlaceholderText="Saved v3 onion address" AutomationProperties.Name="Saved v3 onion address" />
+                <WrapPanel>
+                  <Button Content="Host saved address" Command="{Binding HostCommand}" Margin="0,0,8,4" />
+                  <Button Content="Create and host saved address" Command="{Binding CreateHostingCommand}" Margin="0,0,8,4" />
+                  <Button Content="Host temporarily" Command="{Binding TransientHostCommand}" Margin="0,0,8,4" />
+                </WrapPanel>
+                <Expander Header="Rotate saved hosting address" IsEnabled="{Binding CanApproveHostingRotation}">
+                  <StackPanel Spacing="6">
+                    <CheckBox Content="Replace the saved address. I will share the new address with my contacts."
+                              IsChecked="{Binding ApproveHostingRotation}" />
+                    <Button Content="Replace and host new address" Command="{Binding RotateHostingCommand}" />
+                  </StackPanel>
+                </Expander>
+                <WrapPanel>
+                  <Button Content="Connect to Peer" Command="{Binding ConnectCommand}" Margin="0,0,8,4" />
+                  <Button Content="Disconnect" Command="{Binding DisconnectCommand}" />
+                </WrapPanel>
+                <TextBox Text="{Binding HostedAddress, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Your hosted v3 onion address"
+                         AutomationProperties.Name="Your hosted v3 onion address" />
+                <TextBox Text="{Binding Draft, Mode=TwoWay}" IsEnabled="{Binding HasDeliveryTarget}" PlaceholderText="Message" MaxLength="8192"
+                         AutomationProperties.Name="Message" />
+                <Button Content="Send or queue" Command="{Binding SendCommand}" HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding DeliveryNotice}" TextWrapping="Wrap" />
+                <Expander Header="Recent connection events" IsVisible="{Binding HasDeliveryTarget}">
+                  <ItemsControl ItemsSource="{Binding ConnectionHistory}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate><TextBlock Text="{Binding Display}" TextWrapping="Wrap" /></DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </Expander>
+                <StackPanel IsVisible="{Binding HasDeliveryTarget}" Spacing="6">
+                  <TextBlock Text="Recent messages" FontWeight="SemiBold" />
+                  <TextBlock Text="Pending and received text is encrypted locally during the 15-minute delivery window."
+                             Classes="muted" TextWrapping="Wrap" />
+                  <ItemsControl ItemsSource="{Binding DeliveryRows}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Margin="0,4" Spacing="2">
+                          <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="{Binding Direction}" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding Status}" />
+                            <TextBlock Text="{Binding Id}" Classes="muted" />
+                          </StackPanel>
+                          <SelectableTextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <Expander Header="Encrypted history">
+                    <StackPanel Spacing="5">
+                      <CheckBox Content="Archive new delivered messages" IsChecked="{Binding SaveHistory}"
+                                IsEnabled="{Binding HasDeliveryTarget}" />
+                      <TextBlock Text="Up to 64 messages for seven days. Turning this off stops new archival."
+                                 Classes="muted" TextWrapping="Wrap" />
+                      <ItemsControl ItemsSource="{Binding HistoryRows}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate>
+                            <StackPanel Margin="0,4" Spacing="2">
+                              <TextBlock Text="{Binding Direction}" FontWeight="SemiBold" />
+                              <SelectableTextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                            </StackPanel>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </StackPanel>
+                  </Expander>
+                </StackPanel>
+                <TextBlock Text="{Binding LastMessage}" TextWrapping="Wrap" />
+              </StackPanel>
+            </Border>
           </StackPanel>
           <StackPanel IsVisible="{Binding ShowTasks}" Spacing="10">
             <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,10">
@@ -339,6 +376,17 @@
                         IsChecked="{Binding $parent[Window].DataContext.AnimateSimulation, Mode=TwoWay}" />
               <Button Content="Save UI preferences" HorizontalAlignment="Left"
                       Command="{Binding $parent[Window].DataContext.SaveSettingsCommand}" />
+              <StackPanel Spacing="7" IsVisible="{Binding $parent[Window].DataContext.CanChooseRuntime}">
+                <TextBlock Text="Tor runtime" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding $parent[Window].DataContext.ActiveRuntime}" />
+                <TextBlock Text="{Binding $parent[Window].DataContext.RuntimePreference}" TextWrapping="Wrap" />
+                <WrapPanel>
+                  <Button Content="Use bundled on restart" Margin="0,0,8,4"
+                          Command="{Binding $parent[Window].DataContext.SelectBundledRuntimeCommand}" />
+                  <Button Content="Use approved build on restart"
+                          Command="{Binding $parent[Window].DataContext.SelectCustomRuntimeCommand}" />
+                </WrapPanel>
+              </StackPanel>
               <TextBlock Text="{Binding $parent[Window].DataContext.SettingsNotice}" TextWrapping="Wrap" Classes="muted" />
             </StackPanel>
           </Border>
@@ -346,7 +394,7 @@
       </ScrollViewer>
     </DataTemplate>
   </Window.DataTemplates>
-  <Grid ColumnDefinitions="232,*" RowDefinitions="84,*,72">
+  <Grid ColumnDefinitions="232,*" RowDefinitions="Auto,*,72">
     <Border Grid.RowSpan="3" Background="{DynamicResource WorkspaceSidebar}" BorderBrush="{DynamicResource WorkspaceBorder}" BorderThickness="0,0,1,0">
       <Grid RowDefinitions="105,*,100">
         <StackPanel Margin="22,26" Spacing="6">
@@ -363,20 +411,27 @@
       </Grid>
     </Border>
     <Border Grid.Column="1" BorderBrush="{DynamicResource WorkspaceBorder}" BorderThickness="0,0,0,1" Padding="32,16">
-      <Grid ColumnDefinitions="*,Auto">
-        <StackPanel Spacing="5">
-          <TextBlock Text="{Binding ModeHeading}" FontWeight="SemiBold" FontSize="17" />
-          <TextBlock Text="{Binding TaskSummary}" Classes="muted" FontSize="12" />
-        </StackPanel>
-        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-          <ComboBox ItemsSource="{Binding Modes}" SelectedItem="{Binding SelectedMode, Mode=TwoWay}"
-                    IsVisible="{Binding IsDemo}" Width="120" />
-          <Button Content="Demo" Command="{Binding ShowDemoCommand}" />
-          <Button Content="Real Offline" Command="{Binding ShowRealOfflineCommand}" />
-          <Button Content="Real Online" Command="{Binding ShowRealOnlineCommand}" IsVisible="{Binding HasOnline}" />
-          <Button Content="Developer" Command="{Binding ShowDeveloperCommand}" IsVisible="{Binding HasDeveloper}" />
-        </StackPanel>
-      </Grid>
+      <StackPanel Spacing="8">
+        <TextBlock Text="{Binding TaskSummary}" Classes="muted" FontSize="12" TextWrapping="Wrap" />
+        <WrapPanel>
+          <StackPanel Spacing="4" Margin="0,0,18,4">
+            <TextBlock Text="{Binding ModeHeading}" FontWeight="SemiBold" />
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Button Content="Demo" Command="{Binding ShowDemoCommand}" />
+              <Button Content="Real Offline" Command="{Binding ShowRealOfflineCommand}" />
+              <Button Content="Real Online" Command="{Binding ShowRealOnlineCommand}" IsVisible="{Binding HasOnline}" />
+            </StackPanel>
+          </StackPanel>
+          <StackPanel Spacing="4" IsVisible="{Binding HasDeveloper}">
+            <TextBlock Text="{Binding WorkspaceHeading}" FontWeight="SemiBold" />
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Button Content="Run Only" Command="{Binding ShowRunOnlyCommand}" />
+              <Button Content="Developer" Command="{Binding ShowDeveloperCommand}" />
+              <TextBlock Text="Embedded deferred" VerticalAlignment="Center" Classes="muted" />
+            </StackPanel>
+          </StackPanel>
+        </WrapPanel>
+      </StackPanel>
     </Border>
     <ContentControl Grid.Column="1" Grid.Row="1" Content="{Binding CurrentPage}" />
     <Border Grid.Column="1" Grid.Row="2" Background="{DynamicResource WorkspaceSidebar}" Padding="24,16" BorderBrush="{DynamicResource WorkspaceBorder}" BorderThickness="0,1,0,0">

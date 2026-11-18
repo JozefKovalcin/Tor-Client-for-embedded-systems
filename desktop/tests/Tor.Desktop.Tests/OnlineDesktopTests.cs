@@ -13,9 +13,13 @@ internal static class OnlineDesktopTests
     public static async Task RunAsync(ITaskFeed demo, SettingsStore settings, Action<bool, string> check)
     {
         var service = new FakeService();
-        await using var shell = new ShellViewModel(demo, new ImmediateDispatcher(), settings, service);
+        bool customVerified = false;
+        await using var shell = new ShellViewModel(demo, new ImmediateDispatcher(), settings, service,
+            activeRuntime: RuntimeSource.Bundled, hasVerifiedCustomRuntime: () => customVerified);
         await shell.OpenAsync().WaitAsync(Limit);
         var model = shell.Offline!;
+        check(shell.Pages.Single(page => page.ShowPeers).Title == "Peers",
+            "paired contact navigation is available before switching to Real Online");
         check(shell.ModeHeading == "Real Offline" && !model.IsOnline && service.Watchers == 1,
             "online-capable Windows shell still opens in Real Offline with one watcher");
         shell.ShowDemo();
@@ -40,6 +44,24 @@ internal static class OnlineDesktopTests
         check(shell.IsOnline && service.OnlineStarts == 1 && service.Port == 19150 && !model.CanEditSocksPort &&
             model.SocksStatusText == "No SOCKS5 listener confirmed" && model.TorVersionText == "Version not reported",
             "explicit start forwards a validated port once and preserves the active workspace while status is unknown");
+        if (OperatingSystem.IsWindows())
+        {
+            shell.ShowDeveloperCommand.Execute(null);
+            check(shell.IsDeveloper && shell.IsOnline && shell.CurrentPage.ShowDeveloper &&
+                shell.Pages.Any(page => page.ShowPeers) && service.OnlineStarts == 1 && service.Watchers == 1,
+                "Developer retains the active real connection, peer page and current Tor watcher");
+            shell.ShowRunOnlyCommand.Execute(null);
+            check(!shell.IsDeveloper && shell.IsOnline && model.IsOnline && service.OnlineStarts == 1,
+                "returning to Run Only retains the current Tor session");
+        }
+        shell.SelectBundledRuntimeCommand.Execute(null);
+        shell.SelectCustomRuntimeCommand.Execute(null);
+        check(settings.Load(out _).PreferredRuntime == RuntimeSource.Bundled,
+            "choosing custom without a verified approval preserves the previous setting");
+        customVerified = true;
+        shell.SelectCustomRuntimeCommand.Execute(null);
+        check(settings.Load(out _).PreferredRuntime == RuntimeSource.CustomVerified && shell.ActiveRuntime == "Bundled Tor" &&
+            shell.IsOnline && service.OnlineStarts == 1, "runtime selection is persisted for next launch and leaves the active session intact");
 
         service.Publish(service.Snapshot with
         {
@@ -106,8 +128,9 @@ internal static class OnlineDesktopTests
     {
         check(Path.IsPathFullyQualified(fresh) && !Directory.Exists(fresh), "peer UI uses an unused isolated profile");
         var profile = new PeerProfileStore(fresh);
+        var hosting = new HostedOnionStore(fresh);
         var service = new FakeService();
-        await using var model = new PeerViewModel(service, profile);
+        await using var model = new PeerViewModel(service, profile, hostingStore: hosting);
         model.ReadExistingProfile();
         check(model.CreateIdentityCommand.CanExecute(null) && !Directory.Exists(fresh), "profile discovery creates no identity or directory");
         model.CreateIdentityCommand.Execute(null);
@@ -122,7 +145,7 @@ internal static class OnlineDesktopTests
         model.PeerFingerprint = fixture.Fingerprint;
         model.ComparedFingerprint = true;
         const string address = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.onion";
-        model.OnionAddress = address;
+        model.PairingAddress = address;
         model.SavePeerCommand.Execute(null);
         check(!model.SaveHistory && model.HistoryRows.Count == 0, "conversation history starts disabled");
         model.SaveHistory = true;
@@ -158,6 +181,91 @@ internal static class OnlineDesktopTests
         service.PeerTransport = third;
         model.SetAvailable(true);
         check(model.CanEditPeer && !third.Started.Task.IsCompleted, "editing the onion cancels the pending reconnect intent");
+        check(model.ConnectionHistory.Any(item => item.Status.Contains("Start Tor")) &&
+            model.ConnectionHistory.Any(item => item.Status == "Connecting through Tor…"),
+            "the selected contact shows connection and restart events");
+
+        var previous = model.SelectedPeer!;
+        model.OnionAddress = "not-an-onion";
+        model.SaveEndpointCommand.Execute(null);
+        check(model.SelectedPeer == previous && model.Status.Contains("v3 onion"), "an invalid address leaves the saved contact intact");
+        string updatedAddress = new string('c', 56) + ".onion";
+        model.OnionAddress = updatedAddress;
+        model.Draft = "unsent for original contact";
+        model.SaveEndpointCommand.Execute(null);
+        check(model.SelectedPeer is { } updated && updated.Fingerprint == fixture.Fingerprint &&
+            updated.Onion == updatedAddress && model.Draft.Length != 0 && model.DeliveryRows.Single().Status == "Pending",
+            "saving an address preserves the authenticated recipient, draft and durable queue");
+
+        using var replacement = new PeerIdentity();
+        model.Label = "Replacement peer";
+        model.PeerFingerprint = replacement.Fingerprint;
+        model.PairingAddress = updatedAddress;
+        check(!model.RotatePeerCommand.CanExecute(null), "rotation needs fresh out-of-band confirmation");
+        model.ComparedFingerprint = true;
+        model.RotatePeerCommand.Execute(null);
+        check(model.Contacts.Single().Fingerprint == replacement.Fingerprint && model.Draft.Length == 0 &&
+            model.DeliveryRows.Count == 0 && model.ConnectionHistory.Count == 0 && !model.SaveHistory,
+            "rotating a peer pin leaves the old draft, queue, events and history out of the new conversation");
+
+        using var sameLocal = profile.OpenIdentity()!;
+        var persisted = profile.ReadContacts(sameLocal);
+        check(sameLocal.Fingerprint == original && persisted.Single(peer => peer.Revoked).Fingerprint == fixture.Fingerprint &&
+            persisted.Single(peer => !peer.Revoked).Onion == updatedAddress, "local identity, revocation and replacement survive reopening");
+        try
+        {
+            profile.OpenDelivery(sameLocal, previous);
+            check(false, "revoked pin must not reopen an outbox");
+        }
+        catch (InvalidOperationException) { check(true, "revoked pin cannot reopen the old outbox"); }
+
+        using var hostTor = new HostingTransport(1);
+        service.PeerTransport = hostTor;
+        check(!model.HostCommand.CanExecute(null) && model.CreateHostingCommand.CanExecute(null),
+            "a fresh profile requires explicit saved identity creation");
+        model.CreateHostingCommand.Execute(null);
+        await WaitUntilAsync(() => model.HostedAddress.Length != 0);
+        var saved = model.HostedAddress;
+        check(saved == model.SavedHostingAddress && hostTor.Generations == 1 &&
+            profile.ReadContacts(sameLocal).SequenceEqual(persisted), "hosting generation preserves the separate TLS and trust state");
+        string storedFile = Path.Combine(fresh, "onion-hosting", "identity.dpapi");
+        var stored = File.ReadAllBytes(storedFile);
+        check(stored.AsSpan().IndexOf(HostingTransport.FixtureKey(1)) < 0, "the saved file contains no clear fixture key");
+
+        model.SetAvailable(false);
+        hostTor.Dispose();
+        await WaitUntilAsync(() => model.CanEditPeer);
+        using var restarted = new HostingTransport(2);
+        service.PeerTransport = restarted;
+        model.SetAvailable(true);
+        await WaitUntilAsync(() => model.HostedAddress == saved);
+        check(restarted.Restores == 1 && restarted.Generations == 0, "Tor restart hosts the same saved key");
+        model.DisconnectCommand.Execute(null);
+        await WaitUntilAsync(() => model.CanEditPeer);
+
+        await using var reopenedHost = new PeerViewModel(service, profile, hostingStore: new HostedOnionStore(fresh));
+        reopenedHost.ReadExistingProfile();
+        reopenedHost.SelectedPeer = reopenedHost.Contacts.Single();
+        reopenedHost.SetAvailable(true);
+        check(reopenedHost.SavedHostingAddress == saved && !reopenedHost.RotateHostingCommand.CanExecute(null),
+            "Manager reopening sees the same saved address and requires separate rotation approval");
+        reopenedHost.HostCommand.Execute(null);
+        await WaitUntilAsync(() => reopenedHost.HostedAddress == saved);
+        reopenedHost.DisconnectCommand.Execute(null);
+        await WaitUntilAsync(() => reopenedHost.CanEditPeer);
+        reopenedHost.ApproveHostingRotation = true;
+        reopenedHost.RotateHostingCommand.Execute(null);
+        await WaitUntilAsync(() => reopenedHost.HostedAddress.Length != 0);
+        check(reopenedHost.HostedAddress != saved && restarted.Generations == 1 && !reopenedHost.ApproveHostingRotation,
+            "approved rotation changes the saved address and consumes consent");
+        reopenedHost.DisconnectCommand.Execute(null);
+        await WaitUntilAsync(() => reopenedHost.CanEditPeer);
+
+        File.WriteAllBytes(storedFile, [1, 2, 3]);
+        reopenedHost.ReadExistingProfile();
+        check(!reopenedHost.CreateHostingCommand.CanExecute(null) && !reopenedHost.HostCommand.CanExecute(null) &&
+            !reopenedHost.RotateHostingCommand.CanExecute(null) && File.ReadAllBytes(storedFile).SequenceEqual(new byte[] { 1, 2, 3 }),
+            "unreadable protected storage blocks all identity changes and stays intact");
     }
 
     private static async Task WaitUntilAsync(Func<bool> condition)
@@ -183,6 +291,35 @@ internal static class OnlineDesktopTests
         public Task RemoveAsync(OnionAddress address) => throw new NotSupportedException();
         public Task WaitForPublicationAsync(OnionAddress address, CancellationToken token) => throw new NotSupportedException();
         public void Dispose() => cancellation.Cancel();
+    }
+
+    private sealed class HostingTransport(byte generation) : IPersistentOnionPeerTransport, IDisposable
+    {
+        private readonly CancellationTokenSource lifetime = new();
+        public CancellationToken Lifetime => lifetime.Token;
+        public int Generations { get; private set; }
+        public int Restores { get; private set; }
+        public static byte[] FixtureKey(byte value) => Enumerable.Repeat(value, OnionServiceKey.ByteLength).ToArray();
+        private static OnionAddress Address(byte value) => OnionAddress.Parse(new string((char)('a' + value), 56) + ".onion");
+        public Task<(OnionAddress Address, OnionServiceKey Key)> GenerateHostAsync(int port, CancellationToken token)
+        {
+            Generations++;
+            return Task.FromResult((Address(generation), new OnionServiceKey(FixtureKey(generation))));
+        }
+        public Task<OnionAddress> RestoreHostAsync(int port, OnionAddress address, OnionServiceKey key, CancellationToken token)
+        {
+            Restores++;
+            var bytes = new byte[OnionServiceKey.ByteLength];
+            key.CopyTo(bytes);
+            if (Address(bytes[0]) != address || !bytes.SequenceEqual(FixtureKey(bytes[0])))
+                throw new InvalidDataException("Restored fixture key changed.");
+            return Task.FromResult(address);
+        }
+        public Task<OnionAddress> HostAsync(int port, CancellationToken token) => throw new NotSupportedException();
+        public Task RemoveAsync(OnionAddress address) => Task.CompletedTask;
+        public Task WaitForPublicationAsync(OnionAddress address, CancellationToken token) => throw new NotSupportedException();
+        public Task<Stream> ConnectAsync(OnionAddress address, CancellationToken token) => throw new NotSupportedException();
+        public void Dispose() => lifetime.Cancel();
     }
 
     private sealed class FakeService : IPeerTorService

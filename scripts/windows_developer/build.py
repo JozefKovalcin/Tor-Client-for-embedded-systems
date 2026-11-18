@@ -9,6 +9,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import zipfile
 
 from .install import msys_path, native_environment, operation_lock
 from .scan import MSYS, PROFILES, ROOT, _require_pe, inspect_source, ordinary_path, scan, sha256, source_manifest
@@ -137,6 +138,18 @@ def monitor(command, env, cwd, log_path, stages=False):
         return process.wait()
 
 
+def build_environment(run, archives, linkage):
+    scratch = run / "tmp"
+    scratch.mkdir()
+    native = native_environment()
+    command_processor = Path(native.get("SystemRoot", "C:/Windows")) / "System32" / "cmd.exe"
+    # Native windres uses the command processor after the recipe narrows PATH to MSYS2.
+    return {**native, "PROFILE": "optimized", "LINKAGE": linkage, "COMSPEC": str(command_processor),
+            "TOR_WINDOWS_OFFLINE": "1", "TOR_WINDOWS_WORK": msys_path(run / "work"),
+            "TOR_WINDOWS_CACHE": msys_path(archives), "JOBS": str(min(os.cpu_count() or 1, 4)),
+            "TMPDIR": msys_path(scratch), "TMP": str(scratch), "TEMP": str(scratch)}
+
+
 def build(profile, source_cache, workspace):
     if os.name != "nt" or profile not in PROFILES:
         raise ValueError("The reviewed build recipe requires native Windows and a supported profile")
@@ -167,9 +180,7 @@ def build(profile, source_cache, workspace):
                   "version": next(s["version"] for s in source_manifest()["sources"] if s["name"] == "tor"),
                   "package": "pipeline/dist" if profile == "optimized-static" else "pipeline/dist-optimized-shared"}
         write_record(record_path, record)
-        env = {**native_environment(), "PROFILE": "optimized", "LINKAGE": PROFILES[profile],
-               "TOR_WINDOWS_OFFLINE": "1", "TOR_WINDOWS_WORK": msys_path(run / "work"),
-               "TOR_WINDOWS_CACHE": msys_path(archives), "JOBS": str(min(os.cpu_count() or 1, 4))}
+        env = build_environment(run, archives, PROFILES[profile])
         bash = ordinary_path(MSYS / "usr/bin/bash.exe")
         print("[phase] source and recipe snapshot ready", flush=True)
         print(f"Build ID {run.name}", flush=True)
@@ -206,7 +217,7 @@ def list_builds(workspace):
     if not parent.exists():
         return {"builds": []}
     result = []
-    for item in sorted(ordinary_path(parent, directory=True).iterdir(), key=lambda item: item.name, reverse=True):
+    for item in ordinary_path(parent, directory=True).iterdir():
         try:
             run, record = get_record(workspace, item.name)
             if record["state"] == "BUILT":
@@ -217,7 +228,11 @@ def list_builds(workspace):
             result.append(record)
         except (OSError, ValueError, KeyError):
             result.append({"id": item.name, "state": "UNVERIFIED"})
-    return {"builds": result}
+    def order(record):
+        started = record.get("startedUtc")
+        return (started if isinstance(started, str) else "", record["id"])
+
+    return {"builds": sorted(result, key=order, reverse=True)}
 
 
 def smoke_passed(result, version):
@@ -253,6 +268,54 @@ def candidate(workspace, build_id):
     return {"id": build_id, "version": version, "profile": record["profile"], "packagePath": str(package),
             "reportSha256": package_hash, "sourceSha256": license_lock,
             "files": [{"name": name, "sha256": digest} for name, digest in sorted(binary_pins.items())]}
+
+
+def export_runtime(workspace, build_id):
+    workspace = ordinary_path(workspace, directory=True)
+    with operation_lock(workspace, ".build-lock"):
+        approved = candidate(workspace, build_id)
+        package = Path(approved["packagePath"])
+        report_path = package / "package-report.json"
+        with ordinary_path(report_path).open("rb") as stream:
+            report_bytes = stream.read(4 * 1024 * 1024 + 1)
+        if hashlib.sha256(report_bytes).hexdigest() != approved["reportSha256"]:
+            raise ValueError("Package report changed before export")
+        inventory = json.loads(report_bytes)["files"]
+        output = workspace / "exports"
+        output.mkdir(exist_ok=True)
+        output = ordinary_path(output, directory=True)
+        destination = output / (f"tor-{approved['version']}-{approved['profile']}-{build_id}.zip")
+        if destination.exists():
+            raise ValueError("The export already exists; move it before exporting the same build again")
+        pending = None
+        try:
+            with tempfile.NamedTemporaryFile(dir=output, prefix="pending-runtime-", suffix=".part", delete=False) as stream:
+                pending = Path(stream.name)
+                with zipfile.ZipFile(stream, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+                    archive.writestr("package-report.json", report_bytes)
+                    for relative, expected in sorted(inventory.items()):
+                        item = ordinary_path(resolve_record_path(package, relative))
+                        name = item.relative_to(package).as_posix()
+                        digest = hashlib.sha256()
+                        count = 0
+                        with item.open("rb") as source, archive.open(name, "w") as target:
+                            for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                                count += len(chunk)
+                                if count > expected["bytes"]:
+                                    raise ValueError("Runtime file grew during export")
+                                digest.update(chunk)
+                                target.write(chunk)
+                        if count != expected["bytes"] or digest.hexdigest() != expected["sha256"]:
+                            raise ValueError("Runtime file changed during export")
+                stream.flush()
+                os.fsync(stream.fileno())
+            digest = sha256(pending)
+            # Publish atomically without replacing an existing export, including a concurrent file.
+            os.link(pending, destination)
+        finally:
+            if pending is not None:
+                pending.unlink(missing_ok=True)
+        return {"path": str(destination), "sha256": digest}
 
 
 def smoke(workspace, build_id):

@@ -43,6 +43,7 @@ public sealed class WindowsDeveloperRunner(Action<string> log) : ITaskHandler
             WindowsDeveloperAction.List => "list",
             WindowsDeveloperAction.Smoke => "smoke",
             WindowsDeveloperAction.Candidate => "candidate",
+            WindowsDeveloperAction.Export => "export",
             _ => throw new ArgumentOutOfRangeException(nameof(task))
         };
         var system = Environment.GetFolderPath(Environment.SpecialFolder.Windows);

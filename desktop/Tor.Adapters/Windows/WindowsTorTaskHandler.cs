@@ -125,18 +125,27 @@ public sealed class WindowsTorTaskHandler(PinnedWindowsRuntime runtime, string p
                !current.Session.Completion.IsCompleted ? new PeerTransport(current) : null;
     }
 
-    private sealed class PeerTransport(ActiveOnline current) : IOnionPeerTransport
+    private sealed class PeerTransport(ActiveOnline current) : IPersistentOnionPeerTransport
     {
         public CancellationToken Lifetime => current.Token;
 
-        public async Task<OnionAddress> HostAsync(int loopbackPort, CancellationToken token)
+        public Task<OnionAddress> HostAsync(int loopbackPort, CancellationToken token) =>
+            RegisterAsync(ct => current.Session.Control.AddOnionAsync(loopbackPort, ct), token);
+
+        public Task<(OnionAddress Address, OnionServiceKey Key)> GenerateHostAsync(int loopbackPort, CancellationToken token) =>
+            RegisterAsync(ct => current.Session.Control.GenerateOnionAsync(loopbackPort, ct), token);
+
+        public Task<OnionAddress> RestoreHostAsync(int loopbackPort, OnionAddress address, OnionServiceKey key, CancellationToken token) =>
+            RegisterAsync(ct => current.Session.Control.RestoreOnionAsync(loopbackPort, address, key, ct), token);
+
+        private async Task<T> RegisterAsync<T>(Func<CancellationToken, Task<T>> register, CancellationToken token)
         {
             using var combined = CancellationTokenSource.CreateLinkedTokenSource(token, Lifetime);
             await current.IdentityGate.WaitAsync(combined.Token).ConfigureAwait(false);
             try
             {
                 await current.Session.Control.SubscribeOnionPublicationAsync().ConfigureAwait(false);
-                return await current.Session.Control.AddOnionAsync(loopbackPort, combined.Token).ConfigureAwait(false);
+                return await register(combined.Token).ConfigureAwait(false);
             }
             finally { current.IdentityGate.Release(); }
         }

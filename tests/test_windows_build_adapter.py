@@ -1,15 +1,32 @@
 import importlib.util
+import json
 from pathlib import Path
 import shutil
+import struct
 import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+import zipfile
 
 from scripts.windows_developer import build as adapter
 
 
 class WindowsBuildAdapterTests(unittest.TestCase):
+    def test_native_build_has_explicit_per_run_scratch_paths(self):
+        with tempfile.TemporaryDirectory() as directory:
+            run = Path(directory)
+            with patch.object(adapter, "msys_path", side_effect=lambda path: "/fixture/" + path.name), \
+                    patch.object(adapter, "native_environment", return_value={"SystemRoot": str(run / "Windows")}):
+                env = adapter.build_environment(run, run / "archives", "static")
+            scratch = run / "tmp"
+            self.assertTrue(scratch.is_dir())
+            self.assertEqual(env["TMP"], str(scratch))
+            self.assertEqual(env["TEMP"], str(scratch))
+            self.assertEqual(env["TMPDIR"], "/fixture/tmp")
+            self.assertEqual(env["COMSPEC"], str(run / "Windows/System32/cmd.exe"))
+            self.assertEqual(env["TOR_WINDOWS_OFFLINE"], "1")
+
     def test_disk_and_pinned_snapshot_are_checked_before_invoking_recipe(self):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)
@@ -48,6 +65,20 @@ class WindowsBuildAdapterTests(unittest.TestCase):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 adapter.resolve_record_path(Path("package"), name)
 
+    def test_builds_are_listed_in_start_order_instead_of_random_id_order(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary)
+            for identifier, started in [("run-zzzzzz", "2026-11-18T10:00:00+00:00"),
+                                        ("run-aaaaaa", "2026-11-18T12:00:00+00:00")]:
+                run = workspace / "builds" / identifier
+                run.mkdir(parents=True)
+                adapter.write_record(run / "build-record.json", {
+                    "id": identifier, "profile": "optimized-static", "package": "pipeline/dist",
+                    "state": "FAILED", "startedUtc": started,
+                })
+            builds = adapter.list_builds(workspace)["builds"]
+            self.assertEqual([build["id"] for build in builds], ["run-aaaaaa", "run-zzzzzz"])
+
     def test_offline_smoke_rejects_wrong_version_and_online_result(self):
         offline = [
             {"id": name, "status": "PASS", "detail": "Tor version 0.4.9.14." if name == "--version" else "verified"}
@@ -73,3 +104,59 @@ class WindowsBuildAdapterTests(unittest.TestCase):
                 adapter.write_record(run / "build-record.json", record)
                 with self.assertRaisesRegex(ValueError, "successful offline smoke"):
                     adapter.candidate(workspace, run.name)
+                with self.assertRaisesRegex(ValueError, "successful offline smoke"):
+                    adapter.export_runtime(workspace, run.name)
+                self.assertFalse((workspace / "exports").exists())
+
+    def test_export_rechecks_inventory_and_never_overwrites_a_zip(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary)
+            run = workspace / "builds/run-fixture"
+            package = run / "pipeline/dist"
+            (package / "licenses").mkdir(parents=True)
+            native = workspace / "native"
+            native.mkdir()
+            (native / "build-windows.sh").write_bytes(b"reviewed recipe")
+            license_path = package / "licenses/tor-LICENSE.txt"
+            license_path.write_bytes(b"fixture license text")
+            manifest = {"sources": [{"name": "tor", "version": "0.4.9.14", "license_sha256": adapter.sha256(license_path)}]}
+            (native / "source-manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+            shutil.copyfile(native / "source-manifest.json", package / "source-manifest.json")
+
+            header = bytearray(64)
+            header[:2] = b"MZ"
+            struct.pack_into("<I", header, 60, 64)
+            image = package / "tor.exe"
+            image.write_bytes(header + b"PE\x00\x00\x64\x86")
+            files = {path.relative_to(package).as_posix(): {"bytes": path.stat().st_size, "sha256": adapter.sha256(path)}
+                     for path in (image, license_path, package / "source-manifest.json")}
+            pe = {"machine": "AMD64", "format": "PE32+", "dynamic_base": True, "nx_compat": True, "high_entropy_va": True}
+            report_path = package / "package-report.json"
+            adapter.write_record(report_path, {"status": "PASS", "files": files, "pe": {"tor.exe": pe}})
+            smoke = run / "smoke.json"
+            smoke.write_text("{}", encoding="utf-8")
+            adapter.write_record(run / "build-record.json", {
+                "schemaVersion": 1, "id": run.name, "profile": "optimized-static", "version": "0.4.9.14",
+                "package": "pipeline/dist", "compilerExit": 0, "state": "BUILT", "smokeState": "PASS",
+                "sourceManifestSha256": adapter.sha256(native / "source-manifest.json"),
+                "recipeSha256": adapter.sha256(native / "build-windows.sh"),
+                "packageReportSha256": adapter.sha256(report_path), "smokePackageSha256": adapter.sha256(report_path),
+                "artifacts": files, "smokeEvidence": smoke.name, "smokeEvidenceSha256": adapter.sha256(smoke),
+            })
+            with patch.object(adapter, "NATIVE", native), patch.object(adapter, "source_manifest", return_value=manifest), \
+                    patch.object(adapter, "smoke_passed", return_value=True):
+                exported = adapter.export_runtime(workspace, run.name)
+                archive_path = Path(exported["path"])
+                self.assertEqual(exported["sha256"], adapter.sha256(archive_path))
+                with zipfile.ZipFile(archive_path) as archive:
+                    self.assertIsNone(archive.testzip())
+                    self.assertCountEqual(archive.namelist(), [*files, report_path.name])
+                    for name, expected in files.items():
+                        self.assertEqual(archive.read(name), (package / name).read_bytes())
+                with self.assertRaisesRegex(ValueError, "already exists"):
+                    adapter.export_runtime(workspace, run.name)
+                image.write_bytes(b"unexpected runtime")
+                with self.assertRaisesRegex(ValueError, "size or SHA-256 changed"):
+                    adapter.export_runtime(workspace, run.name)
+                self.assertEqual(exported["sha256"], adapter.sha256(archive_path))
+                self.assertEqual(list(archive_path.parent.iterdir()), [archive_path])

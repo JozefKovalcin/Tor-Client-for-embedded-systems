@@ -82,7 +82,6 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
         if (_isOnline == online) return true;
         if (!CanSwitchToDemo || (online && !SupportsOnline)) return false;
         _isOnline = online;
-        if (online) Peer?.ReadExistingProfile();
         _onlineNotice = null;
         Changed(nameof(IsOnline));
         NotifyStatus();
@@ -133,9 +132,10 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
         ? "The previous run was interrupted. A new Start request is required."
         : "Each Start request is explicit. Existing private state is retained.";
 
-    public OfflineTorViewModel(IOfflineTorService service, IUiDispatcher dispatcher, PeerProfileStore? peerProfile = null)
+    public OfflineTorViewModel(IOfflineTorService service, IUiDispatcher dispatcher, PeerProfileStore? peerProfile = null,
+        HostedOnionStore? hostingIdentity = null)
     {
-        Peer = service is IPeerTorService peers ? new PeerViewModel(peers, peerProfile, dispatcher) : null;
+        Peer = service is IPeerTorService peers ? new PeerViewModel(peers, peerProfile, dispatcher, hostingIdentity) : null;
         _service = service;
         _online = service as IOnlineTorService;
         _dispatcher = dispatcher;
@@ -161,6 +161,7 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
     public async Task OpenAsync()
     {
         if (_closing || _reader is not null) return;
+        Peer?.ReadExistingProfile();
         _reader = WatchAsync(_lifetime.Token);
         try { await RefreshAsync(); }
         catch (OperationCanceledException) when (_closing) { }

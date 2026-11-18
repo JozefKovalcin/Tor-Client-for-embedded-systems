@@ -6,12 +6,12 @@ import sys
 
 from .scan import PROFILES, scan
 from .install import install, installation_plan
-from .build import build, candidate, list_builds, smoke
+from .build import build, candidate, export_runtime, list_builds, smoke
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("scan", "plan-install", "install", "build", "list", "smoke", "candidate"))
+    parser.add_argument("action", choices=("scan", "plan-install", "install", "build", "list", "smoke", "candidate", "export"))
     parser.add_argument("--profile", choices=PROFILES, default="optimized-static")
     parser.add_argument("--sources", required=True)
     parser.add_argument("--workspace", required=True)
@@ -28,6 +28,9 @@ def main(argv=None):
             return smoke(args.workspace, args.build_id)
         if args.action == "candidate":
             print(json.dumps(candidate(args.workspace, args.build_id), allow_nan=False))
+            return 0
+        if args.action == "export":
+            print(json.dumps(export_runtime(args.workspace, args.build_id), allow_nan=False))
             return 0
         def refresh():
             return scan(args.profile, args.sources, args.workspace)

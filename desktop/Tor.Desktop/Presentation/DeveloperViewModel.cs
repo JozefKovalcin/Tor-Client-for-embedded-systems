@@ -59,6 +59,7 @@ internal sealed class DeveloperViewModel : ObservableModel
     public AsyncCommand SmokeCommand { get; }
     public ActionCommand CancelCommand { get; }
     public AsyncCommand ActivateCommand { get; }
+    public AsyncCommand ExportCommand { get; }
     public AsyncCommand RollbackCommand { get; }
 
     public DeveloperViewModel(IUiDispatcher dispatcher, string? bundledRuntime)
@@ -71,10 +72,11 @@ internal sealed class DeveloperViewModel : ObservableModel
         BuildCommand = RunCommand(WindowsDeveloperAction.Build, () => _ready);
         ListCommand = RunCommand(WindowsDeveloperAction.List);
         SmokeCommand = RunCommand(WindowsDeveloperAction.Smoke, () => Selected?.State == "BUILT");
+        ExportCommand = RunCommand(WindowsDeveloperAction.Export, () => Selected is { State: "BUILT", Smoke: "PASS" });
         ActivateCommand = new(() => TrackAsync(WindowsDeveloperAction.Candidate), () => Status = "Activation failed.",
             () => Idle && ApproveRuntime && Selected is { State: "BUILT", Smoke: "PASS" });
         RollbackCommand = new(RollbackAsync, () => Status = "Rollback failed.", () => Idle && _bundledRuntime is not null);
-        _commands = [ScanCommand, PlanCommand, InstallCommand, BuildCommand, ListCommand, SmokeCommand, ActivateCommand, RollbackCommand];
+        _commands = [ScanCommand, PlanCommand, InstallCommand, BuildCommand, ListCommand, SmokeCommand, ActivateCommand, ExportCommand, RollbackCommand];
         CancelCommand = new(() => _cancellation?.Cancel(), () => _cancellation is not null && !_installCommitted);
     }
 
@@ -110,6 +112,17 @@ internal sealed class DeveloperViewModel : ObservableModel
             PlanDetails = "";
         }
         if (action == WindowsDeveloperAction.Scan) _ready = false;
+        if (action == WindowsDeveloperAction.Export)
+        {
+            PrivateStorage.RequireOwnerOnly(Workspace);
+            var result = await WindowsDeveloperRunner.RunAsync(spec, null, token);
+            if (result.ExitCode != 0) { Status = "Runtime export blocked."; Report = result.Errors; return; }
+            using var document = JsonDocument.Parse(result.Output);
+            var export = document.RootElement;
+            Status = "Verified runtime exported.";
+            Report = $"ZIP  {Text(export, "path")}{Environment.NewLine}SHA-256  {Text(export, "sha256")}";
+            return;
+        }
         if (action == WindowsDeveloperAction.Candidate)
         {
             ApproveRuntime = false;
@@ -120,7 +133,7 @@ internal sealed class DeveloperViewModel : ObservableModel
                 ?? throw new InvalidDataException("Missing verified runtime candidate.");
             token.ThrowIfCancellationRequested();
             WindowsRuntimeSelection.ForCurrentUser().Activate(candidate);
-            Status = "Build approved. Restart Tor Manager to select it for future Tor sessions.";
+            Status = "Build approved. Use the approved runtime preference in Settings and restart Tor Manager.";
             return;
         }
         if (action is WindowsDeveloperAction.Install or WindowsDeveloperAction.Build or WindowsDeveloperAction.Smoke)
@@ -153,9 +166,10 @@ internal sealed class DeveloperViewModel : ObservableModel
             token.ThrowIfCancellationRequested();
             var outcome = core.Snapshot().Single(row => row.TaskId == taskId);
             var headline = $"{action} · {outcome.State.ToUpperInvariant()} · exit {outcome.RawExitCode?.ToString() ?? "unavailable"}";
-            if (action == WindowsDeveloperAction.Install) await ReadAsync(spec with { Action = WindowsDeveloperAction.Scan }, token);
-            else await ReadAsync(spec with { Action = WindowsDeveloperAction.List }, token);
-            Status = headline + (action == WindowsDeveloperAction.Install ? " · dependencies rescanned" : "");
+            bool installing = action == WindowsDeveloperAction.Install;
+            bool refreshed = await ReadAsync(spec with { Action = installing ? WindowsDeveloperAction.Scan : WindowsDeveloperAction.List },
+                token, selectNewestBuild: action == WindowsDeveloperAction.Build);
+            Status = headline + (refreshed ? installing ? " · dependencies rescanned" : "" : " · refresh failed");
             return;
         }
         await ReadAsync(spec, token);
@@ -175,14 +189,14 @@ internal sealed class DeveloperViewModel : ObservableModel
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
     }
 
-    private async Task ReadAsync(WindowsDeveloperCommand spec, CancellationToken token)
+    private async Task<bool> ReadAsync(WindowsDeveloperCommand spec, CancellationToken token, bool selectNewestBuild = false)
     {
         var result = await WindowsDeveloperRunner.RunAsync(spec, null, token);
         if (result.ExitCode != 0)
         {
             Status = $"BLOCKED · exit {result.ExitCode}";
             Report = result.Errors;
-            return;
+            return false;
         }
         using var document = JsonDocument.Parse(result.Output);
         var data = document.RootElement;
@@ -206,7 +220,7 @@ internal sealed class DeveloperViewModel : ObservableModel
         }
         else
         {
-            var previous = Selected?.Id;
+            var previous = selectNewestBuild ? null : Selected?.Id;
             Builds = data.GetProperty("builds").EnumerateArray().Select(item => new DeveloperBuild(Text(item, "id"),
                 Text(item, "state"), Text(item, "version"), Text(item, "profile"), Text(item, "smokeState"), item.Clone())).ToArray();
             CompareWith = null;
@@ -214,6 +228,7 @@ internal sealed class DeveloperViewModel : ObservableModel
             RefreshSelection();
             Status = $"{Builds.Count} recorded builds.";
         }
+        return true;
     }
 
     private static string Format(JsonElement data) => JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
@@ -247,6 +262,7 @@ internal sealed class DeveloperViewModel : ObservableModel
             : Format(Selected.Details) + Environment.NewLine + Format(CompareWith.Details);
         SmokeCommand.Invalidate();
         ActivateCommand.Invalidate();
+        ExportCommand.Invalidate();
     }
 
     private Task RollbackAsync()
