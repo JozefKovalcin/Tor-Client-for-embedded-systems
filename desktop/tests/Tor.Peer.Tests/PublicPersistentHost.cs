@@ -11,7 +11,7 @@ internal static partial class PublicTor
 {
     // Both connection profiles and the runtime approval are scoped to this run.
     [SupportedOSPlatform("windows")]
-    internal static async Task RunPersistentHostAsync(string candidatePath, string state)
+    internal static async Task RunPersistentHostAsync(string candidatePath, string state, bool compareFresh = false)
     {
         var input = new FileInfo(candidatePath);
         Check.That(input.Length is > 0 and <= 64 * 1024, "The runtime candidate file has an invalid size.");
@@ -30,7 +30,7 @@ internal static partial class PublicTor
 
         string profileA = Path.Combine(root, "host A");
         string profileB = Path.Combine(root, "client B");
-        var overall = new CancellationTokenSource(TimeSpan.FromMinutes(12));
+        var overall = new CancellationTokenSource(TimeSpan.FromMinutes(20));
         using (overall)
         {
             var token = overall.Token;
@@ -82,7 +82,19 @@ internal static partial class PublicTor
                 Check.That(hosted.Address == firstAddress, "Tor returned a different v3 address after the restart.");
                 Console.WriteLine("PASS native Tor restored the same v3 address and the host reopened the same TLS identity.");
                 await CheckPublicationAsync(hosted, "restored", token);
-                await CheckPublicExchangeAsync(hosted, clientB, firstFingerprint, idB, "restored", token);
+                try { await CheckPublicExchangeAsync(hosted, clientB, firstFingerprint, idB, "restored", token); }
+                catch (CheckFailed liveFailure) when (compareFresh && !token.IsCancellationRequested)
+                {
+                    Console.WriteLine($"FAIL original client: {liveFailure.Message}");
+                    int freshPort;
+                    do { freshPort = PickPort(); } while (freshPort == portA || freshPort == portB);
+                    await using var freshB = OfflineTorService.CreateWindows(runtime, Path.Combine(root, "fresh client B"));
+                    await freshB.StartOnlineAsync(freshPort, token);
+                    int freshPid = await ReadyAsync(freshB, "fresh B", token);
+                    await CheckPublicExchangeAsync(hosted, freshB, firstFingerprint, idB, "fresh-client comparison", token);
+                    await StopVerifiedAsync(freshB, freshPid, token);
+                    throw new CheckFailed("The fresh-client comparison passed. The original-client reconnect failed.");
+                }
             }
             await Task.WhenAll(StopVerifiedAsync(reopenedA, secondHost, token), StopVerifiedAsync(clientB, client, token));
             Console.WriteLine("PASS same v3 address and TLS fingerprint after native host restart. Both peers stopped with exit code 0.");
@@ -113,12 +125,12 @@ internal static partial class PublicTor
     {
         var transport = service.GetPeerTransport()
             ?? throw new CheckFailed("Client B has no verified SOCKS listener.");
-        int maxAttempts = phase == "restored" ? 3 : 1;
+        int maxAttempts = phase == "restored" ? 3 : 2;
         byte[] pin = PeerIdentity.ParseFingerprint(hostPin);
         for (int attempt = 1; attempt <= maxAttempts; attempt++)
         {
             using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token, transport.Lifetime);
-            deadline.CancelAfter(TimeSpan.FromSeconds(55));
+            deadline.CancelAfter(TimeSpan.FromSeconds(195));
             var inbound = host.AcceptAsync(deadline.Token);
             string stage = "SOCKS tunnel";
             try
@@ -141,6 +153,7 @@ internal static partial class PublicTor
                 string reason = error switch
                 {
                     Socks5ConnectException rejected => $"SOCKS5 reply 0x{rejected.ReplyCode:X2}",
+                    OnionSocksTimeoutException timeout => $"{timeout.Phase} deadline elapsed",
                     SocketException socket => $"socket error {socket.SocketErrorCode}",
                     _ => error.GetType().Name
                 };

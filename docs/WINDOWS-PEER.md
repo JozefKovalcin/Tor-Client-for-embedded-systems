@@ -182,8 +182,15 @@ stops A, reopens its service and profile and imports the saved key. It checks
 the same v3 address and TLS fingerprint, observes publication again, repeats
 the message exchange, and checks all owned Tor exits. A recent descriptor can
 still be cached by B, so the restored connection uses bounded retries.
-Connection failures report the stage and the SOCKS reply code when Tor
-returns one. Console diagnostics omit the address, pins and key material.
+The Manager gives the local SOCKS handshake its own short deadline. It
+allows Tor's full rendezvous timeout on the Onion connect. For a recoverable
+onion-specific failure it requests one descriptor refresh through the
+authenticated controller before one optional retry. Connection failures
+report the stage and the SOCKS reply code when Tor returns one.
+Console diagnostics omit the address, pins and key material.
+If separately authorized, pass `-CompareFreshClient` to run a fresh-client
+comparison following a failed reconnect from B. The original reconnect
+still determines the qualification result.
 The console runner exercises the application backend on one Windows host.
 The physical test below covers graphical and independent-host acceptance.
 

@@ -1,6 +1,6 @@
 # Windows persistent Onion Service test, 2026-11-18
 
-Two separately authorized public Tor runs each used two fresh isolated profiles
+The first two public Tor runs each used two fresh isolated profiles
 on one Windows x64 development host. The application source was based on
 `32c7dcefed0c4e2fe8eee493fb37a1d16705b622`. The native input was Tor
 0.4.9.14 from Developer build `run-mm7s33j8`, profile `optimized-static`.
@@ -58,6 +58,31 @@ fresh client against the same restarted host could show whether the symptom
 is specific to the original client session. Keep the original live-client
 attempt as the reconnect criterion. These checks require separate approval.
 [Tor Control descriptor events](https://spec.torproject.org/control-spec/replies.html#hiddenservice-descriptors)
+
+## SOCKS deadline correction and follow-ups
+
+In the pinned Tor 0.4.9.14 source, `src/app/config/config.c` sets
+`SocksTimeout` to two minutes. `src/core/or/connection_edge.c` applies
+that limit to rendezvous streams. The Manager previously stopped waiting
+after 45 seconds. It now budgets eight seconds for local proxy setup and
+130 seconds for the onion connect. The Windows adapter can perform one
+targeted authenticated descriptor refresh after an onion-specific transient
+failure, within an overall bound. Control and SOCKS fixture tests exercised
+the distinct deadlines, caller cancellation and matching descriptor event.
+[Tor SOCKS extension reply codes](https://spec.torproject.org/socks-extensions.html#extended-error-codes)
+
+| Authorized follow-up | Bootstrap and publish | Initial SOCKS | Initial TLS | Host restart and reconnect |
+| --- | --- | --- | --- | --- |
+| 17:02:39 UTC | PASS | PASS | FAIL, timeout | NOT RUN |
+| 17:04:53 UTC | PASS | PASS | FAIL, two timeouts | NOT RUN |
+
+Both used unchanged `run-mm7s33j8` EXE and DLL hashes, and both returned
+exit code 1. Each final Tor process recorded exit code 0. Neither reached
+the fresh-client comparison. The two sanitized logs are local under
+`build/windows-persistent-host-qualification/` with names
+`public-host-fixed-20261118-170239Z.log` and
+`public-host-fixed-20261118-170453Z.log`. The earlier reconnect result
+remains FAIL. The correction has offline verification.
 
 ## Offline checks
 

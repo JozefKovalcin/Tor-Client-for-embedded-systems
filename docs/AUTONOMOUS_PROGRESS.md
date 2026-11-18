@@ -4,7 +4,7 @@
 
 | ID | State | Source and evidence | Remaining |
 | --- | --- | --- | --- |
-| WIN-03-HOST | PARTIAL | PR #31 verified simulated restart, explicit rotation and encrypted state refusal. Both approved public runs restored and republished the same v3 address. The diagnostic run localized the failed live-client reconnect to three SOCKS tunnel timeouts before TLS. | Observe descriptor fetch on the running client and compare with a fresh client after separate approval. |
+| WIN-03-HOST | PARTIAL | PR #31 verified simulated restart. Two public runs restored and republished the original address but failed reconnect. The app now honors Tor's rendezvous limit and can refresh the targeted descriptor. Two follow-ups reached initial SOCKS CONNECT and stalled at TLS before restart. | Investigate the initial public TLS stall, then qualify reconnect in the live-client scenario. |
 | WIN-03-MODES | VERIFIED | Draft #32. Separate connection, workspace and runtime preference in the UI. Real Developer retained an active offline session and the Peers page. | DPI and full keyboard matrix. |
 | WIN-04 | PARTIAL | Real Developer read-only diagnostics accepted the prepared local cache. Installer approval, eligibility and cancellation have automated evidence. | Real system installation requires a separate approval and an eligible package. |
 | WIN-05 | VERIFIED for optimized-static | Draft #32. Real GUI compile, PE inventory, eight offline smoke checks and 21-file ZIP export passed for `run-mm7s33j8`. Earlier GCC and windres failures were fixed and retained. | Shared build remains outside the approved run. |
@@ -20,11 +20,10 @@ installed UCRT64 tools.
 **NEXT_ACTION** Follow [PROGRESS.md](PROGRESS.md) with the exact Windows
 candidate and native export recorded in the
 [release evidence](../reports/windows-product-2026-11-18/README.md).
-Both [public persistent-host runs](../reports/windows-persistent-host-2026-11-18/README.md)
-ended FAIL at reconnect. The repeat isolated the failure to a SOCKS tunnel
-timeout. A separate public diagnostic would observe descriptor fetch and
-compare the live client with a fresh one. The mandatory network suite has
-its own approval.
+The [public persistent-host evidence](../reports/windows-persistent-host-2026-11-18/README.md)
+records reconnect failures before the SOCKS deadline fix and initial TLS
+timeouts in two follow-ups. Reproduce the TLS stall before qualifying the
+host restart. The mandatory network suite has its own approval.
 The user deferred clean-host and physical two-PC
 acceptance. Run the shared native profile and real installation path only
 after their respective approvals.

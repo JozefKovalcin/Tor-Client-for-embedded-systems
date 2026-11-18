@@ -25,6 +25,7 @@ public sealed class TorControlClient : IAsyncDisposable
     private readonly SemaphoreSlim transactions = new(1, 1);
     private readonly SemaphoreSlim authentication = new(1, 1);
     private readonly SemaphoreSlim identityRequests = new(1, 1);
+    private readonly SemaphoreSlim descriptorRequests = new(1, 1);
     private readonly Channel<ControlReply> replies = Channel.CreateBounded<ControlReply>(1);
     private readonly Channel<BootstrapProgress> events = Channel.CreateBounded<BootstrapProgress>(new BoundedChannelOptions(64)
         { FullMode = BoundedChannelFullMode.DropOldest, SingleWriter = true, SingleReader = false });
@@ -34,6 +35,7 @@ public sealed class TorControlClient : IAsyncDisposable
     private BootstrapProgress? latest;
     private long? lastIdentityRequest;
     private TaskCompletionSource? pendingIdentitySignal;
+    private DescriptorRefresh? pendingDescriptor;
     private volatile bool authenticated;
     private bool authenticationAttempted;
     private bool disposed;
@@ -95,7 +97,36 @@ public sealed class TorControlClient : IAsyncDisposable
     }
     public Task SubscribeBootstrapAsync(CancellationToken token = default) => CommandAsync("SETEVENTS STATUS_CLIENT", true, token);
     public Task SubscribeOnlineAsync(CancellationToken token = default) => CommandAsync("SETEVENTS STATUS_CLIENT SIGNAL", true, token);
-    public Task SubscribeOnionPublicationAsync() => CommandAsync("SETEVENTS STATUS_CLIENT SIGNAL HS_DESC", true, CancellationToken.None);
+    public Task SubscribeOnionPublicationAsync(CancellationToken token = default) =>
+        CommandAsync("SETEVENTS STATUS_CLIENT SIGNAL HS_DESC", true, token, drainAfterAdmission: true);
+
+    private sealed record DescriptorRefresh(OnionAddress Address, TaskCompletionSource Received);
+
+    public async Task<bool> RefreshOnionDescriptorAsync(OnionAddress address, CancellationToken token = default)
+    {
+        ArgumentNullException.ThrowIfNull(address);
+        using var operation = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime.Token);
+        await descriptorRequests.WaitAsync(operation.Token).ConfigureAwait(false);
+        try
+        {
+            await SubscribeOnionPublicationAsync(operation.Token).ConfigureAwait(false);
+            var pending = new DescriptorRefresh(address, new(TaskCreationOptions.RunContinuationsAsynchronously));
+            Volatile.Write(ref pendingDescriptor, pending);
+            await CommandAsync("HSFETCH " + address.ServiceId, true, operation.Token, drainAfterAdmission: true)
+                .ConfigureAwait(false);
+            try
+            {
+                await pending.Received.Task.WaitAsync(TimeSpan.FromSeconds(15), operation.Token).ConfigureAwait(false);
+                return true;
+            }
+            catch (TimeoutException) { return false; }
+        }
+        finally
+        {
+            Volatile.Write(ref pendingDescriptor, null);
+            descriptorRequests.Release();
+        }
+    }
 
     public async Task<OnionAddress> AddOnionAsync(int loopbackPort, CancellationToken token = default) =>
         (await RegisterOnionAsync(loopbackPort, "NEW:ED25519-V3 Flags=DiscardPK", false, null, token)
@@ -283,6 +314,11 @@ public sealed class TorControlClient : IAsyncDisposable
                         try { onionUploads.Writer.TryWrite(OnionAddress.FromServiceId(id)); }
                         catch (FormatException) { }
                     }
+                    const string received = "HS_DESC RECEIVED ";
+                    if (reply.Lines[0].StartsWith(received, StringComparison.Ordinal) &&
+                        Volatile.Read(ref pendingDescriptor) is { } pending &&
+                        reply.Lines[0][received.Length..].Split(' ', 2)[0] == pending.Address.ServiceId)
+                        pending.Received.TrySetResult();
                 }
                 else
                 {

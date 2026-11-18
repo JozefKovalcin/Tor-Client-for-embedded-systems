@@ -7,6 +7,8 @@ param(
     [string] $TorPackage,
     [Parameter(Mandatory, ParameterSetName = 'Persistent')]
     [string] $RuntimeCandidate,
+    [Parameter(ParameterSetName = 'Persistent')]
+    [switch] $CompareFreshClient,
     [Parameter(Mandatory)] [string] $NewStatePath
 )
 
@@ -43,7 +45,9 @@ try {
     if ($LASTEXITCODE) { exit $LASTEXITCODE }
     dotnet build $project --no-restore --disable-build-servers -p:UseSharedCompilation=false
     if ($LASTEXITCODE) { exit $LASTEXITCODE }
-    dotnet "tests/$testName/bin/Debug/net11.0/$testName.dll" $mode --approve-public-tor $runtime $state
+    $testArgs = @($mode, '--approve-public-tor', $runtime, $state)
+    if ($CompareFreshClient) { $testArgs += '--compare-fresh-client' }
+    dotnet "tests/$testName/bin/Debug/net11.0/$testName.dll" @testArgs
     exit $LASTEXITCODE
 }
 finally { Pop-Location }
