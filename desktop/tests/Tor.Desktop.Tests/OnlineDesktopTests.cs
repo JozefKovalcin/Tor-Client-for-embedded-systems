@@ -20,11 +20,11 @@ internal static class OnlineDesktopTests
         var model = shell.Offline!;
         check(shell.Pages.Single(page => page.ShowPeers).Title == "Peers",
             "paired contact navigation is available before switching to Real Online");
-        check(shell.ModeHeading == "Real Offline" && !model.IsOnline && service.Watchers == 1,
+        check(shell.ModeHeading == "Real Offline" && shell.IsRealOffline && !model.IsOnline && service.Watchers == 1,
             "online-capable Windows shell still opens in Real Offline with one watcher");
         shell.ShowDemo();
         shell.ShowRealOnline();
-        check(shell.ModeHeading == "Real Online" && model.IsOnline && service.OnlineStarts == 0 && service.OfflineStarts == 0 &&
+        check(shell.ModeHeading == "Real Online" && !shell.IsRealOffline && model.IsOnline && service.OnlineStarts == 0 && service.OfflineStarts == 0 &&
             model.SocksPortText == "9150" && !model.NewIdentityCommand.CanExecute(null) && !model.CheckConnectivityCommand.CanExecute(null),
             "selecting Real Online authorizes no start or proxy probe");
 
@@ -101,7 +101,7 @@ internal static class OnlineDesktopTests
         await service.Stopped.Task.WaitAsync(Limit);
         await ObserveAsync(model, () => model.SessionText == "Stopped" && model.CanSwitchToDemo);
         shell.ShowRealOffline();
-        check(shell.ModeHeading == "Real Offline" && !model.IsOnline && service.Watchers == 1 && service.OfflineStarts == 0 &&
+        check(shell.ModeHeading == "Real Offline" && shell.IsRealOffline && !model.IsOnline && service.Watchers == 1 && service.OfflineStarts == 0 &&
             !model.CheckConnectivityCommand.CanExecute(null), "confirmed stop permits returning to offline without starting a process");
         Console.WriteLine("online desktop interaction assertions PASS");
     }

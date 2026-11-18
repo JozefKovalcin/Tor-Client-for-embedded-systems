@@ -6,31 +6,56 @@
     <ResourceDictionary>
       <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Dark">
-          <SolidColorBrush x:Key="WorkspaceBackground">#111820</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceSidebar">#151F29</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceCard">#1B2632</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceBorder">#2A3745</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceForeground">#E4EBF2</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceMuted">#A6B3C1</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceLog">#151F29</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceAccent">#E8C36B</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceLink">#8ABEFF</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceBackground">#141228</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceSidebar">#1B1734</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceCard">#221D3C</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceBorder">#493E69</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceForeground">#FAF6FF</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceMuted">#C3B9D9</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceLog">#17142C</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceAccent">#CDBBFF</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceAction">#382D58</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceActionBorder">#75649E</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceHover">#4E3C75</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspacePrimary">#C9B6FF</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspacePrimaryHover">#E0D3FF</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspacePrimaryText">#241345</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceLive">#A4F3DE</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceLiveSurface">#183D3D</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceLiveBorder">#377E77</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceAttention">#FFB6B8</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceFocus">#FFDAA0</SolidColorBrush>
         </ResourceDictionary>
         <ResourceDictionary x:Key="Light">
-          <SolidColorBrush x:Key="WorkspaceBackground">#F4F7FA</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceSidebar">#E7EEF5</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceBackground">#F7F4FD</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceSidebar">#EEE8FA</SolidColorBrush>
           <SolidColorBrush x:Key="WorkspaceCard">#FFFFFF</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceBorder">#CBD5E1</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceForeground">#162332</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceMuted">#4E6175</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceLog">#EDF3F8</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceAccent">#8A5D00</SolidColorBrush>
-          <SolidColorBrush x:Key="WorkspaceLink">#185DA7</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceBorder">#D9CDEB</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceForeground">#2A1846</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceMuted">#5C4B72</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceLog">#F1ECF8</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceAccent">#56339C</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceAction">#F0E7FC</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceActionBorder">#9C81C5</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceHover">#E5D5FA</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspacePrimary">#6340B3</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspacePrimaryHover">#513094</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspacePrimaryText">#FFFFFF</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceLive">#095D55</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceLiveSurface">#DFF5ED</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceLiveBorder">#75ACA0</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceAttention">#941E3E</SolidColorBrush>
+          <SolidColorBrush x:Key="WorkspaceFocus">#853E00</SolidColorBrush>
         </ResourceDictionary>
       </ResourceDictionary.ThemeDictionaries>
     </ResourceDictionary>
   </Application.Resources>
   <Application.Styles>
-    <FluentTheme />
+    <FluentTheme>
+      <FluentTheme.Palettes>
+        <ColorPaletteResources x:Key="Dark" Accent="#C9B6FF" />
+        <ColorPaletteResources x:Key="Light" Accent="#6340B3" />
+      </FluentTheme.Palettes>
+    </FluentTheme>
   </Application.Styles>
 </Application>
