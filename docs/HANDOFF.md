@@ -1,5 +1,13 @@
 # Technical handover
 
+## Windows product priority — 2026-11-18
+
+The current product milestone is the Windows x64 Tor Manager. TASK 09 adds an
+explicit online mode using the same verified native runtime and owned process
+lifecycle as offline mode. Windows release qualification precedes further
+embedded development. The embedded mission, targets and evidence below remain
+available for resumption after that milestone.
+
 ## Current additions — 2026-11-16
 
 Windows source builds and November 12 Windows QEMU smoke evidence are now
