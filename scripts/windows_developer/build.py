@@ -141,8 +141,10 @@ def monitor(command, env, cwd, log_path, stages=False):
 def build_environment(run, archives, linkage):
     scratch = run / "tmp"
     scratch.mkdir()
-    # MSYS tools and native UCRT tools use different path forms for temporary files.
-    return {**native_environment(), "PROFILE": "optimized", "LINKAGE": linkage,
+    native = native_environment()
+    command_processor = Path(native.get("SystemRoot", "C:/Windows")) / "System32" / "cmd.exe"
+    # Native windres uses the command processor after the recipe narrows PATH to MSYS2.
+    return {**native, "PROFILE": "optimized", "LINKAGE": linkage, "COMSPEC": str(command_processor),
             "TOR_WINDOWS_OFFLINE": "1", "TOR_WINDOWS_WORK": msys_path(run / "work"),
             "TOR_WINDOWS_CACHE": msys_path(archives), "JOBS": str(min(os.cpu_count() or 1, 4)),
             "TMPDIR": msys_path(scratch), "TMP": str(scratch), "TEMP": str(scratch)}

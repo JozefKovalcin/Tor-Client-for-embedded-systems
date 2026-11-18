@@ -16,13 +16,15 @@ class WindowsBuildAdapterTests(unittest.TestCase):
     def test_native_build_has_explicit_per_run_scratch_paths(self):
         with tempfile.TemporaryDirectory() as directory:
             run = Path(directory)
-            with patch.object(adapter, "msys_path", side_effect=lambda path: "/fixture/" + path.name):
+            with patch.object(adapter, "msys_path", side_effect=lambda path: "/fixture/" + path.name), \
+                    patch.object(adapter, "native_environment", return_value={"SystemRoot": str(run / "Windows")}):
                 env = adapter.build_environment(run, run / "archives", "static")
             scratch = run / "tmp"
             self.assertTrue(scratch.is_dir())
             self.assertEqual(env["TMP"], str(scratch))
             self.assertEqual(env["TEMP"], str(scratch))
             self.assertEqual(env["TMPDIR"], "/fixture/tmp")
+            self.assertEqual(env["COMSPEC"], str(run / "Windows/System32/cmd.exe"))
             self.assertEqual(env["TOR_WINDOWS_OFFLINE"], "1")
 
     def test_disk_and_pinned_snapshot_are_checked_before_invoking_recipe(self):
