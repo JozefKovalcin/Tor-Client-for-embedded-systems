@@ -65,6 +65,20 @@ class WindowsBuildAdapterTests(unittest.TestCase):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 adapter.resolve_record_path(Path("package"), name)
 
+    def test_builds_are_listed_in_start_order_instead_of_random_id_order(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary)
+            for identifier, started in [("run-zzzzzz", "2026-11-18T10:00:00+00:00"),
+                                        ("run-aaaaaa", "2026-11-18T12:00:00+00:00")]:
+                run = workspace / "builds" / identifier
+                run.mkdir(parents=True)
+                adapter.write_record(run / "build-record.json", {
+                    "id": identifier, "profile": "optimized-static", "package": "pipeline/dist",
+                    "state": "FAILED", "startedUtc": started,
+                })
+            builds = adapter.list_builds(workspace)["builds"]
+            self.assertEqual([build["id"] for build in builds], ["run-aaaaaa", "run-zzzzzz"])
+
     def test_offline_smoke_rejects_wrong_version_and_online_result(self):
         offline = [
             {"id": name, "status": "PASS", "detail": "Tor version 0.4.9.14." if name == "--version" else "verified"}

@@ -217,7 +217,7 @@ def list_builds(workspace):
     if not parent.exists():
         return {"builds": []}
     result = []
-    for item in sorted(ordinary_path(parent, directory=True).iterdir(), key=lambda item: item.name, reverse=True):
+    for item in ordinary_path(parent, directory=True).iterdir():
         try:
             run, record = get_record(workspace, item.name)
             if record["state"] == "BUILT":
@@ -228,7 +228,11 @@ def list_builds(workspace):
             result.append(record)
         except (OSError, ValueError, KeyError):
             result.append({"id": item.name, "state": "UNVERIFIED"})
-    return {"builds": result}
+    def order(record):
+        started = record.get("startedUtc")
+        return (started if isinstance(started, str) else "", record["id"])
+
+    return {"builds": sorted(result, key=order, reverse=True)}
 
 
 def smoke_passed(result, version):

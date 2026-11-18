@@ -167,7 +167,8 @@ internal sealed class DeveloperViewModel : ObservableModel
             var outcome = core.Snapshot().Single(row => row.TaskId == taskId);
             var headline = $"{action} · {outcome.State.ToUpperInvariant()} · exit {outcome.RawExitCode?.ToString() ?? "unavailable"}";
             bool installing = action == WindowsDeveloperAction.Install;
-            bool refreshed = await ReadAsync(spec with { Action = installing ? WindowsDeveloperAction.Scan : WindowsDeveloperAction.List }, token);
+            bool refreshed = await ReadAsync(spec with { Action = installing ? WindowsDeveloperAction.Scan : WindowsDeveloperAction.List },
+                token, selectNewestBuild: action == WindowsDeveloperAction.Build);
             Status = headline + (refreshed ? installing ? " · dependencies rescanned" : "" : " · refresh failed");
             return;
         }
@@ -188,7 +189,7 @@ internal sealed class DeveloperViewModel : ObservableModel
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
     }
 
-    private async Task<bool> ReadAsync(WindowsDeveloperCommand spec, CancellationToken token)
+    private async Task<bool> ReadAsync(WindowsDeveloperCommand spec, CancellationToken token, bool selectNewestBuild = false)
     {
         var result = await WindowsDeveloperRunner.RunAsync(spec, null, token);
         if (result.ExitCode != 0)
@@ -219,7 +220,7 @@ internal sealed class DeveloperViewModel : ObservableModel
         }
         else
         {
-            var previous = Selected?.Id;
+            var previous = selectNewestBuild ? null : Selected?.Id;
             Builds = data.GetProperty("builds").EnumerateArray().Select(item => new DeveloperBuild(Text(item, "id"),
                 Text(item, "state"), Text(item, "version"), Text(item, "profile"), Text(item, "smokeState"), item.Clone())).ToArray();
             CompareWith = null;
