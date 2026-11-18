@@ -138,6 +138,16 @@ def monitor(command, env, cwd, log_path, stages=False):
         return process.wait()
 
 
+def build_environment(run, archives, linkage):
+    scratch = run / "tmp"
+    scratch.mkdir()
+    # MSYS tools and native UCRT tools use different path forms for temporary files.
+    return {**native_environment(), "PROFILE": "optimized", "LINKAGE": linkage,
+            "TOR_WINDOWS_OFFLINE": "1", "TOR_WINDOWS_WORK": msys_path(run / "work"),
+            "TOR_WINDOWS_CACHE": msys_path(archives), "JOBS": str(min(os.cpu_count() or 1, 4)),
+            "TMPDIR": msys_path(scratch), "TMP": str(scratch), "TEMP": str(scratch)}
+
+
 def build(profile, source_cache, workspace):
     if os.name != "nt" or profile not in PROFILES:
         raise ValueError("The reviewed build recipe requires native Windows and a supported profile")
@@ -168,9 +178,7 @@ def build(profile, source_cache, workspace):
                   "version": next(s["version"] for s in source_manifest()["sources"] if s["name"] == "tor"),
                   "package": "pipeline/dist" if profile == "optimized-static" else "pipeline/dist-optimized-shared"}
         write_record(record_path, record)
-        env = {**native_environment(), "PROFILE": "optimized", "LINKAGE": PROFILES[profile],
-               "TOR_WINDOWS_OFFLINE": "1", "TOR_WINDOWS_WORK": msys_path(run / "work"),
-               "TOR_WINDOWS_CACHE": msys_path(archives), "JOBS": str(min(os.cpu_count() or 1, 4))}
+        env = build_environment(run, archives, PROFILES[profile])
         bash = ordinary_path(MSYS / "usr/bin/bash.exe")
         print("[phase] source and recipe snapshot ready", flush=True)
         print(f"Build ID {run.name}", flush=True)
