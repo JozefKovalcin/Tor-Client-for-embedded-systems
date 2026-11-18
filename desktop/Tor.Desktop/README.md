@@ -1,18 +1,36 @@
-# Tor Manager desktop foundation (W4)
+# Tor Manager desktop
 
-This is the Avalonia/MVVM desktop shell for Windows and Linux. Every task,
-dependency, device and report shown is **SIMULATED**. No Tor process, Control
-Protocol client, host probe, build, installer or device connection is invoked.
-W5 owns the real backend and W6 owns Linux execution; connecting those adapters
-is a later integration task. A successful simulated task is not Tor acceptance.
+The Avalonia desktop opens in **Real Offline** on Windows. This mode verifies
+and starts the local pinned Tor package with networking and SOCKS disabled.
+Use **Real Online** to configure a local SOCKS5 port and explicitly select
+**Start Tor** to connect. Both modes share one Windows Tor session service.
+Stop the active session before switching modes. Reopening the manager requires
+another explicit start.
 
-The shell provides Dashboard, Build Manager placeholder, Dependencies, Devices,
-Tests, Reports, Logs and Progress, and Settings. Header selection switches Run
-Only / Developer / Embedded explanations without authorizing any operations.
-The finite fake task feed updates through the UI dispatcher, preserves failed,
-blocked and interrupted records, and distinguishes known progress from unknown
-progress. The event log retains at most 100 entries. Closing cancels the feed.
-Replay is explicit and resets only the synthetic workspace.
+**Demo** offers the simulated task feed and the explanatory Run Only,
+Developer and Embedded pages. Replay resets the simulated workspace. Real
+mode shows observed session state, the latest private task records and up to
+100 sanitized log events. Closing the window waits for owned process cleanup.
+
+### Use the Online SOCKS5 listener
+
+After selecting **Real Online**, enter the local port and select **Start Tor**.
+The dashboard displays the observed `127.0.0.1` endpoint, bootstrap progress,
+authenticated control, Tor version and verified executable hash. A published
+listener, successful bootstrap and successful destination connectivity are
+separate observations. **Test through Tor** explicitly checks a destination
+through the authenticated session's SOCKS listener.
+
+Configure each client to use SOCKS5 at the observed loopback port and enable
+hostname resolution through SOCKS5. For a client supporting `socks5h://`, use
+`socks5h://127.0.0.1:9150` with the port shown by the dashboard. Verify the
+client's proxy DNS and bypass settings. The manager leaves the Windows system
+proxy unchanged. Other processes on the same Windows host can access the
+loopback listener.
+
+**New Identity** requests Tor's rate-limited `NEWNYM` signal for new streams.
+Tor can defer a request. Existing connections may continue and an exit IP can
+be reused.
 
 Preferences (mode, theme, simulation animation) are loaded from the current
 user's application-data directory. Saving occurs only through Save UI

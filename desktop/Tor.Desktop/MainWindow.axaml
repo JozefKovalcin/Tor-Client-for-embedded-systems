@@ -57,6 +57,11 @@
                   </Grid>
                   <TextBlock Text="{Binding PackageText}" TextWrapping="Wrap" />
                   <TextBlock Text="{Binding ProcessText}" Classes="muted" />
+                  <StackPanel IsVisible="{Binding IsOnline}" Spacing="5">
+                    <TextBlock Text="{Binding TorVersionText}" TextWrapping="Wrap" />
+                    <TextBlock Text="Tor executable SHA-256" FontSize="12" Classes="muted" />
+                    <TextBlock Text="{Binding RuntimeDigest}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap" />
+                  </StackPanel>
                 </StackPanel>
               </Border>
               <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
@@ -70,10 +75,35 @@
                   <StackPanel Spacing="6">
                     <TextBlock Text="Bootstrap" FontWeight="SemiBold" />
                     <TextBlock Text="{Binding BootstrapText}" TextWrapping="Wrap" />
-                    <TextBlock Text="Network access is disabled in this workspace." Classes="muted" TextWrapping="Wrap" />
+                    <ProgressBar IsVisible="{Binding ShowBootstrapProgress}" IsIndeterminate="{Binding BootstrapIndeterminate}"
+                                 Minimum="0" Maximum="100" Value="{Binding BootstrapValue}" />
+                    <TextBlock Text="Network access is disabled in this workspace." IsVisible="{Binding !IsOnline}"
+                               Classes="muted" TextWrapping="Wrap" />
                   </StackPanel>
                 </Border>
               </Grid>
+              <Border Classes="card" IsVisible="{Binding IsOnline}">
+                <StackPanel Spacing="10">
+                  <TextBlock Text="SOCKS5 and connectivity" FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding SocksStatusText}" TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding CircuitStatusText}" TextWrapping="Wrap" />
+                  <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Local SOCKS5 port" VerticalAlignment="Center" />
+                    <TextBox Text="{Binding SocksPortText, Mode=TwoWay}" IsEnabled="{Binding CanEditSocksPort}" Width="95"
+                             MaxLength="5" AutomationProperties.Name="Local SOCKS5 port" />
+                  </StackPanel>
+                  <TextBlock Text="Enter a port between 1 and 65535." IsVisible="{Binding InvalidSocksPort}"
+                             Foreground="{DynamicResource WorkspaceAccent}" TextWrapping="Wrap" />
+                  <TextBlock Text="Configure each client to resolve hostnames through SOCKS5. The listener is accessible to local processes."
+                             Classes="muted" TextWrapping="Wrap" />
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="Test through Tor" Command="{Binding CheckConnectivityCommand}" />
+                    <Button Content="New Identity" Command="{Binding NewIdentityCommand}" />
+                    <Button Content="Restart Tor" Command="{Binding RestartCommand}" />
+                  </StackPanel>
+                  <TextBlock Text="{Binding OnlineNotice}" IsVisible="{Binding HasOnlineNotice}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Border>
               <Border Classes="card">
                 <StackPanel Spacing="6">
                   <TextBlock Text="Current task" FontWeight="SemiBold" />
@@ -194,6 +224,7 @@
                     IsVisible="{Binding IsDemo}" Width="120" />
           <Button Content="Demo" Command="{Binding ShowDemoCommand}" />
           <Button Content="Real Offline" Command="{Binding ShowRealOfflineCommand}" />
+          <Button Content="Real Online" Command="{Binding ShowRealOnlineCommand}" IsVisible="{Binding HasOnline}" />
         </StackPanel>
       </Grid>
     </Border>
