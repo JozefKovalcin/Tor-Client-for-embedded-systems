@@ -17,9 +17,9 @@ public sealed partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var (offline, unavailable) = CreateOfflineService(desktop.Args ?? []);
+            var (offline, unavailable, peerProfile) = CreateOfflineService(desktop.Args ?? []);
             var model = new ShellViewModel(new SimulationTaskFeed(), new UiDispatcher(), SettingsStore.ForCurrentUser(),
-                offline, unavailable, showRealWhenUnavailable: OperatingSystem.IsWindows());
+                offline, unavailable, showRealWhenUnavailable: OperatingSystem.IsWindows(), peerProfile: peerProfile);
             model.PropertyChanged += (_, change) =>
             {
                 if (change.PropertyName == nameof(model.Theme))
@@ -52,23 +52,24 @@ public sealed partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
-    private static (IOfflineTorService? Service, string? Error) CreateOfflineService(string[] args)
+    private static (IOfflineTorService? Service, string? Error, PeerProfileStore? PeerProfile) CreateOfflineService(string[] args)
     {
         if (!OperatingSystem.IsWindows())
-            return (null, "Real Offline requires Windows. Demo uses simulated data.");
+            return (null, "Real Offline requires Windows. Demo uses simulated data.", null);
         try
         {
             var options = OfflineLaunchOptions.Read(args);
-            return (OfflineTorService.CreateWindows(options.PackageDirectory, options.PrivateDirectory), null);
+            return (OfflineTorService.CreateWindows(options.PackageDirectory, options.PrivateDirectory), null,
+                new PeerProfileStore(options.PrivateDirectory));
         }
         catch (ArgumentException)
         {
-            return (null, "Use absolute folders with --tor-package and --state-dir. Keep private state separate from the installation and runtime.");
+            return (null, "Use absolute folders with --tor-package and --state-dir. Keep private state separate from the installation and runtime.", null);
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidOperationException
             or System.Security.SecurityException)
         {
-            return (null, "Offline workspace setup failed. Verify the selected private directory and try again.");
+            return (null, "Offline workspace setup failed. Verify the selected private directory and try again.", null);
         }
     }
 

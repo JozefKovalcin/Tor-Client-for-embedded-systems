@@ -4,15 +4,22 @@ using System.Net.Sockets;
 using System.Net.Security;
 using System.Runtime.Versioning;
 using System.Security.Authentication;
+using System.Security.Cryptography;
 using System.Text;
 using Tor.Application;
 using Tor.Control;
+using Tor.Core;
 
 try
 {
     if (args is ["--offline"])
     {
         await Offline.RunAsync();
+        return 0;
+    }
+    if (OperatingSystem.IsWindows() && args is ["--private-profile", var fresh])
+    {
+        await Offline.PrivateProfileAsync(fresh);
         return 0;
     }
     if (OperatingSystem.IsWindows() && args is ["--native-disabled-policy", var offlineRuntime, var offlineState])
@@ -58,6 +65,50 @@ internal static class Check
 
 internal static class Offline
 {
+    internal static async Task PrivateProfileAsync(string fresh)
+    {
+        Check.That(Path.IsPathFullyQualified(fresh) && !Directory.Exists(fresh) && !File.Exists(fresh),
+            "An absolute unused test directory is required.");
+        PrivateStorage.CreateNewDirectory(fresh);
+        var original = new PeerProfileStore(fresh);
+        Check.That(original.OpenIdentity() is null && !Directory.Exists(Path.Combine(fresh, "peer-security")),
+            "A read created a new private identity.");
+        using var remote = new PeerIdentity();
+        string fingerprint;
+        using (var local = original.CreateIdentity())
+        {
+            fingerprint = local.Fingerprint;
+            await Check.RejectAsync(() => Task.FromResult(original.Pair(local, "Fixture", remote.Fingerprint, null, false)),
+                "Unchecked pairing was accepted.", typeof(InvalidOperationException));
+            original.Pair(local, "Fixture", remote.Fingerprint.ToLowerInvariant(), null, true);
+        }
+        var reopened = new PeerProfileStore(fresh);
+        using (var local = reopened.OpenIdentity()!)
+        {
+            Check.That(local.Fingerprint == fingerprint, "Restart replaced the certificate.");
+            Check.That(reopened.ReadContacts(local).Single().Fingerprint == remote.Fingerprint, "Pairing did not persist.");
+            await Check.RejectAsync(() => Task.FromResult(reopened.Pair(local, "Replacement name", remote.Fingerprint, null, true)),
+                "Existing pin was changed without a newly reviewed identity.", typeof(InvalidOperationException));
+            reopened.Revoke(local, remote.Fingerprint);
+            await Check.RejectAsync(() => Task.FromResult(reopened.Pair(local, "Revoked", remote.Fingerprint, null, true)),
+                "Revoked pin was restored implicitly.", typeof(InvalidOperationException));
+        }
+        using (var local = reopened.OpenIdentity()!)
+            Check.That(reopened.ReadContacts(local).Single().Revoked, "Revocation was lost across a reload.");
+        Console.WriteLine("PASS first-use consent, identity/pin restart, duplicate trust and persistent revocation");
+
+        var secret = Path.Combine(fresh, "peer-security", "local-identity.dpapi");
+        byte[] encrypted = File.ReadAllBytes(secret);
+        Check.That(encrypted.Length > 32, "Expected a protected credential.");
+        File.WriteAllBytes(secret, [0x11, 0x22, 0x33]);
+        await Check.RejectAsync(() => Task.FromResult(reopened.OpenIdentity()), "Corrupt data auto-generated a new key.",
+            typeof(CryptographicException));
+        await Check.RejectAsync(() => Task.FromResult(reopened.CreateIdentity()), "Existing profile was overwritten.",
+            typeof(IOException));
+        Check.That(File.ReadAllBytes(secret).SequenceEqual(new byte[] { 0x11, 0x22, 0x33 }), "Failed open changed stored credential.");
+        Console.WriteLine("PASS malformed or lost identity fails closed without replacing credential");
+    }
+
     internal static async Task RunAsync()
     {
         VerifyFraming();

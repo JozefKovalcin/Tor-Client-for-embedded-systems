@@ -82,7 +82,8 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         : Offline?.TaskText ?? "Runtime unavailable";
 
     public ShellViewModel(ITaskFeed feed, IUiDispatcher dispatcher, SettingsStore settings,
-        IOfflineTorService? offline = null, string? offlineUnavailableReason = null, bool showRealWhenUnavailable = false)
+        IOfflineTorService? offline = null, string? offlineUnavailableReason = null, bool showRealWhenUnavailable = false,
+        PeerProfileStore? peerProfile = null)
     {
         _feed = feed; _dispatcher = dispatcher; _settings = settings;
         var stored = settings.Load(out _settingsNotice);
@@ -108,7 +109,7 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
             new PageViewModel("Logs and Progress", "Task history and sanitized lifecycle events from this workspace.", ShowTasks: true),
             new PageViewModel("Settings", "Save your appearance and Demo preferences.", ShowSettings: true)
         };
-        Offline = offline is null ? null : new(offline, dispatcher);
+        Offline = offline is null ? null : new(offline, dispatcher, peerProfile);
         OfflineUnavailableReason = offlineUnavailableReason;
         _workspaceMode = offline is null && !showRealWhenUnavailable ? WorkspaceMode.Demo : WorkspaceMode.Offline;
         Pages = new(IsDemo ? _demoPages : _offlinePages);

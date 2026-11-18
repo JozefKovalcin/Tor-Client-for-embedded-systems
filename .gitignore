@@ -12,6 +12,9 @@ __pycache__/
 *.pem
 *.key
 *.cookie
+*.dpapi
+**/peer-security/
+/artifacts/
 **/control_auth_cookie
 **/hs_ed25519_secret_key
 **/private_key

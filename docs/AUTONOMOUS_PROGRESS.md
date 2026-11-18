@@ -11,8 +11,8 @@ original stashes and the root worktree's untracked report are preserved.
 
 ## ACTIVE_PHASE / ACTIVE_PR
 
-Phase 0 is the repository and peer audit. Phase 1 is the first implementation
-lane. Existing remote PRs remain open for review.
+Phase 0 audit is ready for review in PR #25. Phase 1 implements the first-use
+TLS credential and contact store on top of #25.
 
 ## VERIFIED / TEST_EVIDENCE
 
@@ -35,6 +35,11 @@ The repository backlog now preserves the supplied checklist with explicit
 Windows work items. The architecture decisions track the proposed security
 boundaries and compatibility before implementation.
 
+Phase 1 adds an explicit first-use P-256 credential protected by Windows
+DPAPI, an owner-private trust store, consent bound to the typed fingerprint,
+contact selection and durable revocation. Run Only and the existing
+transient protocol remain available in the lower-level transport.
+
 ## FAILED
 
 No executed gate has failed at the start of the cycle.
@@ -45,6 +50,7 @@ No executed gate has failed at the start of the cycle.
 | --- | --- |
 | #19 | Mutual TLS peer messaging over Tor, baseline for this cycle |
 | #20–#24 | Existing Developer Manager drafts, outside this cycle's ownership |
+| #25 | Exact-head baseline, checklist and security decisions |
 
 ## BLOCKED / BLOCKED_AWAITING_APPROVAL
 
@@ -60,5 +66,6 @@ operator-assisted observations remain historical evidence.
 
 ## NEXT_ACTION
 
-Build a first-use credential and trusted contact store. Use independent fresh test profiles
-and characterize wrong-pin, revoked-contact and identity-loss behavior.
+Implement the separate reliable protocol and per-peer delivery queue.
+Use fresh test profiles to reproduce lost acknowledgement, replay and
+reconnect before wiring delivery status into the GUI.

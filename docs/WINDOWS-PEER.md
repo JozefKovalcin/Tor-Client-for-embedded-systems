@@ -6,9 +6,11 @@
    Online**, pick separate SOCKS ports if sharing a Windows host, then select
    **Start Tor**. Wait for authenticated control, an owned SOCKS listener and
    bootstrap at 100%.
-2. In **Peer messaging**, exchange **Your certificate SHA-256** over a
-   trusted authenticated channel and put the other party's value in **Peer
-   certificate SHA-256**. Compare all 64 hexadecimal characters.
+2. In **Peer messaging**, explicitly create the first local peer identity.
+   Exchange **Your certificate SHA-256** over a trusted authenticated channel.
+   On each side enter a contact name and the other party's 64-character
+   fingerprint, confirm the comparison, and select **Pair contact**. Select
+   that contact before hosting or connecting.
 3. On A, select **Host Onion Service**. Share the displayed v3 address with
    B. Registration may precede Tor's descriptor publication. On B, enter the
    full address and select **Connect to Peer**. Retry explicitly if Tor is
@@ -28,14 +30,20 @@ performs no local DNS lookup and has no direct fallback or rendezvous server.
 
 The onion address identifies the Tor service. Application identity additionally
 requires a peer-controlled P-256 key proven by mutual TLS over that connection.
-Each app instance creates one certificate and requires the full SHA-256 hash
-of the intended remote certificate to match. There is no trust on first use,
+Each private profile explicitly creates one certificate and requires the full
+SHA-256 hash of the selected trusted remote certificate to match. There is no trust on first use,
 public CA dependency or online certificate lookup. An attacker who controls
 fingerprint exchange can substitute an identity. A party controlling a peer's
 process or TLS key can impersonate that peer. A Tor relay or a local outsider
 with only the onion address cannot authenticate as the peer. Denial of service,
 traffic correlation, endpoint compromise and local privileged users are outside
-this identity guarantee. Pairing fingerprints are not persisted by the manager.
+this identity guarantee. The selected Windows account protects the saved
+certificate with DPAPI in the owner-private `peer-security` subdirectory
+of the configured app state. The trust store ties the saved labels, pins and
+revocations to that local certificate. An invalid or missing file in an
+existing profile blocks pairing and reuse. Revocation protects future
+sessions and cannot be undone by entering the same pin. A legitimate new
+certificate requires a fresh out-of-band comparison and an explicit pairing.
 Windows Schannel temporarily uses an OS user key container until disposal.
 [Tor Control commands](https://spec.torproject.org/control-spec/commands.html) ·
 [Tor SOCKS extensions](https://spec.torproject.org/socks-extensions.html) ·
@@ -73,7 +81,8 @@ in the live messaging panel.
 
 The onion is temporary. It remains available during peer reconnect while A's
 host operation and Tor stay alive. Restarting A or its Tor requires a new
-onion registration. Restarting the app also changes its TLS fingerprint.
+onion registration. Restarting the app with the same intact private profile
+retains its TLS fingerprint and active contact pins.
 
 ## Authorized qualification
 

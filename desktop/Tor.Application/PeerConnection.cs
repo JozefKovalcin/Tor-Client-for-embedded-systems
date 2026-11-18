@@ -13,7 +13,20 @@ public sealed class PeerIdentity : IDisposable
     internal X509Certificate2 Certificate { get; }
     public string Fingerprint { get; }
 
-    public PeerIdentity()
+    public PeerIdentity() : this(ImportEphemeral(CreateCertificate(TimeSpan.FromDays(1)))) { }
+
+    private PeerIdentity(X509Certificate2 certificate)
+    {
+        if (!certificate.HasPrivateKey)
+        {
+            certificate.Dispose();
+            throw new CryptographicException("The peer credential lacks its private key.");
+        }
+        Certificate = certificate;
+        Fingerprint = Certificate.GetCertHashString(HashAlgorithmName.SHA256);
+    }
+
+    internal static X509Certificate2 CreateCertificate(TimeSpan validity)
     {
         using var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         var request = new CertificateRequest("CN=Tor Peer Session", key, HashAlgorithmName.SHA256);
@@ -24,19 +37,26 @@ public sealed class PeerIdentity : IDisposable
             new("1.3.6.1.5.5.7.3.1"), new("1.3.6.1.5.5.7.3.2")
         }, false));
         var now = DateTimeOffset.UtcNow;
-        using var issued = request.CreateSelfSigned(now.AddMinutes(-5), now.AddDays(1));
+        return request.CreateSelfSigned(now.AddMinutes(-5), now.Add(validity));
+    }
+
+    private static X509Certificate2 ImportEphemeral(X509Certificate2 issued)
+    {
+        using var original = issued;
         if (OperatingSystem.IsWindows())
         {
             // Schannel needs a user key container during the handshake. Import without
             // PersistKeySet so certificate disposal releases it. The PFX stays in memory.
             var password = RandomNumberGenerator.GetHexString(32);
             var pfx = issued.Export(X509ContentType.Pkcs12, password);
-            try { Certificate = X509CertificateLoader.LoadPkcs12(pfx, password, X509KeyStorageFlags.UserKeySet); }
+            try { return X509CertificateLoader.LoadPkcs12(pfx, password, X509KeyStorageFlags.UserKeySet); }
             finally { CryptographicOperations.ZeroMemory(pfx); }
         }
-        else Certificate = new X509Certificate2(issued);
-        Fingerprint = Certificate.GetCertHashString(HashAlgorithmName.SHA256);
+        else return new X509Certificate2(issued);
     }
+
+    internal static PeerIdentity LoadPrivateCertificate(byte[] pfx) => new(X509CertificateLoader.LoadPkcs12(pfx, "",
+        OperatingSystem.IsWindows() ? X509KeyStorageFlags.UserKeySet : X509KeyStorageFlags.EphemeralKeySet));
 
     public void Dispose() => Certificate.Dispose();
 
