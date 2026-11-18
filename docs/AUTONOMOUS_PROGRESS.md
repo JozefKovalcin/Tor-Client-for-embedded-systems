@@ -50,8 +50,10 @@ on `codex/windows-product-completion`.
 
 ## OPEN_PULL_REQUESTS
 
-The current batch is on `codex/windows-product-completion`. PR #29 is
-the integrated base. The previous draft inventory below is historical.
+The current batch is [draft PR #30](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems/pull/30).
+The tested implementation is `a3cee73d0d592ca7b34e74cdb639c6abe910662f`,
+including journal fix `04c7028a322ef2a46bbca483299e0cc542337f87`.
+PR #29 is the integrated base. The previous draft inventory below is historical.
 
 ## BLOCKED_AWAITING_APPROVAL
 
