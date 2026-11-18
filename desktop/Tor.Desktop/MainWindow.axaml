@@ -3,44 +3,40 @@
         xmlns:vm="using:TorManager.Desktop.Presentation"
         x:Class="TorManager.Desktop.MainWindow"
         Title="Tor Manager"
-        Width="1240" Height="860" MinWidth="920" MinHeight="620"
-        Background="{DynamicResource WorkspaceBackground}" FontFamily="Segoe UI, sans-serif"
+        Width="1240" Height="860" MinWidth="820" MinHeight="580"
+        Background="{DynamicResource WorkspaceBackground}" FontFamily="Segoe UI Variable Text, Segoe UI, sans-serif"
+        FontSize="15"
         x:CompileBindings="False">
   <Window.Styles>
-    <Style Selector="TextBlock"><Setter Property="Foreground" Value="{DynamicResource WorkspaceForeground}" /></Style>
-    <Style Selector="TextBlock.muted"><Setter Property="Foreground" Value="{DynamicResource WorkspaceMuted}" /></Style>
-    <Style Selector="Border.card">
-      <Setter Property="Background" Value="{DynamicResource WorkspaceCard}" />
-      <Setter Property="CornerRadius" Value="8" />
-      <Setter Property="Padding" Value="18" />
-      <Setter Property="Margin" Value="0,0,0,12" />
-    </Style>
-    <Style Selector="Button"><Setter Property="Padding" Value="16,9" /></Style>
-    <Style Selector="ListBoxItem"><Setter Property="Padding" Value="18,12" /></Style>
+    <StyleInclude Source="avares://Tor.Desktop/WorkspaceStyles.axaml" />
   </Window.Styles>
   <Window.DataTemplates>
     <DataTemplate DataType="{x:Type vm:PageViewModel}">
       <ScrollViewer>
-        <StackPanel Margin="32,26" Spacing="16">
-          <TextBlock Text="{Binding Title}" FontSize="30" FontWeight="SemiBold" />
+        <StackPanel Margin="30,24,30,20" Spacing="16">
+          <TextBlock Text="{Binding Title}" FontSize="34" FontWeight="Bold" />
           <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Classes="muted" MaxWidth="840" HorizontalAlignment="Left" />
           <StackPanel IsVisible="{Binding ShowDeveloper}" Spacing="10">
-            <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="9">
-              <StackPanel IsEnabled="{Binding Idle}" Spacing="5">
-                <TextBlock Text="Verified archive directory" />
-                <TextBox Text="{Binding Sources}" />
-                <TextBlock Text="Private build workspace" />
-                <TextBox Text="{Binding Workspace}" />
-                <TextBlock Text="Build profile" />
-                <ComboBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding Profile}" />
+            <Border Classes="card" DataContext="{Binding $parent[Window].DataContext.Developer}">
+              <StackPanel Spacing="10">
+                <StackPanel IsEnabled="{Binding Idle}" Spacing="6">
+                  <TextBlock Classes="label" Text="Verified archive directory" />
+                  <TextBox Text="{Binding Sources}" AutomationProperties.Name="Verified archive directory" />
+                  <TextBlock Classes="label" Text="Private build workspace" />
+                  <TextBox Text="{Binding Workspace}" AutomationProperties.Name="Private build workspace" />
+                  <TextBlock Classes="label" Text="Build profile" />
+                  <ComboBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding Profile}" AutomationProperties.Name="Build profile" />
+                </StackPanel>
+                <Border Classes="live">
+                  <TextBlock Classes="live" Text="{Binding Status}" TextWrapping="Wrap" />
+                </Border>
+                <Button Content="Cancel operation" Command="{Binding CancelCommand}" />
               </StackPanel>
-              <TextBlock Text="{Binding Status}" FontWeight="SemiBold" TextWrapping="Wrap" />
-              <Button Content="Cancel operation" Command="{Binding CancelCommand}" />
-            </StackPanel>
+            </Border>
             <StackPanel IsVisible="{Binding ShowDeveloperDependencies}">
               <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="8">
                 <WrapPanel>
-                  <Button Content="Scan PC" Command="{Binding ScanCommand}" Margin="0,0,8,0" />
+                  <Button Classes="primary" Content="Scan PC" Command="{Binding ScanCommand}" Margin="0,0,8,0" />
                   <Button Content="Prepare installation plan" Command="{Binding PlanCommand}" />
                 </WrapPanel>
                 <SelectableTextBlock Text="{Binding PlanDetails}" FontFamily="Consolas, monospace" TextWrapping="Wrap" />
@@ -53,7 +49,7 @@
                         <StackPanel Spacing="4">
                           <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="1" Text="{Binding Status}" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Classes="live" Text="{Binding Status}" />
                           </Grid>
                           <TextBlock Text="{Binding Requirement}" TextWrapping="Wrap" />
                           <TextBlock Text="{Binding Observation}" TextWrapping="Wrap" />
@@ -69,22 +65,24 @@
             <StackPanel IsVisible="{Binding ShowDeveloperBuild}">
               <WrapPanel DataContext="{Binding $parent[Window].DataContext.Developer}">
                 <Button Content="Run preflight" Command="{Binding ScanCommand}" Margin="0,0,8,0" />
-                <Button Content="Compile verified sources" Command="{Binding BuildCommand}" />
+                <Button Classes="primary" Content="Compile verified sources" Command="{Binding BuildCommand}" />
               </WrapPanel>
             </StackPanel>
             <StackPanel IsVisible="{Binding ShowDeveloperArtifacts}">
               <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="8">
                 <Button Content="Refresh builds" Command="{Binding ListCommand}" />
-                <TextBlock Text="Build" />
-                <ComboBox ItemsSource="{Binding Builds}" SelectedItem="{Binding Selected}" IsEnabled="{Binding Idle}">
+                <TextBlock Classes="label" Text="Build" />
+                <ComboBox ItemsSource="{Binding Builds}" SelectedItem="{Binding Selected}" IsEnabled="{Binding Idle}"
+                          AutomationProperties.Name="Build">
                   <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Display}" /></DataTemplate></ComboBox.ItemTemplate>
                 </ComboBox>
-                <TextBlock Text="Compare with" />
-                <ComboBox ItemsSource="{Binding Builds}" SelectedItem="{Binding CompareWith}" IsEnabled="{Binding Idle}">
+                <TextBlock Classes="label" Text="Compare with" />
+                <ComboBox ItemsSource="{Binding Builds}" SelectedItem="{Binding CompareWith}" IsEnabled="{Binding Idle}"
+                          AutomationProperties.Name="Compare with">
                   <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Display}" /></DataTemplate></ComboBox.ItemTemplate>
                 </ComboBox>
                 <Button Content="Run offline smoke" Command="{Binding SmokeCommand}" />
-                <Button Content="Export verified runtime ZIP" Command="{Binding ExportCommand}" />
+                <Button Classes="primary" Content="Export verified runtime ZIP" Command="{Binding ExportCommand}" />
                 <TextBlock Text="Export is available after an offline smoke test passes. The ZIP is saved in the workspace’s exports folder."
                            TextWrapping="Wrap" Classes="muted" />
                 <CheckBox Content="I approve this verified local build for future Tor sessions" IsChecked="{Binding ApproveRuntime}" IsEnabled="{Binding Idle}" />
@@ -95,10 +93,12 @@
                 <TextBlock Text="Activation and rollback take effect after restarting Tor Manager." TextWrapping="Wrap" Classes="muted" />
               </StackPanel>
             </StackPanel>
-            <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="8">
+            <Border Classes="log" DataContext="{Binding $parent[Window].DataContext.Developer}">
+              <StackPanel Spacing="8">
               <SelectableTextBlock Text="{Binding Report}" FontFamily="Consolas, monospace" TextWrapping="Wrap" />
               <SelectableTextBlock Text="{Binding Log}" FontFamily="Consolas, monospace" TextWrapping="Wrap" />
-            </StackPanel>
+              </StackPanel>
+            </Border>
           </StackPanel>
           <ItemsControl ItemsSource="{Binding Notices}">
             <ItemsControl.ItemTemplate>
@@ -120,22 +120,20 @@
                         DataContext="{Binding $parent[Window].DataContext.Offline}" Spacing="10">
               <Border Classes="card">
                 <StackPanel Spacing="12">
-                  <Grid ColumnDefinitions="*,Auto">
-                    <StackPanel Spacing="5">
-                      <TextBlock Text="Tor session" FontSize="20" FontWeight="SemiBold" />
-                      <TextBlock Text="{Binding SessionText}" />
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                      <Button Content="Check runtime" Command="{Binding RefreshCommand}" />
-                      <Button Content="Start Tor" Command="{Binding StartCommand}" />
-                      <Button Content="Stop Tor" Command="{Binding StopCommand}" />
-                    </StackPanel>
-                  </Grid>
+                  <TextBlock Text="Tor session" Classes="section" />
+                  <Border Classes="live">
+                    <TextBlock Classes="live" Text="{Binding SessionText}" TextWrapping="Wrap" />
+                  </Border>
+                  <WrapPanel>
+                    <Button Classes="primary" Content="Start Tor" Command="{Binding StartCommand}" Margin="0,0,8,4" />
+                    <Button Content="Stop Tor" Command="{Binding StopCommand}" Margin="0,0,8,4" />
+                    <Button Content="Check runtime" Command="{Binding RefreshCommand}" Margin="0,0,8,4" />
+                  </WrapPanel>
                   <TextBlock Text="{Binding PackageText}" TextWrapping="Wrap" />
                   <TextBlock Text="{Binding ProcessText}" Classes="muted" />
                   <StackPanel IsVisible="{Binding IsOnline}" Spacing="5">
                     <TextBlock Text="{Binding TorVersionText}" TextWrapping="Wrap" />
-                    <TextBlock Text="Tor executable SHA-256" FontSize="12" Classes="muted" />
+                    <TextBlock Text="Tor executable SHA-256" Classes="label" />
                     <TextBlock Text="{Binding RuntimeDigest}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap" />
                   </StackPanel>
                 </StackPanel>
@@ -143,14 +141,14 @@
               <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                 <Border Classes="card">
                   <StackPanel Spacing="6">
-                    <TextBlock Text="Control connection" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding ControlText}" TextWrapping="Wrap" />
+                    <TextBlock Text="Control connection" Classes="label" />
+                    <TextBlock Classes="live" Text="{Binding ControlText}" TextWrapping="Wrap" />
                   </StackPanel>
                 </Border>
                 <Border Grid.Column="1" Classes="card">
                   <StackPanel Spacing="6">
-                    <TextBlock Text="Bootstrap" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding BootstrapText}" TextWrapping="Wrap" />
+                    <TextBlock Text="Bootstrap" Classes="label" />
+                    <TextBlock Classes="live" Text="{Binding BootstrapText}" TextWrapping="Wrap" />
                     <ProgressBar IsVisible="{Binding ShowBootstrapProgress}" IsIndeterminate="{Binding BootstrapIndeterminate}"
                                  Minimum="0" Maximum="100" Value="{Binding BootstrapValue}" />
                     <TextBlock Text="Network access is disabled in this workspace." IsVisible="{Binding !IsOnline}"
@@ -160,16 +158,16 @@
               </Grid>
               <Border Classes="card" IsVisible="{Binding IsOnline}">
                 <StackPanel Spacing="10">
-                  <TextBlock Text="SOCKS5 and connectivity" FontWeight="SemiBold" />
-                  <TextBlock Text="{Binding SocksStatusText}" TextWrapping="Wrap" />
-                  <TextBlock Text="{Binding CircuitStatusText}" TextWrapping="Wrap" />
+                  <TextBlock Text="SOCKS5 and connectivity" Classes="section" />
+                  <TextBlock Classes="live" Text="{Binding SocksStatusText}" TextWrapping="Wrap" />
+                  <TextBlock Classes="live" Text="{Binding CircuitStatusText}" TextWrapping="Wrap" />
                   <StackPanel Orientation="Horizontal" Spacing="10">
                     <TextBlock Text="Local SOCKS5 port" VerticalAlignment="Center" />
                     <TextBox Text="{Binding SocksPortText, Mode=TwoWay}" IsEnabled="{Binding CanEditSocksPort}" Width="95"
                              MaxLength="5" AutomationProperties.Name="Local SOCKS5 port" />
                   </StackPanel>
                   <TextBlock Text="Enter a port between 1 and 65535." IsVisible="{Binding InvalidSocksPort}"
-                             Foreground="{DynamicResource WorkspaceAccent}" TextWrapping="Wrap" />
+                             Classes="attention" TextWrapping="Wrap" />
                   <TextBlock Text="Configure each client to resolve hostnames through SOCKS5. The listener is accessible to local processes."
                              Classes="muted" TextWrapping="Wrap" />
                   <StackPanel Orientation="Horizontal" Spacing="8">
@@ -183,24 +181,29 @@
               <Border Classes="card">
                 <StackPanel Spacing="6">
                   <TextBlock Text="Current task" FontWeight="SemiBold" />
-                  <TextBlock Text="{Binding TaskText}" />
+                  <TextBlock Classes="live" Text="{Binding TaskText}" />
                   <TextBlock Text="{Binding OutcomeText}" Classes="muted" TextWrapping="Wrap" />
                   <TextBlock Text="{Binding RecoveryText}" Classes="muted" TextWrapping="Wrap" />
                   <TextBlock Text="{Binding ErrorText}" IsVisible="{Binding HasError}"
-                             Foreground="{DynamicResource WorkspaceAccent}" TextWrapping="Wrap" />
+                             Classes="attention" TextWrapping="Wrap" />
                 </StackPanel>
               </Border>
             </StackPanel>
           </StackPanel>
           <StackPanel IsVisible="{Binding ShowPeers}">
+            <Border Classes="live" Margin="0,0,0,14"
+                    DataContext="{Binding $parent[Window].DataContext.Offline.Peer}">
+              <TextBlock Classes="live" Text="{Binding Status}" TextWrapping="Wrap" />
+            </Border>
             <Border Classes="card" DataContext="{Binding $parent[Window].DataContext.Offline.Peer}">
-              <StackPanel Spacing="8">
-                <TextBlock Text="{Binding Status}" TextWrapping="Wrap" />
+              <StackPanel Spacing="10">
+                <TextBlock Text="Peer identity and contacts" Classes="section" />
                 <TextBlock Text="Exchange fingerprints through a trusted channel before connecting." Classes="muted" TextWrapping="Wrap" />
-                <TextBlock Text="Your certificate SHA-256" />
-                <TextBox Text="{Binding Fingerprint, Mode=OneWay}" IsReadOnly="True" AutomationProperties.Name="Your certificate fingerprint" />
+                <TextBlock Text="Your certificate SHA-256" Classes="label" />
+                <TextBox Text="{Binding Fingerprint, Mode=OneWay}" IsReadOnly="True" FontFamily="Cascadia Mono, Consolas, monospace"
+                         AutomationProperties.Name="Your certificate fingerprint" />
                 <Button Content="Create local peer identity" Command="{Binding CreateIdentityCommand}" />
-                <TextBlock Text="Paired contact" />
+                <TextBlock Text="Paired contact" Classes="label" />
                 <ComboBox ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedPeer}" IsEnabled="{Binding CanEditPeer}"
                           HorizontalAlignment="Stretch" PlaceholderText="Select a paired contact"
                           AutomationProperties.Name="Paired contact">
@@ -210,8 +213,10 @@
                                      AutomationProperties.Name="Selected contact fingerprint" />
                 <TextBox Text="{Binding OnionAddress, Mode=TwoWay}" IsEnabled="{Binding CanEditSelectedPeer}" MaxLength="62"
                          PlaceholderText="Selected contact’s v3 onion address" AutomationProperties.Name="Selected contact onion address" />
-                <Button Content="Save contact address" Command="{Binding SaveEndpointCommand}" />
-                <Button Content="Revoke selected contact" Command="{Binding RevokePeerCommand}" />
+                <WrapPanel>
+                  <Button Content="Save contact address" Command="{Binding SaveEndpointCommand}" Margin="0,0,8,4" />
+                  <Button Content="Revoke selected contact" Command="{Binding RevokePeerCommand}" Margin="0,0,8,4" />
+                </WrapPanel>
                 <Expander Header="Pair a contact or replace a certificate">
                   <StackPanel Spacing="6">
                     <TextBox Text="{Binding Label}" IsEnabled="{Binding CanEditPeer}" MaxLength="64"
@@ -222,19 +227,23 @@
                              PlaceholderText="Optional v3 onion address" AutomationProperties.Name="Onion address for pairing" />
                     <CheckBox IsChecked="{Binding ComparedFingerprint}" IsEnabled="{Binding CanEditPeer}"
                               Content="I compared this fingerprint over a trusted channel" />
-                    <Button Content="Pair contact" Command="{Binding SavePeerCommand}" />
+                    <Button Classes="primary" Content="Pair contact" Command="{Binding SavePeerCommand}" />
                     <Button Content="Revoke old pin and pair replacement" Command="{Binding RotatePeerCommand}" />
                     <TextBlock Text="Replacing the selected contact’s certificate starts a fresh conversation. Queued messages stay with the old certificate."
                                Classes="muted" TextWrapping="Wrap" />
                   </StackPanel>
                 </Expander>
-                <TextBlock Text="Onion Service hosting" FontWeight="SemiBold" />
-                <TextBlock Text="{Binding HostingStatus}" Classes="muted" TextWrapping="Wrap" />
+              </StackPanel>
+            </Border>
+            <Border Classes="card" DataContext="{Binding $parent[Window].DataContext.Offline.Peer}">
+              <StackPanel Spacing="10">
+                <TextBlock Text="Onion Service hosting" Classes="section" />
+                <TextBlock Text="{Binding HostingStatus}" Classes="live" TextWrapping="Wrap" />
                 <TextBox Text="{Binding SavedHostingAddress, Mode=OneWay}" IsReadOnly="True"
                          PlaceholderText="Saved v3 onion address" AutomationProperties.Name="Saved v3 onion address" />
                 <WrapPanel>
-                  <Button Content="Host saved address" Command="{Binding HostCommand}" Margin="0,0,8,4" />
-                  <Button Content="Create and host saved address" Command="{Binding CreateHostingCommand}" Margin="0,0,8,4" />
+                  <Button Classes="primary" Content="Host saved address" Command="{Binding HostCommand}" Margin="0,0,8,4" />
+                  <Button Classes="primary" Content="Create and host saved address" Command="{Binding CreateHostingCommand}" Margin="0,0,8,4" />
                   <Button Content="Host temporarily" Command="{Binding TransientHostCommand}" Margin="0,0,8,4" />
                 </WrapPanel>
                 <Expander Header="Rotate saved hosting address" IsEnabled="{Binding CanApproveHostingRotation}">
@@ -244,16 +253,21 @@
                     <Button Content="Replace and host new address" Command="{Binding RotateHostingCommand}" />
                   </StackPanel>
                 </Expander>
-                <WrapPanel>
-                  <Button Content="Connect to Peer" Command="{Binding ConnectCommand}" Margin="0,0,8,4" />
-                  <Button Content="Disconnect" Command="{Binding DisconnectCommand}" />
-                </WrapPanel>
                 <TextBox Text="{Binding HostedAddress, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Your hosted v3 onion address"
                          AutomationProperties.Name="Your hosted v3 onion address" />
+              </StackPanel>
+            </Border>
+            <Border Classes="card" DataContext="{Binding $parent[Window].DataContext.Offline.Peer}">
+              <StackPanel Spacing="10">
+                <TextBlock Text="Peer connection and messages" Classes="section" />
+                <WrapPanel>
+                  <Button Classes="primary" Content="Connect to Peer" Command="{Binding ConnectCommand}" Margin="0,0,8,4" />
+                  <Button Content="Disconnect" Command="{Binding DisconnectCommand}" />
+                </WrapPanel>
                 <TextBox Text="{Binding Draft, Mode=TwoWay}" IsEnabled="{Binding HasDeliveryTarget}" PlaceholderText="Message" MaxLength="8192"
                          AutomationProperties.Name="Message" />
-                <Button Content="Send or queue" Command="{Binding SendCommand}" HorizontalAlignment="Left" />
-                <TextBlock Text="{Binding DeliveryNotice}" TextWrapping="Wrap" />
+                <Button Classes="primary" Content="Send or queue" Command="{Binding SendCommand}" HorizontalAlignment="Left" />
+                <TextBlock Classes="live" Text="{Binding DeliveryNotice}" TextWrapping="Wrap" />
                 <Expander Header="Recent connection events" IsVisible="{Binding HasDeliveryTarget}">
                   <ItemsControl ItemsSource="{Binding ConnectionHistory}">
                     <ItemsControl.ItemTemplate>
@@ -271,7 +285,7 @@
                         <StackPanel Margin="0,4" Spacing="2">
                           <StackPanel Orientation="Horizontal" Spacing="8">
                             <TextBlock Text="{Binding Direction}" FontWeight="SemiBold" />
-                            <TextBlock Text="{Binding Status}" />
+                            <TextBlock Classes="live" Text="{Binding Status}" />
                             <TextBlock Text="{Binding Id}" Classes="muted" />
                           </StackPanel>
                           <SelectableTextBlock Text="{Binding Text}" TextWrapping="Wrap" />
@@ -336,9 +350,9 @@
             <ItemsControl ItemsSource="{Binding $parent[Window].DataContext.VisibleLogs}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <Border Background="{DynamicResource WorkspaceLog}" Padding="12" Margin="0,0,0,4" CornerRadius="4">
+                  <Border Classes="log" Margin="0,0,0,4">
                     <StackPanel Spacing="4">
-                      <TextBlock Text="{Binding TaskId}" FontSize="12" Foreground="{DynamicResource WorkspaceLink}" />
+                      <TextBlock Text="{Binding TaskId}" FontSize="13" Classes="label" />
                       <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
                       <TextBlock Text="{Binding Detail}" Classes="muted" TextWrapping="Wrap" FontSize="12" />
                     </StackPanel>
@@ -367,14 +381,15 @@
           </ItemsControl>
           <Border IsVisible="{Binding ShowSettings}" Classes="card">
             <StackPanel Spacing="16">
-              <TextBlock Text="Application preferences" FontSize="19" FontWeight="SemiBold" />
-              <TextBlock Text="Appearance" />
+              <TextBlock Text="Application preferences" Classes="section" />
+              <TextBlock Text="Appearance" Classes="label" />
               <ComboBox Width="230" HorizontalAlignment="Left"
                         ItemsSource="{Binding $parent[Window].DataContext.Themes}"
-                        SelectedItem="{Binding $parent[Window].DataContext.Theme, Mode=TwoWay}" />
+                        SelectedItem="{Binding $parent[Window].DataContext.Theme, Mode=TwoWay}"
+                        AutomationProperties.Name="Appearance" />
               <CheckBox Content="Animate the bounded simulated task stream"
                         IsChecked="{Binding $parent[Window].DataContext.AnimateSimulation, Mode=TwoWay}" />
-              <Button Content="Save UI preferences" HorizontalAlignment="Left"
+              <Button Classes="primary" Content="Save UI preferences" HorizontalAlignment="Left"
                       Command="{Binding $parent[Window].DataContext.SaveSettingsCommand}" />
               <StackPanel Spacing="7" IsVisible="{Binding $parent[Window].DataContext.CanChooseRuntime}">
                 <TextBlock Text="Tor runtime" FontWeight="SemiBold" />
@@ -394,40 +409,44 @@
       </ScrollViewer>
     </DataTemplate>
   </Window.DataTemplates>
-  <Grid ColumnDefinitions="232,*" RowDefinitions="Auto,*,72">
+  <Grid ColumnDefinitions="222,*" RowDefinitions="Auto,*,Auto">
     <Border Grid.RowSpan="3" Background="{DynamicResource WorkspaceSidebar}" BorderBrush="{DynamicResource WorkspaceBorder}" BorderThickness="0,0,1,0">
-      <Grid RowDefinitions="105,*,100">
-        <StackPanel Margin="22,26" Spacing="6">
-          <TextBlock Text="TOR MANAGER" FontWeight="Bold" FontSize="19" />
-        </StackPanel>
+      <Grid RowDefinitions="Auto,*,Auto">
+        <Border Margin="20,22,20,18" Padding="0,0,0,13" BorderThickness="0,0,0,3"
+                BorderBrush="{DynamicResource WorkspaceAccent}">
+          <TextBlock Text="Tor Manager" FontWeight="Bold" FontSize="24" />
+        </Border>
         <ListBox Grid.Row="1" ItemsSource="{Binding Pages}" SelectedItem="{Binding CurrentPage, Mode=TwoWay}"
+                 Classes="navigation" AutomationProperties.Name="Pages"
                  Background="Transparent" BorderThickness="0" Margin="10,0">
           <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Title}" /></DataTemplate></ListBox.ItemTemplate>
         </ListBox>
-        <StackPanel Grid.Row="2" Margin="22,16" Spacing="6">
-          <TextBlock Text="{Binding ModeHeading}" Foreground="{DynamicResource WorkspaceAccent}" FontWeight="SemiBold" />
-          <TextBlock Text="{Binding SidebarStatus}" FontSize="11" Classes="muted" />
-        </StackPanel>
+        <Border Grid.Row="2" Margin="12,16" Classes="live">
+          <StackPanel Spacing="4">
+            <TextBlock Text="{Binding ModeHeading}" FontSize="13" Classes="label" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding SidebarStatus}" Classes="live" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
       </Grid>
     </Border>
-    <Border Grid.Column="1" BorderBrush="{DynamicResource WorkspaceBorder}" BorderThickness="0,0,0,1" Padding="32,16">
+    <Border Grid.Column="1" Background="{DynamicResource WorkspaceCard}"
+            BorderBrush="{DynamicResource WorkspaceBorder}" BorderThickness="0,0,0,1" Padding="30,14">
       <StackPanel Spacing="8">
-        <TextBlock Text="{Binding TaskSummary}" Classes="muted" FontSize="12" TextWrapping="Wrap" />
         <WrapPanel>
           <StackPanel Spacing="4" Margin="0,0,18,4">
-            <TextBlock Text="{Binding ModeHeading}" FontWeight="SemiBold" />
+            <TextBlock Text="Connection" Classes="label" />
             <StackPanel Orientation="Horizontal" Spacing="6">
-              <Button Content="Demo" Command="{Binding ShowDemoCommand}" />
-              <Button Content="Real Offline" Command="{Binding ShowRealOfflineCommand}" />
-              <Button Content="Real Online" Command="{Binding ShowRealOnlineCommand}" IsVisible="{Binding HasOnline}" />
+              <Button Content="Demo" Command="{Binding ShowDemoCommand}" Classes.selected="{Binding IsDemo}" />
+              <Button Content="Real Offline" Command="{Binding ShowRealOfflineCommand}" Classes.selected="{Binding IsRealOffline}" />
+              <Button Content="Real Online" Command="{Binding ShowRealOnlineCommand}" IsVisible="{Binding HasOnline}"
+                      Classes.selected="{Binding IsOnline}" />
             </StackPanel>
           </StackPanel>
           <StackPanel Spacing="4" IsVisible="{Binding HasDeveloper}">
-            <TextBlock Text="{Binding WorkspaceHeading}" FontWeight="SemiBold" />
+            <TextBlock Text="Workspace" Classes="label" />
             <StackPanel Orientation="Horizontal" Spacing="6">
-              <Button Content="Run Only" Command="{Binding ShowRunOnlyCommand}" />
-              <Button Content="Developer" Command="{Binding ShowDeveloperCommand}" />
-              <TextBlock Text="Embedded deferred" VerticalAlignment="Center" Classes="muted" />
+              <Button Content="Run Only" Command="{Binding ShowRunOnlyCommand}" Classes.selected="{Binding !IsDeveloper}" />
+              <Button Content="Developer" Command="{Binding ShowDeveloperCommand}" Classes.selected="{Binding IsDeveloper}" />
             </StackPanel>
           </StackPanel>
         </WrapPanel>
@@ -435,7 +454,10 @@
     </Border>
     <ContentControl Grid.Column="1" Grid.Row="1" Content="{Binding CurrentPage}" />
     <Border Grid.Column="1" Grid.Row="2" Background="{DynamicResource WorkspaceSidebar}" Padding="24,16" BorderBrush="{DynamicResource WorkspaceBorder}" BorderThickness="0,1,0,0">
-      <TextBlock Text="{Binding ModeDescription}" TextWrapping="Wrap" Classes="muted" FontSize="12" VerticalAlignment="Center" />
+      <StackPanel Spacing="4">
+        <TextBlock Text="{Binding TaskSummary}" Classes="live" FontSize="13" TextWrapping="Wrap" />
+        <TextBlock Text="{Binding ModeDescription}" TextWrapping="Wrap" Classes="muted" FontSize="13" />
+      </StackPanel>
     </Border>
   </Grid>
 </Window>

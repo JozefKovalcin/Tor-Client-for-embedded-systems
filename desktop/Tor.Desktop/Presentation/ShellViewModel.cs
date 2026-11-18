@@ -61,6 +61,7 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
     public bool HasOfflineUnavailableReason => OfflineUnavailableReason is not null;
     public bool HasOffline => Offline is not null;
     public bool IsDemo => _connectionMode == ConnectionMode.Demo;
+    public bool IsRealOffline => _connectionMode == ConnectionMode.RealOffline;
     public bool IsOnline => _connectionMode == ConnectionMode.RealOnline;
     public bool IsDeveloper => _workspaceMode == WorkspaceMode.Developer;
     public bool HasOnline => Offline?.SupportsOnline == true;
@@ -243,6 +244,7 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         foreach (var page in pages) Pages.Add(page);
         CurrentPage = preferred is not null && Pages.Contains(preferred) ? preferred : Pages[0];
         Changed(nameof(IsDemo));
+        Changed(nameof(IsRealOffline));
         Changed(nameof(IsOnline));
         Changed(nameof(IsDeveloper));
         Changed(nameof(ModeHeading));
