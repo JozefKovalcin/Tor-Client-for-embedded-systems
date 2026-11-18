@@ -1,5 +1,4 @@
 using System.Globalization;
-using Tor.Adapters.Windows;
 using Tor.Application;
 using Tor.Core;
 using TorManager.Desktop.Services;
@@ -53,8 +52,7 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
         }
     }
     public bool InvalidSocksPort => IsOnline && !TrySocksPort(out _);
-    public string RuntimeDigest => _snapshot.PackageStatus == RuntimePackageStatus.Available
-        ? PinnedWindowsRuntime.Executable.Sha256 : "Unavailable pending verification";
+    public string RuntimeDigest => _snapshot.VerifiedRuntimeSha256 ?? "Unavailable pending verification";
     public string TorVersionText => _snapshot.Online?.TorVersion ?? "Version not reported";
     public string SocksStatusText => _snapshot.Online?.SocksPort is { } port
         ? FormattableString.Invariant($"SOCKS5 at 127.0.0.1:{port}") : "No SOCKS5 listener confirmed";

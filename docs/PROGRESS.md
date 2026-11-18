@@ -9,6 +9,21 @@ pending test message with Tor stopped. See the
 [cycle handoff](AUTONOMOUS_PROGRESS.md) and the [Windows peer guide](WINDOWS-PEER.md).
 The current GUI remains unqualified on two physical PCs and a clean host.
 
+# TASK 12 — Windows Developer Mode — 2026-11-18
+
+The Windows Developer stack is based on the reviewed PR #19 head. Static
+and shared native preflight accepted the host UCRT64 toolchain, cached source
+and license pins, and the reviewed patch. The existing native recipe also
+passed its read-only dependency check. Avalonia rendered the Developer pages
+and completed a real dependency scan. The Windows application regression
+used the reviewed Tor binary to verify activation refusal during an active
+session, offline startup from a staged approval, modified-binary rejection
+and rollback. See the [Developer workflow](WINDOWS-DEVELOPER-BOUNDARIES.md).
+
+Package installation and both heavyweight source builds remain BLOCKED
+pending separate authorization. No new runtime release or public-network
+qualification is claimed by this milestone.
+
 # TASK 11 — Windows two-PC qualification — 2026-11-18
 
 PR #19 review found a malformed-record error could bypass the GUI's normal

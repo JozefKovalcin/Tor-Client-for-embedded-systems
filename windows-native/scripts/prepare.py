@@ -1,6 +1,7 @@
 """Verify every source and license before extracting into a NEW build directory."""
 import hashlib
 import json
+import os
 from pathlib import Path, PurePosixPath
 import subprocess
 import sys
@@ -53,6 +54,8 @@ def main():
     for source in data['sources']:
         archive = cache / source['archive']
         if not archive.exists():
+            if os.environ.get('TOR_WINDOWS_OFFLINE') == '1':
+                raise ValueError('Verified local archive is required: ' + source['archive'])
             temporary = archive.with_suffix(archive.suffix + '.partial')
             subprocess.run(['curl', '--fail', '--location', '--retry', '3',
                             '--proto', '=https', '--tlsv1.2', '-o', str(temporary), source['url']], check=True)

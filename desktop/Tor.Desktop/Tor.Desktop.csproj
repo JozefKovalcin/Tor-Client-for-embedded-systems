@@ -18,5 +18,16 @@
     <PackageReference Include="Avalonia.Desktop" Version="[12.1.6]" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="[12.1.6]" />
     <EmbeddedResource Include="SampleData/*.json" LogicalName="TorManager.Desktop.SampleData.%(Filename)%(Extension)" />
+    <Content Include="../../scripts/windows_developer/*.py" Link="developer/scripts/windows_developer/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../scripts/dependencies/*.py" Link="developer/scripts/dependencies/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../scripts/contracts.py" Link="developer/scripts/contracts.py" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../config/contracts/v1/*.json" Link="developer/config/contracts/v1/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../config/dependencies/manifest-v1.json" Link="developer/config/dependencies/manifest-v1.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../windows-native/build-windows.sh;../../windows-native/source-manifest.json;../../windows-native/RUNTIME.md"
+             Link="developer/windows-native/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../windows-native/scripts/prepare.py;../../windows-native/scripts/package.sh;../../windows-native/scripts/package.py;../../windows-native/scripts/start-tor.cmd;../../windows-native/scripts/smoke-test.ps1"
+             Link="developer/windows-native/scripts/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../windows-native/config/*" Link="developer/windows-native/config/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../windows-native/patches/*" Link="developer/windows-native/patches/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

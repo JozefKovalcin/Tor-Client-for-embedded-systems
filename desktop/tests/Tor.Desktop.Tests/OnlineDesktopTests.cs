@@ -44,13 +44,14 @@ internal static class OnlineDesktopTests
         service.Publish(service.Snapshot with
         {
             SessionStatus = TorSessionStatus.BootstrappingOnline, ProcessId = 71, ControlStatus = TorControlStatus.Authenticated,
-            BootstrapPercent = 33, BootstrapTag = "connecting", Online = new(19150, 19150, "0.4.9.14", false, false)
+            BootstrapPercent = 33, BootstrapTag = "connecting", Online = new(19150, 19150, "0.4.9.14", false, false),
+            VerifiedRuntimeSha256 = new string('a', 64)
         });
         await ObserveAsync(model, () => model.BootstrapText == "33% · connecting");
         check(model.ProcessText == "PID 71" && model.ControlText == "Authenticated with SAFECOOKIE" &&
             model.BootstrapValue == 33 && !model.BootstrapIndeterminate && model.SocksStatusText == "SOCKS5 at 127.0.0.1:19150" &&
             model.TorVersionText == "0.4.9.14" && model.CircuitStatusText == "Tor reports no circuit is established" &&
-            model.RuntimeDigest.Length == 64 && !model.CheckConnectivityCommand.CanExecute(null),
+            model.RuntimeDigest == new string('a', 64) && !model.CheckConnectivityCommand.CanExecute(null),
             "listener availability, bootstrap progress, control, circuit status and pinned provenance remain distinct");
 
         service.Publish(service.Snapshot with

@@ -54,29 +54,46 @@ function StartNode {
     } while ([DateTime]::UtcNow -lt $deadline)
     throw 'Tor startup timeout'
 }
+function InvokeTor([string[]]$Arguments, [string]$Directory) {
+    # tor.exe uses the Windows subsystem. Windows PowerShell 5.1 does not
+    # reliably wait for it when using the call operator, even with 2>&1.
+    $info=[Diagnostics.ProcessStartInfo]::new($exe)
+    $info.Arguments=($Arguments | ForEach-Object { '"'+$_+'"' }) -join ' '
+    $info.WorkingDirectory=$Directory
+    $info.UseShellExecute=$false
+    $info.CreateNoWindow=$true
+    $info.RedirectStandardOutput=$true
+    $info.RedirectStandardError=$true
+    $probe=[Diagnostics.Process]::new()
+    try {
+        $probe.StartInfo=$info
+        if (!$probe.Start()) { throw 'Could not start Tor probe' }
+        $stdout=$probe.StandardOutput.ReadToEndAsync()
+        $stderr=$probe.StandardError.ReadToEndAsync()
+        if (!$probe.WaitForExit(15000)) { $probe.Kill(); $probe.WaitForExit(); throw 'Tor probe timed out' }
+        [pscustomobject]@{ExitCode=$probe.ExitCode;Text=$stdout.GetAwaiter().GetResult()+$stderr.GetAwaiter().GetResult()}
+    } finally { $probe.Dispose() }
+}
 try {
     # Restrict PATH to the package and Windows components: no MSYS2 or developer DLLs.
     $env:PATH=$Dist+';'+$env:SystemRoot+'\System32;'+$env:SystemRoot
     $env:OPENSSL_CONF=$null; $env:OPENSSL_MODULES=$null
     foreach ($arg in @('--version','--help')) {
-        $text=& $exe $arg 2>&1
-        if ($LASTEXITCODE -ne 0) { throw "Tor $arg failed" }
-        Record $arg 'PASS' ($text -join "`n")
+        $result=InvokeTor @($arg) $run
+        if ($result.ExitCode -ne 0) { throw "Tor $arg failed" }
+        Record $arg 'PASS' $result.Text
     }
     foreach ($profile in @('torrc','torrc-onion-service')) {
-        Push-Location $Dist
-        try {
-            $null=& $exe --defaults-torrc config\defaults-torrc -f ('config\'+$profile) --verify-config 2>&1
-            if ($LASTEXITCODE -ne 0) { throw "Invalid shipped configuration: $profile" }
-        } finally { Pop-Location }
+        $result=InvokeTor @('--defaults-torrc','config\defaults-torrc','-f',('config\'+$profile),'--verify-config') $Dist
+        if ($result.ExitCode -ne 0) { throw "Invalid shipped configuration: $profile" }
     }
     Record 'shipped_configs' 'PASS' 'Both deployment profiles verified by native Tor'
-    $modules=& $exe --list-modules 2>&1
-    if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect compiled Tor modules' }
-    if (!$Reference -and (($modules -join "`n") -match '(?m)^(relay|dirauth|dircache): yes')) {
+    $modules=InvokeTor @('--list-modules') $run
+    if ($modules.ExitCode -ne 0) { throw 'Cannot inspect compiled Tor modules' }
+    if (!$Reference -and ($modules.Text -match '(?m)^(relay|dirauth|dircache): yes')) {
         throw 'Optimized profile unexpectedly contains relay/authority/cache modules'
     }
-    Record 'compiled_modules' 'PASS' ($modules -join "`n")
+    Record 'compiled_modules' 'PASS' $modules.Text
     $script:controlPort=FreePort
     $socks=FreePort
     while ($socks -eq $controlPort) { $socks=FreePort }
@@ -99,8 +116,8 @@ MaxMemInQueues 32 MB
 "@)
     $bad=Join-Path $run 'invalid-torrc'
     [IO.File]::WriteAllText($bad,"ThisIsNotATorOption 1`n")
-    $null=& $exe --defaults-torrc $defaults -f $bad --verify-config 2>&1
-    if ($LASTEXITCODE -eq 0) { throw 'Invalid configuration was accepted' }
+    $result=InvokeTor @('--defaults-torrc',$defaults,'-f',$bad,'--verify-config') $run
+    if ($result.ExitCode -eq 0) { throw 'Invalid configuration was accepted' }
     Record 'invalid_config_rejected' 'PASS' 'Nonzero exit for an unknown option'
     $start=[Diagnostics.Stopwatch]::StartNew()
     StartNode
