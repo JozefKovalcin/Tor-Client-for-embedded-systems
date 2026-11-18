@@ -8,10 +8,14 @@ Tor returned the same address and confirmed publication again. B stayed
 running, but the restored exchange failed with an `IOException`. The
 public persistent-host gate is FAIL.
 
-The runner now reports the failing stage and any numeric SOCKS refusal.
-The next separately approved run should repeat the same scenario. The
-broader online suite, clean-host and two-PC gates remain NOT RUN in this
-batch. See [the single-host evidence](../reports/windows-persistent-host-2026-11-18/README.md).
+The separately approved repeat restored and republished the same address
+again. The original B stayed alive and all three restored connection
+attempts timed out in the SOCKS tunnel stage. Restored TLS and transfer
+were NOT RUN. Both processes exited with code 0. The public persistent-host
+gate remains FAIL. The next diagnostic should observe the original B's
+descriptor fetch and compare with a fresh client on the same restarted host
+after approval. The broader online suite, clean-host and two-PC gates remain
+NOT RUN. See [the single-host evidence](../reports/windows-persistent-host-2026-11-18/README.md).
 
 # Windows self-contained candidate and Developer build — 2026-11-18
 
