@@ -195,7 +195,7 @@ def scan(profile, cache, output, probe=None):
             method="manual" if name == "git" else "MSYS2 signed package", url=BOOTSTRAP_URL if name != "git" else None)
     for name in EXTRA:
         add(name, "Version observed in the MSYS2 recipe environment", probe.installed_tool(name, name),
-            optional=name == "curl", method="MSYS2 signed package", url=BOOTSTRAP_URL)
+            method="MSYS2 signed package", url=BOOTSTRAP_URL)
     add("msys2-python", "MSYS2 Python >=3.12", probe.installed_tool("msys2-python", MSYS / "usr/bin/python3.exe", minimum=(3, 12, 0)),
         method="MSYS2 signed package", url=BOOTSTRAP_URL)
     python = probe.tool("python")

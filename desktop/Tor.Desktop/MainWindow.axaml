@@ -24,6 +24,72 @@
         <StackPanel Margin="32,26" Spacing="16">
           <TextBlock Text="{Binding Title}" FontSize="30" FontWeight="SemiBold" />
           <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Classes="muted" MaxWidth="840" HorizontalAlignment="Left" />
+          <StackPanel IsVisible="{Binding ShowDeveloper}" Spacing="10">
+            <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="9">
+              <StackPanel IsEnabled="{Binding Idle}" Spacing="5">
+                <TextBlock Text="Verified archive directory" />
+                <TextBox Text="{Binding Sources}" />
+                <TextBlock Text="Private build workspace" />
+                <TextBox Text="{Binding Workspace}" />
+                <TextBlock Text="Build profile" />
+                <ComboBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding Profile}" />
+              </StackPanel>
+              <TextBlock Text="{Binding Status}" FontWeight="SemiBold" TextWrapping="Wrap" />
+              <Button Content="Cancel operation" Command="{Binding CancelCommand}" />
+            </StackPanel>
+            <StackPanel IsVisible="{Binding ShowDeveloperDependencies}">
+              <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="8">
+                <WrapPanel>
+                  <Button Content="Scan PC" Command="{Binding ScanCommand}" Margin="0,0,8,0" />
+                  <Button Content="Prepare installation plan" Command="{Binding PlanCommand}" />
+                </WrapPanel>
+                <CheckBox Content="I approve this exact installation plan" IsChecked="{Binding Confirmed}" IsEnabled="{Binding Idle}" />
+                <Button Content="Install approved packages" Command="{Binding InstallCommand}" />
+                <ItemsControl ItemsSource="{Binding Dependencies}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border Classes="card">
+                        <StackPanel Spacing="4">
+                          <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="{Binding Status}" FontWeight="SemiBold" />
+                          </Grid>
+                          <TextBlock Text="{Binding Requirement}" TextWrapping="Wrap" />
+                          <TextBlock Text="{Binding Observation}" TextWrapping="Wrap" />
+                          <TextBlock Text="{Binding Path}" TextWrapping="Wrap" Classes="muted" />
+                          <TextBlock Text="{Binding Method}" TextWrapping="Wrap" Classes="muted" />
+                        </StackPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </StackPanel>
+            <StackPanel IsVisible="{Binding ShowDeveloperBuild}">
+              <WrapPanel DataContext="{Binding $parent[Window].DataContext.Developer}">
+                <Button Content="Run preflight" Command="{Binding ScanCommand}" Margin="0,0,8,0" />
+                <Button Content="Compile verified sources" Command="{Binding BuildCommand}" />
+              </WrapPanel>
+            </StackPanel>
+            <StackPanel IsVisible="{Binding ShowDeveloperArtifacts}">
+              <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="8">
+                <Button Content="Refresh builds" Command="{Binding ListCommand}" />
+                <TextBlock Text="Build" />
+                <ComboBox ItemsSource="{Binding Builds}" SelectedItem="{Binding Selected}" IsEnabled="{Binding Idle}">
+                  <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Display}" /></DataTemplate></ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Text="Compare with" />
+                <ComboBox ItemsSource="{Binding Builds}" SelectedItem="{Binding CompareWith}" IsEnabled="{Binding Idle}">
+                  <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Display}" /></DataTemplate></ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Content="Run offline smoke" Command="{Binding SmokeCommand}" />
+              </StackPanel>
+            </StackPanel>
+            <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="8">
+              <SelectableTextBlock Text="{Binding Report}" FontFamily="Consolas, monospace" TextWrapping="Wrap" />
+              <SelectableTextBlock Text="{Binding Log}" FontFamily="Consolas, monospace" TextWrapping="Wrap" />
+            </StackPanel>
+          </StackPanel>
           <ItemsControl ItemsSource="{Binding Notices}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
@@ -250,6 +316,7 @@
           <Button Content="Demo" Command="{Binding ShowDemoCommand}" />
           <Button Content="Real Offline" Command="{Binding ShowRealOfflineCommand}" />
           <Button Content="Real Online" Command="{Binding ShowRealOnlineCommand}" IsVisible="{Binding HasOnline}" />
+          <Button Content="Developer" Command="{Binding ShowDeveloperCommand}" IsVisible="{Binding HasDeveloper}" />
         </StackPanel>
       </Grid>
     </Border>

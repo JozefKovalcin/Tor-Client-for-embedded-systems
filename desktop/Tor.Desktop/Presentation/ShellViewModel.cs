@@ -8,9 +8,10 @@ namespace TorManager.Desktop.Presentation;
 internal sealed record NoticeCard(string Title, string Detail);
 internal sealed record PageViewModel(string Title, string Description, bool ShowTasks = false,
     bool ShowDependencies = false, bool ShowSettings = false, IReadOnlyList<NoticeCard>? Notices = null,
-    bool ShowOffline = false);
+    bool ShowOffline = false, bool ShowDeveloper = false, bool ShowDeveloperDependencies = false,
+    bool ShowDeveloperBuild = false, bool ShowDeveloperArtifacts = false);
 internal sealed record LogCard(string Sequence, string TaskId, string Message, string Detail);
-internal enum WorkspaceMode { Demo, Offline, Online }
+internal enum WorkspaceMode { Demo, Offline, Online, Developer }
 
 internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDisposable
 {
@@ -20,6 +21,12 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
     private readonly CancellationTokenSource _lifetime = new();
     private readonly IReadOnlyList<PageViewModel> _demoPages;
     private readonly IReadOnlyList<PageViewModel> _offlinePages;
+    private readonly IReadOnlyList<PageViewModel> _developerPages =
+    [
+        new("Dependencies", "Scan the Windows host and review a pinned installation plan.", ShowDeveloper: true, ShowDeveloperDependencies: true),
+        new("Build Manager", "Verify local inputs and invoke the native MSYS2 UCRT64 recipe.", ShowDeveloper: true, ShowDeveloperBuild: true),
+        new("Builds", "Inspect build records and run offline acceptance checks.", ShowDeveloper: true, ShowDeveloperArtifacts: true)
+    ];
     private PageViewModel _currentPage;
     private string _selectedMode, _theme, _settingsNotice;
     private bool _animateSimulation;
@@ -38,17 +45,22 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
     public ActionCommand ShowDemoCommand { get; }
     public ActionCommand ShowRealOfflineCommand { get; }
     public ActionCommand ShowRealOnlineCommand { get; }
+    public ActionCommand ShowDeveloperCommand { get; }
+    public DeveloperViewModel? Developer { get; }
+    public bool HasDeveloper => Developer is not null;
     public OfflineTorViewModel? Offline { get; }
     public string? OfflineUnavailableReason { get; }
     public bool HasOfflineUnavailableReason => OfflineUnavailableReason is not null;
     public bool HasOffline => Offline is not null;
     public bool IsDemo => _workspaceMode == WorkspaceMode.Demo;
     public bool IsOnline => _workspaceMode == WorkspaceMode.Online;
+    public bool IsDeveloper => _workspaceMode == WorkspaceMode.Developer;
     public bool HasOnline => Offline?.SupportsOnline == true;
     public string ModeHeading => _workspaceMode switch
     {
         WorkspaceMode.Demo => "Demo · simulated data",
         WorkspaceMode.Online => "Real Online",
+        WorkspaceMode.Developer => "Developer · Windows",
         _ => "Real Offline"
     };
     public string TaskHeading => _workspaceMode switch
@@ -76,6 +88,7 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         "Embedded" => "Embedded · PICO device pairing and deployment BLOCKED; no device connection is attempted.",
         _ => "Run Only · No compiler, package installation or build operation is started by this application."
     } : IsOnline ? "Start Tor explicitly to connect. Use SOCKS5 on loopback with remote DNS in each application."
+        : IsDeveloper ? "Builds and installation require explicit actions. Source archives are verified locally."
         : "Tor runs with networking and SOCKS disabled. Control uses authenticated loopback.");
     public string TaskSummary => IsDemo
         ? $"{Tasks.Count} simulated tasks · {Tasks.Count(x => x.State == "running")} running · {Tasks.Count(x => x.State == "blocked")} blocked"
@@ -109,6 +122,7 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
             new PageViewModel("Settings", "Save your appearance and Demo preferences.", ShowSettings: true)
         };
         Offline = offline is null ? null : new(offline, dispatcher);
+        if (OperatingSystem.IsWindows()) Developer = new(dispatcher);
         OfflineUnavailableReason = offlineUnavailableReason;
         _workspaceMode = offline is null && !showRealWhenUnavailable ? WorkspaceMode.Demo : WorkspaceMode.Offline;
         Pages = new(IsDemo ? _demoPages : _offlinePages);
@@ -118,9 +132,11 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         ReplayCommand = new(ReplayAsync, () => SettingsNotice = "The Demo replay could not finish.",
             () => IsDemo && !_closing);
         ShowDemoCommand = new(ShowDemo, () => !_closing && !IsDemo && (Offline?.CanSwitchToDemo ?? true));
-        ShowRealOfflineCommand = new(ShowRealOffline, () => !_closing && (IsDemo || IsOnline) &&
+        ShowRealOfflineCommand = new(ShowRealOffline, () => !_closing && (IsDemo || IsOnline || IsDeveloper) &&
             (HasOffline || showRealWhenUnavailable) && (Offline?.CanSwitchToDemo ?? true));
         ShowRealOnlineCommand = new(ShowRealOnline, () => !_closing && !IsOnline && HasOnline && Offline!.CanSwitchToDemo);
+        ShowDeveloperCommand = new(() => SelectWorkspace(WorkspaceMode.Developer),
+            () => !_closing && HasDeveloper && !IsDeveloper && (Offline?.CanSwitchToDemo ?? true));
         if (Offline is not null) Offline.PropertyChanged += (_, change) =>
         {
             if (change.PropertyName == nameof(Offline.CanSwitchToDemo))
@@ -128,6 +144,7 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
                 ShowDemoCommand.Invalidate();
                 ShowRealOfflineCommand.Invalidate();
                 ShowRealOnlineCommand.Invalidate();
+                ShowDeveloperCommand.Invalidate();
             }
             if (IsDemo) return;
             if (change.PropertyName == nameof(Offline.Tasks)) Changed(nameof(VisibleTasks));
@@ -176,10 +193,11 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         if (Offline?.SelectOnline(mode == WorkspaceMode.Online) == false) return;
         _workspaceMode = mode;
         Pages.Clear();
-        foreach (var page in IsDemo ? _demoPages : _offlinePages) Pages.Add(page);
+        foreach (var page in IsDemo ? _demoPages : IsDeveloper ? _developerPages : _offlinePages) Pages.Add(page);
         CurrentPage = Pages[0];
         Changed(nameof(IsDemo));
         Changed(nameof(IsOnline));
+        Changed(nameof(IsDeveloper));
         Changed(nameof(ModeHeading));
         Changed(nameof(TaskHeading));
         Changed(nameof(SidebarStatus));
@@ -191,6 +209,7 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         ShowDemoCommand.Invalidate();
         ShowRealOfflineCommand.Invalidate();
         ShowRealOnlineCommand.Invalidate();
+        ShowDeveloperCommand.Invalidate();
     }
 
     public async Task ReplayAsync()
@@ -258,7 +277,9 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         ShowDemoCommand.Invalidate();
         ShowRealOfflineCommand.Invalidate();
         ShowRealOnlineCommand.Invalidate();
+        ShowDeveloperCommand.Invalidate();
         SaveSettingsCommand.Invalidate();
+        if (OperatingSystem.IsWindows() && Developer is not null) await Developer.CloseAsync();
         if (Offline is not null) await Offline.DisposeAsync().ConfigureAwait(false);
     }
 }

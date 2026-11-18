@@ -164,6 +164,7 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
         DependencyProbeCommand p => new DependencyProbeCommand(p.Inputs.ToArray()),
         NativeLinuxBuildCommand p => new NativeLinuxBuildCommand(p.Request, p.BuildInputs.ToArray(), p.OutputRefs.ToArray()),
         WindowsTorSessionCommand p => new WindowsTorSessionCommand(p.Executable, p.RuntimeInputs.ToArray(), p.OnlineSocksPort),
+        WindowsDeveloperCommand p => p with { },
         _ => throw new InvalidDataException("Unrecognized typed command")
     };
 
