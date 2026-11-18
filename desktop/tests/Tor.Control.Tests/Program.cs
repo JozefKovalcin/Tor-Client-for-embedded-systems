@@ -17,6 +17,8 @@ static class Assert
 
 sealed class MockServer : IAsyncDisposable
 {
+    internal static readonly string FixtureOnionKey = Convert.ToBase64String(Enumerable.Range(0, 64).Select(i => (byte)i).ToArray());
+    internal static readonly string FixtureServiceId = new('d', 56);
     private readonly TcpListener listener = new(IPAddress.Loopback, 0);
     private TcpClient? client;
     public int Port { get; }
@@ -114,7 +116,22 @@ sealed class MockServer : IAsyncDisposable
                 if (mode == "identity-observed") await output.WriteLineAsync("650 SIGNAL NEWNYM");
                 await output.WriteLineAsync("250 OK");
             }
-            else if (command is "SIGNAL SHUTDOWN" or "SETCONF DisableNetwork=0" or "TAKEOWNERSHIP") await output.WriteLineAsync("250 OK");
+            else if (verb == "ADD_ONION")
+            {
+                const string target = " MaxStreams=4 Port=80,127.0.0.1:8181";
+                const string generate = "ADD_ONION NEW:ED25519-V3";
+                var restore = "ADD_ONION ED25519-V3:" + FixtureOnionKey;
+                Assert.That(ProofReceived && (command == generate + target || command == generate + " Flags=DiscardPK" + target ||
+                    command == restore + target), "Incorrect authenticated onion command or private key");
+                var id = mode == "wrong-onion-id" ? new string('e', 56) : FixtureServiceId;
+                await output.WriteLineAsync("250-ServiceID=" + id);
+                if (command == generate + target)
+                    await output.WriteLineAsync("250-PrivateKey=ED25519-V3:" +
+                        (mode == "bad-onion-key" ? "redaction-test-secret" : FixtureOnionKey));
+                await output.WriteLineAsync("250 OK");
+            }
+            else if (verb == "DEL_ONION" || command is "SIGNAL SHUTDOWN" or "SETCONF DisableNetwork=0" or "TAKEOWNERSHIP")
+                await output.WriteLineAsync("250 OK");
             else throw new Exception("Unexpected command verb");
         }
     }

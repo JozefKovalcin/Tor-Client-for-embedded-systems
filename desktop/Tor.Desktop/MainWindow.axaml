@@ -228,8 +228,23 @@
                                Classes="muted" TextWrapping="Wrap" />
                   </StackPanel>
                 </Expander>
+                <TextBlock Text="Onion Service hosting" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding HostingStatus}" Classes="muted" TextWrapping="Wrap" />
+                <TextBox Text="{Binding SavedHostingAddress, Mode=OneWay}" IsReadOnly="True"
+                         PlaceholderText="Saved v3 onion address" AutomationProperties.Name="Saved v3 onion address" />
                 <WrapPanel>
-                  <Button Content="Host Onion Service" Command="{Binding HostCommand}" Margin="0,0,8,4" />
+                  <Button Content="Host saved address" Command="{Binding HostCommand}" Margin="0,0,8,4" />
+                  <Button Content="Create and host saved address" Command="{Binding CreateHostingCommand}" Margin="0,0,8,4" />
+                  <Button Content="Host temporarily" Command="{Binding TransientHostCommand}" Margin="0,0,8,4" />
+                </WrapPanel>
+                <Expander Header="Rotate saved hosting address" IsEnabled="{Binding CanApproveHostingRotation}">
+                  <StackPanel Spacing="6">
+                    <CheckBox Content="Replace the saved address. I will share the new address with my contacts."
+                              IsChecked="{Binding ApproveHostingRotation}" />
+                    <Button Content="Replace and host new address" Command="{Binding RotateHostingCommand}" />
+                  </StackPanel>
+                </Expander>
+                <WrapPanel>
                   <Button Content="Connect to Peer" Command="{Binding ConnectCommand}" Margin="0,0,8,4" />
                   <Button Content="Disconnect" Command="{Binding DisconnectCommand}" />
                 </WrapPanel>
@@ -361,6 +376,17 @@
                         IsChecked="{Binding $parent[Window].DataContext.AnimateSimulation, Mode=TwoWay}" />
               <Button Content="Save UI preferences" HorizontalAlignment="Left"
                       Command="{Binding $parent[Window].DataContext.SaveSettingsCommand}" />
+              <StackPanel Spacing="7" IsVisible="{Binding $parent[Window].DataContext.CanChooseRuntime}">
+                <TextBlock Text="Tor runtime" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding $parent[Window].DataContext.ActiveRuntime}" />
+                <TextBlock Text="{Binding $parent[Window].DataContext.RuntimePreference}" TextWrapping="Wrap" />
+                <WrapPanel>
+                  <Button Content="Use bundled on restart" Margin="0,0,8,4"
+                          Command="{Binding $parent[Window].DataContext.SelectBundledRuntimeCommand}" />
+                  <Button Content="Use approved build on restart"
+                          Command="{Binding $parent[Window].DataContext.SelectCustomRuntimeCommand}" />
+                </WrapPanel>
+              </StackPanel>
               <TextBlock Text="{Binding $parent[Window].DataContext.SettingsNotice}" TextWrapping="Wrap" Classes="muted" />
             </StackPanel>
           </Border>
@@ -368,7 +394,7 @@
       </ScrollViewer>
     </DataTemplate>
   </Window.DataTemplates>
-  <Grid ColumnDefinitions="232,*" RowDefinitions="84,*,72">
+  <Grid ColumnDefinitions="232,*" RowDefinitions="Auto,*,72">
     <Border Grid.RowSpan="3" Background="{DynamicResource WorkspaceSidebar}" BorderBrush="{DynamicResource WorkspaceBorder}" BorderThickness="0,0,1,0">
       <Grid RowDefinitions="105,*,100">
         <StackPanel Margin="22,26" Spacing="6">
@@ -385,20 +411,27 @@
       </Grid>
     </Border>
     <Border Grid.Column="1" BorderBrush="{DynamicResource WorkspaceBorder}" BorderThickness="0,0,0,1" Padding="32,16">
-      <Grid ColumnDefinitions="*,Auto">
-        <StackPanel Spacing="5">
-          <TextBlock Text="{Binding ModeHeading}" FontWeight="SemiBold" FontSize="17" />
-          <TextBlock Text="{Binding TaskSummary}" Classes="muted" FontSize="12" />
-        </StackPanel>
-        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-          <ComboBox ItemsSource="{Binding Modes}" SelectedItem="{Binding SelectedMode, Mode=TwoWay}"
-                    IsVisible="{Binding IsDemo}" Width="120" />
-          <Button Content="Demo" Command="{Binding ShowDemoCommand}" />
-          <Button Content="Real Offline" Command="{Binding ShowRealOfflineCommand}" />
-          <Button Content="Real Online" Command="{Binding ShowRealOnlineCommand}" IsVisible="{Binding HasOnline}" />
-          <Button Content="Developer" Command="{Binding ShowDeveloperCommand}" IsVisible="{Binding HasDeveloper}" />
-        </StackPanel>
-      </Grid>
+      <StackPanel Spacing="8">
+        <TextBlock Text="{Binding TaskSummary}" Classes="muted" FontSize="12" TextWrapping="Wrap" />
+        <WrapPanel>
+          <StackPanel Spacing="4" Margin="0,0,18,4">
+            <TextBlock Text="{Binding ModeHeading}" FontWeight="SemiBold" />
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Button Content="Demo" Command="{Binding ShowDemoCommand}" />
+              <Button Content="Real Offline" Command="{Binding ShowRealOfflineCommand}" />
+              <Button Content="Real Online" Command="{Binding ShowRealOnlineCommand}" IsVisible="{Binding HasOnline}" />
+            </StackPanel>
+          </StackPanel>
+          <StackPanel Spacing="4" IsVisible="{Binding HasDeveloper}">
+            <TextBlock Text="{Binding WorkspaceHeading}" FontWeight="SemiBold" />
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Button Content="Run Only" Command="{Binding ShowRunOnlyCommand}" />
+              <Button Content="Developer" Command="{Binding ShowDeveloperCommand}" />
+              <TextBlock Text="Embedded deferred" VerticalAlignment="Center" Classes="muted" />
+            </StackPanel>
+          </StackPanel>
+        </WrapPanel>
+      </StackPanel>
     </Border>
     <ContentControl Grid.Column="1" Grid.Row="1" Content="{Binding CurrentPage}" />
     <Border Grid.Column="1" Grid.Row="2" Background="{DynamicResource WorkspaceSidebar}" Padding="24,16" BorderBrush="{DynamicResource WorkspaceBorder}" BorderThickness="0,1,0,0">

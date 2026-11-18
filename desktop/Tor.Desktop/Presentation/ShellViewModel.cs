@@ -11,13 +11,15 @@ internal sealed record PageViewModel(string Title, string Description, bool Show
     bool ShowOffline = false, bool ShowDeveloper = false, bool ShowDeveloperDependencies = false,
     bool ShowDeveloperBuild = false, bool ShowDeveloperArtifacts = false, bool ShowPeers = false);
 internal sealed record LogCard(string Sequence, string TaskId, string Message, string Detail);
-internal enum WorkspaceMode { Demo, Offline, Online, Developer }
+internal enum ConnectionMode { Demo, RealOffline, RealOnline }
+internal enum WorkspaceMode { RunOnly, Developer, Embedded }
 
 internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDisposable
 {
     private readonly ITaskFeed _feed;
     private readonly IUiDispatcher _dispatcher;
     private readonly SettingsStore _settings;
+    private readonly Func<bool>? _hasVerifiedCustomRuntime;
     private readonly CancellationTokenSource _lifetime = new();
     private readonly IReadOnlyList<PageViewModel> _demoPages;
     private readonly IReadOnlyList<PageViewModel> _offlinePages;
@@ -31,6 +33,9 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
     private string _selectedMode, _theme, _settingsNotice;
     private bool _animateSimulation;
     private WorkspaceMode _workspaceMode;
+    private ConnectionMode _connectionMode;
+    private RuntimeSource? _preferredRuntime;
+    private readonly RuntimeSource? _activeRuntime;
     private bool _closing;
     private Task? _close;
     private string? _closeNotice;
@@ -46,27 +51,43 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
     public ActionCommand ShowRealOfflineCommand { get; }
     public ActionCommand ShowRealOnlineCommand { get; }
     public ActionCommand ShowDeveloperCommand { get; }
+    public ActionCommand ShowRunOnlyCommand { get; }
+    public ActionCommand SelectBundledRuntimeCommand { get; }
+    public ActionCommand SelectCustomRuntimeCommand { get; }
     public DeveloperViewModel? Developer { get; }
     public bool HasDeveloper => Developer is not null;
     public OfflineTorViewModel? Offline { get; }
     public string? OfflineUnavailableReason { get; }
     public bool HasOfflineUnavailableReason => OfflineUnavailableReason is not null;
     public bool HasOffline => Offline is not null;
-    public bool IsDemo => _workspaceMode == WorkspaceMode.Demo;
-    public bool IsOnline => _workspaceMode == WorkspaceMode.Online;
+    public bool IsDemo => _connectionMode == ConnectionMode.Demo;
+    public bool IsOnline => _connectionMode == ConnectionMode.RealOnline;
     public bool IsDeveloper => _workspaceMode == WorkspaceMode.Developer;
     public bool HasOnline => Offline?.SupportsOnline == true;
-    public string ModeHeading => _workspaceMode switch
+    public string ModeHeading => _connectionMode switch
     {
-        WorkspaceMode.Demo => "Demo · simulated data",
-        WorkspaceMode.Online => "Real Online",
-        WorkspaceMode.Developer => "Developer · Windows",
+        ConnectionMode.Demo => "Demo · simulated data",
+        ConnectionMode.RealOnline => "Real Online",
         _ => "Real Offline"
     };
-    public string TaskHeading => _workspaceMode switch
+    public string WorkspaceHeading => IsDeveloper ? "Developer workspace" : "Run Only workspace";
+    public string ActiveRuntime => _activeRuntime switch
     {
-        WorkspaceMode.Demo => "Simulated tasks",
-        WorkspaceMode.Online => "Tor session tasks",
+        RuntimeSource.Bundled => "Bundled Tor",
+        RuntimeSource.CustomVerified => "Custom verified Tor",
+        _ => "Tor runtime unavailable"
+    };
+    public string RuntimePreference => _preferredRuntime switch
+    {
+        RuntimeSource.Bundled => "Next launch: bundled Tor",
+        RuntimeSource.CustomVerified => "Next launch: approved custom Tor if available",
+        _ => "Next launch: use an approved custom runtime when available"
+    };
+    public bool CanChooseRuntime => _hasVerifiedCustomRuntime is not null;
+    public string TaskHeading => _connectionMode switch
+    {
+        ConnectionMode.Demo => "Simulated tasks",
+        ConnectionMode.RealOnline => "Tor session tasks",
         _ => "Offline Tor tasks"
     };
     public string SidebarStatus => IsDemo ? "Example data" : Offline?.SessionText ?? "Runtime unavailable";
@@ -81,14 +102,15 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
     }
     public string Theme { get => _theme; set { if (Themes.Contains(value)) Set(ref _theme, value); } }
     public bool AnimateSimulation { get => _animateSimulation; set => Set(ref _animateSimulation, value); }
-    public string ModeDescription => _closeNotice ?? (IsDemo && !HasOffline && HasOfflineUnavailableReason
+    public string ModeDescription => _closeNotice ?? (IsDeveloper
+        ? "Developer actions use verified local inputs and require explicit requests."
+        : IsDemo && !HasOffline && HasOfflineUnavailableReason
         ? OfflineUnavailableReason! : IsDemo ? SelectedMode switch
     {
         "Developer" => "Developer · Tools and builds require separate consent; this shell runs simulations only.",
         "Embedded" => "Embedded · PICO device pairing and deployment BLOCKED; no device connection is attempted.",
         _ => "Run Only · No compiler, package installation or build operation is started by this application."
     } : IsOnline ? "Start Tor explicitly to connect. Use SOCKS5 on loopback with remote DNS in each application."
-        : IsDeveloper ? "Builds and installation require explicit actions. Source archives are verified locally."
         : "Tor runs with networking and SOCKS disabled. Control uses authenticated loopback.");
     public string TaskSummary => IsDemo
         ? $"{Tasks.Count} simulated tasks · {Tasks.Count(x => x.State == "running")} running · {Tasks.Count(x => x.State == "blocked")} blocked"
@@ -96,10 +118,14 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
 
     public ShellViewModel(ITaskFeed feed, IUiDispatcher dispatcher, SettingsStore settings,
         IOfflineTorService? offline = null, string? offlineUnavailableReason = null, bool showRealWhenUnavailable = false,
-        string? bundledRuntime = null, PeerProfileStore? peerProfile = null)
+        string? bundledRuntime = null, PeerProfileStore? peerProfile = null, HostedOnionStore? hostingIdentity = null,
+        RuntimeSource? activeRuntime = null, Func<bool>? hasVerifiedCustomRuntime = null)
     {
         _feed = feed; _dispatcher = dispatcher; _settings = settings;
         var stored = settings.Load(out _settingsNotice);
+        _preferredRuntime = stored.PreferredRuntime;
+        _activeRuntime = activeRuntime;
+        _hasVerifiedCustomRuntime = hasVerifiedCustomRuntime;
         _selectedMode = stored.Mode; _theme = stored.Theme; _animateSimulation = stored.AnimateSimulation;
         _demoPages = new[]
         {
@@ -123,10 +149,10 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
             new PageViewModel("Logs and Progress", "Task history and sanitized lifecycle events from this workspace.", ShowTasks: true),
             new PageViewModel("Settings", "Save your appearance and Demo preferences.", ShowSettings: true)
         }.Where(page => !page.ShowPeers || offline is IPeerTorService).ToArray();
-        Offline = offline is null ? null : new(offline, dispatcher, peerProfile);
+        Offline = offline is null ? null : new(offline, dispatcher, peerProfile, hostingIdentity);
         if (OperatingSystem.IsWindows()) Developer = new(dispatcher, bundledRuntime);
         OfflineUnavailableReason = offlineUnavailableReason;
-        _workspaceMode = offline is null && !showRealWhenUnavailable ? WorkspaceMode.Demo : WorkspaceMode.Offline;
+        _connectionMode = offline is null && !showRealWhenUnavailable ? ConnectionMode.Demo : ConnectionMode.RealOffline;
         Pages = new(IsDemo ? _demoPages : _offlinePages);
         _currentPage = Pages[0];
         Dependencies = new(feed.Dependencies);
@@ -134,11 +160,14 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         ReplayCommand = new(ReplayAsync, () => SettingsNotice = "The Demo replay could not finish.",
             () => IsDemo && !_closing);
         ShowDemoCommand = new(ShowDemo, () => !_closing && !IsDemo && (Offline?.CanSwitchToDemo ?? true));
-        ShowRealOfflineCommand = new(ShowRealOffline, () => !_closing && (IsDemo || IsOnline || IsDeveloper) &&
+        ShowRealOfflineCommand = new(ShowRealOffline, () => !_closing && _connectionMode != ConnectionMode.RealOffline &&
             (HasOffline || showRealWhenUnavailable) && (Offline?.CanSwitchToDemo ?? true));
         ShowRealOnlineCommand = new(ShowRealOnline, () => !_closing && !IsOnline && HasOnline && Offline!.CanSwitchToDemo);
         ShowDeveloperCommand = new(() => SelectWorkspace(WorkspaceMode.Developer),
-            () => !_closing && HasDeveloper && !IsDeveloper && (Offline?.CanSwitchToDemo ?? true));
+            () => !_closing && HasDeveloper && !IsDeveloper);
+        ShowRunOnlyCommand = new(() => SelectWorkspace(WorkspaceMode.RunOnly), () => !_closing && IsDeveloper);
+        SelectBundledRuntimeCommand = new(() => SetRuntimeSource(RuntimeSource.Bundled), () => !_closing && CanChooseRuntime);
+        SelectCustomRuntimeCommand = new(() => SetRuntimeSource(RuntimeSource.CustomVerified), () => !_closing && CanChooseRuntime);
         if (Offline is not null) Offline.PropertyChanged += (_, change) =>
         {
             if (change.PropertyName == nameof(Offline.CanSwitchToDemo))
@@ -158,7 +187,8 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         {
             try
             {
-                _settings.Save(new(Mode: SelectedMode, Theme: Theme, AnimateSimulation: AnimateSimulation));
+                _settings.Save(new(Mode: SelectedMode, Theme: Theme, AnimateSimulation: AnimateSimulation,
+                    PreferredRuntime: _preferredRuntime));
                 SettingsNotice = "UI preferences saved in your local application-data directory.";
             }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException or JsonException or ArgumentException)
@@ -175,32 +205,48 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
     public void ShowDemo()
     {
         if (_closing || IsDemo || Offline?.CanSwitchToDemo == false) return;
-        SelectWorkspace(WorkspaceMode.Demo);
+        SelectConnection(ConnectionMode.Demo);
     }
 
     public void ShowRealOffline()
     {
         if (!ShowRealOfflineCommand.CanExecute(null)) return;
-        SelectWorkspace(WorkspaceMode.Offline);
+        SelectConnection(ConnectionMode.RealOffline);
     }
 
     public void ShowRealOnline()
     {
         if (!ShowRealOnlineCommand.CanExecute(null)) return;
-        SelectWorkspace(WorkspaceMode.Online);
+        SelectConnection(ConnectionMode.RealOnline);
     }
 
     private void SelectWorkspace(WorkspaceMode mode)
     {
-        if (Offline?.SelectOnline(mode == WorkspaceMode.Online) == false) return;
         _workspaceMode = mode;
+        UpdateNavigation(IsDeveloper ? _developerPages[0] : null);
+    }
+
+    private void SelectConnection(ConnectionMode mode)
+    {
+        if (Offline?.SelectOnline(mode == ConnectionMode.RealOnline) == false) return;
+        _connectionMode = mode;
+        UpdateNavigation(IsDeveloper ? CurrentPage : null);
+    }
+
+    private void UpdateNavigation(PageViewModel? preferred)
+    {
+        var connectionPages = IsDemo ? _demoPages : _offlinePages;
+        var pages = IsDeveloper
+            ? connectionPages.Where(page => !_developerPages.Any(developer => developer.Title == page.Title)).Concat(_developerPages)
+            : connectionPages;
         Pages.Clear();
-        foreach (var page in IsDemo ? _demoPages : IsDeveloper ? _developerPages : _offlinePages) Pages.Add(page);
-        CurrentPage = Pages[0];
+        foreach (var page in pages) Pages.Add(page);
+        CurrentPage = preferred is not null && Pages.Contains(preferred) ? preferred : Pages[0];
         Changed(nameof(IsDemo));
         Changed(nameof(IsOnline));
         Changed(nameof(IsDeveloper));
         Changed(nameof(ModeHeading));
+        Changed(nameof(WorkspaceHeading));
         Changed(nameof(TaskHeading));
         Changed(nameof(SidebarStatus));
         Changed(nameof(VisibleTasks));
@@ -212,6 +258,29 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         ShowRealOfflineCommand.Invalidate();
         ShowRealOnlineCommand.Invalidate();
         ShowDeveloperCommand.Invalidate();
+        ShowRunOnlyCommand.Invalidate();
+    }
+
+    private void SetRuntimeSource(RuntimeSource selected)
+    {
+        try
+        {
+            if (selected == RuntimeSource.CustomVerified && _hasVerifiedCustomRuntime?.Invoke() != true)
+            {
+                SettingsNotice = "Approve a build after its offline smoke test passes.";
+                return;
+            }
+            var saved = _settings.Load(out _);
+            _settings.Save(saved with { PreferredRuntime = selected });
+            _preferredRuntime = selected;
+            Changed(nameof(RuntimePreference));
+            SettingsNotice = "Runtime preference saved. Restart Tor Manager to apply it.";
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or
+            JsonException or InvalidOperationException or System.Security.SecurityException)
+        {
+            SettingsNotice = "The runtime selection could not be verified or saved.";
+        }
     }
 
     public async Task ReplayAsync()
@@ -280,6 +349,9 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         ShowRealOfflineCommand.Invalidate();
         ShowRealOnlineCommand.Invalidate();
         ShowDeveloperCommand.Invalidate();
+        ShowRunOnlyCommand.Invalidate();
+        SelectBundledRuntimeCommand.Invalidate();
+        SelectCustomRuntimeCommand.Invalidate();
         SaveSettingsCommand.Invalidate();
         try
         {

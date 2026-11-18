@@ -97,14 +97,33 @@ public sealed class TorControlClient : IAsyncDisposable
     public Task SubscribeOnlineAsync(CancellationToken token = default) => CommandAsync("SETEVENTS STATUS_CLIENT SIGNAL", true, token);
     public Task SubscribeOnionPublicationAsync() => CommandAsync("SETEVENTS STATUS_CLIENT SIGNAL HS_DESC", true, CancellationToken.None);
 
-    public async Task<OnionAddress> AddOnionAsync(int loopbackPort, CancellationToken token = default)
+    public async Task<OnionAddress> AddOnionAsync(int loopbackPort, CancellationToken token = default) =>
+        (await RegisterOnionAsync(loopbackPort, "NEW:ED25519-V3 Flags=DiscardPK", false, null, token)
+            .ConfigureAwait(false)).Address;
+
+    public async Task<(OnionAddress Address, OnionServiceKey Key)> GenerateOnionAsync(int loopbackPort, CancellationToken token = default)
+    {
+        var result = await RegisterOnionAsync(loopbackPort, "NEW:ED25519-V3", true, null, token).ConfigureAwait(false);
+        return (result.Address, result.Key!);
+    }
+
+    public async Task<OnionAddress> RestoreOnionAsync(int loopbackPort, OnionAddress address,
+        OnionServiceKey key, CancellationToken token = default)
+    {
+        if (!authenticated) throw new TorControlException("Control authentication required");
+        return (await RegisterOnionAsync(loopbackPort, key.ControlSpec(), false, address, token)
+            .ConfigureAwait(false)).Address;
+    }
+
+    private async Task<(OnionAddress Address, OnionServiceKey? Key)> RegisterOnionAsync(int loopbackPort,
+        string keySpec, bool capture, OnionAddress? expected, CancellationToken token)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(loopbackPort, 1);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(loopbackPort, 65535);
         token.ThrowIfCancellationRequested();
         // Drain once admitted. If the owner cancelled during creation, remove the service before returning.
-        var command = FormattableString.Invariant($"ADD_ONION NEW:ED25519-V3 Flags=DiscardPK MaxStreams=4 Port=80,127.0.0.1:{loopbackPort}");
-        var reply = await CommandAsync(command, true, CancellationToken.None).ConfigureAwait(false);
+        var command = FormattableString.Invariant($"ADD_ONION {keySpec} MaxStreams=4 Port=80,127.0.0.1:{loopbackPort}");
+        var reply = await CommandAsync(command, true, token, drainAfterAdmission: true).ConfigureAwait(false);
         OnionAddress address;
         try { address = OnionAddress.FromServiceId(ReadValue(reply, "ServiceID")); }
         catch (Exception error) when (error is FormatException or TorControlException)
@@ -112,12 +131,19 @@ public sealed class TorControlClient : IAsyncDisposable
             CloseTransport(); // A service with an unknown identifier must die with its control connection.
             throw new TorControlException("Tor returned an invalid onion service identifier.");
         }
-        if (token.IsCancellationRequested)
+        if (token.IsCancellationRequested || (expected is not null && address != expected))
         {
             await DeleteOnionAsync(address).ConfigureAwait(false);
             token.ThrowIfCancellationRequested();
+            throw new TorControlException("Restored Onion Service address differs from the saved address.");
         }
-        return address;
+        if (!capture) return (address, null);
+        try { return (address, OnionServiceKey.Parse(ReadValue(reply, "PrivateKey"))); }
+        catch (Exception error) when (error is InvalidDataException or TorControlException)
+        {
+            await DeleteOnionAsync(address).ConfigureAwait(false);
+            throw new TorControlException("Tor returned an invalid Onion Service key.");
+        }
     }
 
     public Task DeleteOnionAsync(OnionAddress address) => CommandAsync("DEL_ONION " + address.ServiceId, true, CancellationToken.None);

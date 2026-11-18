@@ -1,6 +1,6 @@
 # Windows peer messaging decisions
 
-The current peer implementation uses a loopback listener and a temporary
+The peer implementation uses a loopback listener and a saved or temporary
 v3 Onion Service. Tor's existing SAFECOOKIE, owned SOCKS endpoint, remote
 name resolution and Windows Job boundaries continue to apply. The local
 authenticated transport remains mutual TLS with a full certificate SHA-256
@@ -25,13 +25,14 @@ automatic rotation would change the trust guarantee and is deferred.
 
 ## 3. Onion and TLS identity ownership
 
-Keep the v3 Onion Service key in Tor. The current connection publishes a
-temporary service and the visible onion address can change on Tor restart.
-Persist the application's user-approved TLS credential separately per
-private app profile. Protect it for the Windows user with OS cryptographic
-protection and owner-private ACLs. Reopen the same credential at restart.
-Unreadable or lost state is a visible error. Recovery and key migration
-require an explicit operator decision. Fresh directories are used in tests.
+Temporary hosting discards the generated key. For explicitly saved hosting,
+Tor generates the v3 key and returns it over authenticated Control.
+User-scoped DPAPI and owner-private ACLs protect the key separately from the
+peer TLS credential and contact trust store. Restoring a key requires an
+exact match between Tor's returned address and the saved address. Rotation
+requires confirmation and an atomic protected write after registration.
+Unreadable state is a visible error. A new key requires an explicit operator
+action. Tests use fresh directories and simulated Tor Control connections.
 
 ## 4. Acknowledgement and duplicate handling
 

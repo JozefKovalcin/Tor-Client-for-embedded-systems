@@ -13,6 +13,20 @@ from scripts.windows_developer import build as adapter
 
 
 class WindowsBuildAdapterTests(unittest.TestCase):
+    def test_native_build_has_explicit_per_run_scratch_paths(self):
+        with tempfile.TemporaryDirectory() as directory:
+            run = Path(directory)
+            with patch.object(adapter, "msys_path", side_effect=lambda path: "/fixture/" + path.name), \
+                    patch.object(adapter, "native_environment", return_value={"SystemRoot": str(run / "Windows")}):
+                env = adapter.build_environment(run, run / "archives", "static")
+            scratch = run / "tmp"
+            self.assertTrue(scratch.is_dir())
+            self.assertEqual(env["TMP"], str(scratch))
+            self.assertEqual(env["TEMP"], str(scratch))
+            self.assertEqual(env["TMPDIR"], "/fixture/tmp")
+            self.assertEqual(env["COMSPEC"], str(run / "Windows/System32/cmd.exe"))
+            self.assertEqual(env["TOR_WINDOWS_OFFLINE"], "1")
+
     def test_disk_and_pinned_snapshot_are_checked_before_invoking_recipe(self):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)
@@ -50,6 +64,20 @@ class WindowsBuildAdapterTests(unittest.TestCase):
         for name in ["../tor.exe", "C:/tor.exe", "bin/../tor.exe", "/tor.exe", r"bin\..\tor.exe"]:
             with self.subTest(name=name), self.assertRaises(ValueError):
                 adapter.resolve_record_path(Path("package"), name)
+
+    def test_builds_are_listed_in_start_order_instead_of_random_id_order(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary)
+            for identifier, started in [("run-zzzzzz", "2026-11-18T10:00:00+00:00"),
+                                        ("run-aaaaaa", "2026-11-18T12:00:00+00:00")]:
+                run = workspace / "builds" / identifier
+                run.mkdir(parents=True)
+                adapter.write_record(run / "build-record.json", {
+                    "id": identifier, "profile": "optimized-static", "package": "pipeline/dist",
+                    "state": "FAILED", "startedUtc": started,
+                })
+            builds = adapter.list_builds(workspace)["builds"]
+            self.assertEqual([build["id"] for build in builds], ["run-aaaaaa", "run-zzzzzz"])
 
     def test_offline_smoke_rejects_wrong_version_and_online_result(self):
         offline = [

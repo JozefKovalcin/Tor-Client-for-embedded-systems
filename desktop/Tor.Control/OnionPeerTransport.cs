@@ -36,6 +36,12 @@ public interface IOnionPeerTransport
     Task<Stream> ConnectAsync(OnionAddress address, CancellationToken token);
 }
 
+public interface IPersistentOnionPeerTransport : IOnionPeerTransport
+{
+    Task<(OnionAddress Address, OnionServiceKey Key)> GenerateHostAsync(int loopbackPort, CancellationToken token);
+    Task<OnionAddress> RestoreHostAsync(int loopbackPort, OnionAddress address, OnionServiceKey key, CancellationToken token);
+}
+
 public static class OnionSocksConnection
 {
     public static async Task<Stream> ConnectAsync(IPEndPoint socks, OnionAddress remote,

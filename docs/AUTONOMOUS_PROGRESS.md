@@ -1,5 +1,57 @@
 # Windows Tor Manager development
 
+## Current batch after draft #30
+
+| ID | State | Source and evidence | Remaining |
+| --- | --- | --- | --- |
+| WIN-03-HOST | VERIFIED | Draft #31 and 23 Windows peer assertions. Same-address simulated restart, explicit rotation and encrypted state refusal passed. | Separate public-Tor lifecycle authorization. |
+| WIN-03-MODES | VERIFIED | Draft #32. Separate connection, workspace and runtime preference in the UI. Real Developer retained an active offline session and the Peers page. | DPI and full keyboard matrix. |
+| WIN-04 | PARTIAL | Real Developer read-only diagnostics accepted the prepared local cache. Installer approval, eligibility and cancellation have automated evidence. | Real system installation requires a separate approval and an eligible package. |
+| WIN-05 | VERIFIED for optimized-static | Draft #32. Real GUI compile, PE inventory, eight offline smoke checks and 21-file ZIP export passed for `run-mm7s33j8`. Earlier GCC and windres failures were fixed and retained. | Shared build remains outside the approved run. |
+| WIN-06 | VERIFIED | The local Windows x64 candidate passed the development-host offline gate. Locked restore, candidate publish, bundled Tor, 319 payload hashes, 20 native PE imports and offline startup/shutdown passed. | Clean-host qualification and production release authorization. |
+| WIN-2PC | NOT RUN | A distinct field gate remains pending. | User-operated physical two-PC and clean-host acceptance. |
+
+The final package was built from `9b35250a6de0dd3bffcd7834ab20bb5bd4891f52`.
+The offline repository regression returned 178 PASS and 10 platform
+SKIPPED. The native pipeline returned six PASS. The Windows peer fixture
+returned 23 PASS. Both isolated native environment regressions used the
+installed UCRT64 tools.
+
+**NEXT_ACTION** Follow [PROGRESS.md](PROGRESS.md) with the exact Windows
+candidate and native export recorded in the
+[release evidence](../reports/windows-product-2026-11-18/README.md).
+Obtain separate authorization for public Tor persistent hosting and the
+mandatory network suite. The user deferred clean-host and physical two-PC
+acceptance. Run the shared native profile and real installation path only
+after their respective approvals.
+
+DEVELOPMENT COMPLETE is pending. FIELD QUALIFIED is NOT RUN.
+
+## Persistent hosted identity batch
+
+Verified GitHub main at `68002b9b4a31e5da5acc152a3c17b3e49da7daed` and
+draft #30 at `383f861850b99503a62d20a666654fc06120bb3d`, with
+[successful CI](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems/actions/runs/44310924252).
+The dependent branch is `codex/windows-persistent-onion` in
+[draft #31](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems/pull/31).
+
+| ID | State | Source, gate and result | Remaining |
+| --- | --- | --- | --- |
+| WIN-03-HOST | VERIFIED | `TorControlClient`, `HostedOnionStore`, `PeerViewModel`, Windows transport and Peers page. Offline loopback generation/import, cleanup and redaction passed. Windows DPAPI fixture passed same-address restart, explicit rotation and corruption refusal. | Real public Tor lifecycle and current GUI visual/DPI acceptance are NOT RUN. |
+| WIN-03-MODES | PARTIAL | PR #30 separates the Peers page from Developer pages. | Independent connection, workspace and runtime selectors. |
+| WIN-04/WIN-05 | PARTIAL | Real Developer adapter, offline diagnosis, cancellation, activation, rollback and export retain the PR #29/#30 evidence. | Separate authorization for heavyweight compilation, package installation and any missing downloads. |
+| WIN-06 | PARTIAL | Current Avalonia Release build passed from an offline locked restore. | Current peer-enabled self-contained publish and bundle acceptance. |
+| WIN-2PC | NOT RUN | User-operated two-PC and clean-host tests are deferred. | Field qualification after development. |
+
+Windows Release compiled with zero warnings. `python -B scripts/check.py`
+returned 174 PASS and 10 platform skips. The isolated Windows peer fixture
+returned 23 PASS. The full and focused logs are in the ignored
+`build/windows-persistent-onion-regression.log` and
+`build/windows-persistent-onion-fixture.log`. The restart tests use a
+simulated Tor Control endpoint and fresh fixture profiles.
+
+The mode and packaging follow-up is recorded in the current batch above.
+
 ## CURRENT_BASE
 
 GitHub `main` matched `68002b9b4a31e5da5acc152a3c17b3e49da7daed`
