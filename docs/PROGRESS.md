@@ -5,6 +5,9 @@ through color, shape and type. The navigation and mode selectors show their
 active selection. The Peers page groups pairing, Onion Service hosting and
 messages separately. Dashboard controls wrap on narrower windows. The
 Win-x64 preview reuses the existing verified bundled Tor EXE and DLL.
+The preview archive passed manifest and native import checks and launched
+from a fresh extraction on the development host. See
+[the Windows candidate evidence](../reports/windows-product-2026-11-18/README.md#redesigned-preview).
 
 # Windows public persistent hosting — 2026-11-18
 

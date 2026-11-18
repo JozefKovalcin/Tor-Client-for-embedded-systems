@@ -1,5 +1,24 @@
 # Windows Tor Manager candidate · 2026-11-18
 
+## Redesigned preview
+
+`TorManager-win-x64-0.1.0-dev.20261118.5.zip` is in the local
+`build/windows-manager-redesign/` directory. It was published from
+`a74df30e603a837f305145cdd2b5307a9e1f16e8` and reused the verified
+Tor 0.4.9.14 bundle listed below.
+
+| Check | Result |
+| --- | --- |
+| Archive bytes | 55,417,628 |
+| Archive SHA-256 | `4a8a5b126dd2c7446d0e21c030078966c37dfc05b9d561cd8c1e8c798afd8481` |
+| Locked restore and self-contained win-x64 publish | PASS |
+| Extracted file hashes and native imports | PASS, 319 payload files and 20 native import inventories |
+| Launch from extracted archive | PASS, development host with a fresh isolated offline profile |
+| Visual checks | Redesigned Dashboard viewed. Final visual walkthrough and DPI matrix NOT RUN. |
+| Release qualification | Clean-host and public tests of this archive NOT RUN. The [separate Developer runtime public test](../windows-persistent-host-2026-11-18/README.md) remains FAIL. |
+
+## Previous candidate
+
 The local self-contained Windows x64 candidate is
 `TorManager-win-x64-0.1.0-dev.20261118.4.zip` in the ignored
 `build/windows-product-release/` directory of the Windows product worktree.
