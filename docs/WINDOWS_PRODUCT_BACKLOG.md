@@ -5,9 +5,9 @@ This repository copy maps the supplied canonical backlog to separately reviewabl
 | ID | Sekcia | Popis | Stav | Dôkaz | PR/commit | Blocker | Ďalšia akcia |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | WIN-00 | 0 | Current PR heads, protected inputs and offline baseline | VERIFIED | Windows portable 160 PASS, pipeline 6 PASS, protected SHA-256 matches | #19 at `97ccff6a` | — | Use as the peer integration base |
-| WIN-01 | 1 | Persistent local TLS credential and out-of-band contact pairing | NOT RUN | Phase 1 acceptance tests pending | — | — | Implement and test on new test profiles |
-| WIN-02 | 2 | Durable outbox, authenticated ACK and deduplication | NOT RUN | Phase 2 acceptance tests pending | — | Phase 1 API review | Specify and implement the durable lifecycle |
-| WIN-03 | 3 | Message status, reconnect and peer usability | NOT RUN | Phase 3 acceptance tests pending | — | Phase 2 semantics | Project real states in the GUI |
+| WIN-01 | 1 | Persistent local TLS credential and out-of-band contact pairing | VERIFIED | Windows DPAPI and isolated profile restart/revocation test | #26 at `1af50a5` | Physical acceptance is tracked separately | Review profile and pairing |
+| WIN-02 | 2 | Durable outbox, authenticated ACK and deduplication | VERIFIED | Loopback TLS v2, lost ACK, replay, rebooted stores and TTL | #27 at `8643e99` | Physical acceptance is tracked separately | Review protocol and queue |
+| WIN-03 | 3 | Message status, reconnect and peer usability | PARTIAL | Windows Avalonia, nine peer UI assertions and a real pending-state screenshot | Workflow draft at code commit `b5e2876` | New public and clean-host runs pending | Qualify current GUI on both PCs |
 | WIN-2PC | 3 | Repeat current public Tor qualification on two physical PCs | BLOCKED | Historical evidence is retained | #19 | Separate consent and second PC | Follow the two-PC runbook after offline gates |
 | WIN-04 | 4 | Dependency Manager | PARTIAL | TASK 12 read-only diagnostics and planner | #20–#24 | Real install needs consent and an eligible candidate | Review existing drafts |
 | WIN-05 | 5 | Windows Native Build Manager | PARTIAL | TASK 12 preflight and known-runtime activation | #20–#24 | Native build needs consent | Review existing drafts |

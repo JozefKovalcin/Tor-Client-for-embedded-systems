@@ -1,3 +1,14 @@
+# Windows messaging cycle — 2026-11-18
+
+The peer review stack adds persistent Windows TLS identities, explicit
+pairing and revocation, authenticated acknowledgements, a durable encrypted
+outbox and bounded deduplication. The desktop shows delivery state, retries
+the selected pinned endpoint and offers opt-in encrypted history. Offline
+tests used a new profile per endpoint, and the Avalonia preview displayed a
+pending test message with Tor stopped. See the
+[cycle handoff](AUTONOMOUS_PROGRESS.md) and the [Windows peer guide](WINDOWS-PEER.md).
+The current GUI remains unqualified on two physical PCs and a clean host.
+
 # TASK 11 — Windows two-PC qualification — 2026-11-18
 
 PR #19 review found a malformed-record error could bypass the GUI's normal
