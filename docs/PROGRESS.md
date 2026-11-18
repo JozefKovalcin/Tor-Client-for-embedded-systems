@@ -1,3 +1,12 @@
+# TASK 11 — Windows two-PC qualification — 2026-11-18
+
+PR #19 review found a malformed-record error could bypass the GUI's normal
+stream-failure handling. The fix closes the invalid session and reports a
+sanitized channel error, so the host can continue accepting peers. Offline
+regressions cover authenticated empty, oversized and invalid UTF-8 records.
+The existing session scope rejects invalid sequence numbers. Identical text
+is accepted after a fresh authenticated connection as an independent send.
+
 # TASK 10 — Windows client-to-client — 2026-11-18
 
 The authorized public test used two independent pinned Windows Tor processes

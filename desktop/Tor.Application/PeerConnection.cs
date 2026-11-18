@@ -160,6 +160,12 @@ public sealed class PeerConnection : IAsyncDisposable
             await stream.ReadExactlyAsync(body, deadline.Token).ConfigureAwait(false);
             return StrictUtf8.GetString(body);
         }
+        catch (Exception error) when (error is InvalidDataException or DecoderFallbackException)
+        {
+            await DisposeAsync().ConfigureAwait(false);
+            // Surface rejected records through the stream error handled by both GUI roles.
+            throw new IOException("The peer sent an invalid application record.");
+        }
         catch { await DisposeAsync().ConfigureAwait(false); throw; }
         finally { reader.Release(); }
     }

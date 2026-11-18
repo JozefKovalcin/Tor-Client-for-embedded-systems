@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.Security;
 using System.Runtime.Versioning;
 using System.Security.Authentication;
 using System.Text;
@@ -75,6 +76,7 @@ internal static class Offline
             typeof(AuthenticationException), typeof(IOException));
         Console.WriteLine("PASS mutual certificate pins reject either wrong peer");
         await VerifyCorruptedRecordAsync(a, b, token);
+        await VerifyMalformedApplicationRecordsAsync(a, b, token);
 
         var pair = await PairAsync(host, fixture, a.Fingerprint, b, token);
         await using (pair.Server)
@@ -102,6 +104,8 @@ internal static class Offline
         await using (pair.Client)
         {
             await ExchangeAsync(pair.Server, pair.Client, "reconnect request", "reconnect reply", token);
+            await ExchangeAsync(pair.Server, pair.Client, "α from B", "ď from A", token);
+            Console.WriteLine("PASS identical application text is allowed on a freshly authenticated session");
             using var readDeadline = new CancellationTokenSource(TimeSpan.FromMilliseconds(80));
             await Check.RejectAsync(async () => _ = await pair.Server.ReceiveAsync(readDeadline.Token), "Read deadline did not cancel.",
                 typeof(OperationCanceledException));
@@ -121,6 +125,45 @@ internal static class Offline
         closedListener.Start();
         Console.WriteLine("PASS cancelled accept, onion removal and listener release");
         Console.WriteLine("7 offline peer groups PASS");
+    }
+
+    private static async Task VerifyMalformedApplicationRecordsAsync(PeerIdentity host, PeerIdentity client, CancellationToken token)
+    {
+        var fixtures = new (uint Size, byte[] Payload)[] { (0, []), (PeerConnection.MaxMessageBytes + 1, []), (1, [0xff]) };
+        foreach (var fixture in fixtures)
+        {
+            using var listener = new TcpListener(IPAddress.Loopback, 0);
+            listener.Start();
+            using var tcp = new TcpClient(AddressFamily.InterNetwork);
+            await tcp.ConnectAsync((IPEndPoint)listener.LocalEndpoint, token);
+            using var accepted = await listener.AcceptTcpClientAsync(token);
+            await using var tls = new SslStream(tcp.GetStream(), leaveInnerStreamOpen: false);
+            var pending = PeerConnection.AuthenticateAsync(accepted.GetStream(), host,
+                PeerIdentity.ParseFingerprint(client.Fingerprint), true, token, token);
+            await tls.AuthenticateAsClientAsync(new SslClientAuthenticationOptions
+            {
+                TargetHost = "tor-peer.invalid", ClientCertificates = [client.Certificate],
+                LocalCertificateSelectionCallback = (_, _, _, _, _) => client.Certificate,
+                RemoteCertificateValidationCallback = (_, certificate, _, _) => certificate is not null &&
+                    certificate.GetCertHashString(System.Security.Cryptography.HashAlgorithmName.SHA256) == host.Fingerprint,
+                CertificateChainPolicy = new() { DisableCertificateDownloads = true },
+                ApplicationProtocols = [new SslApplicationProtocol("tor-peer/1")], AllowTlsResume = false
+            }, token);
+            await tls.WriteAsync(new byte[] { 0x54, 0x50, 1, 0x43 }, token);
+            await tls.ReadExactlyAsync(new byte[4], token);
+            await using var server = await pending;
+            var record = new byte[12 + fixture.Payload.Length];
+            new byte[] { 0x54, 0x50, 1, 1 }.CopyTo(record, 0);
+            BinaryPrimitives.WriteUInt32BigEndian(record.AsSpan(4), 1);
+            BinaryPrimitives.WriteUInt32BigEndian(record.AsSpan(8), fixture.Size);
+            fixture.Payload.CopyTo(record, 12);
+            await tls.WriteAsync(record, token);
+            await Check.RejectAsync(async () => _ = await server.ReceiveAsync(token),
+                "An invalid frame did not surface as a recoverable channel error.", typeof(IOException));
+            await Check.RejectAsync(() => server.SendAsync("closed", token), "Invalid frame left the session open.",
+                typeof(ObjectDisposedException));
+        }
+        Console.WriteLine("PASS authenticated empty, oversized and malformed UTF-8 records fail closed as channel errors");
     }
 
     private static async Task VerifyCorruptedRecordAsync(PeerIdentity a, PeerIdentity b, CancellationToken token)
