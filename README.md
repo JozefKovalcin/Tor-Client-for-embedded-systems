@@ -2,6 +2,10 @@
 
 ## Natívny Windows projekt
 
+Tor Manager pre Windows x64 sa dá zostaviť ako self-contained ZIP s
+pribaleným Torom. Postup spustenia, Developer režim a overenie ZIP-u
+sú v [návode pre Windows Manager](desktop/packaging/WINDOWS-RELEASE.md).
+
 Kompilácia cez MSYS2 UCRT64: [stručný postup](windows-native/README.md).
 `windows-native/COMPILE.cmd` vytvorí `dist`; `dist/TEST.cmd` ponúkne PC A/B
 a spustí Tor aj testovací server na 8081. SOCKS používa 9150.

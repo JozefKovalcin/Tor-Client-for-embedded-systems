@@ -1,3 +1,21 @@
+# Windows self-contained candidate and Developer build — 2026-11-18
+
+Draft #32 adds independent connection and workspace selectors and a
+verified runtime preference for future launches. The integrated source
+published for win-x64 from an offline locked restore. The local release
+ZIP passed DLL closure, file inventory and extraction checks. The Manager
+loaded its packaged .NET runtime and passed launch and shutdown on this
+host. The bundled Tor passed the offline lifecycle and rollback tests.
+
+The real Developer GUI preflight accepted the prepared pinned input cache.
+Two native attempts identified concrete GCC temporary-directory
+and windres command-processor failures. Both were reproduced and fixed.
+The next GUI run built the optimized static package with exit 0 and passed
+eight offline smoke checks. The verified GUI export passed all 21 member
+checks. See
+[the Windows candidate evidence](../reports/windows-product-2026-11-18/README.md)
+for the artifact, hashes and run IDs.
+
 # Persistent Windows Onion Service hosting — 2026-11-18
 
 The Peers page can explicitly create, host or rotate a saved v3 address.
