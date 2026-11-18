@@ -12,9 +12,24 @@ directory, then rehashes and read-locks the staged copies. It creates private
 state, writes its own defaults/config, and
 starts Tor directly with an argument array/minimal environment. It never invokes
 COMPILE.cmd, a package manager, shell, installer or downloader. No caller-supplied
-torrc or arbitrary Tor arguments are accepted. Networking is fixed disabled:
+torrc or arbitrary Tor arguments are accepted. Offline sessions retain
 `DisableNetwork 1`, `SocksPort 0`, loopback ephemeral ControlPort and SAFECOOKIE.
-There is no online-enable command in this PR.
+
+An explicit online task adds one configured IPv4 loopback SOCKS5 port. Tor starts
+with `DisableNetwork 1`. After SAFECOOKIE and process ownership succeed, the
+adapter enables networking through the authenticated control connection. It
+requires the expected loopback listener in both the Tor response and Windows
+TCP ownership table. The app's connectivity test verifies the accepted socket's
+peer process before sending any SOCKS bytes, including during port reuse.
+Port diagnostics test bind availability without reserving the endpoint.
+Only the launched process is stopped on failure or cancellation.
+
+The SOCKS policy accepts connections from IPv4 localhost, uses Tor's
+`SafeSocks 1` for proxy-side DNS and isolates differing SOCKS credentials.
+Loopback is the local access boundary. SOCKS credentials provide isolation,
+and other local processes with loopback access may use the listener.
+Tor is a client and does not accept relay exit traffic. Bootstrap and circuit
+loss have a bounded retry window. A new session always requires user action.
 
 The original package directory is excluded from the executable directory,
 working directory and PATH used by the child. Extra DLLs, external manifests

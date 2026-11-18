@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable><TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Tor.Online.Tests" />
     <ProjectReference Include="../../Tor.Core/Tor.Core.csproj" />
     <ProjectReference Include="../../Tor.Control/Tor.Control.csproj" />
   </ItemGroup>

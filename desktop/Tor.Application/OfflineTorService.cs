@@ -2,12 +2,13 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
 using System.Threading.Channels;
 using Tor.Adapters.Windows;
+using Tor.Control;
 using Tor.Core;
 
 namespace Tor.Application;
 
-/// <summary>Owns one explicit offline Tor session and projects the W5 journal and adapter observations.</summary>
-public sealed class OfflineTorService : IOfflineTorService
+/// <summary>Owns one explicitly started Tor session and projects the journal and adapter observations.</summary>
+public sealed class OfflineTorService : IOnlineTorService
 {
     private static readonly ResourceRequest SessionResources = new(1, 0, 0, false);
     private readonly string packageDirectory;
@@ -20,8 +21,10 @@ public sealed class OfflineTorService : IOfflineTorService
     private TaskOrchestrator? core;
     private CancellationTokenSource? monitorCancellation;
     private Task? monitor, run, dispose;
+    private IWindowsOnlineTorActions? onlineActions;
     private bool packageBound, storageReady, active, stopRequested, closing, cleanupUnconfirmed;
     private string? taskId, lastError;
+    private int? requestedSocksPort;
     private RuntimePackageStatus packageStatus;
     private TorRuntimeObservation observation = new(null, false);
     private OfflineTorSnapshot snapshot = new(RuntimePackageStatus.Unchecked, TorSessionStatus.Stopped,
@@ -60,20 +63,51 @@ public sealed class OfflineTorService : IOfflineTorService
         finally { operations.Release(); }
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken = default)
+    public Task StartAsync(CancellationToken cancellationToken = default) => StartModeAsync(null, cancellationToken);
+
+    public Task StartOnlineAsync(int socksPort, CancellationToken cancellationToken = default)
     {
+        ValidateSocksPort(socksPort);
+        return StartModeAsync(socksPort, cancellationToken);
+    }
+
+    // Stop and admission share the same operations gate, so another mode cannot enter between them.
+    public async Task RestartOnlineAsync(int socksPort, CancellationToken cancellationToken = default)
+    {
+        ValidateSocksPort(socksPort);
         await operations.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            lock (gate) if (closing || active || cleanupUnconfirmed) return;
-            if (!await PreflightAsync(createState: true, cancellationToken).ConfigureAwait(false)) return;
-            cancellationToken.ThrowIfCancellationRequested();
-            await Task.Run(SubmitStart, cancellationToken).ConfigureAwait(false);
+            lock (gate) if (closing || cleanupUnconfirmed || active && requestedSocksPort is null) return;
+            var pending = await Task.Run<Task?>(RequestStop, cancellationToken).ConfigureAwait(false);
+            if (pending is not null) await pending.WaitAsync(cancellationToken).ConfigureAwait(false);
+            await StartUnderOperationsGateAsync(socksPort, cancellationToken).ConfigureAwait(false);
         }
         finally { operations.Release(); }
     }
 
-    private void SubmitStart()
+    private static void ValidateSocksPort(int port)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(port, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(port, 65535);
+    }
+
+    private async Task StartModeAsync(int? socksPort, CancellationToken cancellationToken)
+    {
+        await operations.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try { await StartUnderOperationsGateAsync(socksPort, cancellationToken).ConfigureAwait(false); }
+        finally { operations.Release(); }
+    }
+
+    private async Task StartUnderOperationsGateAsync(int? socksPort, CancellationToken cancellationToken)
+    {
+        lock (gate) if (closing || active || cleanupUnconfirmed) return;
+        if (!await PreflightAsync(createState: true, cancellationToken).ConfigureAwait(false)) return;
+        cancellationToken.ThrowIfCancellationRequested();
+        await Task.Run(() => SubmitStart(socksPort), cancellationToken).ConfigureAwait(false);
+    }
+
+    private void SubmitStart(int? socksPort)
     {
         lock (gate)
         {
@@ -81,8 +115,10 @@ public sealed class OfflineTorService : IOfflineTorService
             var orchestrator = core!;
             var id = "tor-" + Guid.NewGuid().ToString("N");
             var previous = snapshot.CurrentTask;
-            var retryOf = previous?.State is "failed" or "interrupted" or "blocked" or "cancelled" ? previous.TaskId : null;
-            try { orchestrator.Submit([new TaskSubmission(id, command, [], SessionResources, retryOf)]); }
+            var retryOf = requestedSocksPort.HasValue == socksPort.HasValue &&
+                previous?.State is "failed" or "interrupted" or "blocked" or "cancelled" ? previous.TaskId : null;
+            var sessionCommand = new WindowsTorSessionCommand(command.Executable, command.RuntimeInputs, socksPort);
+            try { orchestrator.Submit([new TaskSubmission(id, sessionCommand, [], SessionResources, retryOf)]); }
             catch (Exception error) when (IsJournalError(error))
             {
                 lastError = "Could not record the start request in the private task journal.";
@@ -90,6 +126,7 @@ public sealed class OfflineTorService : IOfflineTorService
                 return;
             }
             taskId = id;
+            requestedSocksPort = socksPort;
             active = true;
             stopRequested = false;
             lastError = null;
@@ -107,6 +144,68 @@ public sealed class OfflineTorService : IOfflineTorService
         finally { operations.Release(); }
         if (pending is not null) await pending.WaitAsync(cancellationToken).ConfigureAwait(false);
     }
+
+    public async Task<OnlineActionResult> RequestNewIdentityAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var result = await RunOnlineActionAsync((actions, token) => actions.RequestNewIdentityAsync(token), cancellationToken)
+                .ConfigureAwait(false);
+            return result switch
+            {
+                NewIdentityResult.Applied => new(OnlineActionStatus.Succeeded, "Tor confirmed the new identity signal for future requests."),
+                NewIdentityResult.Submitted => new(OnlineActionStatus.Submitted, "Tor accepted the request. Its effect has not been confirmed."),
+                NewIdentityResult.RateLimited => new(OnlineActionStatus.RateLimited, "Wait before requesting another identity."),
+                _ => OnlineUnavailable()
+            };
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return OnlineUnavailable(); }
+        catch (Exception error) when (IsOnlineTransportError(error))
+        { return new(OnlineActionStatus.Failed, "The authenticated Tor control connection could not complete the request."); }
+    }
+
+    public async Task<OnlineActionResult> CheckConnectivityAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var result = await RunOnlineActionAsync((actions, token) => actions.CheckConnectivityAsync(token), cancellationToken)
+                .ConfigureAwait(false);
+            return result switch
+            {
+                Socks5ConnectivityResult.Reachable => new(OnlineActionStatus.Succeeded, "The Tor Project HTTPS check succeeded through the owned SOCKS5 listener."),
+                Socks5ConnectivityResult.ProxyUnavailable => new(OnlineActionStatus.Unavailable, "The verified local SOCKS5 listener did not accept the test connection."),
+                Socks5ConnectivityResult.DestinationUnavailable => new(OnlineActionStatus.Failed, "The Tor Project HTTPS check could not be verified through SOCKS5."),
+                _ => OnlineUnavailable()
+            };
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return OnlineUnavailable(); }
+        catch (Exception error) when (IsOnlineTransportError(error))
+        { return new(OnlineActionStatus.Failed, "The online Tor session did not complete the connectivity check."); }
+    }
+
+    private async Task<T?> RunOnlineActionAsync<T>(Func<IWindowsOnlineTorActions, CancellationToken, Task<T?>> start,
+        CancellationToken cancellationToken) where T : struct
+    {
+        Task<T?> pending;
+        await operations.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            lock (gate)
+            {
+                if (snapshot.Online?.CanUseOnlineActions != true || onlineActions is null) return null;
+                pending = start(onlineActions, cancellationToken);
+            }
+        }
+        finally { operations.Release(); }
+        return await pending.ConfigureAwait(false);
+    }
+
+    private static OnlineActionResult OnlineUnavailable() => new(OnlineActionStatus.Unavailable,
+        "Start an online session and wait for Tor bootstrap and its verified SOCKS5 listener.");
+
+    private static bool IsOnlineTransportError(Exception error) => error is IOException or InvalidOperationException or
+        System.Net.Sockets.SocketException or System.Security.Authentication.AuthenticationException or
+        System.Threading.Channels.ChannelClosedException;
 
     private Task? RequestStop()
     {
@@ -241,7 +340,11 @@ public sealed class OfflineTorService : IOfflineTorService
             var opened = new TaskOrchestrator(handlers, store ?? new VerifiedFileStore(privateDirectory), journal,
                 SessionResources, maximumTasks: 1024, maximumTaskDuration: TimeSpan.FromHours(24));
             var cancellation = new CancellationTokenSource();
-            lock (gate) core = opened;
+            lock (gate)
+            {
+                core = opened;
+                onlineActions = handlers.SingleOrDefault() as IWindowsOnlineTorActions;
+            }
             packageBound = store is not null;
             monitorCancellation = cancellation;
             monitor = MonitorCoreAsync(opened, cancellation.Token);
@@ -277,29 +380,55 @@ public sealed class OfflineTorService : IOfflineTorService
         bool authenticated = active && observation.Authenticated;
         var control = authenticated ? TorControlStatus.Authenticated : active && observation.Authenticating
             ? TorControlStatus.Authenticating : TorControlStatus.Disconnected;
-        var session = active ? stopRequested || observation.TerminationConfirmed || current?.State == "cancelling"
-            ? TorSessionStatus.Stopping : authenticated ? TorSessionStatus.RunningOffline
-            : observation.ProcessId is not null && !observation.Authenticating ? TorSessionStatus.Failed
-            : TorSessionStatus.Starting
-            : cleanupUnconfirmed ? TorSessionStatus.Failed : current?.State switch
-            {
-                "failed" or "blocked" => TorSessionStatus.Failed,
-                "interrupted" => TorSessionStatus.Interrupted,
-                _ => TorSessionStatus.Stopped
-            };
-        var detail = lastError ?? (session switch
+        var online = requestedSocksPort is not null;
+        var onlineReady = authenticated && observation.BootstrapPercent == 100 &&
+            observation.Online?.SocksPort is not null && observation.Online.CircuitEstablished == true;
+        var session = ObserveSessionStatus(current?.State, authenticated, online, onlineReady);
+        var detail = lastError ?? (authenticated ? observation.Online?.LastError : null) ?? (session switch
         {
             TorSessionStatus.Interrupted => "A previous application session was interrupted. Start a new session explicitly.",
-            TorSessionStatus.Failed => "The offline task failed or was blocked. Review its phase, reason and exit code.",
+            TorSessionStatus.Failed => online ? OnlineFailure(current?.ReasonCode) :
+                "The offline task failed or was blocked. Review its phase, reason and exit code.",
             _ => null
         });
         snapshot = new(packageStatus, session, control, observation.ProcessId,
             authenticated ? observation.BootstrapPercent : null,
             authenticated ? observation.BootstrapTag : null, detail, current, tasks, core?.Logs() ?? [],
             !closing && !active && !cleanupUnconfirmed && storageReady && packageStatus == RuntimePackageStatus.Available,
-            !closing && active && !stopRequested);
+            !closing && active && !stopRequested,
+            requestedSocksPort is int port ? new(port, authenticated && !stopRequested ? observation.Online?.SocksPort : null,
+                authenticated ? observation.Online?.TorVersion : null, authenticated ? observation.Online?.CircuitEstablished : null,
+                !closing && !stopRequested && onlineReady && onlineActions is not null) : null);
         foreach (var channel in subscribers) channel.Writer.TryWrite(snapshot);
     }
+
+    private TorSessionStatus ObserveSessionStatus(string? taskState, bool authenticated, bool online, bool onlineReady)
+    {
+        if (!active)
+        {
+            if (cleanupUnconfirmed || taskState is "failed" or "blocked") return TorSessionStatus.Failed;
+            return taskState == "interrupted" ? TorSessionStatus.Interrupted : TorSessionStatus.Stopped;
+        }
+        if (online && taskState is ("failed" or "blocked")) return TorSessionStatus.Failed;
+        if (stopRequested || observation.TerminationConfirmed || taskState == "cancelling") return TorSessionStatus.Stopping;
+        if (authenticated)
+        {
+            if (!online) return TorSessionStatus.RunningOffline;
+            return onlineReady ? TorSessionStatus.RunningOnline : TorSessionStatus.BootstrappingOnline;
+        }
+        return observation.ProcessId is not null && !observation.Authenticating ? TorSessionStatus.Failed : TorSessionStatus.Starting;
+    }
+
+    private static string OnlineFailure(string? reason) => reason switch
+    {
+        "socks-port-in-use" => "The selected loopback SOCKS5 port is already in use. Choose another port and retry.",
+        "socks-port-unavailable" => "Windows refused the selected loopback SOCKS5 port. Choose another port and retry.",
+        "unverified-socks-listener" => "Tor did not provide the expected owned loopback SOCKS5 listener. The session stopped.",
+        "tor-bootstrap-timeout" => "Tor could not establish a circuit before the bootstrap deadline. Check the network and retry.",
+        "tor-control-lost" => "The authenticated Tor control connection became unavailable. The session stopped.",
+        "unexpected-tor-exit" => "The owned Tor process exited unexpectedly. Review the exit code and restart explicitly.",
+        _ => "The online Tor task failed or was blocked. Review its phase, reason and exit code."
+    };
 
     public async IAsyncEnumerable<OfflineTorSnapshot> WatchAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
@@ -353,7 +482,7 @@ public sealed class OfflineTorService : IOfflineTorService
         monitor = null;
         if (existing is null) return;
         try { await existing.DisposeAsync().ConfigureAwait(false); }
-        finally { lock (gate) core = null; }
+        finally { lock (gate) { core = null; onlineActions = null; } }
     }
 
     private bool IsClosing() { lock (gate) return closing; }

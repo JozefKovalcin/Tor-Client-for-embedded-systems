@@ -163,7 +163,7 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
     {
         DependencyProbeCommand p => new DependencyProbeCommand(p.Inputs.ToArray()),
         NativeLinuxBuildCommand p => new NativeLinuxBuildCommand(p.Request, p.BuildInputs.ToArray(), p.OutputRefs.ToArray()),
-        WindowsTorSessionCommand p => new WindowsTorSessionCommand(p.Executable, p.RuntimeInputs.ToArray()),
+        WindowsTorSessionCommand p => new WindowsTorSessionCommand(p.Executable, p.RuntimeInputs.ToArray(), p.OnlineSocksPort),
         _ => throw new InvalidDataException("Unrecognized typed command")
     };
 
@@ -300,7 +300,7 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
                 if (observed.Signal is < 1 or > 127 || (observed.Signal is not null && observed.ExitCode is not null))
                     throw new InvalidDataException("Invalid adapter process result");
                 if (!item.Cancellation.IsCancellationRequested && observed.BlockedReason is null &&
-                    observed.FailureReason is null && observed.ExitCode == 0 && observed.Signal is null)
+                    observed.FailureReason is null && observed.WindowsFailure is null && observed.ExitCode == 0 && observed.Signal is null)
                 {
                     var outputs = observed.Outputs ?? Array.Empty<VerifiedFile>();
                     if (outputs.Select(x => x.Ref).Distinct(StringComparer.Ordinal).Count() != outputs.Count ||
@@ -324,8 +324,9 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
                     Set(item, "failed", TaskPhase.Complete, TaskMessage.Failed, reason: "adapter-or-verification-failed");
                 else if (result.BlockedReason is not null)
                     Set(item, "blocked", TaskPhase.Complete, TaskMessage.Blocked, result.ExitCode, result.Signal, "adapter-blocked");
-                else if (result.FailureReason is not null)
-                    Set(item, "failed", TaskPhase.Complete, TaskMessage.Failed, result.ExitCode, result.Signal, "adapter-failed");
+                else if (result.FailureReason is not null || result.WindowsFailure is not null)
+                    Set(item, "failed", TaskPhase.Complete, TaskMessage.Failed, result.ExitCode, result.Signal,
+                        SafeFailureReason(item.Submission?.Command, result.WindowsFailure));
                 else if (result.ExitCode != 0 || result.Signal is not null)
                     Set(item, "failed", TaskPhase.Complete, TaskMessage.Failed, result.ExitCode, result.Signal, "process-failed");
                 else
@@ -333,6 +334,21 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
             }
         }
         finally { lock (gate) item.Active = false; }
+    }
+
+    private static string SafeFailureReason(TaskCommand? command, WindowsTorFailure? failure)
+    {
+        if (command is not WindowsTorSessionCommand { OnlineSocksPort: not null }) return "adapter-failed";
+        return failure switch
+        {
+            WindowsTorFailure.SocksPortInUse => "socks-port-in-use",
+            WindowsTorFailure.SocksPortUnavailable => "socks-port-unavailable",
+            WindowsTorFailure.UnverifiedSocksListener => "unverified-socks-listener",
+            WindowsTorFailure.BootstrapTimeout => "tor-bootstrap-timeout",
+            WindowsTorFailure.ControlLost => "tor-control-lost",
+            WindowsTorFailure.UnexpectedExit => "unexpected-tor-exit",
+            _ => "adapter-failed"
+        };
     }
 
     private void CompleteCancellation(Entry item, uint? exit = null, int? signal = null)
