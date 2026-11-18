@@ -13,19 +13,22 @@ public sealed class PeerHost : IAsyncDisposable
     private readonly PeerIdentity identity;
     private readonly CancellationTokenSource lifetime;
     private readonly CancellationToken hostToken;
+    private readonly PeerProtocol protocol;
     private int accepting, disposed;
     public OnionAddress Address { get; }
 
-    private PeerHost(IOnionPeerTransport tor, TcpListener listener, PeerIdentity identity, byte[] remotePin, OnionAddress address)
+    private PeerHost(IOnionPeerTransport tor, TcpListener listener, PeerIdentity identity, byte[] remotePin, OnionAddress address,
+        PeerProtocol protocol)
     {
         this.tor = tor; this.listener = listener; this.identity = identity; this.remotePin = remotePin; Address = address;
+        this.protocol = protocol;
         lifetime = CancellationTokenSource.CreateLinkedTokenSource(tor.Lifetime);
         hostToken = lifetime.Token;
         owner = hostToken.Register(static s => ((TcpListener)s!).Stop(), listener);
     }
 
     public static async Task<PeerHost> StartAsync(IOnionPeerTransport tor, PeerIdentity local, string remoteFingerprint,
-        CancellationToken token = default)
+        CancellationToken token = default, PeerProtocol protocol = PeerProtocol.Transient)
     {
         var pin = PeerIdentity.ParseFingerprint(remoteFingerprint);
         using var operation = CancellationTokenSource.CreateLinkedTokenSource(token, tor.Lifetime);
@@ -34,7 +37,7 @@ public sealed class PeerHost : IAsyncDisposable
         {
             listener.Start(2);
             var address = await tor.HostAsync(((IPEndPoint)listener.LocalEndpoint).Port, operation.Token).ConfigureAwait(false);
-            return new(tor, listener, local, pin, address);
+            return new(tor, listener, local, pin, address, protocol);
         }
         catch { listener.Stop(); throw; }
     }
@@ -50,7 +53,7 @@ public sealed class PeerHost : IAsyncDisposable
             using var operation = CancellationTokenSource.CreateLinkedTokenSource(token, hostToken);
             var accepted = await listener.AcceptSocketAsync(operation.Token).ConfigureAwait(false);
             return await PeerConnection.AuthenticateAsync(new NetworkStream(accepted, ownsSocket: true), identity,
-                remotePin, true, hostToken, operation.Token).ConfigureAwait(false);
+                remotePin, true, hostToken, operation.Token, protocol).ConfigureAwait(false);
         }
         finally { Volatile.Write(ref accepting, 0); }
     }

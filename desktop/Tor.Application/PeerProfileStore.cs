@@ -95,6 +95,13 @@ public sealed class PeerProfileStore
         Save(identity, contacts);
     }
 
+    public PeerDeliveryStore OpenDelivery(PeerIdentity identity, TrustedPeer peer)
+    {
+        if (!ReadContacts(identity).Any(contact => contact.Fingerprint == peer.Fingerprint && !contact.Revoked))
+            throw new InvalidOperationException("The selected peer is not active in this profile.");
+        return new(root, identity.Fingerprint, peer.Fingerprint);
+    }
+
     private void Save(PeerIdentity identity, TrustedPeer[] contacts) =>
         Write("contacts.json", JsonSerializer.SerializeToUtf8Bytes(new ContactFile(1, identity.Fingerprint, contacts), Json), replace: true);
 

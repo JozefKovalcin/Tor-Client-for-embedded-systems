@@ -11,8 +11,8 @@ original stashes and the root worktree's untracked report are preserved.
 
 ## ACTIVE_PHASE / ACTIVE_PR
 
-Phase 0 audit is ready for review in PR #25. Phase 1 implements the first-use
-TLS credential and contact store on top of #25.
+Phase 0 audit is in PR #25. Phase 1 is in PR #26. Phase 2 adds the peer
+delivery protocol and encrypted queue. Phase 3 will connect the desktop.
 
 ## VERIFIED / TEST_EVIDENCE
 
@@ -51,6 +51,7 @@ No executed gate has failed at the start of the cycle.
 | #19 | Mutual TLS peer messaging over Tor, baseline for this cycle |
 | #20–#24 | Existing Developer Manager drafts, outside this cycle's ownership |
 | #25 | Exact-head baseline, checklist and security decisions |
+| #26 | Per-user TLS credential, owner-private contact pins and revocation |
 
 ## BLOCKED / BLOCKED_AWAITING_APPROVAL
 
@@ -66,6 +67,6 @@ operator-assisted observations remain historical evidence.
 
 ## NEXT_ACTION
 
-Implement the separate reliable protocol and per-peer delivery queue.
-Use fresh test profiles to reproduce lost acknowledgement, replay and
-reconnect before wiring delivery status into the GUI.
+Wire the authenticated protocol and per-peer delivery state into the GUI.
+Add bounded reconnect for transient transport errors, retain the paired pin
+and expose pending, delivered and expired state separately from connectivity.

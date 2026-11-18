@@ -68,12 +68,13 @@ public sealed class PeerIdentity : IDisposable
     }
 }
 
+public enum PeerProtocol : byte { Transient = 1, Reliable = 2 }
+
 /// <summary>One mutually authenticated, versioned stream with one writer and one reader.</summary>
 public sealed class PeerConnection : IAsyncDisposable
 {
     public const int MaxMessageBytes = 16 * 1024;
     private static readonly TimeSpan IoDeadline = TimeSpan.FromMinutes(2);
-    private static readonly SslApplicationProtocol Protocol = new("tor-peer/1");
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
     private const int HeaderLength = 12;
     private const byte Message = 1, Close = 2;
@@ -82,24 +83,30 @@ public sealed class PeerConnection : IAsyncDisposable
     private readonly SemaphoreSlim writer = new(1, 1), reader = new(1, 1);
     private uint sent, received;
     private int disposed;
+    public PeerProtocol Protocol { get; }
+    internal string LocalFingerprint { get; }
+    internal string RemoteFingerprint { get; }
 
-    private PeerConnection(SslStream stream, CancellationToken lifetime)
+    private PeerConnection(SslStream stream, CancellationToken lifetime, PeerProtocol protocol, string localPin, string remotePin)
     {
         this.stream = stream;
+        Protocol = protocol;
+        LocalFingerprint = localPin;
+        RemoteFingerprint = remotePin;
         owner = lifetime.Register(static s => ((SslStream)s!).Dispose(), stream);
     }
 
     public static async Task<PeerConnection> ConnectAsync(IOnionPeerTransport transport, OnionAddress address,
-        PeerIdentity local, string remoteFingerprint, CancellationToken token = default)
+        PeerIdentity local, string remoteFingerprint, CancellationToken token = default, PeerProtocol protocol = PeerProtocol.Transient)
     {
         byte[] pin = PeerIdentity.ParseFingerprint(remoteFingerprint);
         using var operation = CancellationTokenSource.CreateLinkedTokenSource(token, transport.Lifetime);
         var tunnel = await transport.ConnectAsync(address, operation.Token).ConfigureAwait(false);
-        return await AuthenticateAsync(tunnel, local, pin, false, transport.Lifetime, operation.Token).ConfigureAwait(false);
+        return await AuthenticateAsync(tunnel, local, pin, false, transport.Lifetime, operation.Token, protocol).ConfigureAwait(false);
     }
 
     internal static async Task<PeerConnection> AuthenticateAsync(Stream transport, PeerIdentity local, byte[] remotePin,
-        bool server, CancellationToken lifetime, CancellationToken token)
+        bool server, CancellationToken lifetime, CancellationToken token, PeerProtocol protocol = PeerProtocol.Transient)
     {
         var tls = new SslStream(transport, leaveInnerStreamOpen: false);
         using var operation = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime);
@@ -109,6 +116,12 @@ public sealed class PeerConnection : IAsyncDisposable
         var chainPolicy = new X509ChainPolicy { DisableCertificateDownloads = true, RevocationMode = X509RevocationMode.NoCheck };
         try
         {
+            var alpn = protocol switch
+            {
+                PeerProtocol.Transient => new SslApplicationProtocol("tor-peer/1"),
+                PeerProtocol.Reliable => new SslApplicationProtocol("tor-peer/2"),
+                _ => throw new ArgumentOutOfRangeException(nameof(protocol))
+            };
             if (server)
             {
                 await tls.AuthenticateAsServerAsync(new SslServerAuthenticationOptions
@@ -116,7 +129,7 @@ public sealed class PeerConnection : IAsyncDisposable
                     ServerCertificate = local.Certificate, ClientCertificateRequired = true,
                     RemoteCertificateValidationCallback = MatchesPin, CertificateChainPolicy = chainPolicy,
                     EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
-                    ApplicationProtocols = [Protocol], AllowTlsResume = false,
+                    ApplicationProtocols = [alpn], AllowTlsResume = false,
                     AllowRenegotiation = false
                 }, operation.Token).ConfigureAwait(false);
             }
@@ -128,24 +141,24 @@ public sealed class PeerConnection : IAsyncDisposable
                     LocalCertificateSelectionCallback = (_, _, _, _, _) => local.Certificate,
                     RemoteCertificateValidationCallback = MatchesPin, CertificateChainPolicy = chainPolicy,
                     EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
-                    ApplicationProtocols = [Protocol], AllowTlsResume = false,
+                    ApplicationProtocols = [alpn], AllowTlsResume = false,
                     AllowRenegotiation = false
                 }, operation.Token).ConfigureAwait(false);
             }
             if (!tls.IsMutuallyAuthenticated || !tls.IsEncrypted || tls.RemoteCertificate is null ||
-                tls.NegotiatedApplicationProtocol != Protocol)
-                throw new AuthenticationException("Mutual TLS and peer protocol version 1 were not negotiated.");
+                tls.NegotiatedApplicationProtocol != alpn)
+                throw new AuthenticationException("Mutual TLS and the selected peer protocol were not negotiated.");
             // The acknowledgement occurs after the server has validated the client certificate.
             // This keeps a TLS 1.3 client from reporting a connection before both pins passed.
-            byte[] ready = [(byte)'T', (byte)'P', 1, server ? (byte)'S' : (byte)'C'];
-            byte[] expected = [(byte)'T', (byte)'P', 1, server ? (byte)'C' : (byte)'S'];
+            byte[] ready = [(byte)'T', (byte)'P', (byte)protocol, server ? (byte)'S' : (byte)'C'];
+            byte[] expected = [(byte)'T', (byte)'P', (byte)protocol, server ? (byte)'C' : (byte)'S'];
             var reply = new byte[4];
             if (!server) await tls.WriteAsync(ready, operation.Token).ConfigureAwait(false);
             await tls.ReadExactlyAsync(reply, operation.Token).ConfigureAwait(false);
             if (!reply.AsSpan().SequenceEqual(expected)) throw new AuthenticationException("Peer protocol acknowledgement failed.");
             if (server) await tls.WriteAsync(ready, operation.Token).ConfigureAwait(false);
             operation.Token.ThrowIfCancellationRequested();
-            return new(tls, lifetime);
+            return new(tls, lifetime, protocol, local.Fingerprint, Convert.ToHexString(remotePin));
         }
         catch { await tls.DisposeAsync().ConfigureAwait(false); throw; }
     }
@@ -163,13 +176,23 @@ public sealed class PeerConnection : IAsyncDisposable
         token.ThrowIfCancellationRequested();
         if (!reader.Wait(0)) throw new InvalidOperationException("A receive is already in progress.");
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
-        deadline.CancelAfter(IoDeadline);
         try
         {
             var header = new byte[HeaderLength];
-            await stream.ReadExactlyAsync(header, deadline.Token).ConfigureAwait(false);
+            if (Protocol == PeerProtocol.Reliable)
+            {
+                // Reliable peers may remain idle. Bound the remainder once a frame starts.
+                await stream.ReadExactlyAsync(header.AsMemory(0, 1), deadline.Token).ConfigureAwait(false);
+                deadline.CancelAfter(IoDeadline);
+                await stream.ReadExactlyAsync(header.AsMemory(1), deadline.Token).ConfigureAwait(false);
+            }
+            else
+            {
+                deadline.CancelAfter(IoDeadline);
+                await stream.ReadExactlyAsync(header, deadline.Token).ConfigureAwait(false);
+            }
             var sequence = checked(received + 1);
-            var (kind, length) = DecodeHeader(header, sequence);
+            var (kind, length) = DecodeHeader(header, sequence, Protocol);
             received = sequence;
             if (kind == Close)
             {
@@ -209,7 +232,7 @@ public sealed class PeerConnection : IAsyncDisposable
         {
             var sequence = checked(sent + 1);
             byte[] frame = new byte[HeaderLength + bytes.Length];
-            frame[0] = (byte)'T'; frame[1] = (byte)'P'; frame[2] = 1; frame[3] = kind;
+            frame[0] = (byte)'T'; frame[1] = (byte)'P'; frame[2] = (byte)Protocol; frame[3] = kind;
             BinaryPrimitives.WriteUInt32BigEndian(frame.AsSpan(4), sequence);
             BinaryPrimitives.WriteUInt32BigEndian(frame.AsSpan(8), (uint)bytes.Length);
             bytes.CopyTo(frame.AsSpan(HeaderLength));
@@ -220,9 +243,10 @@ public sealed class PeerConnection : IAsyncDisposable
         finally { writer.Release(); }
     }
 
-    internal static (byte Kind, int Length) DecodeHeader(ReadOnlySpan<byte> frame, uint sequence)
+    internal static (byte Kind, int Length) DecodeHeader(ReadOnlySpan<byte> frame, uint sequence,
+        PeerProtocol protocol = PeerProtocol.Transient)
     {
-        if (frame.Length != HeaderLength || frame[0] != 'T' || frame[1] != 'P' || frame[2] != 1 ||
+        if (frame.Length != HeaderLength || frame[0] != 'T' || frame[1] != 'P' || frame[2] != (byte)protocol ||
             sequence == 0 || BinaryPrimitives.ReadUInt32BigEndian(frame[4..]) != sequence)
             throw new InvalidDataException("Invalid peer frame version or sequence.");
         uint length = BinaryPrimitives.ReadUInt32BigEndian(frame[8..]);

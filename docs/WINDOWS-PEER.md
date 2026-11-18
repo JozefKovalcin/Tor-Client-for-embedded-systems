@@ -84,6 +84,34 @@ host operation and Tor stay alive. Restarting A or its Tor requires a new
 onion registration. Restarting the app with the same intact private profile
 retains its TLS fingerprint and active contact pins.
 
+## Reliable protocol version 2
+
+Version 2 uses only ALPN `tor-peer/2`. The TLS setup and protocol-ready
+exchange retain both certificate pin checks and use version byte 2. The
+outer header remains bounded by the same 16 KiB payload and independent
+sequence rules. A nested application record is either
+`M <32 hex ID> <Unix UTC expiry> <canonical Base64 UTF-8>` or
+`A <32 hex ID>`. Text is limited to 8,192 UTF-8 bytes. An idle connection
+waits until the first byte of a record with cancellation still active. The
+rest of the record has the existing I/O deadline.
+
+The same random message ID and original 15-minute expiry follow the
+message after any reconnect. The recipient durably commits the contents
+under the authenticated pin before ACK. A duplicate with the same content
+and expiry returns the ACK again. Reuse with different content is an error.
+The sender records delivered only after a matching ACK on an authenticated
+connection where the ID was sent. TTL expiry, an invalid queue or exhaustion
+is observable and cannot imply delivery. This is bounded retry with durable
+deduplication within the expiry window. It provides no human read receipt.
+
+Each contact uses a profile-local DPAPI-encrypted file with up to 64 outbox
+and 64 inbox entries and a 1 MiB clear serialization limit. A completed
+outbox retains descriptive metadata while the payload is removed. The
+inbox keeps the delivered text and its deduplication record until expiry,
+which is processed on access and during a connected session. It can be
+viewed again after a restart within this window. Delivery storage is
+separate from any future opt-in conversation history.
+
 ## Authorized qualification
 
 The offline suite uses loopback TLS and SOCKS fixtures. A separate opt-in

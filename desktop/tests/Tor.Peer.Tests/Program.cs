@@ -22,6 +22,11 @@ try
         await Offline.PrivateProfileAsync(fresh);
         return 0;
     }
+    if (OperatingSystem.IsWindows() && args is ["--private-delivery", var freshDelivery])
+    {
+        await Offline.PrivateDeliveryAsync(freshDelivery);
+        return 0;
+    }
     if (OperatingSystem.IsWindows() && args is ["--native-disabled-policy", var offlineRuntime, var offlineState])
     {
         await PublicTor.VerifyDisabledPolicyAsync(offlineRuntime, offlineState);
@@ -65,6 +70,107 @@ internal static class Check
 
 internal static class Offline
 {
+    internal static async Task PrivateDeliveryAsync(string fresh)
+    {
+        Check.That(Path.IsPathFullyQualified(fresh) && !Directory.Exists(fresh) && !File.Exists(fresh),
+            "An absolute unused test directory is required.");
+        PrivateStorage.CreateNewDirectory(fresh);
+        var aPath = Path.Combine(fresh, "A");
+        var bPath = Path.Combine(fresh, "B");
+        PrivateStorage.CreateNewDirectory(aPath);
+        PrivateStorage.CreateNewDirectory(bPath);
+        var aProfile = new PeerProfileStore(aPath);
+        var bProfile = new PeerProfileStore(bPath);
+        using var a = aProfile.CreateIdentity();
+        using var b = bProfile.CreateIdentity();
+        var bContact = aProfile.Pair(a, "Fixture B", b.Fingerprint, null, true);
+        var aContact = bProfile.Pair(b, "Fixture A", a.Fingerprint, null, true);
+        var aStore = aProfile.OpenDelivery(a, bContact);
+        var bStore = bProfile.OpenDelivery(b, aContact);
+        const string sentText = "once despite lost ACK";
+        var outbound = aStore.Enqueue(sentText);
+        var wire = ReliablePeerWire.Encode(outbound);
+        await Check.RejectAsync(() => Task.FromResult(ReliablePeerWire.Decode("A invalid")),
+            "Malformed ACK was accepted.", typeof(InvalidDataException));
+        await Check.RejectAsync(() => Task.FromResult(ReliablePeerWire.Decode(wire + " ")),
+            "Noncanonical payload was accepted.", typeof(InvalidDataException));
+        Check.That(aProfile.OpenDelivery(a, bContact).Snapshot().Outbox.Single().Id == outbound.Id,
+            "Lost pending message on reopen.");
+        using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+        using var fixture = new LoopbackTransport();
+        await using var host = await PeerHost.StartAsync(fixture, b, a.Fingerprint, deadline.Token, PeerProtocol.Reliable);
+        await Check.RejectAsync(() => PairAsync(host, fixture, b.Fingerprint, a, deadline.Token),
+            "Reliable transport silently downgraded to version 1.", typeof(AuthenticationException), typeof(IOException));
+        var first = await PairAsync(host, fixture, b.Fingerprint, a, deadline.Token, PeerProtocol.Reliable);
+        await using (first.Client)
+        await using (first.Server)
+        {
+            var received = first.Server.ReceiveAsync(deadline.Token);
+            await first.Client.SendAsync(wire, deadline.Token);
+            var decoded = ReliablePeerWire.Decode((await received)!);
+            Check.That(bStore.Accept(decoded.Id, decoded.ExpiresUtc, decoded.Text!) == PeerAcceptance.Accepted,
+                "New message was not durably accepted.");
+            await Check.RejectAsync(() => Task.FromResult(bStore.Accept(decoded.Id, decoded.ExpiresUtc, "changed")),
+                "A reused ID with changed contents was accepted.", typeof(InvalidDataException));
+            // Deliberately end before an ACK is sent, as if the recipient crashed here.
+        }
+        Check.That(aStore.Snapshot().Outbox.Single().Status == PeerDeliveryStatus.Pending, "Missing ACK implied delivery.");
+        aStore = aProfile.OpenDelivery(a, bContact);
+        bStore = bProfile.OpenDelivery(b, aContact);
+        var reply = bStore.Enqueue("reply after restart");
+        var second = await PairAsync(host, fixture, b.Fingerprint, a, deadline.Token, PeerProtocol.Reliable);
+        await using (second.Client)
+        await using (second.Server)
+        {
+            await Check.RejectAsync(() => Task.FromResult(new ReliablePeerSession(second.Client, bStore, _ => { })),
+                "Connection accepted a queue from the wrong local or peer pin.", typeof(ArgumentException));
+            var aDelivered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var bDelivered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var aSession = new ReliablePeerSession(second.Client, aStore, state =>
+            {
+                if (state.Outbox.Any(item => item.Id == outbound.Id && item.Status == PeerDeliveryStatus.Delivered) &&
+                    state.Inbox.Any(item => item.Id == reply.Id))
+                    aDelivered.TrySetResult();
+            });
+            var bSession = new ReliablePeerSession(second.Server, bStore, state =>
+            {
+                if (state.Outbox.Any(item => item.Id == reply.Id && item.Status == PeerDeliveryStatus.Delivered))
+                    bDelivered.TrySetResult();
+            });
+            using var active = CancellationTokenSource.CreateLinkedTokenSource(deadline.Token);
+            var sender = aSession.RunAsync(active.Token);
+            var receiver = bSession.RunAsync(active.Token);
+            try
+            {
+                await Task.WhenAll(aDelivered.Task, bDelivered.Task).WaitAsync(deadline.Token);
+                var inbox = bStore.Snapshot().Inbox;
+                Check.That(inbox.Count == 1 && inbox[0].Id == outbound.Id && inbox[0].Text == sentText,
+                    "Lost ACK caused duplicate or changed delivery.");
+                Check.That(aStore.Snapshot().Outbox.Single().Text is null, "ACK did not clear outbound payload.");
+            }
+            finally
+            {
+                await active.CancelAsync();
+                try { await Task.WhenAll(sender, receiver); }
+                catch (OperationCanceledException) when (active.IsCancellationRequested) { }
+            }
+        }
+        var clock = new FixtureClock(DateTimeOffset.UtcNow);
+        var expiring = new PeerDeliveryStore(Path.Combine(aPath, "peer-security"), a.Fingerprint, b.Fingerprint, clock);
+        var delayed = expiring.Enqueue("expires");
+        clock.Utc = clock.Utc.AddMinutes(16);
+        var expired = expiring.Snapshot().Outbox.Single(item => item.Id == delayed.Id);
+        Check.That(expired.Status == PeerDeliveryStatus.Expired && expired.Text is null, "TTL did not expire the stored payload.");
+        Check.That(expiring.Accept(delayed.Id, delayed.ExpiresUtc, "expires") == PeerAcceptance.Expired, "Expired message returned as fresh.");
+        Console.WriteLine("PASS durable pre-send, lost ACK, pin-bound queues, deduplication after reopen, bidirectional ACK and TTL");
+    }
+
+    private sealed class FixtureClock(DateTimeOffset utc) : TimeProvider
+    {
+        internal DateTimeOffset Utc = utc;
+        public override DateTimeOffset GetUtcNow() => Utc;
+    }
+
     internal static async Task PrivateProfileAsync(string fresh)
     {
         Check.That(Path.IsPathFullyQualified(fresh) && !Directory.Exists(fresh) && !File.Exists(fresh),
@@ -312,10 +418,11 @@ internal static class Offline
     }
 
     internal static async Task<(PeerConnection Server, PeerConnection Client)> PairAsync(PeerHost host,
-        IOnionPeerTransport transport, string hostPin, PeerIdentity client, CancellationToken token)
+        IOnionPeerTransport transport, string hostPin, PeerIdentity client, CancellationToken token,
+        PeerProtocol protocol = PeerProtocol.Transient)
     {
         var inbound = host.AcceptAsync(token);
-        var outbound = PeerConnection.ConnectAsync(transport, host.Address, client, hostPin, token);
+        var outbound = PeerConnection.ConnectAsync(transport, host.Address, client, hostPin, token, protocol);
         try { await Task.WhenAll(inbound, outbound); }
         catch
         {
