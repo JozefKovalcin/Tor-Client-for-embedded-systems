@@ -59,7 +59,7 @@ internal static class Qualification
         var lines = WindowsOnlineTorSettings.Configuration(IOnlineTorService.DefaultSocksPort)
             .Split('\n', StringSplitOptions.RemoveEmptyEntries);
         Require(lines.SequenceEqual(new[] {
-            "SocksPort 127.0.0.1:9150 IsolateSOCKSAuth", "SocksPolicy accept 127.0.0.1/32",
+            "SocksPort 127.0.0.1:9150 IsolateSOCKSAuth ExtendedErrors", "SocksPolicy accept 127.0.0.1/32",
             "SocksPolicy reject *", "SafeSocks 1", "ExitRelay 0", "ExitPolicy reject *:*", "DisableNetwork 1"
         }), "The configured SOCKS and network policy changed.");
         VerifyInvalidPort(0);

@@ -12,7 +12,7 @@ public static class WindowsOnlineTorSettings
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(socksPort, 1);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(socksPort, 65535);
-        return "SocksPort 127.0.0.1:" + socksPort.ToString(CultureInfo.InvariantCulture) + " IsolateSOCKSAuth\n" +
+        return "SocksPort 127.0.0.1:" + socksPort.ToString(CultureInfo.InvariantCulture) + " IsolateSOCKSAuth ExtendedErrors\n" +
             "SocksPolicy accept 127.0.0.1/32\nSocksPolicy reject *\nSafeSocks 1\n" +
             "ExitRelay 0\nExitPolicy reject *:*\nDisableNetwork 1\n";
     }

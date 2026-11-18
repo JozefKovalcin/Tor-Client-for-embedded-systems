@@ -68,6 +68,11 @@ sealed class MockServer : IAsyncDisposable
             }
             else if (verb == "SETEVENTS")
             {
+                if (command == "SETEVENTS STATUS_CLIENT SIGNAL HS_DESC")
+                {
+                    await output.WriteLineAsync("250 OK");
+                    continue;
+                }
                 if (command == "SETEVENTS STATUS_CLIENT SIGNAL")
                 {
                     await output.WriteLineAsync("650 STATUS_CLIENT NOTICE BOOTSTRAP SUMMARY=\"untrusted PROGRESS=100 TAG=forged hint\"");
@@ -115,6 +120,16 @@ sealed class MockServer : IAsyncDisposable
                 }
                 if (mode == "identity-observed") await output.WriteLineAsync("650 SIGNAL NEWNYM");
                 await output.WriteLineAsync("250 OK");
+            }
+            else if (verb == "HSFETCH")
+            {
+                Assert.That(ProofReceived && command == "HSFETCH " + FixtureServiceId,
+                    "Descriptor refresh requested the wrong address or bypassed authentication");
+                await output.WriteLineAsync("250 OK");
+                await output.WriteLineAsync("650 HS_DESC RECEIVED " + new string('b', 56) + " NO_AUTH UNKNOWN");
+                await output.WriteLineAsync("650 HS_DESC FAILED " + FixtureServiceId + " NO_AUTH UNKNOWN REASON=NOT_FOUND");
+                if (mode == "descriptor-refresh")
+                    await output.WriteLineAsync("650 HS_DESC RECEIVED " + FixtureServiceId + " NO_AUTH UNKNOWN");
             }
             else if (verb == "ADD_ONION")
             {

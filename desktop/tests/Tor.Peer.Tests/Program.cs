@@ -32,6 +32,17 @@ try
         await PublicTor.VerifyDisabledPolicyAsync(offlineRuntime, offlineState);
         return 0;
     }
+    if (OperatingSystem.IsWindows() && args is ["--public-persistent-host", "--approve-public-tor", var candidate, var persistentState])
+    {
+        await PublicTor.RunPersistentHostAsync(candidate, persistentState);
+        return 0;
+    }
+    if (OperatingSystem.IsWindows() &&
+        args is ["--public-persistent-host", "--approve-public-tor", var comparisonCandidate, var comparisonState, "--compare-fresh-client"])
+    {
+        await PublicTor.RunPersistentHostAsync(comparisonCandidate, comparisonState, compareFresh: true);
+        return 0;
+    }
     if (args is not ["--public-tor", "--approve-public-tor", var runtime, var state])
     {
         Console.WriteLine("NOT RUN: explicit public Tor approval is required.");
@@ -229,6 +240,7 @@ internal static class Offline
     {
         VerifyFraming();
         await VerifySocksAsync();
+        await VerifySocksDeadlinesAsync();
         using var a = new PeerIdentity();
         using var b = new PeerIdentity();
         using var other = new PeerIdentity();
@@ -409,22 +421,71 @@ internal static class Offline
         using var socks = new TcpListener(IPAddress.Loopback, 0);
         socks.Start();
         var address = LoopbackTransport.Address;
-        var attempt = OnionSocksConnection.ConnectAsync((IPEndPoint)socks.LocalEndpoint, address, _ => true, deadline.Token);
-        using var peer = await socks.AcceptTcpClientAsync(deadline.Token);
-        using var connection = peer.GetStream();
-        var greeting = new byte[3];
-        await connection.ReadExactlyAsync(greeting, deadline.Token);
-        Check.That(greeting.SequenceEqual(new byte[] { 5, 1, 0 }), "Unexpected SOCKS authentication offer.");
-        await connection.WriteAsync(new byte[] { 5, 0 }, deadline.Token);
-        var data = new byte[7 + address.Host.Length];
-        await connection.ReadExactlyAsync(data, deadline.Token);
-        Check.That(data.AsSpan(0, 5).SequenceEqual(new byte[] { 5, 1, 0, 3, (byte)address.Host.Length }) &&
-            Encoding.ASCII.GetString(data.AsSpan(5, address.Host.Length)) == address.Host &&
-            BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(^2)) == OnionAddress.VirtualPort,
-            "The complete onion name must be sent in a domain-form CONNECT to port 80.");
-        await connection.WriteAsync(new byte[] { 5, 0, 0, 1, 127, 0, 0, 1, 0, 0 }, deadline.Token);
-        await using var tunnel = await attempt;
-        Console.WriteLine("PASS SOCKS5 sends the onion name in the domain field without local DNS");
+        foreach (byte replyCode in new byte[] { 0, 4 })
+        {
+            var attempt = OnionSocksConnection.ConnectAsync((IPEndPoint)socks.LocalEndpoint, address, _ => true, deadline.Token);
+            using var peer = await socks.AcceptTcpClientAsync(deadline.Token);
+            using var connection = peer.GetStream();
+            var greeting = new byte[3];
+            await connection.ReadExactlyAsync(greeting, deadline.Token);
+            Check.That(greeting.SequenceEqual(new byte[] { 5, 1, 0 }), "Unexpected SOCKS authentication offer.");
+            await connection.WriteAsync(new byte[] { 5, 0 }, deadline.Token);
+            var data = new byte[7 + address.Host.Length];
+            await connection.ReadExactlyAsync(data, deadline.Token);
+            Check.That(data.AsSpan(0, 5).SequenceEqual(new byte[] { 5, 1, 0, 3, (byte)address.Host.Length }) &&
+                Encoding.ASCII.GetString(data.AsSpan(5, address.Host.Length)) == address.Host &&
+                BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(^2)) == OnionAddress.VirtualPort,
+                "The complete onion name must be sent in a domain-form CONNECT to port 80.");
+            await connection.WriteAsync(new byte[] { 5, replyCode, 0, 1, 127, 0, 0, 1, 0, 0 }, deadline.Token);
+            try
+            {
+                await using var tunnel = await attempt;
+                Check.That(replyCode == 0, "A failed CONNECT reply established a tunnel.");
+            }
+            catch (Socks5ConnectException failure)
+            {
+                Check.That(replyCode != 0 && failure.ReplyCode == replyCode &&
+                    !failure.Message.Contains(address.Host, StringComparison.Ordinal),
+                    "The failed CONNECT reply did not preserve its code or disclosed the destination.");
+            }
+        }
+        Console.WriteLine("PASS SOCKS5 sends the onion domain without local DNS and reports a failed CONNECT by code");
+    }
+
+    private static async Task VerifySocksDeadlinesAsync()
+    {
+        using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        using var socks = new TcpListener(IPAddress.Loopback, 0);
+        socks.Start();
+        var endpoint = (IPEndPoint)socks.LocalEndpoint;
+        foreach (var phase in new[] { OnionSocksPhase.LocalProxy, OnionSocksPhase.OnionConnect })
+        {
+            var shortBudget = TimeSpan.FromMilliseconds(500);
+            var localBudget = phase == OnionSocksPhase.LocalProxy ? shortBudget : TimeSpan.FromSeconds(4);
+            var attempt = OnionSocksConnection.ConnectAsync(endpoint, LoopbackTransport.Address, _ => true,
+                localBudget, shortBudget, deadline.Token);
+            using var peer = await socks.AcceptTcpClientAsync(deadline.Token);
+            using var connection = peer.GetStream();
+            await connection.ReadExactlyAsync(new byte[3], deadline.Token);
+            if (phase == OnionSocksPhase.OnionConnect)
+                await connection.WriteAsync(new byte[] { 5, 0 }, deadline.Token);
+            try
+            {
+                await using var tunnel = await attempt;
+                throw new CheckFailed("A silent SOCKS endpoint established a tunnel.");
+            }
+            catch (OnionSocksTimeoutException failure)
+            {
+                Check.That(failure.Phase == phase, "SOCKS timed out in the wrong phase.");
+            }
+        }
+        using var cancelled = new CancellationTokenSource();
+        cancelled.Cancel();
+        await Check.RejectAsync(() => OnionSocksConnection.ConnectAsync(endpoint, LoopbackTransport.Address, _ => true,
+            cancelled.Token), "Caller cancellation was mistaken for a SOCKS deadline.", typeof(OperationCanceledException));
+        Check.That(OnionSocksConnection.OnionConnectBudget > TimeSpan.FromMinutes(2),
+            "The application must allow Tor's native two-minute rendezvous timeout.");
+        Console.WriteLine("PASS SOCKS distinguishes proxy setup, onion timeout and caller cancellation");
     }
 
     internal static async Task<(PeerConnection Server, PeerConnection Client)> PairAsync(PeerHost host,
@@ -482,7 +543,7 @@ internal static class Offline
 }
 
 [SupportedOSPlatform("windows")]
-internal static class PublicTor
+internal static partial class PublicTor
 {
     internal static async Task VerifyDisabledPolicyAsync(string package, string state)
     {
