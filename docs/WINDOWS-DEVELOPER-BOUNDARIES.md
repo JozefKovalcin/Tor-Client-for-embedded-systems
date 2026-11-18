@@ -1,6 +1,6 @@
 # Windows developer integration boundaries
 
-The Windows developer stack depends on the reviewed peer candidate in PR #19.
+PR #29 integrated the reviewed Windows peer and Developer stacks.
 The peer messaging, ControlPort and Run Only workflows retain their existing
 entry points. Developer actions are separate and explicitly initiated.
 
@@ -49,6 +49,11 @@ records and run the offline smoke tests. Approval requires a successful
 pin-matched offline test plus the exact package inventory. The runtime is
 copied into a new per-user versioned directory with no unlisted DLLs or
 configuration. Restart Tor Manager to use an approved generation or rollback.
+**Export verified runtime ZIP** rechecks the same package and smoke evidence,
+writes the ZIP in the workspace's `exports` folder, and reports its SHA-256.
+The ZIP includes only the inventoried package files and their report, including
+the source manifest and licenses. Move an existing export before exporting the
+same build again.
 Managed sessions in this application hold shared leases, while activation
 and rollback require an exclusive lease. A selection does not affect
 an explicit `--tor-package` override, which keeps the bundled runtime pins.

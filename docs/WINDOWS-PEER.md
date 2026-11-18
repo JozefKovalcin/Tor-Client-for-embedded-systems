@@ -4,16 +4,18 @@
 
 1. Start each Manager with its verified native Tor runtime and select
    **Real Online**.
-2. In **Peer messaging**, explicitly create the first local peer identity.
+2. In **Peers**, explicitly create the first local peer identity.
    Exchange **Your certificate SHA-256** over a trusted authenticated channel.
-   On each side enter a contact name and the other party's 64-character
-   fingerprint, confirm the comparison, and select **Pair contact**. Select
-   that contact before hosting or connecting.
+   On each side open **Pair a contact or replace a certificate**, enter a
+   contact name and the other party's 64-character fingerprint, confirm the
+   comparison, and select **Pair contact**. Select that contact before hosting
+   or connecting. The same page supports pairing and queueing in **Real Offline**.
 3. On both PCs choose the SOCKS port and select **Start Tor**. Wait for
    authenticated control, an owned SOCKS listener and bootstrap at 100%.
    On A, select **Host Onion Service**. Share the displayed v3 address with
    B. Registration may precede Tor's descriptor publication. On B, enter the
-   full address and select **Connect to Peer**. A transient connection
+   full address, select **Save contact address** to retain it, and select
+   **Connect to Peer**. A transient connection
    failure triggers up to four retry attempts. While the UI remains open,
    a replacement Tor session can resume the same pinned destination. Editing
    the onion or contact or choosing **Disconnect** cancels that intent.
@@ -22,6 +24,13 @@
    shows delivered after the receiver's ACK, or expired if its deadline
    passes first. **Disconnect** closes the peer session. On A it also
    removes the service.
+
+Use **Recent connection events** on the selected contact for the last
+12 transitions in this app session. To replace a remote certificate, select
+the original contact, verify the new full fingerprint out of band, and
+choose **Revoke old pin and pair replacement**. The replacement starts a
+new conversation. The revoked pin retains its historical association with
+the old queue.
 
 ## Architecture and trust
 

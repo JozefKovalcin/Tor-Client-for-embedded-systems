@@ -1,8 +1,88 @@
-# Windows messaging development
+# Windows Tor Manager development
+
+## CURRENT_BASE
+
+GitHub `main` matched `68002b9b4a31e5da5acc152a3c17b3e49da7daed`
+on 2026-11-18. PR #29 integrated the exact heads of #19–#28 by Git
+ancestry. GitHub returned zero open PRs at the start of the batch.
+The integration base includes both the reliable peer and TASK 12 Developer
+stacks. The active development worktree is `build/windows-product-completion`
+on `codex/windows-product-completion`.
+
+## COMPLETED_THIS_RUN
+
+| ID | State | Implementation and evidence | Remaining |
+| --- | --- | --- | --- |
+| WIN-01 | VERIFIED | `PeerProfileStore` and `PeerViewModel` edit a saved onion endpoint while preserving its pin, and atomically revoke and pair a replacement after explicit comparison. Windows fixture reopened the profile and refused the revoked outbox. | Explicit local TLS credential replacement and recovery. |
+| WIN-02 | VERIFIED | PR #29 contains the DPAPI outbox, authenticated ACK and expiry/deduplication. The replacement workflow checks that old queued messages never follow a new pin. | Per-message sent/retrying state and exhaustive storage recovery tests. |
+| WIN-03 | PARTIAL | Real Offline and Real Online share a Peers page. Each selected contact shows bounded session-local events. The fixture checked restart intent, isolation of drafts and histories, and offline queueing. Avalonia compiled and the initial contact card rendered on Windows. | Stable hosted onion address across Tor restarts, final Peers page visual and DPI checks. |
+| WIN-04 | PARTIAL | PR #29 contains real preflight, a pinned local install plan, signed-package gates and rescan. The earlier isolated package transaction is historical evidence. | Exercise the full current GUI install/repair path on an approved fixture or host. |
+| WIN-05 | PARTIAL | `DeveloperViewModel`, `WindowsDeveloperRunner` and `scripts/windows_developer/build.py` add export of a verified build package. Fixture checked gate refusal, provenance and payload hashes, ZIP inventory, tampering and overwrite refusal. | Run the integrated static/shared source builds with approval, then smoke, activation, rollback and export on their actual outputs. |
+| WIN-06 | PARTIAL | Current peer-enabled Avalonia GUI compiled from an offline locked framework-dependent restore. PR #29 has prior self-contained build evidence. | A versioned current self-contained Windows x64 package with bundled verified Tor and clean-host verification. |
+| WIN-07 | PARTIAL | `TaskJournal` uses a short bounded retry for Windows rename denial or sharing conflicts. The failing bounded-stream fixture exposed an access denial while publishing `task-logs.json`. | Longer offline soak, disk-full/profile recovery matrix, and public endurance qualification with approval. |
+
+## TEST_EVIDENCE
+
+- Windows .NET SDK 11.0.100, offline locked framework-dependent restore and
+  Avalonia Release build. Presentation harness 63 assertions PASS and
+  private-profile peer workflow 16 assertions PASS.
+- Windows Build Adapter 7 tests PASS and unchanged native pipeline 6 tests
+  PASS. The export test uses a deterministic package fixture and exercises
+  the real ZIP publication and byte verification paths.
+- `python -B scripts/check.py` passed after the journal fix with 174 PASS
+  and 10 platform-specific SKIPPED. The log is `build/portable-windows-final.log`.
+- The existing pinned Tor passed native offline shutdown, unexpected exit,
+  owner death and recovery, active-session protection and runtime rollback.
+  Independent fixture profiles passed loopback mutual TLS, lost ACK,
+  restart deduplication, bidirectional ACK, expiry and opt-in history.
+- Git confirmed the baseline tag and both stashes. The diff preserves
+  Buildroot inputs, source locks, native Tor recipe, reports and original
+  Tor pipeline and protocol tests.
+- The first two unsandboxed portable runs failed the bounded task-journal
+  case. The focused failure and exception are retained in
+  `build/core-streams-repro.log` and `build/core-streams-diagnostic.log`
+  relative to the batch worktree. The diagnostic source edit was removed.
+- The initial GUI launch used a disposable state directory and pinned Tor,
+  with Tor stopped. Computer Use was interrupted and continued reporting
+  the stop after reauthorization. The rebuilt Peers page was compiled and
+  exercised through presentation tests. Visual navigation and DPI checks
+  remain NOT RUN for that page.
+
+## OPEN_PULL_REQUESTS
+
+The current batch is on `codex/windows-product-completion`. PR #29 is
+the integrated base. The previous draft inventory below is historical.
+
+## BLOCKED_AWAITING_APPROVAL
+
+Real dependency installation, heavy native compilation, public Tor tests
+and production publishing remain approval-gated. Downloads and existing
+real peer credentials were outside the execution scope for this batch.
+
+## PENDING_PHYSICAL_TWO_PC_CHECKS
+
+Current physical two-PC, public bootstrap, endurance and clean-host
+qualification are NOT RUN. The [operator runbook](WINDOWS-PEER.md) covers
+pairing, data integrity, restart, reconnect and cleanup.
+Development is partial. Field qualification is pending.
+
+## NEXT_ACTION
+
+Implement a Tor-owned persistent v3 Onion Service identity under the
+private profile and restore its host registration across Tor restart.
+Keep the temporary-service transport available for the existing harness.
+Exercise stop, same-address reopen, failed registration and the remote
+client's pinned reconnect with fresh fixture profiles and the reviewed
+runtime in offline mode. Then finish the independent connection/workspace
+selectors and the peer-enabled self-contained release packaging.
+
+---
+
+# Historical messaging stack before PR #29
 
 ## CURRENT_STATE / CURRENT_BASE
 
-Remote `main` is `266e29a29cab4b465415d8388614493a661e77f8`.
+At the start of that historical cycle, remote `main` was `266e29a29cab4b465415d8388614493a661e77f8`.
 Draft PR #19 targets `main` at head `97ccff6a00c886606501f72f58dffbb310de8f99`.
 The Windows messaging work starts from that peer head in isolated worktrees.
 TASK 12 is a sibling effort stacked as #19 → #20 → #21 → #22 → #23 → #24.

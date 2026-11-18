@@ -9,7 +9,7 @@ internal sealed record NoticeCard(string Title, string Detail);
 internal sealed record PageViewModel(string Title, string Description, bool ShowTasks = false,
     bool ShowDependencies = false, bool ShowSettings = false, IReadOnlyList<NoticeCard>? Notices = null,
     bool ShowOffline = false, bool ShowDeveloper = false, bool ShowDeveloperDependencies = false,
-    bool ShowDeveloperBuild = false, bool ShowDeveloperArtifacts = false);
+    bool ShowDeveloperBuild = false, bool ShowDeveloperArtifacts = false, bool ShowPeers = false);
 internal sealed record LogCard(string Sequence, string TaskId, string Message, string Detail);
 internal enum WorkspaceMode { Demo, Offline, Online, Developer }
 
@@ -119,9 +119,10 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         _offlinePages = new[]
         {
             new PageViewModel("Dashboard", "Start and monitor the verified Windows Tor runtime.", ShowOffline: true),
+            new PageViewModel("Peers", "Pair contacts and exchange messages over Tor.", ShowPeers: true),
             new PageViewModel("Logs and Progress", "Task history and sanitized lifecycle events from this workspace.", ShowTasks: true),
             new PageViewModel("Settings", "Save your appearance and Demo preferences.", ShowSettings: true)
-        };
+        }.Where(page => !page.ShowPeers || offline is IPeerTorService).ToArray();
         Offline = offline is null ? null : new(offline, dispatcher, peerProfile);
         if (OperatingSystem.IsWindows()) Developer = new(dispatcher, bundledRuntime);
         OfflineUnavailableReason = offlineUnavailableReason;

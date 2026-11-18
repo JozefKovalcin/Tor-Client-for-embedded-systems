@@ -82,7 +82,6 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
         if (_isOnline == online) return true;
         if (!CanSwitchToDemo || (online && !SupportsOnline)) return false;
         _isOnline = online;
-        if (online) Peer?.ReadExistingProfile();
         _onlineNotice = null;
         Changed(nameof(IsOnline));
         NotifyStatus();
@@ -161,6 +160,7 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
     public async Task OpenAsync()
     {
         if (_closing || _reader is not null) return;
+        Peer?.ReadExistingProfile();
         _reader = WatchAsync(_lifetime.Token);
         try { await RefreshAsync(); }
         catch (OperationCanceledException) when (_closing) { }

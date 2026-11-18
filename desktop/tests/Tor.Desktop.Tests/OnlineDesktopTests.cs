@@ -16,6 +16,8 @@ internal static class OnlineDesktopTests
         await using var shell = new ShellViewModel(demo, new ImmediateDispatcher(), settings, service);
         await shell.OpenAsync().WaitAsync(Limit);
         var model = shell.Offline!;
+        check(shell.Pages.Single(page => page.ShowPeers).Title == "Peers",
+            "paired contact navigation is available before switching to Real Online");
         check(shell.ModeHeading == "Real Offline" && !model.IsOnline && service.Watchers == 1,
             "online-capable Windows shell still opens in Real Offline with one watcher");
         shell.ShowDemo();
@@ -122,7 +124,7 @@ internal static class OnlineDesktopTests
         model.PeerFingerprint = fixture.Fingerprint;
         model.ComparedFingerprint = true;
         const string address = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.onion";
-        model.OnionAddress = address;
+        model.PairingAddress = address;
         model.SavePeerCommand.Execute(null);
         check(!model.SaveHistory && model.HistoryRows.Count == 0, "conversation history starts disabled");
         model.SaveHistory = true;
@@ -158,6 +160,43 @@ internal static class OnlineDesktopTests
         service.PeerTransport = third;
         model.SetAvailable(true);
         check(model.CanEditPeer && !third.Started.Task.IsCompleted, "editing the onion cancels the pending reconnect intent");
+        check(model.ConnectionHistory.Any(item => item.Status.Contains("Start Tor")) &&
+            model.ConnectionHistory.Any(item => item.Status == "Connecting through Tor…"),
+            "the selected contact shows connection and restart events");
+
+        var previous = model.SelectedPeer!;
+        model.OnionAddress = "not-an-onion";
+        model.SaveEndpointCommand.Execute(null);
+        check(model.SelectedPeer == previous && model.Status.Contains("v3 onion"), "an invalid address leaves the saved contact intact");
+        string updatedAddress = new string('c', 56) + ".onion";
+        model.OnionAddress = updatedAddress;
+        model.Draft = "unsent for original contact";
+        model.SaveEndpointCommand.Execute(null);
+        check(model.SelectedPeer is { } updated && updated.Fingerprint == fixture.Fingerprint &&
+            updated.Onion == updatedAddress && model.Draft.Length != 0 && model.DeliveryRows.Single().Status == "Pending",
+            "saving an address preserves the authenticated recipient, draft and durable queue");
+
+        using var replacement = new PeerIdentity();
+        model.Label = "Replacement peer";
+        model.PeerFingerprint = replacement.Fingerprint;
+        model.PairingAddress = updatedAddress;
+        check(!model.RotatePeerCommand.CanExecute(null), "rotation needs fresh out-of-band confirmation");
+        model.ComparedFingerprint = true;
+        model.RotatePeerCommand.Execute(null);
+        check(model.Contacts.Single().Fingerprint == replacement.Fingerprint && model.Draft.Length == 0 &&
+            model.DeliveryRows.Count == 0 && model.ConnectionHistory.Count == 0 && !model.SaveHistory,
+            "rotating a peer pin leaves the old draft, queue, events and history out of the new conversation");
+
+        using var sameLocal = profile.OpenIdentity()!;
+        var persisted = profile.ReadContacts(sameLocal);
+        check(sameLocal.Fingerprint == original && persisted.Single(peer => peer.Revoked).Fingerprint == fixture.Fingerprint &&
+            persisted.Single(peer => !peer.Revoked).Onion == updatedAddress, "local identity, revocation and replacement survive reopening");
+        try
+        {
+            profile.OpenDelivery(sameLocal, previous);
+            check(false, "revoked pin must not reopen an outbox");
+        }
+        catch (InvalidOperationException) { check(true, "revoked pin cannot reopen the old outbox"); }
     }
 
     private static async Task WaitUntilAsync(Func<bool> condition)

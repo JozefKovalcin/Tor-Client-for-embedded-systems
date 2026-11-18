@@ -59,6 +59,7 @@ internal sealed class DeveloperViewModel : ObservableModel
     public AsyncCommand SmokeCommand { get; }
     public ActionCommand CancelCommand { get; }
     public AsyncCommand ActivateCommand { get; }
+    public AsyncCommand ExportCommand { get; }
     public AsyncCommand RollbackCommand { get; }
 
     public DeveloperViewModel(IUiDispatcher dispatcher, string? bundledRuntime)
@@ -71,10 +72,11 @@ internal sealed class DeveloperViewModel : ObservableModel
         BuildCommand = RunCommand(WindowsDeveloperAction.Build, () => _ready);
         ListCommand = RunCommand(WindowsDeveloperAction.List);
         SmokeCommand = RunCommand(WindowsDeveloperAction.Smoke, () => Selected?.State == "BUILT");
+        ExportCommand = RunCommand(WindowsDeveloperAction.Export, () => Selected is { State: "BUILT", Smoke: "PASS" });
         ActivateCommand = new(() => TrackAsync(WindowsDeveloperAction.Candidate), () => Status = "Activation failed.",
             () => Idle && ApproveRuntime && Selected is { State: "BUILT", Smoke: "PASS" });
         RollbackCommand = new(RollbackAsync, () => Status = "Rollback failed.", () => Idle && _bundledRuntime is not null);
-        _commands = [ScanCommand, PlanCommand, InstallCommand, BuildCommand, ListCommand, SmokeCommand, ActivateCommand, RollbackCommand];
+        _commands = [ScanCommand, PlanCommand, InstallCommand, BuildCommand, ListCommand, SmokeCommand, ActivateCommand, ExportCommand, RollbackCommand];
         CancelCommand = new(() => _cancellation?.Cancel(), () => _cancellation is not null && !_installCommitted);
     }
 
@@ -110,6 +112,17 @@ internal sealed class DeveloperViewModel : ObservableModel
             PlanDetails = "";
         }
         if (action == WindowsDeveloperAction.Scan) _ready = false;
+        if (action == WindowsDeveloperAction.Export)
+        {
+            PrivateStorage.RequireOwnerOnly(Workspace);
+            var result = await WindowsDeveloperRunner.RunAsync(spec, null, token);
+            if (result.ExitCode != 0) { Status = "Runtime export blocked."; Report = result.Errors; return; }
+            using var document = JsonDocument.Parse(result.Output);
+            var export = document.RootElement;
+            Status = "Verified runtime exported.";
+            Report = $"ZIP  {Text(export, "path")}{Environment.NewLine}SHA-256  {Text(export, "sha256")}";
+            return;
+        }
         if (action == WindowsDeveloperAction.Candidate)
         {
             ApproveRuntime = false;
@@ -247,6 +260,7 @@ internal sealed class DeveloperViewModel : ObservableModel
             : Format(Selected.Details) + Environment.NewLine + Format(CompareWith.Details);
         SmokeCommand.Invalidate();
         ActivateCommand.Invalidate();
+        ExportCommand.Invalidate();
     }
 
     private Task RollbackAsync()

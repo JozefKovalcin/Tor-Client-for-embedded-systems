@@ -1,10 +1,13 @@
 import importlib.util
+import json
 from pathlib import Path
 import shutil
+import struct
 import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+import zipfile
 
 from scripts.windows_developer import build as adapter
 
@@ -73,3 +76,59 @@ class WindowsBuildAdapterTests(unittest.TestCase):
                 adapter.write_record(run / "build-record.json", record)
                 with self.assertRaisesRegex(ValueError, "successful offline smoke"):
                     adapter.candidate(workspace, run.name)
+                with self.assertRaisesRegex(ValueError, "successful offline smoke"):
+                    adapter.export_runtime(workspace, run.name)
+                self.assertFalse((workspace / "exports").exists())
+
+    def test_export_rechecks_inventory_and_never_overwrites_a_zip(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary)
+            run = workspace / "builds/run-fixture"
+            package = run / "pipeline/dist"
+            (package / "licenses").mkdir(parents=True)
+            native = workspace / "native"
+            native.mkdir()
+            (native / "build-windows.sh").write_bytes(b"reviewed recipe")
+            license_path = package / "licenses/tor-LICENSE.txt"
+            license_path.write_bytes(b"fixture license text")
+            manifest = {"sources": [{"name": "tor", "version": "0.4.9.14", "license_sha256": adapter.sha256(license_path)}]}
+            (native / "source-manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+            shutil.copyfile(native / "source-manifest.json", package / "source-manifest.json")
+
+            header = bytearray(64)
+            header[:2] = b"MZ"
+            struct.pack_into("<I", header, 60, 64)
+            image = package / "tor.exe"
+            image.write_bytes(header + b"PE\x00\x00\x64\x86")
+            files = {path.relative_to(package).as_posix(): {"bytes": path.stat().st_size, "sha256": adapter.sha256(path)}
+                     for path in (image, license_path, package / "source-manifest.json")}
+            pe = {"machine": "AMD64", "format": "PE32+", "dynamic_base": True, "nx_compat": True, "high_entropy_va": True}
+            report_path = package / "package-report.json"
+            adapter.write_record(report_path, {"status": "PASS", "files": files, "pe": {"tor.exe": pe}})
+            smoke = run / "smoke.json"
+            smoke.write_text("{}", encoding="utf-8")
+            adapter.write_record(run / "build-record.json", {
+                "schemaVersion": 1, "id": run.name, "profile": "optimized-static", "version": "0.4.9.14",
+                "package": "pipeline/dist", "compilerExit": 0, "state": "BUILT", "smokeState": "PASS",
+                "sourceManifestSha256": adapter.sha256(native / "source-manifest.json"),
+                "recipeSha256": adapter.sha256(native / "build-windows.sh"),
+                "packageReportSha256": adapter.sha256(report_path), "smokePackageSha256": adapter.sha256(report_path),
+                "artifacts": files, "smokeEvidence": smoke.name, "smokeEvidenceSha256": adapter.sha256(smoke),
+            })
+            with patch.object(adapter, "NATIVE", native), patch.object(adapter, "source_manifest", return_value=manifest), \
+                    patch.object(adapter, "smoke_passed", return_value=True):
+                exported = adapter.export_runtime(workspace, run.name)
+                archive_path = Path(exported["path"])
+                self.assertEqual(exported["sha256"], adapter.sha256(archive_path))
+                with zipfile.ZipFile(archive_path) as archive:
+                    self.assertIsNone(archive.testzip())
+                    self.assertCountEqual(archive.namelist(), [*files, report_path.name])
+                    for name, expected in files.items():
+                        self.assertEqual(archive.read(name), (package / name).read_bytes())
+                with self.assertRaisesRegex(ValueError, "already exists"):
+                    adapter.export_runtime(workspace, run.name)
+                image.write_bytes(b"unexpected runtime")
+                with self.assertRaisesRegex(ValueError, "size or SHA-256 changed"):
+                    adapter.export_runtime(workspace, run.name)
+                self.assertEqual(exported["sha256"], adapter.sha256(archive_path))
+                self.assertEqual(list(archive_path.parent.iterdir()), [archive_path])

@@ -1,3 +1,21 @@
+# Windows product integration — 2026-11-18
+
+GitHub main at `68002b9` includes the reviewed peer and Developer stacks
+through PR #29. The follow-up Windows worktree adds a Peers page in both real
+modes, persistent onion endpoint editing, explicitly confirmed remote pin
+replacement, per-contact connection events and runtime package export.
+The task journal retries short Windows rename conflicts and still surfaces
+permanent write failures.
+
+Offline Windows regression returned 174 PASS and 10 platform-specific
+SKIPPED. The native pipeline returned 6 PASS. The Avalonia Release build
+compiled without warnings, presentation returned 63 PASS, and the isolated
+peer workflow returned 16 PASS. Pinned native Tor offline lifecycle and
+runtime rollback passed, as did loopback mutual-TLS delivery/recovery.
+An earlier journal failure and its diagnosis are retained in the
+[Windows continuation record](AUTONOMOUS_PROGRESS.md). Physical two-PC,
+public Tor and clean-host qualification remain NOT RUN.
+
 # Windows messaging cycle — 2026-11-18
 
 The peer review stack adds persistent Windows TLS identities, explicit
