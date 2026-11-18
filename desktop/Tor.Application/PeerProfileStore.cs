@@ -17,8 +17,15 @@ public sealed class PeerProfileStore
     private readonly string root;
     private sealed record ContactFile(int Version, string LocalFingerprint, TrustedPeer[] Peers);
 
-    public PeerProfileStore(string privateDirectory) =>
-        root = Path.Combine(Path.GetFullPath(privateDirectory), "peer-security");
+    public PeerProfileStore(string privateDirectory)
+    {
+        var path = Path.GetFullPath(privateDirectory);
+        if (OperatingSystem.IsWindows() && (path.Length < 3 || !char.IsAsciiLetter(path[0]) ||
+            path[1] != ':' || path.AsSpan(2).Contains(':') ||
+            new DriveInfo(Path.GetPathRoot(path)!).DriveType != DriveType.Fixed))
+            throw new ArgumentException("Peer storage must be on a fixed local Windows drive.");
+        root = Path.Combine(path, "peer-security");
+    }
 
     public PeerIdentity? OpenIdentity()
     {
@@ -37,7 +44,13 @@ public sealed class PeerProfileStore
     public PeerIdentity CreateIdentity()
     {
         if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException();
-        PrivateStorage.RequireOwnerOnly(Path.GetDirectoryName(root)!);
+        string parent = Path.GetDirectoryName(root)!;
+        if (!Exists(parent))
+        {
+            _ = new VerifiedFileStore(Path.GetDirectoryName(parent)!);
+            PrivateStorage.CreateNewDirectory(parent);
+        }
+        PrivateStorage.RequireOwnerOnly(parent);
         // An existing profile without its credential is an error, including an
         // interrupted initialization. Do not silently generate a new identity.
         PrivateStorage.CreateNewDirectory(root);

@@ -117,6 +117,8 @@
                             AutomationProperties.Name="Paired contact">
                     <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Label}" /></DataTemplate></ComboBox.ItemTemplate>
                   </ComboBox>
+                  <SelectableTextBlock Text="{Binding SelectedPeer.Fingerprint}" TextWrapping="Wrap"
+                                       AutomationProperties.Name="Selected contact fingerprint" />
                   <Button Content="Revoke selected contact" Command="{Binding RevokePeerCommand}" />
                   <TextBox Text="{Binding Label}" IsEnabled="{Binding CanEditPeer}" MaxLength="64"
                            PlaceholderText="New contact name" AutomationProperties.Name="New contact name" />
@@ -134,10 +136,47 @@
                   </StackPanel>
                   <TextBox Text="{Binding HostedAddress, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Your hosted v3 onion address"
                            AutomationProperties.Name="Your hosted v3 onion address" />
-                  <TextBox Text="{Binding Draft, Mode=TwoWay}" PlaceholderText="Test message" MaxLength="4096"
-                           AutomationProperties.Name="Test message" />
-                  <Button Content="Send" Command="{Binding SendCommand}" HorizontalAlignment="Left" />
-                  <TextBlock Text="Last message received" FontWeight="SemiBold" />
+                  <TextBox Text="{Binding Draft, Mode=TwoWay}" PlaceholderText="Message" MaxLength="8192"
+                           AutomationProperties.Name="Message" />
+                  <Button Content="Send or queue" Command="{Binding SendCommand}" HorizontalAlignment="Left" />
+                  <TextBlock Text="{Binding DeliveryNotice}" TextWrapping="Wrap" />
+                  <StackPanel IsVisible="{Binding HasDurableDelivery}" Spacing="6">
+                    <TextBlock Text="Recent messages" FontWeight="SemiBold" />
+                    <TextBlock Text="Pending and received text is encrypted locally during the 15-minute delivery window."
+                               Classes="muted" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding DeliveryRows}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <StackPanel Margin="0,4" Spacing="2">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                              <TextBlock Text="{Binding Direction}" FontWeight="SemiBold" />
+                              <TextBlock Text="{Binding Status}" />
+                              <TextBlock Text="{Binding Id}" Classes="muted" />
+                            </StackPanel>
+                            <SelectableTextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                          </StackPanel>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Expander Header="Encrypted history">
+                      <StackPanel Spacing="5">
+                        <CheckBox Content="Archive new delivered messages" IsChecked="{Binding SaveHistory}"
+                                  IsEnabled="{Binding HasDeliveryTarget}" />
+                        <TextBlock Text="Up to 64 messages for seven days. Turning this off stops new archival."
+                                   Classes="muted" TextWrapping="Wrap" />
+                        <ItemsControl ItemsSource="{Binding HistoryRows}">
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                              <StackPanel Margin="0,4" Spacing="2">
+                                <TextBlock Text="{Binding Direction}" FontWeight="SemiBold" />
+                                <SelectableTextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                              </StackPanel>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </StackPanel>
+                    </Expander>
+                  </StackPanel>
                   <TextBlock Text="{Binding LastMessage}" TextWrapping="Wrap" />
                 </StackPanel>
               </Border>

@@ -84,6 +84,7 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
         if (_isOnline == online) return true;
         if (!CanSwitchToDemo || (online && !SupportsOnline)) return false;
         _isOnline = online;
+        if (online) Peer?.ReadExistingProfile();
         _onlineNotice = null;
         Changed(nameof(IsOnline));
         NotifyStatus();
@@ -136,7 +137,7 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
 
     public OfflineTorViewModel(IOfflineTorService service, IUiDispatcher dispatcher, PeerProfileStore? peerProfile = null)
     {
-        Peer = service is IPeerTorService peers ? new PeerViewModel(peers, peerProfile) : null;
+        Peer = service is IPeerTorService peers ? new PeerViewModel(peers, peerProfile, dispatcher) : null;
         _service = service;
         _online = service as IOnlineTorService;
         _dispatcher = dispatcher;

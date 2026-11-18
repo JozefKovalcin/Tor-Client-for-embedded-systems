@@ -20,6 +20,12 @@ void Reject(Action action, string test)
     throw new InvalidOperationException("FAIL: accepted " + test);
 }
 JsonElement Element(JsonNode value) => JsonSerializer.SerializeToElement(value);
+if (OperatingSystem.IsWindows() && args is ["--private-peer-ui", var freshPeer])
+{
+    await OnlineDesktopTests.RunPeerAsync(freshPeer, Check);
+    Console.WriteLine($"{passed} Windows peer workflow assertions PASS");
+    return;
+}
 var feed = new SimulationTaskFeed();
 Check(feed.InitialTasks.Select(x => x.State).ToHashSet().SetEquals(new[] { "queued", "running", "cancelling", "cancelled", "succeeded", "failed", "blocked", "interrupted" }), "all eight task states displayed");
 Check(feed.Dependencies.Select(x => x.Status).ToHashSet().SetEquals(new[] { "AVAILABLE", "MISSING", "INCOMPATIBLE", "UNKNOWN", "BLOCKED" }), "all five dependency classifications preserved");

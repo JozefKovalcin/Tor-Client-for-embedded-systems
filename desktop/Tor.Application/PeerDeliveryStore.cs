@@ -6,7 +6,9 @@ namespace Tor.Application;
 
 public enum PeerDeliveryStatus { Pending, Delivered, Expired }
 public sealed record PeerDeliveryItem(Guid Id, long ExpiresUtc, string? Text, PeerDeliveryStatus Status);
-public sealed record PeerDeliverySnapshot(long Revision, IReadOnlyList<PeerDeliveryItem> Outbox, IReadOnlyList<PeerDeliveryItem> Inbox);
+public sealed record PeerHistoryItem(Guid Id, bool Incoming, long ReceivedUtc, string Text);
+public sealed record PeerDeliverySnapshot(long Revision, IReadOnlyList<PeerDeliveryItem> Outbox,
+    IReadOnlyList<PeerDeliveryItem> Inbox, bool HistoryEnabled, IReadOnlyList<PeerHistoryItem> History);
 internal enum PeerAcceptance { Accepted, Duplicate, Expired }
 
 /// <summary>Bounded encrypted outbox and inbox, scoped to one pair of pinned peer identities.</summary>
@@ -14,6 +16,7 @@ public sealed class PeerDeliveryStore
 {
     public const int TtlSeconds = 900;
     private const int MaximumEntries = 64, MaximumBytes = 1024 * 1024;
+    private const int HistoryTtlSeconds = 7 * 24 * 60 * 60;
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
     private readonly string root, path, writer, local, remote;
     private readonly TimeProvider clock;
@@ -22,7 +25,11 @@ public sealed class PeerDeliveryStore
     internal string RemoteFingerprint => remote;
 
     private sealed record QueueFile(int Version, string Local, string Remote, long Revision,
-        List<PeerDeliveryItem> Outbox, List<PeerDeliveryItem> Inbox);
+        List<PeerDeliveryItem> Outbox, List<PeerDeliveryItem> Inbox)
+    {
+        public bool HistoryEnabled { get; set; }
+        public List<PeerHistoryItem> History { get; init; } = [];
+    }
 
     internal PeerDeliveryStore(string securityRoot, string localFingerprint, string peerFingerprint, TimeProvider? clock = null)
     {
@@ -52,7 +59,15 @@ public sealed class PeerDeliveryStore
     }
 
     public PeerDeliverySnapshot Snapshot() => Transaction((data, _) =>
-        (new PeerDeliverySnapshot(data.Revision, data.Outbox.ToArray(), data.Inbox.ToArray()), false));
+        (new PeerDeliverySnapshot(data.Revision, data.Outbox.ToArray(), data.Inbox.ToArray(),
+            data.HistoryEnabled, data.History.ToArray()), false));
+
+    public void SetHistoryEnabled(bool enabled) => Transaction((data, _) =>
+    {
+        bool changed = data.HistoryEnabled != enabled;
+        data.HistoryEnabled = enabled;
+        return (changed, changed);
+    });
 
     internal PeerAcceptance Accept(Guid id, long expires, string text)
     {
@@ -71,15 +86,18 @@ public sealed class PeerDeliveryStore
             }
             if (data.Inbox.Count >= MaximumEntries) throw new IOException("The peer inbox is full.");
             data.Inbox.Add(new(id, expires, text, PeerDeliveryStatus.Delivered));
+            Archive(data, id, incoming: true, now, text);
             return (PeerAcceptance.Accepted, true);
         });
     }
 
-    internal void Acknowledge(Guid id) => Transaction((data, _) =>
+    internal void Acknowledge(Guid id) => Transaction((data, now) =>
     {
         int index = data.Outbox.FindIndex(item => item.Id == id && item.Status == PeerDeliveryStatus.Pending);
         if (index < 0) return (false, false);
-        data.Outbox[index] = data.Outbox[index] with { Text = null, Status = PeerDeliveryStatus.Delivered };
+        var item = data.Outbox[index];
+        Archive(data, id, incoming: false, now, item.Text!);
+        data.Outbox[index] = item with { Text = null, Status = PeerDeliveryStatus.Delivered };
         return (true, true);
     });
 
@@ -94,6 +112,7 @@ public sealed class PeerDeliveryStore
             var data = Read();
             long now = clock.GetUtcNow().ToUnixTimeSeconds();
             bool expired = data.Inbox.RemoveAll(item => item.ExpiresUtc <= now) != 0;
+            expired |= data.History.RemoveAll(item => item.ReceivedUtc <= now - HistoryTtlSeconds) != 0;
             for (int index = 0; index < data.Outbox.Count; index++)
             {
                 var item = data.Outbox[index];
@@ -121,7 +140,10 @@ public sealed class PeerDeliveryStore
         {
             var data = JsonSerializer.Deserialize<QueueFile>(clear, Json);
             if (clear.Length > MaximumBytes || data?.Version != 1 || data.Revision < 0 || data.Local != local || data.Remote != remote ||
-                !Valid(data.Outbox, inbox: false) || !Valid(data.Inbox, inbox: true))
+                !Valid(data.Outbox, inbox: false) || !Valid(data.Inbox, inbox: true) ||
+                data.History is null || data.History.Count > MaximumEntries ||
+                data.History.Any(item => item is null || item.Id == Guid.Empty || item.ReceivedUtc <= 0 ||
+                    !ReliablePeerWire.ValidText(item.Text)))
                 throw new InvalidDataException("Invalid per-peer delivery state.");
             return data;
         }
@@ -142,11 +164,18 @@ public sealed class PeerDeliveryStore
 
     private void Write(QueueFile data)
     {
-        byte[] clear = JsonSerializer.SerializeToUtf8Bytes(data, Json);
+        byte[] clear;
+        while (true)
+        {
+            clear = JsonSerializer.SerializeToUtf8Bytes(data, Json);
+            if (clear.Length <= MaximumBytes) break;
+            CryptographicOperations.ZeroMemory(clear);
+            if (data.History.Count == 0) throw new IOException("The encrypted queue is at its byte limit.");
+            data.History.RemoveAt(0); // Delivery takes precedence over optional archival data.
+        }
         byte[] protectedData;
         try
         {
-            if (clear.Length > MaximumBytes) throw new IOException("The encrypted queue is at its byte limit.");
             protectedData = PeerPrivateData.Protect(clear);
         }
         finally { CryptographicOperations.ZeroMemory(clear); }
@@ -162,6 +191,13 @@ public sealed class PeerDeliveryStore
             File.Move(temp, path, overwrite: true);
         }
         finally { if (File.Exists(temp)) File.Delete(temp); }
+    }
+
+    private static void Archive(QueueFile data, Guid id, bool incoming, long now, string text)
+    {
+        if (!data.HistoryEnabled) return;
+        if (data.History.Count == MaximumEntries) data.History.RemoveAt(0);
+        data.History.Add(new(id, incoming, now, text));
     }
 
     private static bool CheckPrivateFile(string file)

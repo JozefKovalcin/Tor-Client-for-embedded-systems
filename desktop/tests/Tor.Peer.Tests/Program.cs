@@ -117,6 +117,7 @@ internal static class Offline
         Check.That(aStore.Snapshot().Outbox.Single().Status == PeerDeliveryStatus.Pending, "Missing ACK implied delivery.");
         aStore = aProfile.OpenDelivery(a, bContact);
         bStore = bProfile.OpenDelivery(b, aContact);
+        aStore.SetHistoryEnabled(true);
         var reply = bStore.Enqueue("reply after restart");
         var second = await PairAsync(host, fixture, b.Fingerprint, a, deadline.Token, PeerProtocol.Reliable);
         await using (second.Client)
@@ -147,6 +148,10 @@ internal static class Offline
                 Check.That(inbox.Count == 1 && inbox[0].Id == outbound.Id && inbox[0].Text == sentText,
                     "Lost ACK caused duplicate or changed delivery.");
                 Check.That(aStore.Snapshot().Outbox.Single().Text is null, "ACK did not clear outbound payload.");
+                var history = aProfile.OpenDelivery(a, bContact).Snapshot().History;
+                Check.That(history.Count == 2 && history.Any(row => row.Incoming && row.Text == reply.Text) &&
+                    history.Any(row => !row.Incoming && row.Text == sentText), "Opt-in history did not survive reopening.");
+                Check.That(bStore.Snapshot().History.Count == 0, "History recorded text without opt-in.");
             }
             finally
             {
@@ -157,12 +162,17 @@ internal static class Offline
         }
         var clock = new FixtureClock(DateTimeOffset.UtcNow);
         var expiring = new PeerDeliveryStore(Path.Combine(aPath, "peer-security"), a.Fingerprint, b.Fingerprint, clock);
+        expiring.SetHistoryEnabled(false);
         var delayed = expiring.Enqueue("expires");
         clock.Utc = clock.Utc.AddMinutes(16);
         var expired = expiring.Snapshot().Outbox.Single(item => item.Id == delayed.Id);
         Check.That(expired.Status == PeerDeliveryStatus.Expired && expired.Text is null, "TTL did not expire the stored payload.");
         Check.That(expiring.Accept(delayed.Id, delayed.ExpiresUtc, "expires") == PeerAcceptance.Expired, "Expired message returned as fresh.");
-        Console.WriteLine("PASS durable pre-send, lost ACK, pin-bound queues, deduplication after reopen, bidirectional ACK and TTL");
+        Check.That(expiring.Snapshot().History.Count == 2 && !expiring.Snapshot().HistoryEnabled,
+            "Opting out did not preserve prior history within its retention window.");
+        clock.Utc = clock.Utc.AddDays(8);
+        Check.That(expiring.Snapshot().History.Count == 0, "Opt-in history exceeded its retention.");
+        Console.WriteLine("PASS durable pre-send, lost ACK, pin-bound queues, restart deduplication, bidirectional ACK, TTL and opt-in history");
     }
 
     private sealed class FixtureClock(DateTimeOffset utc) : TimeProvider

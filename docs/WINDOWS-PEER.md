@@ -2,22 +2,26 @@
 
 ## Connect two clients
 
-1. Start each Manager with its verified native Tor runtime. Select **Real
-   Online**, pick separate SOCKS ports if sharing a Windows host, then select
-   **Start Tor**. Wait for authenticated control, an owned SOCKS listener and
-   bootstrap at 100%.
+1. Start each Manager with its verified native Tor runtime and select
+   **Real Online**.
 2. In **Peer messaging**, explicitly create the first local peer identity.
    Exchange **Your certificate SHA-256** over a trusted authenticated channel.
    On each side enter a contact name and the other party's 64-character
    fingerprint, confirm the comparison, and select **Pair contact**. Select
    that contact before hosting or connecting.
-3. On A, select **Host Onion Service**. Share the displayed v3 address with
+3. On both PCs choose the SOCKS port and select **Start Tor**. Wait for
+   authenticated control, an owned SOCKS listener and bootstrap at 100%.
+   On A, select **Host Onion Service**. Share the displayed v3 address with
    B. Registration may precede Tor's descriptor publication. On B, enter the
-   full address and select **Connect to Peer**. Retry explicitly if Tor is
-   still publishing the service or after an interruption.
-4. Wait for **Connected · peer authenticated with mutual TLS**. Send text
-   from either side. The receiving panel displays the latest message only.
-   **Disconnect** closes the peer session. On A it also removes the service.
+   full address and select **Connect to Peer**. A transient connection
+   failure triggers up to four retry attempts. While the UI remains open,
+   a replacement Tor session can resume the same pinned destination. Editing
+   the onion or contact or choosing **Disconnect** cancels that intent.
+4. Wait for the paired mutual TLS status. **Send or queue** persists a
+   bounded message as pending even if Tor is currently stopped. The entry
+   shows delivered after the receiver's ACK, or expired if its deadline
+   passes first. **Disconnect** closes the peer session. On A it also
+   removes the service.
 
 ## Architecture and trust
 
@@ -110,7 +114,13 @@ outbox retains descriptive metadata while the payload is removed. The
 inbox keeps the delivered text and its deduplication record until expiry,
 which is processed on access and during a connected session. It can be
 viewed again after a restart within this window. Delivery storage is
-separate from any future opt-in conversation history.
+separate from optional conversation history. **Archive new delivered
+messages** opts in per contact, records subsequently received or acknowledged
+text and retains it for up to seven days or 64 entries. It uses the same
+encrypted storage size budget. If more space is needed for delivery, the
+oldest archived entries are evicted. Turning off archival preserves previous
+entries until retention removes them. Expiration is applied on profile access
+and while connected.
 
 ## Authorized qualification
 
@@ -128,3 +138,37 @@ The workflow checks both bootstraps, authenticated `HS_DESC UPLOADED` for A's
 service, mutual TLS and two-way integrity. It stops B's Tor to interrupt the
 connection, restarts B and verifies a second exchange through the same onion.
 It then checks protocol close, onion removal and both process exits.
+
+## Two physical PCs with the graphical workflow
+
+With separate authorization, stage the same reviewed Windows x64 artifact
+on each physical PC. Pass its independently recorded apphost and assembly
+SHA-256, the pinned Tor package directory, a fresh run ID and each distinct
+role to `scripts/manual/prepare_peer_gui_qualification.ps1`. The switch
+`-ApprovePublicTor` records approval for this manual workflow. The script
+verifies the named input files, opens the GUI with a new state directory and
+records the launch as NOT RUN until an operator records the actual steps.
+
+1. Complete the pairing steps above with independent profiles and confirm
+   the displayed fingerprints over the approved trusted channel. First use
+   a different fixture fingerprint and record that the expected peer cannot
+   authenticate. Pair the intended test identity with a fresh explicit action.
+2. Start Tor and record bootstrap 100% on each PC. Host A and enter the
+   actual address on B. Verify both authenticated GUI statuses.
+3. Exchange two known harmless messages in both directions. Record the exact
+   content match and sequence. Confirm delivered appears after receiving
+   the corresponding message. Record opt-in status and encrypted history,
+   using the isolated test profile.
+4. While A remains active, stop B's Tor, queue one message on B, and start
+   Tor again. Verify same-pin reconnect, one reception and a transition
+   from pending to delivered. Repeat with B's app restarted using the same
+   test state. When A or its Tor restarts, share its newly registered onion
+   and confirm that its TLS fingerprint remained unchanged.
+5. Exercise explicit disconnect and close both apps. Confirm owned Tor
+   PIDs exit. Preserve independent private state locally.
+
+Record screenshots with fixture content. Redact onion addresses, fingerprints,
+private paths and account details in shared evidence. Save sanitized
+observations and measurements in the ignored
+`artifacts/windows-peer/<run>-<role>/` directory. Keep private state and
+authentication material on their own PCs.
