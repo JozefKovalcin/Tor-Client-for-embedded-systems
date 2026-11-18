@@ -13,7 +13,9 @@ internal static class OnlineDesktopTests
     public static async Task RunAsync(ITaskFeed demo, SettingsStore settings, Action<bool, string> check)
     {
         var service = new FakeService();
-        await using var shell = new ShellViewModel(demo, new ImmediateDispatcher(), settings, service);
+        bool customVerified = false;
+        await using var shell = new ShellViewModel(demo, new ImmediateDispatcher(), settings, service,
+            activeRuntime: RuntimeSource.Bundled, hasVerifiedCustomRuntime: () => customVerified);
         await shell.OpenAsync().WaitAsync(Limit);
         var model = shell.Offline!;
         check(shell.Pages.Single(page => page.ShowPeers).Title == "Peers",
@@ -42,6 +44,24 @@ internal static class OnlineDesktopTests
         check(shell.IsOnline && service.OnlineStarts == 1 && service.Port == 19150 && !model.CanEditSocksPort &&
             model.SocksStatusText == "No SOCKS5 listener confirmed" && model.TorVersionText == "Version not reported",
             "explicit start forwards a validated port once and preserves the active workspace while status is unknown");
+        if (OperatingSystem.IsWindows())
+        {
+            shell.ShowDeveloperCommand.Execute(null);
+            check(shell.IsDeveloper && shell.IsOnline && shell.CurrentPage.ShowDeveloper &&
+                shell.Pages.Any(page => page.ShowPeers) && service.OnlineStarts == 1 && service.Watchers == 1,
+                "Developer retains the active real connection, peer page and current Tor watcher");
+            shell.ShowRunOnlyCommand.Execute(null);
+            check(!shell.IsDeveloper && shell.IsOnline && model.IsOnline && service.OnlineStarts == 1,
+                "returning to Run Only retains the current Tor session");
+        }
+        shell.SelectBundledRuntimeCommand.Execute(null);
+        shell.SelectCustomRuntimeCommand.Execute(null);
+        check(settings.Load(out _).PreferredRuntime == RuntimeSource.Bundled,
+            "choosing custom without a verified approval preserves the previous setting");
+        customVerified = true;
+        shell.SelectCustomRuntimeCommand.Execute(null);
+        check(settings.Load(out _).PreferredRuntime == RuntimeSource.CustomVerified && shell.ActiveRuntime == "Bundled Tor" &&
+            shell.IsOnline && service.OnlineStarts == 1, "runtime selection is persisted for next launch and leaves the active session intact");
 
         service.Publish(service.Snapshot with
         {

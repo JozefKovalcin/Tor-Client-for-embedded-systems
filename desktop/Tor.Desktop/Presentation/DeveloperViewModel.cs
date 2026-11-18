@@ -133,7 +133,7 @@ internal sealed class DeveloperViewModel : ObservableModel
                 ?? throw new InvalidDataException("Missing verified runtime candidate.");
             token.ThrowIfCancellationRequested();
             WindowsRuntimeSelection.ForCurrentUser().Activate(candidate);
-            Status = "Build approved. Restart Tor Manager to select it for future Tor sessions.";
+            Status = "Build approved. Use the approved runtime preference in Settings and restart Tor Manager.";
             return;
         }
         if (action is WindowsDeveloperAction.Install or WindowsDeveloperAction.Build or WindowsDeveloperAction.Smoke)
@@ -166,9 +166,9 @@ internal sealed class DeveloperViewModel : ObservableModel
             token.ThrowIfCancellationRequested();
             var outcome = core.Snapshot().Single(row => row.TaskId == taskId);
             var headline = $"{action} · {outcome.State.ToUpperInvariant()} · exit {outcome.RawExitCode?.ToString() ?? "unavailable"}";
-            if (action == WindowsDeveloperAction.Install) await ReadAsync(spec with { Action = WindowsDeveloperAction.Scan }, token);
-            else await ReadAsync(spec with { Action = WindowsDeveloperAction.List }, token);
-            Status = headline + (action == WindowsDeveloperAction.Install ? " · dependencies rescanned" : "");
+            bool installing = action == WindowsDeveloperAction.Install;
+            bool refreshed = await ReadAsync(spec with { Action = installing ? WindowsDeveloperAction.Scan : WindowsDeveloperAction.List }, token);
+            Status = headline + (refreshed ? installing ? " · dependencies rescanned" : "" : " · refresh failed");
             return;
         }
         await ReadAsync(spec, token);
@@ -188,14 +188,14 @@ internal sealed class DeveloperViewModel : ObservableModel
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
     }
 
-    private async Task ReadAsync(WindowsDeveloperCommand spec, CancellationToken token)
+    private async Task<bool> ReadAsync(WindowsDeveloperCommand spec, CancellationToken token)
     {
         var result = await WindowsDeveloperRunner.RunAsync(spec, null, token);
         if (result.ExitCode != 0)
         {
             Status = $"BLOCKED · exit {result.ExitCode}";
             Report = result.Errors;
-            return;
+            return false;
         }
         using var document = JsonDocument.Parse(result.Output);
         var data = document.RootElement;
@@ -227,6 +227,7 @@ internal sealed class DeveloperViewModel : ObservableModel
             RefreshSelection();
             Status = $"{Builds.Count} recorded builds.";
         }
+        return true;
     }
 
     private static string Format(JsonElement data) => JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });

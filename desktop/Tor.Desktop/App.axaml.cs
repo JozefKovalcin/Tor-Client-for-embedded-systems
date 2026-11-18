@@ -18,11 +18,15 @@ public sealed partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var (offline, unavailable, peerProfile, hostingIdentity) = CreateOfflineService(desktop.Args ?? []);
-            var model = new ShellViewModel(new SimulationTaskFeed(), new UiDispatcher(), SettingsStore.ForCurrentUser(),
+            var settings = SettingsStore.ForCurrentUser();
+            var bundled = Path.Combine(AppContext.BaseDirectory, "tor-runtime");
+            var (offline, unavailable, peerProfile, hostingIdentity, activeRuntime, canSelectRuntime) =
+                CreateOfflineService(desktop.Args ?? [], settings.Load(out _).PreferredRuntime);
+            var model = new ShellViewModel(new SimulationTaskFeed(), new UiDispatcher(), settings,
                 offline, unavailable, showRealWhenUnavailable: OperatingSystem.IsWindows(),
-                bundledRuntime: Path.Combine(AppContext.BaseDirectory, "tor-runtime"), peerProfile: peerProfile,
-                hostingIdentity: hostingIdentity);
+                bundledRuntime: bundled, peerProfile: peerProfile, hostingIdentity: hostingIdentity,
+                activeRuntime: activeRuntime, hasVerifiedCustomRuntime: canSelectRuntime
+                    ? () => WindowsRuntimeSelection.ForCurrentUser().ReadRuntime(bundled).IsCustom : null);
             model.PropertyChanged += (_, change) =>
             {
                 if (change.PropertyName == nameof(model.Theme))
@@ -55,27 +59,33 @@ public sealed partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
-    private static (IOfflineTorService? Service, string? Error, PeerProfileStore? PeerProfile, HostedOnionStore? HostingIdentity)
-        CreateOfflineService(string[] args)
+    private static (IOfflineTorService? Service, string? Error, PeerProfileStore? PeerProfile, HostedOnionStore? HostingIdentity,
+        RuntimeSource? ActiveRuntime, bool CanSelectRuntime) CreateOfflineService(string[] args, RuntimeSource? preference)
     {
         if (!OperatingSystem.IsWindows())
-            return (null, "Real Offline requires Windows. Demo uses simulated data.", null, null);
+            return (null, "Real Offline requires Windows. Demo uses simulated data.", null, null, null, false);
+        bool canSelectRuntime = false;
         try
         {
             var options = OfflineLaunchOptions.Read(args);
-            var runtime = WindowsRuntimeSelection.ForCurrentUser().ReadRuntime(options.PackageDirectory, !options.ExplicitPackage);
+            canSelectRuntime = !options.ExplicitPackage;
+            var runtime = WindowsRuntimeSelection.ForCurrentUser().ReadRuntime(options.PackageDirectory,
+                canSelectRuntime && preference != RuntimeSource.Bundled);
             return (OfflineTorService.CreateWindows(runtime, options.PrivateDirectory), null,
-                new PeerProfileStore(options.PrivateDirectory), new HostedOnionStore(options.PrivateDirectory));
+                new PeerProfileStore(options.PrivateDirectory), new HostedOnionStore(options.PrivateDirectory),
+                runtime.IsCustom ? RuntimeSource.CustomVerified : RuntimeSource.Bundled, canSelectRuntime);
         }
         catch (ArgumentException)
         {
-            return (null, "Use absolute folders with --tor-package and --state-dir. Keep private state separate from the installation and runtime.", null, null);
+            return (null, "Use absolute folders with --tor-package and --state-dir. Keep private state separate from the installation and runtime.",
+                null, null, null, false);
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidOperationException
             or InvalidDataException or System.Text.Json.JsonException
             or System.Security.SecurityException)
         {
-            return (null, "Runtime or private workspace verification failed. For a changed approved build, use Builds to roll back and restart.", null, null);
+            return (null, "Runtime or private workspace verification failed. For a changed approved build, use Builds to roll back and restart.",
+                null, null, null, canSelectRuntime);
         }
     }
 
