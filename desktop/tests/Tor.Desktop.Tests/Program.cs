@@ -132,6 +132,7 @@ try
     catch (OperationCanceledException) { cancelled = true; }
     Check(cancelled, "feed cancellation observed");
     await OfflineDesktopTests.RunAsync(feed, store, Check);
+    await OnlineDesktopTests.RunAsync(feed, store, Check);
 }
 finally
 {

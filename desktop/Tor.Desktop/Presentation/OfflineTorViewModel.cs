@@ -1,38 +1,93 @@
 using System.Globalization;
+using Tor.Adapters.Windows;
 using Tor.Application;
 using Tor.Core;
 using TorManager.Desktop.Services;
 
 namespace TorManager.Desktop.Presentation;
 
-/// <summary>Projects one offline service subscription onto the UI dispatcher.</summary>
+/// <summary>Projects one Windows session service subscription onto the UI dispatcher.</summary>
 internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
 {
     private readonly IOfflineTorService _service;
+    private readonly IOnlineTorService? _online;
     private readonly IUiDispatcher _dispatcher;
     private readonly CancellationTokenSource _lifetime = new();
     private OfflineTorSnapshot _snapshot;
     private Task? _reader;
     private Task? _close;
     private CancellationTokenSource? _startRequest;
+    private CancellationTokenSource? _onlineAction;
     private bool _refreshing;
     private bool _stopping;
     private bool _closing;
     private string? _actionError;
     private string? _monitorError;
+    private string? _onlineNotice;
+    private string _socksPortText = IOnlineTorService.DefaultSocksPort.ToString(CultureInfo.InvariantCulture);
+    private bool _isOnline;
+    private bool _restarting;
 
     public AsyncCommand StartCommand { get; }
     public AsyncCommand StopCommand { get; }
     public AsyncCommand RefreshCommand { get; }
+    public AsyncCommand RestartCommand { get; }
+    public AsyncCommand NewIdentityCommand { get; }
+    public AsyncCommand CheckConnectivityCommand { get; }
     public TaskCard? CurrentTask { get; private set; }
     public IReadOnlyList<TaskCard> Tasks { get; private set; } = [];
     public IReadOnlyList<LogCard> Logs { get; private set; } = [];
     public bool CanSwitchToDemo => !_closing && _startRequest is null && !_stopping &&
         !OwnsOrStartsProcess(_snapshot) && !OwnsOrStartsProcess(_service.Snapshot);
+    public bool SupportsOnline => _online is not null;
+    public bool IsOnline => _isOnline;
+    public bool CanEditSocksPort => IsOnline && CanSwitchToDemo;
+    public string SocksPortText
+    {
+        get => _socksPortText;
+        set
+        {
+            if (!CanEditSocksPort || !Set(ref _socksPortText, value)) return;
+            NotifyStatus();
+        }
+    }
+    public bool InvalidSocksPort => IsOnline && !TrySocksPort(out _);
+    public string RuntimeDigest => _snapshot.PackageStatus == RuntimePackageStatus.Available
+        ? PinnedWindowsRuntime.Executable.Sha256 : "Unavailable pending verification";
+    public string TorVersionText => _snapshot.Online?.TorVersion ?? "Version not reported";
+    public string SocksStatusText => _snapshot.Online?.SocksPort is { } port
+        ? FormattableString.Invariant($"SOCKS5 at 127.0.0.1:{port}") : "No SOCKS5 listener confirmed";
+    public string CircuitStatusText => _snapshot.Online?.CircuitEstablished switch
+    {
+        true => "Tor reports a circuit is established",
+        false => "Tor reports no circuit is established",
+        null => "Circuit status not reported"
+    };
+    public string? OnlineNotice => _onlineAction is { IsCancellationRequested: false } ? "Waiting for Tor…" : _onlineNotice;
+    public bool HasOnlineNotice => OnlineNotice is not null;
+    public bool ShowBootstrapProgress => IsOnline && _snapshot.SessionStatus is
+        (TorSessionStatus.Starting or TorSessionStatus.BootstrappingOnline or TorSessionStatus.RunningOnline);
+    public bool BootstrapIndeterminate => _snapshot.BootstrapPercent is null;
+    public double BootstrapValue => _snapshot.BootstrapPercent ?? 0;
 
     private static bool OwnsOrStartsProcess(OfflineTorSnapshot snapshot) =>
         snapshot.CanStop || snapshot.ProcessId is not null ||
-        snapshot.SessionStatus is TorSessionStatus.Starting or TorSessionStatus.RunningOffline or TorSessionStatus.Stopping;
+        snapshot.SessionStatus is TorSessionStatus.Starting or TorSessionStatus.RunningOffline
+            or TorSessionStatus.BootstrappingOnline or TorSessionStatus.RunningOnline or TorSessionStatus.Stopping;
+
+    private bool TrySocksPort(out int port) => int.TryParse(SocksPortText, NumberStyles.None,
+        CultureInfo.InvariantCulture, out port) && port is >= 1 and <= 65535;
+
+    public bool SelectOnline(bool online)
+    {
+        if (_isOnline == online) return true;
+        if (!CanSwitchToDemo || (online && !SupportsOnline)) return false;
+        _isOnline = online;
+        _onlineNotice = null;
+        Changed(nameof(IsOnline));
+        NotifyStatus();
+        return true;
+    }
 
     public string PackageText => _snapshot.PackageStatus switch
     {
@@ -46,6 +101,8 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
     {
         TorSessionStatus.Starting => "Starting",
         TorSessionStatus.RunningOffline => "Running offline",
+        TorSessionStatus.BootstrappingOnline => "Bootstrapping on the Tor network",
+        TorSessionStatus.RunningOnline => "Running online",
         TorSessionStatus.Stopping => "Stopping",
         TorSessionStatus.Failed => "Failed",
         TorSessionStatus.Interrupted => "Interrupted",
@@ -79,14 +136,24 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
     public OfflineTorViewModel(IOfflineTorService service, IUiDispatcher dispatcher)
     {
         _service = service;
+        _online = service as IOnlineTorService;
         _dispatcher = dispatcher;
         _snapshot = service.Snapshot;
-        StartCommand = new(StartAsync, () => ReportActionError("Start failed. Review the task and runtime status."),
-            () => !_closing && !_refreshing && !_stopping && _startRequest is null && _service.Snapshot.CanStart);
+        StartCommand = new(() => StartAsync(restart: false), () => ReportActionError("Start failed. Review the task and runtime status."),
+            () => !_closing && !_refreshing && !_stopping && _startRequest is null && _service.Snapshot.CanStart &&
+                (!IsOnline || TrySocksPort(out _)));
         StopCommand = new(StopAsync, () => ReportActionError("Stop did not confirm process termination. Review the live status."),
             () => !_closing && !_stopping && (_startRequest is not null || _service.Snapshot.CanStop));
         RefreshCommand = new(RefreshAsync, () => ReportActionError("Runtime verification could not finish."),
             () => !_closing && !_refreshing && !_stopping && _startRequest is null && !_service.Snapshot.CanStop);
+        RestartCommand = new(() => StartAsync(restart: true), () => ReportActionError("Online restart failed. Review the task and runtime status."),
+            () => IsOnline && !_closing && !_refreshing && !_stopping && _startRequest is null &&
+                TrySocksPort(out _) && _service.Snapshot is { Online: not null, CanStop: true,
+                    SessionStatus: TorSessionStatus.BootstrappingOnline or TorSessionStatus.RunningOnline });
+        NewIdentityCommand = new(() => ApplyOnlineActionAsync((service, token) => service.RequestNewIdentityAsync(token)),
+            () => ReportActionError("Tor did not confirm the identity request."), CanInvokeOnlineAction);
+        CheckConnectivityCommand = new(() => ApplyOnlineActionAsync((service, token) => service.CheckConnectivityAsync(token)),
+            () => ReportActionError("The SOCKS5 connectivity check could not finish."), CanInvokeOnlineAction);
         Apply(_snapshot);
     }
 
@@ -131,29 +198,68 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
         finally { _refreshing = false; NotifyStatus(); }
     }
 
-    private async Task StartAsync()
+    private async Task StartAsync(bool restart)
     {
+        var online = IsOnline ? _online : null;
+        var port = 0;
+        if (IsOnline && (online is null || !TrySocksPort(out port))) return;
         using var request = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        _onlineAction?.Cancel();
+        _onlineNotice = null;
         _startRequest = request;
+        _restarting = restart;
         _actionError = null;
         NotifyStatus();
-        try { await Task.Run(() => _service.StartAsync(request.Token), request.Token); }
-        finally { _startRequest = null; NotifyStatus(); }
+        try
+        {
+            if (online is not null)
+                await Task.Run(() => restart ? online.RestartOnlineAsync(port, request.Token) : online.StartOnlineAsync(port, request.Token), request.Token);
+            else
+                await Task.Run(() => _service.StartAsync(request.Token), request.Token);
+        }
+        finally { _startRequest = null; _restarting = false; NotifyStatus(); }
     }
 
     private async Task StopAsync()
     {
         var token = _lifetime.Token;
         _stopping = true;
+        _onlineAction?.Cancel();
+        _onlineNotice = null;
         _actionError = null;
         NotifyStatus();
         try
         {
             // A stop request can arrive before the preflight has submitted a task.
-            if (!_service.Snapshot.CanStop) _startRequest?.Cancel();
+            if (!_service.Snapshot.CanStop || _restarting) _startRequest?.Cancel();
             await Task.Run(() => _service.StopAsync(token), token);
         }
         finally { _stopping = false; NotifyStatus(); }
+    }
+
+    private bool CanInvokeOnlineAction() => IsOnline && !_closing && !_stopping && _startRequest is null &&
+        _onlineAction is null && _service.Snapshot.Online?.CanUseOnlineActions == true;
+
+    private async Task ApplyOnlineActionAsync(Func<IOnlineTorService, CancellationToken, Task<OnlineActionResult>> action)
+    {
+        if (_online is not { } online || !CanInvokeOnlineAction()) return;
+        using var request = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        _onlineAction = request;
+        _actionError = null;
+        _onlineNotice = null;
+        NotifyStatus();
+        try
+        {
+            var result = await Task.Run(() => action(online, request.Token), request.Token);
+            if (!request.IsCancellationRequested && _service.Snapshot.Online?.CanUseOnlineActions == true)
+                _onlineNotice = result.Message;
+        }
+        catch (OperationCanceledException) when (request.IsCancellationRequested) { }
+        finally
+        {
+            _onlineAction = null;
+            NotifyStatus();
+        }
     }
 
     private void ReportActionError(string message)
@@ -165,6 +271,11 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
 
     private void Apply(OfflineTorSnapshot snapshot)
     {
+        if (_snapshot.Online?.CanUseOnlineActions == true && snapshot.Online?.CanUseOnlineActions != true)
+        {
+            _onlineAction?.Cancel();
+            _onlineNotice = null;
+        }
         _snapshot = snapshot;
         CurrentTask = snapshot.CurrentTask is { } current ? TaskCard.FromProgress(current) : null;
         // Keep the latest bounded view of each stream and replace it atomically on the UI thread.
@@ -195,9 +306,23 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
         Changed(nameof(HasError));
         Changed(nameof(RecoveryText));
         Changed(nameof(CanSwitchToDemo));
+        Changed(nameof(CanEditSocksPort));
+        Changed(nameof(InvalidSocksPort));
+        Changed(nameof(RuntimeDigest));
+        Changed(nameof(TorVersionText));
+        Changed(nameof(SocksStatusText));
+        Changed(nameof(CircuitStatusText));
+        Changed(nameof(OnlineNotice));
+        Changed(nameof(HasOnlineNotice));
+        Changed(nameof(ShowBootstrapProgress));
+        Changed(nameof(BootstrapIndeterminate));
+        Changed(nameof(BootstrapValue));
         StartCommand.Invalidate();
         StopCommand.Invalidate();
         RefreshCommand.Invalidate();
+        RestartCommand.Invalidate();
+        NewIdentityCommand.Invalidate();
+        CheckConnectivityCommand.Invalidate();
     }
 
     public ValueTask DisposeAsync() => new(_close ??= CloseAsync());
@@ -211,7 +336,7 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
         {
             await Task.Run(async () => await _service.DisposeAsync()).ConfigureAwait(false);
             if (_service.Snapshot.ProcessId is not null)
-                throw new InvalidOperationException("Offline process termination was not confirmed.");
+                throw new InvalidOperationException("Tor process termination was not confirmed.");
         }
         finally
         {
