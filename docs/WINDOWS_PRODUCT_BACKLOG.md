@@ -4,7 +4,7 @@ This repository copy maps the supplied canonical backlog to separately reviewabl
 
 | ID | Sekcia | Popis | Stav | Dôkaz | PR/commit | Blocker | Ďalšia akcia |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| WIN-00 | 0 | Current PR heads, protected inputs and offline baseline | PARTIAL | GitHub heads and CI verified | #19 | Baseline run in progress | Record local regression results |
+| WIN-00 | 0 | Current PR heads, protected inputs and offline baseline | VERIFIED | Windows portable 160 PASS, pipeline 6 PASS, protected SHA-256 matches | #19 at `97ccff6a` | — | Use as the peer integration base |
 | WIN-01 | 1 | Persistent local TLS credential and out-of-band contact pairing | NOT RUN | Phase 1 acceptance tests pending | — | — | Implement and test on new test profiles |
 | WIN-02 | 2 | Durable outbox, authenticated ACK and deduplication | NOT RUN | Phase 2 acceptance tests pending | — | Phase 1 API review | Specify and implement the durable lifecycle |
 | WIN-03 | 3 | Message status, reconnect and peer usability | NOT RUN | Phase 3 acceptance tests pending | — | Phase 2 semantics | Project real states in the GUI |

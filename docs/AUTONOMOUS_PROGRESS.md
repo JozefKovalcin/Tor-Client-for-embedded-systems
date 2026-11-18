@@ -18,6 +18,14 @@ lane. Existing remote PRs remain open for review.
 
 GitHub returned passing push and pull request checks for the exact heads of
 #19–#24. Raw metadata is in `build/windows-autonomous-evidence/github-initial.json`.
+Against `97ccff6a00c886606501f72f58dffbb310de8f99` on Windows x64 with
+Python 3.14.2 and SDK 11.0.100, `python -B scripts/check.py` returned 0.
+160 tests passed and 10 platform-specific tests were skipped. The suite
+includes the offline negative TLS and SOCKS peer groups. The Windows
+pipeline returned 0 with six tests. The real pinned Tor runtime passed
+offline SAFECOOKIE shutdown, exit and owner-death tests with exit 0.
+Logs are in `build/windows-autonomous-evidence/phase0-baseline/`.
+`git diff --check` and comparison of the 566 protected SHA-256 hashes passed.
 These checks establish head and software status. Physical PCs and a clean
 Windows host require their own qualification.
 
@@ -52,6 +60,5 @@ operator-assisted observations remain historical evidence.
 
 ## NEXT_ACTION
 
-Run baseline tests against the exact peer head and build a first-use
-credential and trusted contact store. Use independent fresh test profiles
+Build a first-use credential and trusted contact store. Use independent fresh test profiles
 and characterize wrong-pin, revoked-contact and identity-loss behavior.
