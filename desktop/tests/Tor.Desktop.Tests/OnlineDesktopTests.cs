@@ -1,6 +1,8 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
 using Tor.Application;
+using Tor.Control;
+using Tor.Core;
 using TorManager.Desktop.Presentation;
 using TorManager.Desktop.Services;
 
@@ -42,13 +44,14 @@ internal static class OnlineDesktopTests
         service.Publish(service.Snapshot with
         {
             SessionStatus = TorSessionStatus.BootstrappingOnline, ProcessId = 71, ControlStatus = TorControlStatus.Authenticated,
-            BootstrapPercent = 33, BootstrapTag = "connecting", Online = new(19150, 19150, "0.4.9.14", false, false)
+            BootstrapPercent = 33, BootstrapTag = "connecting", Online = new(19150, 19150, "0.4.9.14", false, false),
+            VerifiedRuntimeSha256 = new string('a', 64)
         });
         await ObserveAsync(model, () => model.BootstrapText == "33% · connecting");
         check(model.ProcessText == "PID 71" && model.ControlText == "Authenticated with SAFECOOKIE" &&
             model.BootstrapValue == 33 && !model.BootstrapIndeterminate && model.SocksStatusText == "SOCKS5 at 127.0.0.1:19150" &&
             model.TorVersionText == "0.4.9.14" && model.CircuitStatusText == "Tor reports no circuit is established" &&
-            model.RuntimeDigest.Length == 64 && !model.CheckConnectivityCommand.CanExecute(null),
+            model.RuntimeDigest == new string('a', 64) && !model.CheckConnectivityCommand.CanExecute(null),
             "listener availability, bootstrap progress, control, circuit status and pinned provenance remain distinct");
 
         service.Publish(service.Snapshot with
@@ -99,7 +102,90 @@ internal static class OnlineDesktopTests
 
     private static TaskCompletionSource Signal() => new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-    private sealed class FakeService : IOnlineTorService
+    internal static async Task RunPeerAsync(string fresh, Action<bool, string> check)
+    {
+        check(Path.IsPathFullyQualified(fresh) && !Directory.Exists(fresh), "peer UI uses an unused isolated profile");
+        var profile = new PeerProfileStore(fresh);
+        var service = new FakeService();
+        await using var model = new PeerViewModel(service, profile);
+        model.ReadExistingProfile();
+        check(model.CreateIdentityCommand.CanExecute(null) && !Directory.Exists(fresh), "profile discovery creates no identity or directory");
+        model.CreateIdentityCommand.Execute(null);
+        string original = model.Fingerprint;
+        check(original.Length == 64 && service.OnlineStarts == 0, "explicit identity creation works before starting Tor");
+        using var fixture = new PeerIdentity();
+        model.Label = "Test peer";
+        model.PeerFingerprint = fixture.Fingerprint;
+        model.ComparedFingerprint = true;
+        model.PeerFingerprint = new string('F', 64);
+        check(!model.SavePeerCommand.CanExecute(null), "editing the typed pin resets consent");
+        model.PeerFingerprint = fixture.Fingerprint;
+        model.ComparedFingerprint = true;
+        const string address = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.onion";
+        model.OnionAddress = address;
+        model.SavePeerCommand.Execute(null);
+        check(!model.SaveHistory && model.HistoryRows.Count == 0, "conversation history starts disabled");
+        model.SaveHistory = true;
+        model.Draft = "durable fixture";
+        model.SendCommand.Execute(null);
+        check(model.DeliveryRows.Single().Status == "Pending" && service.OnlineStarts == 0,
+            "queued offline message is pending and starts no transport");
+        await using (var reopened = new PeerViewModel(service, profile))
+        {
+            reopened.ReadExistingProfile();
+            reopened.SelectedPeer = reopened.Contacts.Single();
+            check(reopened.Fingerprint == original && reopened.DeliveryRows.Single().Text == "durable fixture" && reopened.SaveHistory,
+                "identity, pin, pending message and explicit history preference survive a new model instance");
+        }
+        using var first = new PausedPeerTransport();
+        service.PeerTransport = first;
+        model.SetAvailable(true);
+        model.ConnectCommand.Execute(null);
+        await first.Started.Task.WaitAsync(Limit);
+        model.SetAvailable(false);
+        first.Dispose();
+        await WaitUntilAsync(() => model.CanEditPeer);
+        using var second = new PausedPeerTransport();
+        service.PeerTransport = second;
+        model.SetAvailable(true);
+        await second.Started.Task.WaitAsync(Limit);
+        check(second.Address?.Host == address, "Tor restart retries only the original paired onion");
+        model.SetAvailable(false);
+        second.Dispose();
+        await WaitUntilAsync(() => model.CanEditPeer);
+        model.OnionAddress = new string('b', 56) + ".onion";
+        using var third = new PausedPeerTransport();
+        service.PeerTransport = third;
+        model.SetAvailable(true);
+        check(model.CanEditPeer && !third.Started.Task.IsCompleted, "editing the onion cancels the pending reconnect intent");
+    }
+
+    private static async Task WaitUntilAsync(Func<bool> condition)
+    {
+        using var deadline = new CancellationTokenSource(Limit);
+        while (!condition()) await Task.Delay(10, deadline.Token);
+    }
+
+    private sealed class PausedPeerTransport : IOnionPeerTransport, IDisposable
+    {
+        private readonly CancellationTokenSource cancellation = new();
+        public TaskCompletionSource Started { get; } = Signal();
+        public CancellationToken Lifetime => cancellation.Token;
+        public OnionAddress? Address { get; private set; }
+        public async Task<Stream> ConnectAsync(OnionAddress address, CancellationToken token)
+        {
+            Address = address;
+            Started.TrySetResult();
+            await Task.Delay(Timeout.InfiniteTimeSpan, token);
+            throw new InvalidOperationException();
+        }
+        public Task<OnionAddress> HostAsync(int loopbackPort, CancellationToken token) => throw new NotSupportedException();
+        public Task RemoveAsync(OnionAddress address) => throw new NotSupportedException();
+        public Task WaitForPublicationAsync(OnionAddress address, CancellationToken token) => throw new NotSupportedException();
+        public void Dispose() => cancellation.Cancel();
+    }
+
+    private sealed class FakeService : IPeerTorService
     {
         private readonly Channel<OfflineTorSnapshot> _updates = Channel.CreateUnbounded<OfflineTorSnapshot>();
         private OfflineTorSnapshot _snapshot = new(RuntimePackageStatus.Available, TorSessionStatus.Stopped,
@@ -117,6 +203,8 @@ internal static class OnlineDesktopTests
         public int Restarts { get; private set; }
         public int Probes { get; private set; }
         public int IdentityRequests { get; private set; }
+        public IOnionPeerTransport? PeerTransport { get; set; }
+        public IOnionPeerTransport? GetPeerTransport() => PeerTransport;
 
         public void Publish(OfflineTorSnapshot value)
         {

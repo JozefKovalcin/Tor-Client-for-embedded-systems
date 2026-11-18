@@ -1,5 +1,4 @@
 using System.Globalization;
-using Tor.Adapters.Windows;
 using Tor.Application;
 using Tor.Core;
 using TorManager.Desktop.Services;
@@ -34,6 +33,7 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
     public AsyncCommand RestartCommand { get; }
     public AsyncCommand NewIdentityCommand { get; }
     public AsyncCommand CheckConnectivityCommand { get; }
+    public PeerViewModel? Peer { get; }
     public TaskCard? CurrentTask { get; private set; }
     public IReadOnlyList<TaskCard> Tasks { get; private set; } = [];
     public IReadOnlyList<LogCard> Logs { get; private set; } = [];
@@ -52,8 +52,7 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
         }
     }
     public bool InvalidSocksPort => IsOnline && !TrySocksPort(out _);
-    public string RuntimeDigest => _snapshot.PackageStatus == RuntimePackageStatus.Available
-        ? PinnedWindowsRuntime.Executable.Sha256 : "Unavailable pending verification";
+    public string RuntimeDigest => _snapshot.VerifiedRuntimeSha256 ?? "Unavailable pending verification";
     public string TorVersionText => _snapshot.Online?.TorVersion ?? "Version not reported";
     public string SocksStatusText => _snapshot.Online?.SocksPort is { } port
         ? FormattableString.Invariant($"SOCKS5 at 127.0.0.1:{port}") : "No SOCKS5 listener confirmed";
@@ -83,6 +82,7 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
         if (_isOnline == online) return true;
         if (!CanSwitchToDemo || (online && !SupportsOnline)) return false;
         _isOnline = online;
+        if (online) Peer?.ReadExistingProfile();
         _onlineNotice = null;
         Changed(nameof(IsOnline));
         NotifyStatus();
@@ -133,8 +133,9 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
         ? "The previous run was interrupted. A new Start request is required."
         : "Each Start request is explicit. Existing private state is retained.";
 
-    public OfflineTorViewModel(IOfflineTorService service, IUiDispatcher dispatcher)
+    public OfflineTorViewModel(IOfflineTorService service, IUiDispatcher dispatcher, PeerProfileStore? peerProfile = null)
     {
+        Peer = service is IPeerTorService peers ? new PeerViewModel(peers, peerProfile, dispatcher) : null;
         _service = service;
         _online = service as IOnlineTorService;
         _dispatcher = dispatcher;
@@ -295,6 +296,7 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
 
     private void NotifyStatus()
     {
+        Peer?.SetAvailable(IsOnline && !_closing && _snapshot.Online?.CanUseOnlineActions == true);
         Changed(nameof(PackageText));
         Changed(nameof(SessionText));
         Changed(nameof(ControlText));
@@ -334,7 +336,8 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
         NotifyStatus();
         try
         {
-            await Task.Run(async () => await _service.DisposeAsync()).ConfigureAwait(false);
+            try { if (Peer is not null) await Peer.DisposeAsync(); }
+            finally { await Task.Run(async () => await _service.DisposeAsync()).ConfigureAwait(false); }
             if (_service.Snapshot.ProcessId is not null)
                 throw new InvalidOperationException("Tor process termination was not confirmed.");
         }

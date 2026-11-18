@@ -24,7 +24,11 @@ public static class PrivateStorage
         RequireOwnerOnly(path);
     }
 
-    public static void RequireOwnerOnly(string path)
+    public static void RequireOwnerOnly(string path) => RequireOwnerOnly(path, directory: true);
+
+    public static void RequireOwnerOnlyFile(string path) => RequireOwnerOnly(path, directory: false);
+
+    private static void RequireOwnerOnly(string path, bool directory)
     {
         var current = Path.GetFullPath(path);
         while (!string.IsNullOrEmpty(current))
@@ -43,7 +47,9 @@ public static class PrivateStorage
         var owner = WindowsIdentity.GetCurrent().User ?? throw new UnauthorizedAccessException("Missing Windows owner");
         var allowed = new[] { owner, new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null),
             new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null) };
-        var security = new DirectoryInfo(path).GetAccessControl(AccessControlSections.Access | AccessControlSections.Owner);
+        const AccessControlSections sections = AccessControlSections.Access | AccessControlSections.Owner;
+        FileSystemSecurity security = directory ? new DirectoryInfo(path).GetAccessControl(sections)
+            : new FileInfo(path).GetAccessControl(sections);
         if (!owner.Equals(security.GetOwner(typeof(SecurityIdentifier))))
             throw new UnauthorizedAccessException("Private directory owner differs from current user");
         foreach (FileSystemAccessRule rule in security.GetAccessRules(true, true, typeof(SecurityIdentifier)))

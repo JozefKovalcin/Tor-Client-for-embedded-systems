@@ -24,6 +24,79 @@
         <StackPanel Margin="32,26" Spacing="16">
           <TextBlock Text="{Binding Title}" FontSize="30" FontWeight="SemiBold" />
           <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Classes="muted" MaxWidth="840" HorizontalAlignment="Left" />
+          <StackPanel IsVisible="{Binding ShowDeveloper}" Spacing="10">
+            <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="9">
+              <StackPanel IsEnabled="{Binding Idle}" Spacing="5">
+                <TextBlock Text="Verified archive directory" />
+                <TextBox Text="{Binding Sources}" />
+                <TextBlock Text="Private build workspace" />
+                <TextBox Text="{Binding Workspace}" />
+                <TextBlock Text="Build profile" />
+                <ComboBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding Profile}" />
+              </StackPanel>
+              <TextBlock Text="{Binding Status}" FontWeight="SemiBold" TextWrapping="Wrap" />
+              <Button Content="Cancel operation" Command="{Binding CancelCommand}" />
+            </StackPanel>
+            <StackPanel IsVisible="{Binding ShowDeveloperDependencies}">
+              <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="8">
+                <WrapPanel>
+                  <Button Content="Scan PC" Command="{Binding ScanCommand}" Margin="0,0,8,0" />
+                  <Button Content="Prepare installation plan" Command="{Binding PlanCommand}" />
+                </WrapPanel>
+                <SelectableTextBlock Text="{Binding PlanDetails}" FontFamily="Consolas, monospace" TextWrapping="Wrap" />
+                <CheckBox Content="I approve this exact installation plan" IsChecked="{Binding Confirmed}" IsEnabled="{Binding Idle}" />
+                <Button Content="Install approved packages" Command="{Binding InstallCommand}" />
+                <ItemsControl ItemsSource="{Binding Dependencies}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border Classes="card">
+                        <StackPanel Spacing="4">
+                          <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="{Binding Status}" FontWeight="SemiBold" />
+                          </Grid>
+                          <TextBlock Text="{Binding Requirement}" TextWrapping="Wrap" />
+                          <TextBlock Text="{Binding Observation}" TextWrapping="Wrap" />
+                          <TextBlock Text="{Binding Path}" TextWrapping="Wrap" Classes="muted" />
+                          <TextBlock Text="{Binding Method}" TextWrapping="Wrap" Classes="muted" />
+                        </StackPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </StackPanel>
+            <StackPanel IsVisible="{Binding ShowDeveloperBuild}">
+              <WrapPanel DataContext="{Binding $parent[Window].DataContext.Developer}">
+                <Button Content="Run preflight" Command="{Binding ScanCommand}" Margin="0,0,8,0" />
+                <Button Content="Compile verified sources" Command="{Binding BuildCommand}" />
+              </WrapPanel>
+            </StackPanel>
+            <StackPanel IsVisible="{Binding ShowDeveloperArtifacts}">
+              <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="8">
+                <Button Content="Refresh builds" Command="{Binding ListCommand}" />
+                <TextBlock Text="Build" />
+                <ComboBox ItemsSource="{Binding Builds}" SelectedItem="{Binding Selected}" IsEnabled="{Binding Idle}">
+                  <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Display}" /></DataTemplate></ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Text="Compare with" />
+                <ComboBox ItemsSource="{Binding Builds}" SelectedItem="{Binding CompareWith}" IsEnabled="{Binding Idle}">
+                  <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Display}" /></DataTemplate></ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Content="Run offline smoke" Command="{Binding SmokeCommand}" />
+                <CheckBox Content="I approve this verified local build for future Tor sessions" IsChecked="{Binding ApproveRuntime}" IsEnabled="{Binding Idle}" />
+                <WrapPanel>
+                  <Button Content="Activate approved build" Command="{Binding ActivateCommand}" Margin="0,0,8,0" />
+                  <Button Content="Roll back runtime" Command="{Binding RollbackCommand}" />
+                </WrapPanel>
+                <TextBlock Text="Activation and rollback take effect after restarting Tor Manager." TextWrapping="Wrap" Classes="muted" />
+              </StackPanel>
+            </StackPanel>
+            <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="8">
+              <SelectableTextBlock Text="{Binding Report}" FontFamily="Consolas, monospace" TextWrapping="Wrap" />
+              <SelectableTextBlock Text="{Binding Log}" FontFamily="Consolas, monospace" TextWrapping="Wrap" />
+            </StackPanel>
+          </StackPanel>
           <ItemsControl ItemsSource="{Binding Notices}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
@@ -102,6 +175,82 @@
                     <Button Content="Restart Tor" Command="{Binding RestartCommand}" />
                   </StackPanel>
                   <TextBlock Text="{Binding OnlineNotice}" IsVisible="{Binding HasOnlineNotice}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Border>
+              <Border Classes="card" IsVisible="{Binding IsOnline}">
+                <StackPanel DataContext="{Binding Peer}" Spacing="8">
+                  <TextBlock Text="Peer messaging" FontSize="20" FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding Status}" TextWrapping="Wrap" />
+                  <TextBlock Text="Exchange fingerprints through a trusted channel before connecting." Classes="muted" TextWrapping="Wrap" />
+                  <TextBlock Text="Your certificate SHA-256" />
+                  <TextBox Text="{Binding Fingerprint, Mode=OneWay}" IsReadOnly="True" AutomationProperties.Name="Your certificate fingerprint" />
+                  <Button Content="Create local peer identity" Command="{Binding CreateIdentityCommand}" />
+                  <TextBlock Text="Paired contact" />
+                  <ComboBox ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedPeer}" IsEnabled="{Binding CanEditPeer}"
+                            AutomationProperties.Name="Paired contact">
+                    <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Label}" /></DataTemplate></ComboBox.ItemTemplate>
+                  </ComboBox>
+                  <SelectableTextBlock Text="{Binding SelectedPeer.Fingerprint}" TextWrapping="Wrap"
+                                       AutomationProperties.Name="Selected contact fingerprint" />
+                  <Button Content="Revoke selected contact" Command="{Binding RevokePeerCommand}" />
+                  <TextBox Text="{Binding Label}" IsEnabled="{Binding CanEditPeer}" MaxLength="64"
+                           PlaceholderText="New contact name" AutomationProperties.Name="New contact name" />
+                  <TextBox Text="{Binding PeerFingerprint, Mode=TwoWay}" IsEnabled="{Binding CanEditPeer}" MaxLength="64"
+                           PlaceholderText="New contact certificate SHA-256" AutomationProperties.Name="New contact certificate fingerprint" />
+                  <TextBox Text="{Binding OnionAddress, Mode=TwoWay}" IsEnabled="{Binding CanEditPeer}" MaxLength="62"
+                           PlaceholderText="Peer v3 onion address" AutomationProperties.Name="Peer v3 onion address" />
+                  <CheckBox IsChecked="{Binding ComparedFingerprint}" IsEnabled="{Binding CanEditPeer}"
+                            Content="I compared this fingerprint over a trusted channel" />
+                  <Button Content="Pair contact" Command="{Binding SavePeerCommand}" />
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="Host Onion Service" Command="{Binding HostCommand}" />
+                    <Button Content="Connect to Peer" Command="{Binding ConnectCommand}" />
+                    <Button Content="Disconnect" Command="{Binding DisconnectCommand}" />
+                  </StackPanel>
+                  <TextBox Text="{Binding HostedAddress, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Your hosted v3 onion address"
+                           AutomationProperties.Name="Your hosted v3 onion address" />
+                  <TextBox Text="{Binding Draft, Mode=TwoWay}" PlaceholderText="Message" MaxLength="8192"
+                           AutomationProperties.Name="Message" />
+                  <Button Content="Send or queue" Command="{Binding SendCommand}" HorizontalAlignment="Left" />
+                  <TextBlock Text="{Binding DeliveryNotice}" TextWrapping="Wrap" />
+                  <StackPanel IsVisible="{Binding HasDurableDelivery}" Spacing="6">
+                    <TextBlock Text="Recent messages" FontWeight="SemiBold" />
+                    <TextBlock Text="Pending and received text is encrypted locally during the 15-minute delivery window."
+                               Classes="muted" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding DeliveryRows}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <StackPanel Margin="0,4" Spacing="2">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                              <TextBlock Text="{Binding Direction}" FontWeight="SemiBold" />
+                              <TextBlock Text="{Binding Status}" />
+                              <TextBlock Text="{Binding Id}" Classes="muted" />
+                            </StackPanel>
+                            <SelectableTextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                          </StackPanel>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Expander Header="Encrypted history">
+                      <StackPanel Spacing="5">
+                        <CheckBox Content="Archive new delivered messages" IsChecked="{Binding SaveHistory}"
+                                  IsEnabled="{Binding HasDeliveryTarget}" />
+                        <TextBlock Text="Up to 64 messages for seven days. Turning this off stops new archival."
+                                   Classes="muted" TextWrapping="Wrap" />
+                        <ItemsControl ItemsSource="{Binding HistoryRows}">
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                              <StackPanel Margin="0,4" Spacing="2">
+                                <TextBlock Text="{Binding Direction}" FontWeight="SemiBold" />
+                                <SelectableTextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                              </StackPanel>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </StackPanel>
+                    </Expander>
+                  </StackPanel>
+                  <TextBlock Text="{Binding LastMessage}" TextWrapping="Wrap" />
                 </StackPanel>
               </Border>
               <Border Classes="card">
@@ -225,6 +374,7 @@
           <Button Content="Demo" Command="{Binding ShowDemoCommand}" />
           <Button Content="Real Offline" Command="{Binding ShowRealOfflineCommand}" />
           <Button Content="Real Online" Command="{Binding ShowRealOnlineCommand}" IsVisible="{Binding HasOnline}" />
+          <Button Content="Developer" Command="{Binding ShowDeveloperCommand}" IsVisible="{Binding HasDeveloper}" />
         </StackPanel>
       </Grid>
     </Border>

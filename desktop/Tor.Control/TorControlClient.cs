@@ -28,6 +28,8 @@ public sealed class TorControlClient : IAsyncDisposable
     private readonly Channel<ControlReply> replies = Channel.CreateBounded<ControlReply>(1);
     private readonly Channel<BootstrapProgress> events = Channel.CreateBounded<BootstrapProgress>(new BoundedChannelOptions(64)
         { FullMode = BoundedChannelFullMode.DropOldest, SingleWriter = true, SingleReader = false });
+    private readonly Channel<OnionAddress> onionUploads = Channel.CreateBounded<OnionAddress>(new BoundedChannelOptions(16)
+        { FullMode = BoundedChannelFullMode.DropOldest, SingleWriter = true, SingleReader = true });
     private readonly Task receive;
     private BootstrapProgress? latest;
     private long? lastIdentityRequest;
@@ -93,6 +95,39 @@ public sealed class TorControlClient : IAsyncDisposable
     }
     public Task SubscribeBootstrapAsync(CancellationToken token = default) => CommandAsync("SETEVENTS STATUS_CLIENT", true, token);
     public Task SubscribeOnlineAsync(CancellationToken token = default) => CommandAsync("SETEVENTS STATUS_CLIENT SIGNAL", true, token);
+    public Task SubscribeOnionPublicationAsync() => CommandAsync("SETEVENTS STATUS_CLIENT SIGNAL HS_DESC", true, CancellationToken.None);
+
+    public async Task<OnionAddress> AddOnionAsync(int loopbackPort, CancellationToken token = default)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(loopbackPort, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(loopbackPort, 65535);
+        token.ThrowIfCancellationRequested();
+        // Drain once admitted. If the owner cancelled during creation, remove the service before returning.
+        var command = FormattableString.Invariant($"ADD_ONION NEW:ED25519-V3 Flags=DiscardPK MaxStreams=4 Port=80,127.0.0.1:{loopbackPort}");
+        var reply = await CommandAsync(command, true, CancellationToken.None).ConfigureAwait(false);
+        OnionAddress address;
+        try { address = OnionAddress.FromServiceId(ReadValue(reply, "ServiceID")); }
+        catch (Exception error) when (error is FormatException or TorControlException)
+        {
+            CloseTransport(); // A service with an unknown identifier must die with its control connection.
+            throw new TorControlException("Tor returned an invalid onion service identifier.");
+        }
+        if (token.IsCancellationRequested)
+        {
+            await DeleteOnionAsync(address).ConfigureAwait(false);
+            token.ThrowIfCancellationRequested();
+        }
+        return address;
+    }
+
+    public Task DeleteOnionAsync(OnionAddress address) => CommandAsync("DEL_ONION " + address.ServiceId, true, CancellationToken.None);
+
+    public async Task WaitForOnionPublicationAsync(OnionAddress address, CancellationToken token)
+    {
+        await foreach (var uploaded in onionUploads.Reader.ReadAllAsync(token).ConfigureAwait(false))
+            if (uploaded == address) return;
+        throw new TorControlException("Control disconnected before onion publication was observed.");
+    }
     public Task TakeOwnershipAsync(CancellationToken token = default) => CommandAsync("TAKEOWNERSHIP", true, token);
     public Task ShutdownAsync(CancellationToken token = default) => CommandAsync("SIGNAL SHUTDOWN", true, token);
     public Task EnableNetworkAsync(CancellationToken token = default) => CommandAsync("SETCONF DisableNetwork=0", true, token);
@@ -215,6 +250,13 @@ public sealed class TorControlClient : IAsyncDisposable
                     if (progress is not null) { Volatile.Write(ref latest, progress); events.Writer.TryWrite(progress); }
                     if (reply.Lines[0] == "SIGNAL NEWNYM" || reply.Lines[0].StartsWith("SIGNAL NEWNYM ", StringComparison.Ordinal))
                         Volatile.Read(ref pendingIdentitySignal)?.TrySetResult();
+                    const string uploaded = "HS_DESC UPLOADED ";
+                    if (reply.Lines[0].StartsWith(uploaded, StringComparison.Ordinal))
+                    {
+                        var id = reply.Lines[0][uploaded.Length..].Split(' ', 2)[0];
+                        try { onionUploads.Writer.TryWrite(OnionAddress.FromServiceId(id)); }
+                        catch (FormatException) { }
+                    }
                 }
                 else
                 {
@@ -228,7 +270,7 @@ public sealed class TorControlClient : IAsyncDisposable
         {
             replies.Writer.TryComplete(new TorControlException("Control connection ended"));
         }
-        finally { CloseTransport(); events.Writer.TryComplete(); }
+        finally { CloseTransport(); events.Writer.TryComplete(); onionUploads.Writer.TryComplete(); }
     }
     private static BootstrapProgress? ParseBootstrap(ControlReply reply)
     {

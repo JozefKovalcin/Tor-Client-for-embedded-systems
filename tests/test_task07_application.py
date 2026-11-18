@@ -41,6 +41,8 @@ class WindowsManagerApplicationTests(unittest.TestCase):
             ("Tor.Online.Tests", desktop / "tests/Tor.Online.Tests/bin/Debug/net11.0/Tor.Online.Tests.dll",
              ["--public-tor", str(workspace / "unused-runtime"), str(workspace / "unused-state")],
              2, "NOT RUN: public Tor qualification requires"),
+            ("Tor.Peer.Tests", desktop / "tests/Tor.Peer.Tests/bin/Debug/net11.0/Tor.Peer.Tests.dll",
+             ["--offline"], 0, "7 offline peer groups PASS"),
         ):
             with self.subTest(project=project):
                 path = desktop / "tests" / project / (project + ".csproj")

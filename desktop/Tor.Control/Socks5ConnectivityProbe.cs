@@ -52,7 +52,7 @@ public static class Socks5ConnectivityProbe
                     var stream = new NetworkStream(socket, ownsSocket: true);
                     await NegotiateAsync(stream, connectToken).ConfigureAwait(false);
                     proxyReady = true;
-                    await RequestTunnelAsync(stream, connectToken).ConfigureAwait(false);
+                    await RequestTunnelAsync(stream, Destination.IdnHost, Destination.Port, connectToken).ConfigureAwait(false);
                     return stream;
                 }
                 catch { socket.Dispose(); throw; }
@@ -93,7 +93,7 @@ public static class Socks5ConnectivityProbe
         }
     }
 
-    private static async Task NegotiateAsync(Stream stream, CancellationToken token)
+    internal static async Task NegotiateAsync(Stream stream, CancellationToken token)
     {
         await stream.WriteAsync(new byte[] { 5, 1, 0 }, token).ConfigureAwait(false);
         var reply = new byte[2];
@@ -101,17 +101,17 @@ public static class Socks5ConnectivityProbe
         if (reply[0] != 5 || reply[1] != 0) throw new IOException("SOCKS5 negotiation failed");
     }
 
-    private static async Task RequestTunnelAsync(Stream stream, CancellationToken token)
+    internal static async Task RequestTunnelAsync(Stream stream, string hostname, int port, CancellationToken token)
     {
         // ATYP=3 sends the hostname to Tor. There is no destination-side DNS call in the client.
-        var host = Encoding.ASCII.GetBytes(Destination.IdnHost);
+        var host = Encoding.ASCII.GetBytes(hostname);
         var request = new byte[7 + host.Length];
         request[0] = 5;
         request[1] = 1;
         request[3] = 3;
         request[4] = checked((byte)host.Length);
         host.CopyTo(request.AsSpan(5));
-        BinaryPrimitives.WriteUInt16BigEndian(request.AsSpan(^2), checked((ushort)Destination.Port));
+        BinaryPrimitives.WriteUInt16BigEndian(request.AsSpan(^2), checked((ushort)port));
         await stream.WriteAsync(request, token).ConfigureAwait(false);
 
         var reply = new byte[4];

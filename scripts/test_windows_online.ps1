@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
     [switch] $ApprovePublicTor,
+    [switch] $PeerToPeer,
     [Parameter(Mandatory)] [string] $TorPackage,
     [Parameter(Mandatory)] [string] $NewStatePath
 )
@@ -29,12 +30,13 @@ $state = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath
 
 Push-Location (Join-Path $repo 'desktop')
 try {
-    $project = 'tests/Tor.Online.Tests/Tor.Online.Tests.csproj'
+    $testName = if ($PeerToPeer) { 'Tor.Peer.Tests' } else { 'Tor.Online.Tests' }
+    $project = "tests/$testName/$testName.csproj"
     dotnet restore $project --source $feed -p:NuGetAudit=false
     if ($LASTEXITCODE) { exit $LASTEXITCODE }
     dotnet build $project --no-restore --disable-build-servers -p:UseSharedCompilation=false
     if ($LASTEXITCODE) { exit $LASTEXITCODE }
-    dotnet 'tests/Tor.Online.Tests/bin/Debug/net11.0/Tor.Online.Tests.dll' --public-tor --approve-public-tor $package $state
+    dotnet "tests/$testName/bin/Debug/net11.0/$testName.dll" --public-tor --approve-public-tor $package $state
     exit $LASTEXITCODE
 }
 finally { Pop-Location }

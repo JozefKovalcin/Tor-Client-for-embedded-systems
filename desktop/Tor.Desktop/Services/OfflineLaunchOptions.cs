@@ -1,6 +1,6 @@
 namespace TorManager.Desktop.Services;
 
-internal sealed record OfflineLaunchOptions(string PackageDirectory, string PrivateDirectory)
+internal sealed record OfflineLaunchOptions(string PackageDirectory, string PrivateDirectory, bool ExplicitPackage)
 {
     public static OfflineLaunchOptions Read(string[] args)
     {
@@ -23,7 +23,7 @@ internal sealed record OfflineLaunchOptions(string PackageDirectory, string Priv
         var resolvedState = Path.GetFullPath(state ?? Path.Combine(localData, "TorManagerOffline"));
         if (Overlaps(install, resolvedState) || Overlaps(resolvedPackage, resolvedState))
             throw new ArgumentException("Private state must be separate from the installation and runtime folders.");
-        return new(resolvedPackage, resolvedState);
+        return new(resolvedPackage, resolvedState, package is not null);
     }
 
     private static bool Overlaps(string first, string second) =>

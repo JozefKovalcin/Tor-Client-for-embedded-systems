@@ -2,7 +2,8 @@ using Tor.Contracts;
 
 namespace Tor.Core;
 
-public enum CommandKind { DependencyProbe, NativeLinuxBuild, WindowsTorSession }
+public enum CommandKind { DependencyProbe, NativeLinuxBuild, WindowsTorSession, WindowsDeveloper }
+public enum WindowsDeveloperAction { Scan, PlanInstall, Install, Build, List, Smoke, Candidate }
 public enum TaskPhase { Queued, Preparing, Executing, Verifying, Stopping, Complete, Recovery }
 public enum TaskMessage { Queued, Started, Progress, Succeeded, Failed, Blocked, Cancelling, Cancelled, Interrupted }
 
@@ -17,6 +18,9 @@ public sealed record NativeLinuxBuildCommand(VerifiedFile Request, IReadOnlyList
 public sealed record WindowsTorSessionCommand(VerifiedFile Executable, IReadOnlyList<VerifiedFile> RuntimeInputs,
     int? OnlineSocksPort = null)
     : TaskCommand(CommandKind.WindowsTorSession, new[] { Executable }.Concat(RuntimeInputs).ToArray(), Array.Empty<string>());
+public sealed record WindowsDeveloperCommand(WindowsDeveloperAction Action, string Profile, string Sources,
+    string Workspace, string? Approval = null, string? BuildId = null)
+    : TaskCommand(CommandKind.WindowsDeveloper, Array.Empty<VerifiedFile>(), Array.Empty<string>());
 
 public sealed record ResourceRequest(int Slots, long MemoryBytes, long DiskBytes, bool Heavy)
 {

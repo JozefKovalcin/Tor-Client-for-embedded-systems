@@ -6,6 +6,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Tor.Peer.Tests" />
     <ProjectReference Include="../Tor.Core/Tor.Core.csproj" />
     <ProjectReference Include="../Tor.Adapters/Windows/Tor.Adapters.Windows.csproj" />
   </ItemGroup>

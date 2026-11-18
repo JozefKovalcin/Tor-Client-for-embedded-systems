@@ -8,7 +8,7 @@ using Tor.Core;
 namespace Tor.Application;
 
 /// <summary>Owns one explicitly started Tor session and projects the journal and adapter observations.</summary>
-public sealed class OfflineTorService : IOnlineTorService
+public sealed class OfflineTorService : IPeerTorService
 {
     private static readonly ResourceRequest SessionResources = new(1, 0, 0, false);
     private readonly string packageDirectory;
@@ -31,14 +31,17 @@ public sealed class OfflineTorService : IOnlineTorService
         TorControlStatus.Disconnected, null, null, null, null, null, [], [], false, false);
 
     [SupportedOSPlatform("windows")]
-    public static OfflineTorService CreateWindows(string packageDirectory, string privateDirectory)
+    public static OfflineTorService CreateWindows(string packageDirectory, string privateDirectory) =>
+        CreateWindows(new PinnedWindowsRuntime(Path.GetFullPath(packageDirectory)), privateDirectory);
+
+    [SupportedOSPlatform("windows")]
+    public static OfflineTorService CreateWindows(PinnedWindowsRuntime runtime, string privateDirectory)
     {
         if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException();
-        packageDirectory = Path.GetFullPath(packageDirectory);
         privateDirectory = Path.GetFullPath(privateDirectory);
-        return new(packageDirectory, privateDirectory,
-            new WindowsTorSessionCommand(PinnedWindowsRuntime.Executable, [PinnedWindowsRuntime.ThreadLibrary]),
-            observe => new WindowsTorTaskHandler(new PinnedWindowsRuntime(packageDirectory), privateDirectory, observe));
+        return new(runtime.PackageDirectory, privateDirectory,
+            new WindowsTorSessionCommand(runtime.ExecutablePin, runtime.RuntimePins),
+            observe => new WindowsTorTaskHandler(runtime, privateDirectory, observe));
     }
 
     public OfflineTorService(string packageDirectory, string privateDirectory, WindowsTorSessionCommand command,
@@ -181,6 +184,11 @@ public sealed class OfflineTorService : IOnlineTorService
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return OnlineUnavailable(); }
         catch (Exception error) when (IsOnlineTransportError(error))
         { return new(OnlineActionStatus.Failed, "The online Tor session did not complete the connectivity check."); }
+    }
+
+    public IOnionPeerTransport? GetPeerTransport()
+    {
+        lock (gate) return snapshot.Online?.CanUseOnlineActions == true ? onlineActions?.GetPeerTransport() : null;
     }
 
     private async Task<T?> RunOnlineActionAsync<T>(Func<IWindowsOnlineTorActions, CancellationToken, Task<T?>> start,
@@ -398,7 +406,8 @@ public sealed class OfflineTorService : IOnlineTorService
             !closing && active && !stopRequested,
             requestedSocksPort is int port ? new(port, authenticated && !stopRequested ? observation.Online?.SocksPort : null,
                 authenticated ? observation.Online?.TorVersion : null, authenticated ? observation.Online?.CircuitEstablished : null,
-                !closing && !stopRequested && onlineReady && onlineActions is not null) : null);
+                !closing && !stopRequested && onlineReady && onlineActions is not null) : null,
+            packageStatus == RuntimePackageStatus.Available ? command.Executable.Sha256 : null);
         foreach (var channel in subscribers) channel.Writer.TryWrite(snapshot);
     }
 

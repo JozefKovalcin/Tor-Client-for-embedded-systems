@@ -1,3 +1,52 @@
+# Windows messaging cycle — 2026-11-18
+
+The peer review stack adds persistent Windows TLS identities, explicit
+pairing and revocation, authenticated acknowledgements, a durable encrypted
+outbox and bounded deduplication. The desktop shows delivery state, retries
+the selected pinned endpoint and offers opt-in encrypted history. Offline
+tests used a new profile per endpoint, and the Avalonia preview displayed a
+pending test message with Tor stopped. See the
+[cycle handoff](AUTONOMOUS_PROGRESS.md) and the [Windows peer guide](WINDOWS-PEER.md).
+The current GUI remains unqualified on two physical PCs and a clean host.
+
+# TASK 12 — Windows Developer Mode — 2026-11-18
+
+The Windows Developer stack is based on the reviewed PR #19 head. Static
+and shared native preflight accepted the host UCRT64 toolchain, cached source
+and license pins, and the reviewed patch. The existing native recipe also
+passed its read-only dependency check. Avalonia rendered the Developer pages
+and completed a real dependency scan. The Windows application regression
+used the reviewed Tor binary to verify activation refusal during an active
+session, offline startup from a staged approval, modified-binary rejection
+and rollback. See the [Developer workflow](WINDOWS-DEVELOPER-BOUNDARIES.md).
+
+Package installation and both heavyweight source builds remain BLOCKED
+pending separate authorization. No new runtime release or public-network
+qualification is claimed by this milestone.
+
+# TASK 11 — Windows two-PC qualification — 2026-11-18
+
+PR #19 review found a malformed-record error could bypass the GUI's normal
+stream-failure handling. The fix closes the invalid session and reports a
+sanitized channel error, so the host can continue accepting peers. Offline
+regressions cover authenticated empty, oversized and invalid UTF-8 records.
+The existing session scope rejects invalid sequence numbers. Identical text
+is accepted after a fresh authenticated connection as an independent send.
+
+# TASK 10 — Windows client-to-client — 2026-11-18
+
+The authorized public test used two independent pinned Windows Tor processes
+and private state scopes on one host. Both reached bootstrap 100%, and Tor
+confirmed publication of the host's v3 onion descriptor. The peers verified
+each other's TLS certificate fingerprint and exchanged both messages unchanged.
+Stopping and restarting Client B's Tor interrupted the stream. Both peers
+then authenticated and exchanged messages again through the same hosted onion.
+Authenticated close, onion removal and the final Tor exits passed. Seven
+offline peer groups passed. The implementation is submitted for review.
+
+See the [Windows peer workflow](WINDOWS-PEER.md) for the protocol and trust
+model. Separate-host and clean Windows release qualification remain open.
+
 # TASK 09 — Windows online Tor Manager — 2026-11-18
 
 Windows x64 is the active product target. The online verification harness
