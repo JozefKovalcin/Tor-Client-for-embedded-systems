@@ -11,6 +11,7 @@ public interface IWindowsOnlineTorActions
 {
     Task<NewIdentityResult?> RequestNewIdentityAsync(CancellationToken token);
     Task<Socks5ConnectivityResult?> CheckConnectivityAsync(CancellationToken token);
+    IOnionPeerTransport? GetPeerTransport();
 }
 
 /// <summary>Serial typed session runner. Cancellation stops the owned Tor before returning its raw exit.</summary>
@@ -115,6 +116,53 @@ public sealed class WindowsTorTaskHandler(PinnedWindowsRuntime runtime, string p
                           WindowsTcpOwner.OwnsPeer(pid, current.SocksPort, client)).ConfigureAwait(false);
         }
         finally { Volatile.Write(ref current.ProbeRunning, 0); }
+    }
+
+    public IOnionPeerTransport? GetPeerTransport()
+    {
+        var current = Volatile.Read(ref online);
+        return current is not null && current.Ready && !current.Token.IsCancellationRequested &&
+               !current.Session.Completion.IsCompleted ? new PeerTransport(current) : null;
+    }
+
+    private sealed class PeerTransport(ActiveOnline current) : IOnionPeerTransport
+    {
+        public CancellationToken Lifetime => current.Token;
+
+        public async Task<OnionAddress> HostAsync(int loopbackPort, CancellationToken token)
+        {
+            using var combined = CancellationTokenSource.CreateLinkedTokenSource(token, Lifetime);
+            await current.IdentityGate.WaitAsync(combined.Token).ConfigureAwait(false);
+            try
+            {
+                await current.Session.Control.SubscribeOnionPublicationAsync().ConfigureAwait(false);
+                return await current.Session.Control.AddOnionAsync(loopbackPort, combined.Token).ConfigureAwait(false);
+            }
+            finally { current.IdentityGate.Release(); }
+        }
+
+        public async Task RemoveAsync(OnionAddress address)
+        {
+            if (Lifetime.IsCancellationRequested) return;
+            await current.IdentityGate.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                if (!Lifetime.IsCancellationRequested) await current.Session.Control.DeleteOnionAsync(address).ConfigureAwait(false);
+            }
+            finally { current.IdentityGate.Release(); }
+        }
+
+        public Task WaitForPublicationAsync(OnionAddress address, CancellationToken token) =>
+            current.Session.Control.WaitForOnionPublicationAsync(address, token);
+
+        public async Task<Stream> ConnectAsync(OnionAddress address, CancellationToken token)
+        {
+            using var combined = CancellationTokenSource.CreateLinkedTokenSource(token, Lifetime);
+            var pid = current.Session.ProcessId;
+            return await OnionSocksConnection.ConnectAsync(new(IPAddress.Loopback, current.SocksPort), address,
+                peer => !combined.IsCancellationRequested && current.Ready && !current.Session.Completion.IsCompleted &&
+                        WindowsTcpOwner.OwnsPeer(pid, current.SocksPort, peer), combined.Token).ConfigureAwait(false);
+        }
     }
 
     private async Task MonitorOnlineAsync(ActiveOnline current, TaskExecutionContext context)

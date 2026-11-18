@@ -34,6 +34,7 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
     public AsyncCommand RestartCommand { get; }
     public AsyncCommand NewIdentityCommand { get; }
     public AsyncCommand CheckConnectivityCommand { get; }
+    public PeerViewModel? Peer { get; }
     public TaskCard? CurrentTask { get; private set; }
     public IReadOnlyList<TaskCard> Tasks { get; private set; } = [];
     public IReadOnlyList<LogCard> Logs { get; private set; } = [];
@@ -135,6 +136,7 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
 
     public OfflineTorViewModel(IOfflineTorService service, IUiDispatcher dispatcher)
     {
+        Peer = service is IPeerTorService peers ? new PeerViewModel(peers) : null;
         _service = service;
         _online = service as IOnlineTorService;
         _dispatcher = dispatcher;
@@ -295,6 +297,7 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
 
     private void NotifyStatus()
     {
+        Peer?.SetAvailable(IsOnline && !_closing && _snapshot.Online?.CanUseOnlineActions == true);
         Changed(nameof(PackageText));
         Changed(nameof(SessionText));
         Changed(nameof(ControlText));
@@ -334,7 +337,8 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
         NotifyStatus();
         try
         {
-            await Task.Run(async () => await _service.DisposeAsync()).ConfigureAwait(false);
+            try { if (Peer is not null) await Peer.DisposeAsync(); }
+            finally { await Task.Run(async () => await _service.DisposeAsync()).ConfigureAwait(false); }
             if (_service.Snapshot.ProcessId is not null)
                 throw new InvalidOperationException("Tor process termination was not confirmed.");
         }

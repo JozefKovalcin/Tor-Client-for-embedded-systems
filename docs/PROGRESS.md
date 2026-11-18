@@ -1,3 +1,17 @@
+# TASK 10 — Windows client-to-client — 2026-11-18
+
+The authorized public test used two independent pinned Windows Tor processes
+and private state scopes on one host. Both reached bootstrap 100%, and Tor
+confirmed publication of the host's v3 onion descriptor. The peers verified
+each other's TLS certificate fingerprint and exchanged both messages unchanged.
+Stopping and restarting Client B's Tor interrupted the stream. Both peers
+then authenticated and exchanged messages again through the same hosted onion.
+Authenticated close, onion removal and the final Tor exits passed. Seven
+offline peer groups passed. The implementation is submitted for review.
+
+See the [Windows peer workflow](WINDOWS-PEER.md) for the protocol and trust
+model. Separate-host and clean Windows release qualification remain open.
+
 # TASK 09 — Windows online Tor Manager — 2026-11-18
 
 Windows x64 is the active product target. The online verification harness

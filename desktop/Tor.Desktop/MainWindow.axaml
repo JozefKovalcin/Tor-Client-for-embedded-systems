@@ -104,6 +104,31 @@
                   <TextBlock Text="{Binding OnlineNotice}" IsVisible="{Binding HasOnlineNotice}" TextWrapping="Wrap" />
                 </StackPanel>
               </Border>
+              <Border Classes="card" IsVisible="{Binding IsOnline}">
+                <StackPanel DataContext="{Binding Peer}" Spacing="8">
+                  <TextBlock Text="Peer messaging" FontSize="20" FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding Status}" TextWrapping="Wrap" />
+                  <TextBlock Text="Exchange fingerprints through a trusted channel before connecting." Classes="muted" TextWrapping="Wrap" />
+                  <TextBlock Text="Your certificate SHA-256" />
+                  <TextBox Text="{Binding Fingerprint, Mode=OneWay}" IsReadOnly="True" AutomationProperties.Name="Your certificate fingerprint" />
+                  <TextBox Text="{Binding PeerFingerprint, Mode=TwoWay}" IsEnabled="{Binding CanEditPeer}" MaxLength="64"
+                           PlaceholderText="Peer certificate SHA-256" AutomationProperties.Name="Peer certificate fingerprint" />
+                  <TextBox Text="{Binding OnionAddress, Mode=TwoWay}" IsEnabled="{Binding CanEditPeer}" MaxLength="62"
+                           PlaceholderText="Peer v3 onion address" AutomationProperties.Name="Peer v3 onion address" />
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="Host Onion Service" Command="{Binding HostCommand}" />
+                    <Button Content="Connect to Peer" Command="{Binding ConnectCommand}" />
+                    <Button Content="Disconnect" Command="{Binding DisconnectCommand}" />
+                  </StackPanel>
+                  <TextBox Text="{Binding HostedAddress, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Your hosted v3 onion address"
+                           AutomationProperties.Name="Your hosted v3 onion address" />
+                  <TextBox Text="{Binding Draft, Mode=TwoWay}" PlaceholderText="Test message" MaxLength="4096"
+                           AutomationProperties.Name="Test message" />
+                  <Button Content="Send" Command="{Binding SendCommand}" HorizontalAlignment="Left" />
+                  <TextBlock Text="Last message received" FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding LastMessage}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Border>
               <Border Classes="card">
                 <StackPanel Spacing="6">
                   <TextBlock Text="Current task" FontWeight="SemiBold" />

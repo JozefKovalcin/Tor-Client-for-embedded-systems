@@ -1,4 +1,5 @@
 using Tor.Contracts;
+using Tor.Control;
 using Tor.Core;
 
 namespace Tor.Application;
@@ -34,4 +35,9 @@ public interface IOnlineTorService : IOfflineTorService
     Task RestartOnlineAsync(int socksPort, CancellationToken cancellationToken = default);
     Task<OnlineActionResult> RequestNewIdentityAsync(CancellationToken cancellationToken = default);
     Task<OnlineActionResult> CheckConnectivityAsync(CancellationToken cancellationToken = default);
+}
+
+public interface IPeerTorService : IOnlineTorService
+{
+    IOnionPeerTransport? GetPeerTransport();
 }

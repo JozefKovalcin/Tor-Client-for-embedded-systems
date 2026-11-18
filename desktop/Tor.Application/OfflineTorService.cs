@@ -8,7 +8,7 @@ using Tor.Core;
 namespace Tor.Application;
 
 /// <summary>Owns one explicitly started Tor session and projects the journal and adapter observations.</summary>
-public sealed class OfflineTorService : IOnlineTorService
+public sealed class OfflineTorService : IPeerTorService
 {
     private static readonly ResourceRequest SessionResources = new(1, 0, 0, false);
     private readonly string packageDirectory;
@@ -181,6 +181,11 @@ public sealed class OfflineTorService : IOnlineTorService
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return OnlineUnavailable(); }
         catch (Exception error) when (IsOnlineTransportError(error))
         { return new(OnlineActionStatus.Failed, "The online Tor session did not complete the connectivity check."); }
+    }
+
+    public IOnionPeerTransport? GetPeerTransport()
+    {
+        lock (gate) return snapshot.Online?.CanUseOnlineActions == true ? onlineActions?.GetPeerTransport() : null;
     }
 
     private async Task<T?> RunOnlineActionAsync<T>(Func<IWindowsOnlineTorActions, CancellationToken, Task<T?>> start,
