@@ -108,8 +108,9 @@ internal static class OnlineDesktopTests
     {
         check(Path.IsPathFullyQualified(fresh) && !Directory.Exists(fresh), "peer UI uses an unused isolated profile");
         var profile = new PeerProfileStore(fresh);
+        var hosting = new HostedOnionStore(fresh);
         var service = new FakeService();
-        await using var model = new PeerViewModel(service, profile);
+        await using var model = new PeerViewModel(service, profile, hostingStore: hosting);
         model.ReadExistingProfile();
         check(model.CreateIdentityCommand.CanExecute(null) && !Directory.Exists(fresh), "profile discovery creates no identity or directory");
         model.CreateIdentityCommand.Execute(null);
@@ -197,6 +198,54 @@ internal static class OnlineDesktopTests
             check(false, "revoked pin must not reopen an outbox");
         }
         catch (InvalidOperationException) { check(true, "revoked pin cannot reopen the old outbox"); }
+
+        using var hostTor = new HostingTransport(1);
+        service.PeerTransport = hostTor;
+        check(!model.HostCommand.CanExecute(null) && model.CreateHostingCommand.CanExecute(null),
+            "a fresh profile requires explicit saved identity creation");
+        model.CreateHostingCommand.Execute(null);
+        await WaitUntilAsync(() => model.HostedAddress.Length != 0);
+        var saved = model.HostedAddress;
+        check(saved == model.SavedHostingAddress && hostTor.Generations == 1 &&
+            profile.ReadContacts(sameLocal).SequenceEqual(persisted), "hosting generation preserves the separate TLS and trust state");
+        string storedFile = Path.Combine(fresh, "onion-hosting", "identity.dpapi");
+        var stored = File.ReadAllBytes(storedFile);
+        check(stored.AsSpan().IndexOf(HostingTransport.FixtureKey(1)) < 0, "the saved file contains no clear fixture key");
+
+        model.SetAvailable(false);
+        hostTor.Dispose();
+        await WaitUntilAsync(() => model.CanEditPeer);
+        using var restarted = new HostingTransport(2);
+        service.PeerTransport = restarted;
+        model.SetAvailable(true);
+        await WaitUntilAsync(() => model.HostedAddress == saved);
+        check(restarted.Restores == 1 && restarted.Generations == 0, "Tor restart hosts the same saved key");
+        model.DisconnectCommand.Execute(null);
+        await WaitUntilAsync(() => model.CanEditPeer);
+
+        await using var reopenedHost = new PeerViewModel(service, profile, hostingStore: new HostedOnionStore(fresh));
+        reopenedHost.ReadExistingProfile();
+        reopenedHost.SelectedPeer = reopenedHost.Contacts.Single();
+        reopenedHost.SetAvailable(true);
+        check(reopenedHost.SavedHostingAddress == saved && !reopenedHost.RotateHostingCommand.CanExecute(null),
+            "Manager reopening sees the same saved address and requires separate rotation approval");
+        reopenedHost.HostCommand.Execute(null);
+        await WaitUntilAsync(() => reopenedHost.HostedAddress == saved);
+        reopenedHost.DisconnectCommand.Execute(null);
+        await WaitUntilAsync(() => reopenedHost.CanEditPeer);
+        reopenedHost.ApproveHostingRotation = true;
+        reopenedHost.RotateHostingCommand.Execute(null);
+        await WaitUntilAsync(() => reopenedHost.HostedAddress.Length != 0);
+        check(reopenedHost.HostedAddress != saved && restarted.Generations == 1 && !reopenedHost.ApproveHostingRotation,
+            "approved rotation changes the saved address and consumes consent");
+        reopenedHost.DisconnectCommand.Execute(null);
+        await WaitUntilAsync(() => reopenedHost.CanEditPeer);
+
+        File.WriteAllBytes(storedFile, [1, 2, 3]);
+        reopenedHost.ReadExistingProfile();
+        check(!reopenedHost.CreateHostingCommand.CanExecute(null) && !reopenedHost.HostCommand.CanExecute(null) &&
+            !reopenedHost.RotateHostingCommand.CanExecute(null) && File.ReadAllBytes(storedFile).SequenceEqual(new byte[] { 1, 2, 3 }),
+            "unreadable protected storage blocks all identity changes and stays intact");
     }
 
     private static async Task WaitUntilAsync(Func<bool> condition)
@@ -222,6 +271,35 @@ internal static class OnlineDesktopTests
         public Task RemoveAsync(OnionAddress address) => throw new NotSupportedException();
         public Task WaitForPublicationAsync(OnionAddress address, CancellationToken token) => throw new NotSupportedException();
         public void Dispose() => cancellation.Cancel();
+    }
+
+    private sealed class HostingTransport(byte generation) : IPersistentOnionPeerTransport, IDisposable
+    {
+        private readonly CancellationTokenSource lifetime = new();
+        public CancellationToken Lifetime => lifetime.Token;
+        public int Generations { get; private set; }
+        public int Restores { get; private set; }
+        public static byte[] FixtureKey(byte value) => Enumerable.Repeat(value, OnionServiceKey.ByteLength).ToArray();
+        private static OnionAddress Address(byte value) => OnionAddress.Parse(new string((char)('a' + value), 56) + ".onion");
+        public Task<(OnionAddress Address, OnionServiceKey Key)> GenerateHostAsync(int port, CancellationToken token)
+        {
+            Generations++;
+            return Task.FromResult((Address(generation), new OnionServiceKey(FixtureKey(generation))));
+        }
+        public Task<OnionAddress> RestoreHostAsync(int port, OnionAddress address, OnionServiceKey key, CancellationToken token)
+        {
+            Restores++;
+            var bytes = new byte[OnionServiceKey.ByteLength];
+            key.CopyTo(bytes);
+            if (Address(bytes[0]) != address || !bytes.SequenceEqual(FixtureKey(bytes[0])))
+                throw new InvalidDataException("Restored fixture key changed.");
+            return Task.FromResult(address);
+        }
+        public Task<OnionAddress> HostAsync(int port, CancellationToken token) => throw new NotSupportedException();
+        public Task RemoveAsync(OnionAddress address) => Task.CompletedTask;
+        public Task WaitForPublicationAsync(OnionAddress address, CancellationToken token) => throw new NotSupportedException();
+        public Task<Stream> ConnectAsync(OnionAddress address, CancellationToken token) => throw new NotSupportedException();
+        public void Dispose() => lifetime.Cancel();
     }
 
     private sealed class FakeService : IPeerTorService

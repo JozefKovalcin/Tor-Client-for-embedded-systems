@@ -96,7 +96,7 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
 
     public ShellViewModel(ITaskFeed feed, IUiDispatcher dispatcher, SettingsStore settings,
         IOfflineTorService? offline = null, string? offlineUnavailableReason = null, bool showRealWhenUnavailable = false,
-        string? bundledRuntime = null, PeerProfileStore? peerProfile = null)
+        string? bundledRuntime = null, PeerProfileStore? peerProfile = null, HostedOnionStore? hostingIdentity = null)
     {
         _feed = feed; _dispatcher = dispatcher; _settings = settings;
         var stored = settings.Load(out _settingsNotice);
@@ -123,7 +123,7 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
             new PageViewModel("Logs and Progress", "Task history and sanitized lifecycle events from this workspace.", ShowTasks: true),
             new PageViewModel("Settings", "Save your appearance and Demo preferences.", ShowSettings: true)
         }.Where(page => !page.ShowPeers || offline is IPeerTorService).ToArray();
-        Offline = offline is null ? null : new(offline, dispatcher, peerProfile);
+        Offline = offline is null ? null : new(offline, dispatcher, peerProfile, hostingIdentity);
         if (OperatingSystem.IsWindows()) Developer = new(dispatcher, bundledRuntime);
         OfflineUnavailableReason = offlineUnavailableReason;
         _workspaceMode = offline is null && !showRealWhenUnavailable ? WorkspaceMode.Demo : WorkspaceMode.Offline;

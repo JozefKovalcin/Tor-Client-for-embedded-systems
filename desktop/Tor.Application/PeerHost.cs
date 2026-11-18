@@ -28,7 +28,8 @@ public sealed class PeerHost : IAsyncDisposable
     }
 
     public static async Task<PeerHost> StartAsync(IOnionPeerTransport tor, PeerIdentity local, string remoteFingerprint,
-        CancellationToken token = default, PeerProtocol protocol = PeerProtocol.Transient)
+        CancellationToken token = default, PeerProtocol protocol = PeerProtocol.Transient,
+        Func<int, CancellationToken, Task<OnionAddress>>? register = null)
     {
         var pin = PeerIdentity.ParseFingerprint(remoteFingerprint);
         using var operation = CancellationTokenSource.CreateLinkedTokenSource(token, tor.Lifetime);
@@ -36,7 +37,8 @@ public sealed class PeerHost : IAsyncDisposable
         try
         {
             listener.Start(2);
-            var address = await tor.HostAsync(((IPEndPoint)listener.LocalEndpoint).Port, operation.Token).ConfigureAwait(false);
+            var port = ((IPEndPoint)listener.LocalEndpoint).Port;
+            var address = await (register ?? tor.HostAsync)(port, operation.Token).ConfigureAwait(false);
             return new(tor, listener, local, pin, address, protocol);
         }
         catch { listener.Stop(); throw; }

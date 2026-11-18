@@ -16,6 +16,8 @@ static partial class Program
             ("nonloopback-socks-listener-cannot-pass", UnsafeListener),
             ("newnym-distinguishes-event-ack-and-rate-limit", NewIdentity),
             ("cancelled-newnym-drains-reply-and-allows-shutdown", NewIdentityCancellation),
+            ("onion-key-restores-the-same-address-on-a-new-control-session", OnionKeyRestore),
+            ("invalid-onion-registration-is-cleaned-up-and-sanitized", InvalidOnionRegistration),
             ("socks5-domain-resolution-happens-through-proxy", SocksDestinationRejected),
             ("socks5-tls-starts-inside-established-tunnel", SocksTlsInTunnel),
             ("socks5-wrong-owner-rejected-before-protocol-bytes", SocksWrongOwner),
@@ -37,7 +39,60 @@ static partial class Program
         await Assert.Throws<TorControlException>(() => client.SubscribeOnlineAsync());
         await Assert.Throws<TorControlException>(() => client.GetOnlineStatusAsync());
         await Assert.Throws<TorControlException>(() => client.RequestNewIdentityAsync());
+        await Assert.Throws<TorControlException>(() => client.GenerateOnionAsync(8181));
+        using var key = new OnionServiceKey(new byte[OnionServiceKey.ByteLength]);
+        await Assert.Throws<TorControlException>(() =>
+            client.RestoreOnionAsync(8181, OnionAddress.Parse(MockServer.FixtureServiceId + ".onion"), key));
         Assert.That(server.Commands.Count == 0, "Unauthenticated online command reached the server");
+    }
+
+    static async Task OnionKeyRestore()
+    {
+        OnionAddress address;
+        OnionServiceKey key;
+        await using (var firstTor = new MockServer())
+        await using (var first = await TorControlClient.ConnectAsync(IPAddress.Loopback, firstTor.Port))
+        {
+            await first.AuthenticateAsync(firstTor.Cookie);
+            (address, key) = await first.GenerateOnionAsync(8181);
+            await first.DeleteOnionAsync(address);
+        }
+        using (key)
+        await using (var secondTor = new MockServer())
+        await using (var second = await TorControlClient.ConnectAsync(IPAddress.Loopback, secondTor.Port))
+        {
+            await second.AuthenticateAsync(secondTor.Cookie);
+            Assert.That(await second.RestoreOnionAsync(8181, address, key) == address, "The restored onion address changed");
+            await second.DeleteOnionAsync(address);
+            Assert.That(await second.AddOnionAsync(8181) == address, "Transient hosting no longer works");
+            await second.DeleteOnionAsync(address);
+        }
+    }
+
+    static async Task InvalidOnionRegistration()
+    {
+        foreach (var mode in new[] { "bad-onion-key", "wrong-onion-id" })
+        {
+            await using var server = new MockServer(mode);
+            await using var client = await TorControlClient.ConnectAsync(IPAddress.Loopback, server.Port);
+            await client.AuthenticateAsync(server.Cookie);
+            try
+            {
+                if (mode == "bad-onion-key") await client.GenerateOnionAsync(8181);
+                else
+                {
+                    using var key = new OnionServiceKey(Convert.FromBase64String(MockServer.FixtureOnionKey));
+                    await client.RestoreOnionAsync(8181, OnionAddress.Parse(MockServer.FixtureServiceId + ".onion"), key);
+                }
+                throw new Exception("Invalid onion registration was accepted");
+            }
+            catch (TorControlException error)
+            {
+                Assert.That(!error.ToString().Contains("redaction-test-secret", StringComparison.Ordinal) &&
+                    !error.ToString().Contains(MockServer.FixtureOnionKey, StringComparison.Ordinal)
+                    && server.Commands.Contains("DEL_ONION"), "Invalid registration leaked a secret or left a service behind");
+            }
+        }
     }
 
     static async Task OnlineStatus()

@@ -7,7 +7,7 @@ This repository copy maps the supplied canonical backlog to separately reviewabl
 | WIN-00 | 0 | Current GitHub head and offline baseline | VERIFIED | GitHub main matched `68002b9`, 174 portable PASS, 10 platform skips, 6 pipeline PASS | #29 and draft PR #30 | — | Rebase a later batch on the latest reviewed main |
 | WIN-01 | 1 | Persistent TLS identity, contact pairing, endpoint editing and remote pin replacement | VERIFIED | DPAPI fixture and Windows presentation tests | #29 and draft PR #30 | — | Add explicit local credential recovery and replacement |
 | WIN-02 | 2 | Durable outbox, authenticated ACK, history and deduplication | VERIFIED | Loopback TLS v2, lost ACK, replay, reopened stores, TTL and opt-in history | #29 and draft PR #30 | — | Add per-message sent/retrying state and complete storage failure coverage |
-| WIN-03 | 3 | Peers page, status and reconnection | PARTIAL | Release build, 63 presentation and 16 peer assertions | #29 and draft PR #30 | Computer Use did not resume after interruption | Preserve hosted onion identity across restart and verify current page and DPI |
+| WIN-03 | 3 | Peers page, status and reconnection | PARTIAL | Release build and 23 Windows peer assertions, including simulated same-address hosting after restart | #30 and `codex/windows-persistent-onion` | Visual and public lifecycle remain NOT RUN | Verify current page, keyboard, DPI and separately authorize public lifecycle |
 | WIN-2PC | 3 | Qualify the current GUI on two physical PCs | NOT RUN | Operator runbook | #29 and draft PR #30 | Separate approval and second PC | Execute after software gates |
 | WIN-04 | 4 | Dependency Manager | PARTIAL | Real read-only scan, pinned plan, signature gate, rescan and historical local transaction | #29 | Real install requires consent and an eligible candidate | Verify current GUI install/repair end to end with approved inputs |
 | WIN-05 | 5 | Windows Native Build Manager | PARTIAL | Task 12 preflight, known-runtime activation and rollback, new verified ZIP export fixture | #29 and draft PR #30 | Heavy native build requires consent | Build both profiles from the GUI and verify smoke, activation, rollback and export |
@@ -97,7 +97,7 @@ Etapy 1–3 sú kritické pre primárny cieľ A ↔ B; etapy 4–6 dopĺňajú p
 - [x] Úspešné spojenie na dvoch samostatných Windows PC
 - [ ] Presné zopakovanie dvoj-PC testu cez finálne GUI a archivácia dôkazov
 - [ ] Dlhodobé spojenie a opakované reconnecty
-- [ ] Automatické obnovovanie spojenia so zrozumiteľným stavom v GUI vrátane reštartu hostiteľského Toru
+- [x] Automatické obnovenie aktívne hostovanej adresy po reštarte Toru (offline fixture)
 - [x] Fronta správ počas krátkodobého výpadku
 - [x] Trvalé aplikáčné identity a dôveryhodné párovanie klientov
 - [ ] Bezpečné obnovenie relácie bez tichej zmeny identit

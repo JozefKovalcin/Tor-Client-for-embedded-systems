@@ -132,9 +132,10 @@ internal sealed class OfflineTorViewModel : ObservableModel, IAsyncDisposable
         ? "The previous run was interrupted. A new Start request is required."
         : "Each Start request is explicit. Existing private state is retained.";
 
-    public OfflineTorViewModel(IOfflineTorService service, IUiDispatcher dispatcher, PeerProfileStore? peerProfile = null)
+    public OfflineTorViewModel(IOfflineTorService service, IUiDispatcher dispatcher, PeerProfileStore? peerProfile = null,
+        HostedOnionStore? hostingIdentity = null)
     {
-        Peer = service is IPeerTorService peers ? new PeerViewModel(peers, peerProfile, dispatcher) : null;
+        Peer = service is IPeerTorService peers ? new PeerViewModel(peers, peerProfile, dispatcher, hostingIdentity) : null;
         _service = service;
         _online = service as IOnlineTorService;
         _dispatcher = dispatcher;

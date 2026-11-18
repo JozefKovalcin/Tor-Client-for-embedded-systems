@@ -1,3 +1,19 @@
+# Persistent Windows Onion Service hosting — 2026-11-18
+
+The Peers page can explicitly create, host or rotate a saved v3 address.
+The authenticated Tor Control connection supplies the key. The app protects
+it with user-scoped DPAPI in the owner-private profile, separately from the
+peer TLS credential and contact trust store. A Tor restart restores the
+address for an active hosted session. Reopen Tor Manager and select **Host
+saved address** to reuse the same address from the same profile.
+
+Locked Avalonia Release build PASS. The Windows repository suite passed
+174 tests with 10 platform skips, including two new loopback Control
+groups. The Windows peer fixture passed 23 assertions, including simulated
+Tor and Manager restarts, explicit rotation and refusal of corrupt storage.
+Public Tor persistent lifecycle, visual/DPI inspection, physical two-PC
+and clean-host validation remain NOT RUN. See [the Peers workflow](WINDOWS-PEER.md).
+
 # Windows product integration — 2026-11-18
 
 GitHub main at `68002b9` includes the reviewed peer and Developer stacks

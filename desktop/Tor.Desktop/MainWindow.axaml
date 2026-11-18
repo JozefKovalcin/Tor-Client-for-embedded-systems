@@ -228,8 +228,23 @@
                                Classes="muted" TextWrapping="Wrap" />
                   </StackPanel>
                 </Expander>
+                <TextBlock Text="Onion Service hosting" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding HostingStatus}" Classes="muted" TextWrapping="Wrap" />
+                <TextBox Text="{Binding SavedHostingAddress, Mode=OneWay}" IsReadOnly="True"
+                         PlaceholderText="Saved v3 onion address" AutomationProperties.Name="Saved v3 onion address" />
                 <WrapPanel>
-                  <Button Content="Host Onion Service" Command="{Binding HostCommand}" Margin="0,0,8,4" />
+                  <Button Content="Host saved address" Command="{Binding HostCommand}" Margin="0,0,8,4" />
+                  <Button Content="Create and host saved address" Command="{Binding CreateHostingCommand}" Margin="0,0,8,4" />
+                  <Button Content="Host temporarily" Command="{Binding TransientHostCommand}" Margin="0,0,8,4" />
+                </WrapPanel>
+                <Expander Header="Rotate saved hosting address" IsEnabled="{Binding CanApproveHostingRotation}">
+                  <StackPanel Spacing="6">
+                    <CheckBox Content="Replace the saved address. I will share the new address with my contacts."
+                              IsChecked="{Binding ApproveHostingRotation}" />
+                    <Button Content="Replace and host new address" Command="{Binding RotateHostingCommand}" />
+                  </StackPanel>
+                </Expander>
+                <WrapPanel>
                   <Button Content="Connect to Peer" Command="{Binding ConnectCommand}" Margin="0,0,8,4" />
                   <Button Content="Disconnect" Command="{Binding DisconnectCommand}" />
                 </WrapPanel>

@@ -1,5 +1,32 @@
 # Windows Tor Manager development
 
+## Persistent hosted identity batch
+
+Verified GitHub main at `68002b9b4a31e5da5acc152a3c17b3e49da7daed` and
+draft #30 at `383f861850b99503a62d20a666654fc06120bb3d`, with
+[successful CI](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems/actions/runs/44310924252).
+The dependent branch is `codex/windows-persistent-onion`.
+
+| ID | State | Source, gate and result | Remaining |
+| --- | --- | --- | --- |
+| WIN-03-HOST | VERIFIED | `TorControlClient`, `HostedOnionStore`, `PeerViewModel`, Windows transport and Peers page. Offline loopback generation/import, cleanup and redaction passed. Windows DPAPI fixture passed same-address restart, explicit rotation and corruption refusal. | Real public Tor lifecycle and current GUI visual/DPI acceptance are NOT RUN. |
+| WIN-03-MODES | PARTIAL | PR #30 separates the Peers page from Developer pages. | Independent connection, workspace and runtime selectors. |
+| WIN-04/WIN-05 | PARTIAL | Real Developer adapter, offline diagnosis, cancellation, activation, rollback and export retain the PR #29/#30 evidence. | Separate authorization for heavyweight compilation, package installation and any missing downloads. |
+| WIN-06 | PARTIAL | Current Avalonia Release build passed from an offline locked restore. | Current peer-enabled self-contained publish and bundle acceptance. |
+| WIN-2PC | NOT RUN | User-operated two-PC and clean-host tests are deferred. | Field qualification after development. |
+
+Windows Release compiled with zero warnings. `python -B scripts/check.py`
+returned 174 PASS and 10 platform skips. The isolated Windows peer fixture
+returned 23 PASS. The full and focused logs are in the ignored
+`build/windows-persistent-onion-regression.log` and
+`build/windows-persistent-onion-fixture.log`. The restart tests use a
+simulated Tor Control endpoint and fresh fixture profiles.
+
+**NEXT_ACTION** Implement independent Windows mode selectors, then produce
+the current locked offline self-contained candidate using the existing local
+runtime feed. Resume the Windows sequence in [PROGRESS.md](PROGRESS.md) after
+those tasks. Development remains PARTIAL. Field qualification remains NOT RUN.
+
 ## CURRENT_BASE
 
 GitHub `main` matched `68002b9b4a31e5da5acc152a3c17b3e49da7daed`
