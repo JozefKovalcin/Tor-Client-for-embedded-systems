@@ -35,6 +35,13 @@ internal static class Program
             await NativeSmoke(runtime, nativeRoot);
             return;
         }
+        if (args is ["--windows-developer-cancel", var workspace])
+        {
+            if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException();
+            await DeveloperCancellation(workspace).WaitAsync(TimeSpan.FromSeconds(50));
+            Console.WriteLine("PASS native-developer-cancellation-kills-worker-and-child");
+            return;
+        }
         if (args is not ["--workspace", var root] || !Path.IsPathFullyQualified(root))
             throw new ArgumentException("Use --workspace <absolute temporary test directory> or --windows-smoke <runtime> <test directory>");
         Directory.CreateDirectory(root);
@@ -65,6 +72,56 @@ internal static class Program
         await Group("native-service-unexpected-exit", () => NativeUnexpected(runtime, Fresh(root)));
         await Group("native-service-owner-death-and-recovery", () => NativeCrash(runtime, Fresh(root)));
         await Group("native-runtime-activation-lease-and-rollback", () => RuntimeSelection(runtime, Fresh(root)));
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static async Task DeveloperCancellation(string workspace)
+    {
+        // The test output hosts only a synthetic worker. It leaves the reviewed
+        // desktop payload, native recipe and existing artifacts untouched.
+        var launcher = Path.Combine(AppContext.BaseDirectory, "developer", "scripts", "windows_developer", "launch.py");
+        Directory.CreateDirectory(Path.GetDirectoryName(launcher)!);
+        using (var file = new FileStream(launcher, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+        using (var writer = new StreamWriter(file))
+            writer.Write("""
+                import os, subprocess, sys, time
+                assert input() == "owned-windows-job"
+                child = subprocess.Popen([sys.executable, "-I", "-c", "import time; time.sleep(120)"])
+                print(str(os.getpid()) + " " + str(child.pid), flush=True)
+                time.sleep(120)
+                """);
+        try
+        {
+            var pids = new TaskCompletionSource<int[]>(TaskCreationOptions.RunContinuationsAsynchronously);
+            using var cancel = new CancellationTokenSource();
+            var spec = new WindowsDeveloperCommand(WindowsDeveloperAction.Build, "optimized-static", workspace, workspace);
+            var run = WindowsDeveloperRunner.RunAsync(spec, line =>
+            {
+                var fields = line.Split(' ');
+                if (fields.Length == 2 && fields.All(field => int.TryParse(field, out _)))
+                    pids.TrySetResult(fields.Select(int.Parse).ToArray());
+            }, cancel.Token);
+            try
+            {
+                var first = await Task.WhenAny(pids.Task, run).WaitAsync(TimeSpan.FromSeconds(10));
+                if (first == run) throw new InvalidOperationException("Developer test worker exited before starting a child.");
+                var owned = await pids.Task;
+                cancel.Cancel();
+                try { await run.WaitAsync(TimeSpan.FromSeconds(10)); throw new InvalidOperationException("Cancellation did not reach the job."); }
+                catch (OperationCanceledException) when (cancel.IsCancellationRequested) { }
+                foreach (var pid in owned)
+                {
+                    try
+                    {
+                        using var process = Process.GetProcessById(pid);
+                        await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(5));
+                    }
+                    catch (ArgumentException) { } // An exited process may already have no PID mapping.
+                }
+            }
+            finally { cancel.Cancel(); }
+        }
+        finally { File.Delete(launcher); }
     }
 
     [SupportedOSPlatform("windows")]

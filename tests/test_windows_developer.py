@@ -2,6 +2,7 @@ import hashlib
 import io
 from pathlib import Path
 import subprocess
+import struct
 import tarfile
 import tempfile
 import unittest
@@ -11,6 +12,16 @@ from scripts.windows_developer import scan as developer
 
 
 class WindowsDeveloperScanTests(unittest.TestCase):
+    def test_wrong_msys2_architecture_is_not_available(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            image = Path(temporary) / "msys-2.0.dll"
+            header = bytearray(64)
+            header[:2] = b"MZ"
+            struct.pack_into("<I", header, 60, 64)
+            image.write_bytes(header + b"PE\x00\x00\x4c\x01")
+            observed = developer._file_observation(image, developer._require_pe)
+            self.assertEqual(observed["status"], "INCOMPATIBLE")
+
     def test_verified_archive_and_license_are_both_required(self):
         with tempfile.TemporaryDirectory() as temporary:
             cache = Path(temporary)
