@@ -135,8 +135,9 @@ public sealed class TorControlClient : IAsyncDisposable
             Volatile.Write(ref pendingIdentitySignal, observed);
             try
             {
-                await CommandAsync("SIGNAL NEWNYM", true, token).ConfigureAwait(false);
+                await CommandAsync("SIGNAL NEWNYM", true, token, drainAfterAdmission: true).ConfigureAwait(false);
                 lastIdentityRequest = Stopwatch.GetTimestamp();
+                token.ThrowIfCancellationRequested();
                 try
                 {
                     await observed.Task.WaitAsync(TimeSpan.FromMilliseconds(500), token).ConfigureAwait(false);
@@ -173,24 +174,30 @@ public sealed class TorControlClient : IAsyncDisposable
     }
 
     private async Task<ControlReply> CommandAsync(string command, bool requiresAuthentication, CancellationToken token,
-        bool allowUnknownKey = false)
+        bool allowUnknownKey = false, bool drainAfterAdmission = false)
     {
         if (requiresAuthentication && !authenticated) throw new TorControlException("Control authentication required");
         ObjectDisposedException.ThrowIf(disposed, this);
         await transactions.WaitAsync(token).ConfigureAwait(false);
-        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime.Token);
-        timeout.CancelAfter(TimeSpan.FromSeconds(5));
         try
         {
-            var bytes = Encoding.ASCII.GetBytes(command + "\r\n");
-            try { await stream.WriteAsync(bytes, timeout.Token).ConfigureAwait(false); }
-            finally { CryptographicOperations.ZeroMemory(bytes); }
-            var reply = await replies.Reader.ReadAsync(timeout.Token).ConfigureAwait(false);
-            if (reply.Code != 250 && !(allowUnknownKey && reply.Code == 552))
-                throw new TorControlException("Control command rejected with code " + reply.Code);
-            return reply;
+            // Once NEWNYM is admitted, drain its bounded reply so canceling the UI action cannot break shutdown.
+            if (drainAfterAdmission) token.ThrowIfCancellationRequested();
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(
+                drainAfterAdmission ? CancellationToken.None : token, lifetime.Token);
+            timeout.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                var bytes = Encoding.ASCII.GetBytes(command + "\r\n");
+                try { await stream.WriteAsync(bytes, timeout.Token).ConfigureAwait(false); }
+                finally { CryptographicOperations.ZeroMemory(bytes); }
+                var reply = await replies.Reader.ReadAsync(timeout.Token).ConfigureAwait(false);
+                if (reply.Code != 250 && !(allowUnknownKey && reply.Code == 552))
+                    throw new TorControlException("Control command rejected with code " + reply.Code);
+                return reply;
+            }
+            catch { CloseTransport(); throw; } // An abandoned reply must never be mistaken for a later command's result.
         }
-        catch { CloseTransport(); throw; } // An abandoned reply must never be mistaken for a later command's result.
         finally { transactions.Release(); }
     }
     private async Task ReceiveAsync()

@@ -15,6 +15,7 @@ static partial class Program
             ("optional-circuit-status-keeps-control-connection", OptionalCircuitStatus),
             ("nonloopback-socks-listener-cannot-pass", UnsafeListener),
             ("newnym-distinguishes-event-ack-and-rate-limit", NewIdentity),
+            ("cancelled-newnym-drains-reply-and-allows-shutdown", NewIdentityCancellation),
             ("socks5-domain-resolution-happens-through-proxy", SocksDestinationRejected),
             ("socks5-tls-starts-inside-established-tunnel", SocksTlsInTunnel),
             ("socks5-wrong-owner-rejected-before-protocol-bytes", SocksWrongOwner),
@@ -85,6 +86,23 @@ static partial class Program
             Assert.That(results.SequenceEqual(new[] { expected, NewIdentityResult.RateLimited }) && server.Commands.Count(v => v == "SIGNAL") == 1,
                 "NEWNYM acknowledgement, event or local rate limiting was misclassified");
         }
+    }
+
+    static async Task NewIdentityCancellation()
+    {
+        await using var server = new MockServer("identity-cancel");
+        await using var client = await TorControlClient.ConnectAsync(IPAddress.Loopback, server.Port);
+        await client.AuthenticateAsync(server.Cookie);
+        await client.SubscribeOnlineAsync();
+        using var cancellation = new CancellationTokenSource();
+        var request = client.RequestNewIdentityAsync(cancellation.Token);
+        await server.IdentityReceived.Task.WaitAsync(TimeSpan.FromSeconds(3));
+        cancellation.Cancel();
+        var shutdown = client.ShutdownAsync();
+        server.ReleaseIdentityReply.TrySetResult();
+        await Assert.Throws<OperationCanceledException>(() => request);
+        await shutdown;
+        Assert.That(server.Commands.Count(v => v == "SIGNAL") == 2, "Cancelling NEWNYM prevented authenticated shutdown");
     }
 
     static async Task SocksDestinationRejected()
