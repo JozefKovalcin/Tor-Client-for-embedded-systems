@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
+using System.Net.Sockets;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;
@@ -12,15 +13,19 @@ namespace Tor.Adapters.Windows;
 
 public sealed record TorProcessOutcome(uint RawExitCode, bool StopRequested);
 public sealed record TorRuntimeObservation(int? ProcessId, bool Authenticated, bool Authenticating = false,
-    int? BootstrapPercent = null, string? BootstrapTag = null, bool TerminationConfirmed = false);
-public sealed class TorProcessStartException(uint? rawExitCode, string phase, bool cancelled)
+    int? BootstrapPercent = null, string? BootstrapTag = null, bool TerminationConfirmed = false,
+    TorOnlineObservation? Online = null);
+public sealed record TorOnlineObservation(int? SocksPort, string? TorVersion, bool? CircuitEstablished,
+    string? LastError = null);
+public sealed class TorProcessStartException(uint? rawExitCode, string phase, bool cancelled, WindowsTorFailure? windowsFailure = null)
     : IOException("Managed Tor startup failed during " + phase)
 {
     public uint? RawExitCode { get; } = rawExitCode;
     public bool Cancelled { get; } = cancelled;
+    public WindowsTorFailure? WindowsFailure { get; } = windowsFailure;
 }
 
-/// <summary>Own one verified Tor process and fresh private state, with networking disabled for this foundation.</summary>
+/// <summary>Own one verified Tor process, its authenticated control connection and private state.</summary>
 [SupportedOSPlatform("windows")]
 public sealed class ManagedTorSession : IAsyncDisposable
 {
@@ -53,15 +58,30 @@ public sealed class ManagedTorSession : IAsyncDisposable
         catch (IOException) { }
         // Raw Tor output can contain sensitive paths/identifiers; it is neither retained nor exported.
     }
-    public static async Task<ManagedTorSession> StartOfflineAsync(PinnedWindowsRuntime runtime,
+    public static Task<ManagedTorSession> StartOfflineAsync(PinnedWindowsRuntime runtime,
         string existingPrivateParent, CancellationToken cancellationToken = default,
-        Action<TorRuntimeObservation>? observe = null)
+        Action<TorRuntimeObservation>? observe = null) =>
+        StartAsync(runtime, existingPrivateParent, null, cancellationToken, observe);
+
+    internal static Task<ManagedTorSession> StartOnlineAsync(PinnedWindowsRuntime runtime,
+        string existingPrivateParent, int socksPort, CancellationToken cancellationToken,
+        Action<TorRuntimeObservation>? observe) =>
+        StartAsync(runtime, existingPrivateParent, socksPort, cancellationToken, observe);
+
+    private static async Task<ManagedTorSession> StartAsync(PinnedWindowsRuntime runtime,
+        string existingPrivateParent, int? socksPort, CancellationToken cancellationToken,
+        Action<TorRuntimeObservation>? observe)
     {
         if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("Windows runtime adapter");
         PrivateStorage.RequireOwnerOnly(existingPrivateParent);
+        var networkConfig = socksPort is int portNumber ? WindowsOnlineTorSettings.Configuration(portNumber) :
+            "SocksPort 0\nDisableNetwork 1\n";
+        if (socksPort is int configuredPort && WindowsOnlineTorSettings.CheckPort(configuredPort) is { } portFailure)
+            throw new TorProcessStartException(null, "socks-port-check", false, portFailure);
         var locks = runtime.VerifyAndLock();
         WindowsJob? job = null; Process? process = null; ManagedTorSession? session = null;
         bool processStarted = false; string phase = "preparation";
+        WindowsTorFailure? onlineFailure = null;
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -84,8 +104,8 @@ public sealed class ManagedTorSession : IAsyncDisposable
             }
             var torrc = $"DataDirectory {Quote(data)}\nCookieAuthFile {Quote(cookiePath)}\n" +
                 $"ControlPortWriteToFile {Quote(portPath)}\nControlPort 127.0.0.1:auto\n" +
-                "CookieAuthentication 1\nCookieAuthFileGroupReadable 0\nClientOnly 1\nSocksPort 0\n" +
-                "DisableNetwork 1\nSafeLogging 1\nLog warn stdout\n" +
+                "CookieAuthentication 1\nCookieAuthFileGroupReadable 0\nClientOnly 1\n" + networkConfig +
+                "SafeLogging 1\nLog warn stdout\n" +
                 $"__OwningControllerProcess {Environment.ProcessId.ToString(CultureInfo.InvariantCulture)}\n";
             await File.WriteAllTextAsync(config, torrc, new UTF8Encoding(false), cancellationToken).ConfigureAwait(false);
             var start = new ProcessStartInfo(staged.ExecutablePath)
@@ -133,7 +153,25 @@ public sealed class ManagedTorSession : IAsyncDisposable
             try { await session.control.AuthenticateAsync(cookie, startup.Token).ConfigureAwait(false); }
             finally { CryptographicOperations.ZeroMemory(cookie); }
             await session.control.TakeOwnershipAsync(startup.Token).ConfigureAwait(false);
-            await session.control.SubscribeBootstrapAsync(startup.Token).ConfigureAwait(false);
+            if (socksPort is int onlinePort)
+            {
+                phase = "online-control-startup";
+                await session.control.SubscribeOnlineAsync(startup.Token).ConfigureAwait(false);
+                onlineFailure = WindowsOnlineTorSettings.CheckPort(onlinePort);
+                if (onlineFailure is not null)
+                {
+                    phase = "socks-port-check";
+                    throw new IOException("The requested SOCKS port is unavailable");
+                }
+                phase = "online-network-startup";
+                try { await session.control.EnableNetworkAsync(startup.Token).ConfigureAwait(false); }
+                catch (Exception failure) when (failure is IOException or SocketException)
+                {
+                    onlineFailure = WindowsOnlineTorSettings.CheckPort(onlinePort);
+                    throw;
+                }
+            }
+            else await session.control.SubscribeBootstrapAsync(startup.Token).ConfigureAwait(false);
             await session.control.GetBootstrapAsync(startup.Token).ConfigureAwait(false);
             return session;
         }
@@ -160,7 +198,7 @@ public sealed class ManagedTorSession : IAsyncDisposable
             }
             if (observedExit is not null)
                 observe?.Invoke(new(null, false, TerminationConfirmed: true));
-            throw new TorProcessStartException(observedExit, phase, cancellationToken.IsCancellationRequested);
+            throw new TorProcessStartException(observedExit, phase, cancellationToken.IsCancellationRequested, onlineFailure);
         }
     }
     public async Task<TorProcessOutcome> StopAsync()

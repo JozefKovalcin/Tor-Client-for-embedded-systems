@@ -14,7 +14,8 @@ public sealed record DependencyProbeCommand(IReadOnlyList<VerifiedFile> ProbeInp
 public sealed record NativeLinuxBuildCommand(VerifiedFile Request, IReadOnlyList<VerifiedFile> BuildInputs,
     IReadOnlyList<string> BuildOutputs)
     : TaskCommand(CommandKind.NativeLinuxBuild, new[] { Request }.Concat(BuildInputs).ToArray(), BuildOutputs);
-public sealed record WindowsTorSessionCommand(VerifiedFile Executable, IReadOnlyList<VerifiedFile> RuntimeInputs)
+public sealed record WindowsTorSessionCommand(VerifiedFile Executable, IReadOnlyList<VerifiedFile> RuntimeInputs,
+    int? OnlineSocksPort = null)
     : TaskCommand(CommandKind.WindowsTorSession, new[] { Executable }.Concat(RuntimeInputs).ToArray(), Array.Empty<string>());
 
 public sealed record ResourceRequest(int Slots, long MemoryBytes, long DiskBytes, bool Heavy)
@@ -26,8 +27,10 @@ public sealed record ResourceRequest(int Slots, long MemoryBytes, long DiskBytes
 }
 public sealed record TaskSubmission(string Id, TaskCommand Command, IReadOnlyList<string> DependsOn,
     ResourceRequest Resources, string? RetryOfTaskId = null);
+public enum WindowsTorFailure { SocksPortInUse, SocksPortUnavailable, UnverifiedSocksListener, BootstrapTimeout, ControlLost, UnexpectedExit }
 public sealed record TaskExecutionResult(uint? ExitCode, int? Signal = null,
-    IReadOnlyList<VerifiedFile>? Outputs = null, string? BlockedReason = null, string? FailureReason = null)
+    IReadOnlyList<VerifiedFile>? Outputs = null, string? BlockedReason = null, string? FailureReason = null,
+    WindowsTorFailure? WindowsFailure = null)
 {
     public static TaskExecutionResult Success => new(0);
 }
