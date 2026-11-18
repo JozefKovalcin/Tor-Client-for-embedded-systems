@@ -10,6 +10,16 @@ namespace Tor.Control;
 
 public enum Socks5ConnectivityResult { Reachable, ProxyUnavailable, DestinationUnavailable }
 
+public sealed class Socks5ConnectException : IOException
+{
+    public byte ReplyCode { get; }
+
+    internal Socks5ConnectException(byte replyCode) : base($"SOCKS5 CONNECT failed (reply 0x{replyCode:X2}).")
+    {
+        ReplyCode = replyCode;
+    }
+}
+
 /// <summary>Tests the fixed Tor Project HTTPS endpoint through a numeric local SOCKS5 listener.</summary>
 public static class Socks5ConnectivityProbe
 {
@@ -116,7 +126,8 @@ public static class Socks5ConnectivityProbe
 
         var reply = new byte[4];
         await stream.ReadExactlyAsync(reply, token).ConfigureAwait(false);
-        if (reply[0] != 5 || reply[1] != 0 || reply[2] != 0) throw new IOException("SOCKS5 CONNECT failed");
+        if (reply[0] != 5 || reply[2] != 0) throw new IOException("Malformed SOCKS5 CONNECT reply");
+        if (reply[1] != 0) throw new Socks5ConnectException(reply[1]);
         int boundLength = reply[3] switch
         {
             1 => 4,

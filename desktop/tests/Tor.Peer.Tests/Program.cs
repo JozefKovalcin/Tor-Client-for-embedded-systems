@@ -32,6 +32,11 @@ try
         await PublicTor.VerifyDisabledPolicyAsync(offlineRuntime, offlineState);
         return 0;
     }
+    if (OperatingSystem.IsWindows() && args is ["--public-persistent-host", "--approve-public-tor", var candidate, var persistentState])
+    {
+        await PublicTor.RunPersistentHostAsync(candidate, persistentState);
+        return 0;
+    }
     if (args is not ["--public-tor", "--approve-public-tor", var runtime, var state])
     {
         Console.WriteLine("NOT RUN: explicit public Tor approval is required.");
@@ -409,22 +414,35 @@ internal static class Offline
         using var socks = new TcpListener(IPAddress.Loopback, 0);
         socks.Start();
         var address = LoopbackTransport.Address;
-        var attempt = OnionSocksConnection.ConnectAsync((IPEndPoint)socks.LocalEndpoint, address, _ => true, deadline.Token);
-        using var peer = await socks.AcceptTcpClientAsync(deadline.Token);
-        using var connection = peer.GetStream();
-        var greeting = new byte[3];
-        await connection.ReadExactlyAsync(greeting, deadline.Token);
-        Check.That(greeting.SequenceEqual(new byte[] { 5, 1, 0 }), "Unexpected SOCKS authentication offer.");
-        await connection.WriteAsync(new byte[] { 5, 0 }, deadline.Token);
-        var data = new byte[7 + address.Host.Length];
-        await connection.ReadExactlyAsync(data, deadline.Token);
-        Check.That(data.AsSpan(0, 5).SequenceEqual(new byte[] { 5, 1, 0, 3, (byte)address.Host.Length }) &&
-            Encoding.ASCII.GetString(data.AsSpan(5, address.Host.Length)) == address.Host &&
-            BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(^2)) == OnionAddress.VirtualPort,
-            "The complete onion name must be sent in a domain-form CONNECT to port 80.");
-        await connection.WriteAsync(new byte[] { 5, 0, 0, 1, 127, 0, 0, 1, 0, 0 }, deadline.Token);
-        await using var tunnel = await attempt;
-        Console.WriteLine("PASS SOCKS5 sends the onion name in the domain field without local DNS");
+        foreach (byte replyCode in new byte[] { 0, 4 })
+        {
+            var attempt = OnionSocksConnection.ConnectAsync((IPEndPoint)socks.LocalEndpoint, address, _ => true, deadline.Token);
+            using var peer = await socks.AcceptTcpClientAsync(deadline.Token);
+            using var connection = peer.GetStream();
+            var greeting = new byte[3];
+            await connection.ReadExactlyAsync(greeting, deadline.Token);
+            Check.That(greeting.SequenceEqual(new byte[] { 5, 1, 0 }), "Unexpected SOCKS authentication offer.");
+            await connection.WriteAsync(new byte[] { 5, 0 }, deadline.Token);
+            var data = new byte[7 + address.Host.Length];
+            await connection.ReadExactlyAsync(data, deadline.Token);
+            Check.That(data.AsSpan(0, 5).SequenceEqual(new byte[] { 5, 1, 0, 3, (byte)address.Host.Length }) &&
+                Encoding.ASCII.GetString(data.AsSpan(5, address.Host.Length)) == address.Host &&
+                BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(^2)) == OnionAddress.VirtualPort,
+                "The complete onion name must be sent in a domain-form CONNECT to port 80.");
+            await connection.WriteAsync(new byte[] { 5, replyCode, 0, 1, 127, 0, 0, 1, 0, 0 }, deadline.Token);
+            try
+            {
+                await using var tunnel = await attempt;
+                Check.That(replyCode == 0, "A failed CONNECT reply established a tunnel.");
+            }
+            catch (Socks5ConnectException failure)
+            {
+                Check.That(replyCode != 0 && failure.ReplyCode == replyCode &&
+                    !failure.Message.Contains(address.Host, StringComparison.Ordinal),
+                    "The failed CONNECT reply did not preserve its code or disclosed the destination.");
+            }
+        }
+        Console.WriteLine("PASS SOCKS5 sends the onion domain without local DNS and reports a failed CONNECT by code");
     }
 
     internal static async Task<(PeerConnection Server, PeerConnection Client)> PairAsync(PeerHost host,
@@ -482,7 +500,7 @@ internal static class Offline
 }
 
 [SupportedOSPlatform("windows")]
-internal static class PublicTor
+internal static partial class PublicTor
 {
     internal static async Task VerifyDisabledPolicyAsync(string package, string state)
     {

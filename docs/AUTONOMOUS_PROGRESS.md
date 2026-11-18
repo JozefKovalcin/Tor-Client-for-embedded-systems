@@ -4,7 +4,7 @@
 
 | ID | State | Source and evidence | Remaining |
 | --- | --- | --- | --- |
-| WIN-03-HOST | VERIFIED | Draft #31 and 23 Windows peer assertions. Same-address simulated restart, explicit rotation and encrypted state refusal passed. | Separate public-Tor lifecycle authorization. |
+| WIN-03-HOST | PARTIAL | PR #31 verified simulated restart, explicit rotation and encrypted state refusal. The approved public run restored and republished the same v3 address. Initial bidirectional transfer passed and the restored exchange failed with `IOException`. | Repeat the live-client scenario with stage diagnostics after separate approval. |
 | WIN-03-MODES | VERIFIED | Draft #32. Separate connection, workspace and runtime preference in the UI. Real Developer retained an active offline session and the Peers page. | DPI and full keyboard matrix. |
 | WIN-04 | PARTIAL | Real Developer read-only diagnostics accepted the prepared local cache. Installer approval, eligibility and cancellation have automated evidence. | Real system installation requires a separate approval and an eligible package. |
 | WIN-05 | VERIFIED for optimized-static | Draft #32. Real GUI compile, PE inventory, eight offline smoke checks and 21-file ZIP export passed for `run-mm7s33j8`. Earlier GCC and windres failures were fixed and retained. | Shared build remains outside the approved run. |
@@ -20,8 +20,10 @@ installed UCRT64 tools.
 **NEXT_ACTION** Follow [PROGRESS.md](PROGRESS.md) with the exact Windows
 candidate and native export recorded in the
 [release evidence](../reports/windows-product-2026-11-18/README.md).
-Obtain separate authorization for public Tor persistent hosting and the
-mandatory network suite. The user deferred clean-host and physical two-PC
+The [first public persistent-host run](../reports/windows-persistent-host-2026-11-18/README.md)
+ended FAIL at the restored exchange. Repeat it with the stage diagnostics
+after separate approval. The mandatory network suite has its own approval.
+The user deferred clean-host and physical two-PC
 acceptance. Run the shared native profile and real installation path only
 after their respective approvals.
 

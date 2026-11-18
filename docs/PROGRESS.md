@@ -1,3 +1,18 @@
+# Windows public persistent hosting — 2026-11-18
+
+One authorized single-host run used the verified `optimized-static` runtime
+`run-mm7s33j8`. Both clients passed authenticated bootstrap, the initial
+Onion Service published, and pinned TLS carried matching text in both
+directions. A restarted and imported the same DPAPI-protected v3 identity.
+Tor returned the same address and confirmed publication again. B stayed
+running, but the restored exchange failed with an `IOException`. The
+public persistent-host gate is FAIL.
+
+The runner now reports the failing stage and any numeric SOCKS refusal.
+The next separately approved run should repeat the same scenario. The
+broader online suite, clean-host and two-PC gates remain NOT RUN in this
+batch. See [the single-host evidence](../reports/windows-persistent-host-2026-11-18/README.md).
+
 # Windows self-contained candidate and Developer build — 2026-11-18
 
 Draft #32 adds independent connection and workspace selectors and a
@@ -29,8 +44,9 @@ Locked Avalonia Release build PASS. The Windows repository suite passed
 174 tests with 10 platform skips, including two new loopback Control
 groups. The Windows peer fixture passed 23 assertions, including simulated
 Tor and Manager restarts, explicit rotation and refusal of corrupt storage.
-Public Tor persistent lifecycle, visual/DPI inspection, physical two-PC
-and clean-host validation remain NOT RUN. See [the Peers workflow](WINDOWS-PEER.md).
+At this offline milestone, public Tor persistent lifecycle, visual/DPI
+inspection, physical two-PC and clean-host validation were NOT RUN.
+See [the Peers workflow](WINDOWS-PEER.md).
 
 # Windows product integration — 2026-11-18
 
