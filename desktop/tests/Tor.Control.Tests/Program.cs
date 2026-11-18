@@ -24,6 +24,8 @@ sealed class MockServer : IAsyncDisposable
     public byte[] Cookie { get; } = Enumerable.Range(0, 32).Select(x => (byte)x).ToArray();
     public List<string> Commands { get; } = [];
     public bool ProofReceived { get; private set; }
+    public TaskCompletionSource IdentityReceived { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    public TaskCompletionSource ReleaseIdentityReply { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
     public MockServer(string mode = "good")
     {
         listener.Start(); Port = ((IPEndPoint)listener.LocalEndpoint).Port; Serving = Serve(mode);
@@ -104,6 +106,11 @@ sealed class MockServer : IAsyncDisposable
             }
             else if (command == "SIGNAL NEWNYM")
             {
+                if (mode == "identity-cancel")
+                {
+                    IdentityReceived.TrySetResult();
+                    await ReleaseIdentityReply.Task.WaitAsync(TimeSpan.FromSeconds(5));
+                }
                 if (mode == "identity-observed") await output.WriteLineAsync("650 SIGNAL NEWNYM");
                 await output.WriteLineAsync("250 OK");
             }

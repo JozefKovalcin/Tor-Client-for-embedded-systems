@@ -24,8 +24,9 @@ and tag, with a categorical warning where applicable. The Tor warning text,
 summary, peer identity and address are discarded.
 Events received before successful SAFECOOKIE authentication are ignored.
 
-Commands have a five-second deadline. Cancellation/timeout fails the connection
-closed so an abandoned response cannot become the next command's result.
+Commands have a five-second deadline. The connection fails closed if a command
+abandons an outstanding reply. NEWNYM drains its bounded reply once admitted,
+even if the caller cancels, to preserve authenticated shutdown.
 The event queue retains at most 64 records; `LatestBootstrap` gives the latest
 authenticated observation if a slow observer misses older notifications.
 
