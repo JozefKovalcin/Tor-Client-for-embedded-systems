@@ -8,6 +8,14 @@ from scripts.windows_developer import install
 
 
 class WindowsInstallerPlanTests(unittest.TestCase):
+    def test_transaction_denied_before_any_process_or_log(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(install.subprocess, "Popen") as spawn:
+            stage = Path(folder)
+            with self.assertRaisesRegex(ValueError, "cancelled before"):
+                install.execute_transaction(["pacman"], stage, {}, lambda: False)
+            self.assertEqual(list(stage.iterdir()), [])
+            spawn.assert_not_called()
+
     def test_missing_only_reviewed_local_archive_and_current_approval(self):
         with tempfile.TemporaryDirectory() as folder:
             cache = Path(folder)

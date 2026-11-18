@@ -47,3 +47,29 @@ class WindowsBuildAdapterTests(unittest.TestCase):
         for name in ["../tor.exe", "C:/tor.exe", "bin/../tor.exe", "/tor.exe", r"bin\..\tor.exe"]:
             with self.subTest(name=name), self.assertRaises(ValueError):
                 adapter.resolve_record_path(Path("package"), name)
+
+    def test_offline_smoke_rejects_wrong_version_and_online_result(self):
+        offline = [
+            {"id": name, "status": "PASS", "detail": "Tor version 0.4.9.14." if name == "--version" else "verified"}
+            for name in ("--version", "--help", "shipped_configs", "compiled_modules", "invalid_config_rejected",
+                         "startup_and_writable_state", "clean_shutdown", "restart")
+        ]
+        offline.extend({"id": name, "status": "SKIPPED", "detail": "offline"}
+                       for name in ("public_bootstrap", "socks_remote_dns"))
+        self.assertTrue(adapter.smoke_passed({"tests": offline}, "0.4.9.14"))
+        self.assertFalse(adapter.smoke_passed({"tests": offline}, "0.4.9.13"))
+        self.assertFalse(adapter.smoke_passed({"tests": offline[:-1]}, "0.4.9.14"))
+        offline[-1]["status"] = "PASS"
+        self.assertFalse(adapter.smoke_passed({"tests": offline}, "0.4.9.14"))
+
+    def test_activation_refuses_unbuilt_absent_or_unverified_smoke(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary)
+            run = workspace / "builds/run-fixture"
+            run.mkdir(parents=True)
+            for state, smoke in [("INTERRUPTED", "NOT RUN"), ("FAILED", "FAIL"), ("BUILT", "NOT RUN")]:
+                record = {"schemaVersion": 1, "id": run.name, "profile": "optimized-static",
+                          "package": "pipeline/dist", "compilerExit": 0, "state": state, "smokeState": smoke}
+                adapter.write_record(run / "build-record.json", record)
+                with self.assertRaisesRegex(ValueError, "successful offline smoke"):
+                    adapter.candidate(workspace, run.name)

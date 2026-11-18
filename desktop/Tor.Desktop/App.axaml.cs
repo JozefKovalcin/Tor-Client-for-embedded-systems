@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Tor.Adapters.Windows;
 using Tor.Application;
 using TorManager.Desktop.Presentation;
 using TorManager.Desktop.Services;
@@ -19,7 +20,8 @@ public sealed partial class App : Application
         {
             var (offline, unavailable) = CreateOfflineService(desktop.Args ?? []);
             var model = new ShellViewModel(new SimulationTaskFeed(), new UiDispatcher(), SettingsStore.ForCurrentUser(),
-                offline, unavailable, showRealWhenUnavailable: OperatingSystem.IsWindows());
+                offline, unavailable, showRealWhenUnavailable: OperatingSystem.IsWindows(),
+                bundledRuntime: Path.Combine(AppContext.BaseDirectory, "tor-runtime"));
             model.PropertyChanged += (_, change) =>
             {
                 if (change.PropertyName == nameof(model.Theme))
@@ -59,16 +61,18 @@ public sealed partial class App : Application
         try
         {
             var options = OfflineLaunchOptions.Read(args);
-            return (OfflineTorService.CreateWindows(options.PackageDirectory, options.PrivateDirectory), null);
+            var runtime = WindowsRuntimeSelection.ForCurrentUser().ReadRuntime(options.PackageDirectory, !options.ExplicitPackage);
+            return (OfflineTorService.CreateWindows(runtime, options.PrivateDirectory), null);
         }
         catch (ArgumentException)
         {
             return (null, "Use absolute folders with --tor-package and --state-dir. Keep private state separate from the installation and runtime.");
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidOperationException
+            or InvalidDataException or System.Text.Json.JsonException
             or System.Security.SecurityException)
         {
-            return (null, "Offline workspace setup failed. Verify the selected private directory and try again.");
+            return (null, "Runtime or private workspace verification failed. For a changed approved build, use Builds to roll back and restart.");
         }
     }
 

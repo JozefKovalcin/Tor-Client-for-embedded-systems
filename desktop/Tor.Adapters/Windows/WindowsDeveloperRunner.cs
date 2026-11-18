@@ -42,6 +42,7 @@ public sealed class WindowsDeveloperRunner(Action<string> log) : ITaskHandler
             WindowsDeveloperAction.Build => "build",
             WindowsDeveloperAction.List => "list",
             WindowsDeveloperAction.Smoke => "smoke",
+            WindowsDeveloperAction.Candidate => "candidate",
             _ => throw new ArgumentOutOfRangeException(nameof(task))
         };
         var system = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
@@ -71,17 +72,50 @@ public sealed class WindowsDeveloperRunner(Action<string> log) : ITaskHandler
             if (!process.HasExited) await process.WaitForExitAsync().ConfigureAwait(false);
             throw;
         }
-        using var registration = cancellationToken.Register(job.Dispose);
+        bool install = task.Action == WindowsDeveloperAction.Install;
+        bool committing = false;
+        var gate = new object();
+        using var registration = cancellationToken.Register(() =>
+        {
+            lock (gate) if (!committing) job.Dispose();
+        });
+        void OnOutputLine(string line)
+        {
+            if (install && line == "[gate] request package commit")
+            {
+                lock (gate)
+                {
+                    if (cancellationToken.IsCancellationRequested) return;
+                    // Once we allow pacman to write its database, wait for its real result.
+                    // Closing the job remains protection for a terminated owning process.
+                    committing = true;
+                    process.StandardInput.WriteLine("commit-approved-packages");
+                    process.StandardInput.Close();
+                }
+                return;
+            }
+            log?.Invoke(line);
+        }
         Task<string>? output = null, errors = null;
         try
         {
             await process.StandardInput.WriteLineAsync("owned-windows-job").ConfigureAwait(false);
-            process.StandardInput.Close();
-            output = DrainAsync(process.StandardOutput, log, progress, log is null ? 4 * 1024 * 1024 : 32 * 1024);
+            if (install) await process.StandardInput.FlushAsync().ConfigureAwait(false);
+            else process.StandardInput.Close();
+            output = DrainAsync(process.StandardOutput, install || log is not null ? OnOutputLine : null, progress,
+                log is null ? 4 * 1024 * 1024 : 32 * 1024);
             errors = DrainAsync(process.StandardError, log, null, 32 * 1024);
-            await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+            var finished = process.WaitForExitAsync(install ? CancellationToken.None : cancellationToken);
+            var first = await Task.WhenAny(finished, output, errors).ConfigureAwait(false);
+            if (first.IsFaulted)
+            {
+                job.Dispose();
+                await first.ConfigureAwait(false);
+            }
+            await finished.ConfigureAwait(false);
             job.Dispose();
             await Task.WhenAll(output, errors).ConfigureAwait(false);
+            if (!committing) cancellationToken.ThrowIfCancellationRequested();
             return new(unchecked((uint)process.ExitCode), await output, await errors);
         }
         catch (IOException) when (cancellationToken.IsCancellationRequested)
@@ -113,6 +147,7 @@ public sealed class WindowsDeveloperRunner(Action<string> log) : ITaskHandler
                     var line = pending.ToString();
                     pending.Clear();
                     if (line.StartsWith("[phase] compiling", StringComparison.Ordinal)) progress?.Invoke(TaskPhase.Executing);
+                    if (line.StartsWith("[phase] installing", StringComparison.Ordinal)) progress?.Invoke(TaskPhase.Executing);
                     if (line.StartsWith("[phase] verifying", StringComparison.Ordinal)) progress?.Invoke(TaskPhase.Verifying);
                     log(line);
                 }
@@ -135,7 +170,9 @@ public sealed class WindowsDeveloperRunner(Action<string> log) : ITaskHandler
     public static void RequireLocal(string path)
     {
         if (!Path.IsPathFullyQualified(path) || path.Length < 3 || !char.IsAsciiLetter(path[0]) || path[1] != ':' ||
-            path[2] is not ('/' or '\\') || new DriveInfo(Path.GetPathRoot(path)!).DriveType != DriveType.Fixed)
+            path[2] is not ('/' or '\\') || path.AsSpan(2).Contains(':') ||
+            path.Split('/', '\\').Any(part => part is "." or "..") ||
+            new DriveInfo(Path.GetPathRoot(path)!).DriveType != DriveType.Fixed)
             throw new ArgumentException("Choose an absolute path on a fixed local Windows drive.");
     }
 }

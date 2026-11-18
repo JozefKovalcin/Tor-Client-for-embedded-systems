@@ -29,7 +29,7 @@ DOTNET_URL = "https://dotnet.microsoft.com/download/dotnet/11.0"
 def ordinary_path(path, *, directory=False):
     """Inspect local paths without following symlinks or Windows reparse points."""
     path = Path(path)
-    if not path.is_absolute() or ".." in path.parts or path.drive.startswith("\\"):
+    if not path.is_absolute() or ".." in path.parts or path.drive.startswith("\\") or any(":" in part for part in path.parts[1:]):
         raise ValueError("A local absolute path is required")
     for component in (*reversed(path.parents), path):
         info = component.lstat()
@@ -179,8 +179,25 @@ def scan(profile, cache, output, probe=None):
                      "installationMethod": method, "sourceUrl": url})
 
     status = "AVAILABLE" if host["os"] == "windows" and host["architecture"] == "x86_64" else "INCOMPATIBLE"
-    add("windows-host", "Native Windows x64", _record(status, f"Observed {host['os']} {host['architecture']}", version=host["osVersion"]))
-    resources = probe.resources(output if output.is_dir() else output.parent)
+    add("windows-host", "Native Windows x64", _record(status, f"Observed {host['os']} {host['architecture']}", version=host.get("osVersion")))
+    valid_output = (output.is_absolute() and not output.drive.startswith("\\") and not any(ch.isspace() for ch in str(output))
+                    and ".." not in output.parts and not any(":" in part for part in output.parts[1:]))
+    output_status = "INCOMPATIBLE"
+    disk_path = None
+    if valid_output:
+        try:
+            try:
+                disk_path = ordinary_path(output, directory=True)
+            except FileNotFoundError:
+                disk_path = ordinary_path(output.parent, directory=True)
+            output_status = "AVAILABLE"
+        except (OSError, ValueError):
+            output_status = "BLOCKED"
+    resources = probe.resources(disk_path) if disk_path is not None else {
+        **probe.resources(ROOT), "diskFreeBytes": None, "diskTotalBytes": None}
+    if disk_path is None:
+        resources["probeStatuses"]["disk"] = "BLOCKED"
+        resources["reasons"]["disk"] = "Selected workspace is not a verified local directory"
     if status != "AVAILABLE":
         return {"profile": profile, "status": "BLOCKED", "host": host, "resources": resources, "dependencies": rows}
 
@@ -219,9 +236,9 @@ def scan(profile, cache, output, probe=None):
                 raise ValueError("The Windows patch differs from its reviewed hash")
         add("windows-source-patch", "Exact reviewed Windows patch", _file_observation(ROOT / "windows-native" / patch["file"], verify))
 
-    valid_output = output.is_absolute() and not output.drive.startswith("\\") and not any(ch.isspace() for ch in str(output))
-    add("output-location", "Local build workspace path without whitespace", _record("AVAILABLE" if valid_output else "INCOMPATIBLE",
-        "Path shape accepted" if valid_output else "Select a local workspace with no whitespace", path=output))
+    add("output-location", "Local build workspace path without whitespace", _record(output_status,
+        "Local workspace or its parent verified" if output_status == "AVAILABLE" else
+        "Select a local workspace with an accessible, non-reparse parent and no whitespace", path=output))
     free = resources["diskFreeBytes"]
     free_threshold = 1
     for source in source_manifest()["sources"]:

@@ -64,6 +64,52 @@ internal static class Program
         await Group("native-service-repeat-authenticated-stop", () => NativeRepeat(runtime, Fresh(root)));
         await Group("native-service-unexpected-exit", () => NativeUnexpected(runtime, Fresh(root)));
         await Group("native-service-owner-death-and-recovery", () => NativeCrash(runtime, Fresh(root)));
+        await Group("native-runtime-activation-lease-and-rollback", () => RuntimeSelection(runtime, Fresh(root)));
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static async Task RuntimeSelection(string bundled, string root)
+    {
+        var selectionRoot = Path.Combine(root, "selection");
+        var selection = new WindowsRuntimeSelection(selectionRoot);
+        var original = selection.ReadRuntime(bundled);
+        var package = Path.Combine(root, "builds", "run-fixture", "pipeline", "dist");
+        Directory.CreateDirectory(package);
+        foreach (var name in new[] { "tor.exe", "libwinpthread-1.dll", "source-manifest.json", "package-report.json" })
+            File.Copy(Path.Combine(bundled, name), Path.Combine(package, name));
+        string Hash(string name) => Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(package, name))));
+        var candidate = new RuntimeCandidate("run-fixture", "0.4.9.14", "optimized-static", package,
+            Hash("package-report.json"), Hash("source-manifest.json"),
+            [new("tor.exe", Hash("tor.exe")), new("libwinpthread-1.dll", Hash("libwinpthread-1.dll"))]);
+
+        await using (var app = OfflineTorService.CreateWindows(original, Path.Combine(root, "state")))
+        {
+            await app.StartAsync();
+            await Until(app, state => state.ControlStatus == TorControlStatus.Authenticated);
+            try { selection.Activate(candidate); throw new InvalidOperationException("Activation bypassed an active session."); }
+            catch (IOException) { }
+            await app.StopAsync();
+            await Until(app, state => state.SessionStatus == TorSessionStatus.Stopped);
+        }
+        selection.Activate(candidate);
+        var approved = selection.ReadRuntime(bundled);
+        Assert(approved.PackageDirectory != bundled && approved.RuntimePins.Count == 1, "Approved package was not independently staged.");
+        await using (var app = OfflineTorService.CreateWindows(approved, Path.Combine(root, "approved-state")))
+        {
+            await app.StartAsync();
+            await Until(app, state => state.ControlStatus == TorControlStatus.Authenticated);
+            await app.StopAsync();
+            await Until(app, state => state.SessionStatus == TorSessionStatus.Stopped);
+        }
+        File.AppendAllText(Path.Combine(approved.PackageDirectory, "libwinpthread-1.dll"), "altered");
+        try { selection.ReadRuntime(bundled); throw new InvalidOperationException("Tampered DLL was accepted."); }
+        catch (InvalidDataException) { }
+        selection.Rollback(bundled);
+        Assert(selection.ReadRuntime(bundled).PackageDirectory == bundled, "Rollback did not restore the bundled pin.");
+        File.AppendAllText(Path.Combine(package, "tor.exe"), "altered");
+        try { selection.Activate(candidate); throw new InvalidOperationException("Tampered Tor executable was accepted."); }
+        catch (InvalidDataException) { }
+        Assert(selection.ReadRuntime(bundled).PackageDirectory == bundled, "A failed activation changed the current selection.");
     }
 
     private static string Fresh(string parent)

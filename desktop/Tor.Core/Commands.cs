@@ -3,7 +3,7 @@ using Tor.Contracts;
 namespace Tor.Core;
 
 public enum CommandKind { DependencyProbe, NativeLinuxBuild, WindowsTorSession, WindowsDeveloper }
-public enum WindowsDeveloperAction { Scan, PlanInstall, Install, Build, List, Smoke }
+public enum WindowsDeveloperAction { Scan, PlanInstall, Install, Build, List, Smoke, Candidate }
 public enum TaskPhase { Queued, Preparing, Executing, Verifying, Stopping, Complete, Recovery }
 public enum TaskMessage { Queued, Started, Progress, Succeeded, Failed, Blocked, Cancelling, Cancelled, Interrupted }
 

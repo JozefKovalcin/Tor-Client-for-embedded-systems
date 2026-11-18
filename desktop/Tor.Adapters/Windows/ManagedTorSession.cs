@@ -78,7 +78,11 @@ public sealed class ManagedTorSession : IAsyncDisposable
             "SocksPort 0\nDisableNetwork 1\n";
         if (socksPort is int configuredPort && WindowsOnlineTorSettings.CheckPort(configuredPort) is { } portFailure)
             throw new TorProcessStartException(null, "socks-port-check", false, portFailure);
-        var locks = runtime.VerifyAndLock();
+        var lease = runtime.Lease();
+        IReadOnlyList<FileStream> verified;
+        try { verified = runtime.VerifyAndLock(); }
+        catch { lease?.Dispose(); throw; }
+        var locks = lease is null ? verified : verified.Append(lease).ToArray();
         WindowsJob? job = null; Process? process = null; ManagedTorSession? session = null;
         bool processStarted = false; string phase = "preparation";
         WindowsTorFailure? onlineFailure = null;
@@ -88,7 +92,7 @@ public sealed class ManagedTorSession : IAsyncDisposable
             var root = Path.Combine(existingPrivateParent, "session-" + Guid.NewGuid().ToString("N"));
             PrivateStorage.CreateNewDirectory(root);
             phase = "runtime-staging";
-            var staged = PinnedWindowsRuntime.StageVerifiedFiles(locks, Path.Combine(root, "runtime"));
+            var staged = runtime.StageVerifiedFiles(verified, Path.Combine(root, "runtime"));
             locks = locks.Concat(staged.Locks).ToArray();
             cancellationToken.ThrowIfCancellationRequested();
             var data = Path.Combine(root, "state"); PrivateStorage.CreateNewDirectory(data);

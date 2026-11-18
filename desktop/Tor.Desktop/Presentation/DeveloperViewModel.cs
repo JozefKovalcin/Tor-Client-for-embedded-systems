@@ -22,7 +22,7 @@ internal sealed class DeveloperViewModel : ObservableModel
     private string _sources = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "TorNativeBuild", "downloads");
     private string _profile = "optimized-static";
-    private string _status = "Preflight has not run.", _report = "", _log = "";
+    private string _status = "Preflight has not run.", _report = "", _planDetails = "", _log = "";
     private string? _approval;
     private bool _confirmed, _ready, _closed;
     private DeveloperBuild? _selected, _compareWith;
@@ -32,6 +32,9 @@ internal sealed class DeveloperViewModel : ObservableModel
     private IReadOnlyList<DeveloperBuild> _builds = [];
     private readonly IReadOnlyList<AsyncCommand> _commands;
     private readonly IUiDispatcher _dispatcher;
+    private readonly string? _bundledRuntime;
+    private bool _approveRuntime;
+    private bool _installCommitted;
 
     public IReadOnlyList<string> Profiles { get; } = ["optimized-static", "optimized-shared"];
     public string Workspace { get => _workspace; set { if (Set(ref _workspace, value)) InputsChanged(); } }
@@ -40,12 +43,14 @@ internal sealed class DeveloperViewModel : ObservableModel
     public bool Idle => !_closed && _active is null && _cancellation is null;
     public string Status { get => _status; private set => Set(ref _status, value); }
     public string Report { get => _report; private set => Set(ref _report, value); }
+    public string PlanDetails { get => _planDetails; private set => Set(ref _planDetails, value); }
     public string Log { get => _log; private set => Set(ref _log, value); }
     public IReadOnlyList<DeveloperDependency> Dependencies { get => _dependencies; private set => Set(ref _dependencies, value); }
     public IReadOnlyList<DeveloperBuild> Builds { get => _builds; private set => Set(ref _builds, value); }
     public DeveloperBuild? Selected { get => _selected; set { if (Set(ref _selected, value)) RefreshSelection(); } }
     public DeveloperBuild? CompareWith { get => _compareWith; set { if (Set(ref _compareWith, value)) RefreshSelection(); } }
     public bool Confirmed { get => _confirmed; set { if (Set(ref _confirmed, value)) InstallCommand.Invalidate(); } }
+    public bool ApproveRuntime { get => _approveRuntime; set { if (Set(ref _approveRuntime, value)) ActivateCommand.Invalidate(); } }
     public AsyncCommand ScanCommand { get; }
     public AsyncCommand PlanCommand { get; }
     public AsyncCommand InstallCommand { get; }
@@ -53,18 +58,24 @@ internal sealed class DeveloperViewModel : ObservableModel
     public AsyncCommand ListCommand { get; }
     public AsyncCommand SmokeCommand { get; }
     public ActionCommand CancelCommand { get; }
+    public AsyncCommand ActivateCommand { get; }
+    public AsyncCommand RollbackCommand { get; }
 
-    public DeveloperViewModel(IUiDispatcher dispatcher)
+    public DeveloperViewModel(IUiDispatcher dispatcher, string? bundledRuntime)
     {
         _dispatcher = dispatcher;
+        _bundledRuntime = bundledRuntime;
         ScanCommand = RunCommand(WindowsDeveloperAction.Scan);
         PlanCommand = RunCommand(WindowsDeveloperAction.PlanInstall);
         InstallCommand = RunCommand(WindowsDeveloperAction.Install, () => Confirmed && _approval is not null);
         BuildCommand = RunCommand(WindowsDeveloperAction.Build, () => _ready);
         ListCommand = RunCommand(WindowsDeveloperAction.List);
         SmokeCommand = RunCommand(WindowsDeveloperAction.Smoke, () => Selected?.State == "BUILT");
-        _commands = [ScanCommand, PlanCommand, InstallCommand, BuildCommand, ListCommand, SmokeCommand];
-        CancelCommand = new(() => _cancellation?.Cancel(), () => _cancellation is not null);
+        ActivateCommand = new(() => TrackAsync(WindowsDeveloperAction.Candidate), () => Status = "Activation failed.",
+            () => Idle && ApproveRuntime && Selected is { State: "BUILT", Smoke: "PASS" });
+        RollbackCommand = new(RollbackAsync, () => Status = "Rollback failed.", () => Idle && _bundledRuntime is not null);
+        _commands = [ScanCommand, PlanCommand, InstallCommand, BuildCommand, ListCommand, SmokeCommand, ActivateCommand, RollbackCommand];
+        CancelCommand = new(() => _cancellation?.Cancel(), () => _cancellation is not null && !_installCommitted);
     }
 
     private AsyncCommand RunCommand(WindowsDeveloperAction action, Func<bool>? condition = null) =>
@@ -84,7 +95,7 @@ internal sealed class DeveloperViewModel : ObservableModel
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException or JsonException
             or InvalidOperationException or System.ComponentModel.Win32Exception)
         { Status = "BLOCKED · " + error.Message; }
-        finally { _active = null; _cancellation = null; Invalidate(); }
+        finally { _active = null; _cancellation = null; _installCommitted = false; Invalidate(); }
     }
 
     private async Task RunAsync(WindowsDeveloperAction action, CancellationToken token)
@@ -96,8 +107,22 @@ internal sealed class DeveloperViewModel : ObservableModel
         {
             _approval = null;
             Confirmed = false;
+            PlanDetails = "";
         }
         if (action == WindowsDeveloperAction.Scan) _ready = false;
+        if (action == WindowsDeveloperAction.Candidate)
+        {
+            ApproveRuntime = false;
+            PrivateStorage.RequireOwnerOnly(Workspace);
+            var result = await WindowsDeveloperRunner.RunAsync(spec, null, token);
+            if (result.ExitCode != 0) { Status = "Activation BLOCKED."; Report = result.Errors; return; }
+            var candidate = JsonSerializer.Deserialize<RuntimeCandidate>(result.Output, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+                ?? throw new InvalidDataException("Missing verified runtime candidate.");
+            token.ThrowIfCancellationRequested();
+            WindowsRuntimeSelection.ForCurrentUser().Activate(candidate);
+            Status = "Build approved. Restart Tor Manager to select it for future Tor sessions.";
+            return;
+        }
         if (action is WindowsDeveloperAction.Install or WindowsDeveloperAction.Build or WindowsDeveloperAction.Smoke)
         {
             WindowsDeveloperRunner.RequireLocal(Workspace);
@@ -177,7 +202,7 @@ internal sealed class DeveloperViewModel : ObservableModel
         {
             if (Text(data, "status") == "AVAILABLE") _approval = Text(data, "approvalSha256");
             Status = "Installation plan · " + Text(data, "status");
-            Report = Format(data);
+            PlanDetails = Format(data);
         }
         else
         {
@@ -186,6 +211,7 @@ internal sealed class DeveloperViewModel : ObservableModel
                 Text(item, "state"), Text(item, "version"), Text(item, "profile"), Text(item, "smokeState"), item.Clone())).ToArray();
             CompareWith = null;
             Selected = Builds.FirstOrDefault(item => item.Id == previous) ?? Builds.FirstOrDefault();
+            RefreshSelection();
             Status = $"{Builds.Count} recorded builds.";
         }
     }
@@ -195,6 +221,8 @@ internal sealed class DeveloperViewModel : ObservableModel
 
     private void AppendLog(string line)
     {
+        if (line.StartsWith("[phase] installing", StringComparison.Ordinal))
+            _dispatcher.Post(() => { if (_active is not null) { _installCommitted = true; CancelCommand.Invalidate(); } });
         lock (_pendingLog)
         {
             bool schedule = _pendingLog.Length == 0;
@@ -214,15 +242,30 @@ internal sealed class DeveloperViewModel : ObservableModel
     }
     private void RefreshSelection()
     {
+        ApproveRuntime = false;
         Report = Selected is null ? "" : CompareWith is null ? Format(Selected.Details)
             : Format(Selected.Details) + Environment.NewLine + Format(CompareWith.Details);
         SmokeCommand.Invalidate();
+        ActivateCommand.Invalidate();
+    }
+
+    private Task RollbackAsync()
+    {
+        try
+        {
+            WindowsRuntimeSelection.ForCurrentUser().Rollback(_bundledRuntime!);
+            Status = "Previous runtime restored. Restart Tor Manager to select it.";
+        }
+        catch (Exception error) when (error is IOException or InvalidDataException or UnauthorizedAccessException or InvalidOperationException)
+        { Status = "Rollback BLOCKED · " + error.Message; }
+        return Task.CompletedTask;
     }
     private void InputsChanged()
     {
         _ready = false;
         _approval = null;
         Confirmed = false;
+        PlanDetails = "";
         Selected = CompareWith = null;
         Builds = [];
         Dependencies = [];
@@ -240,7 +283,7 @@ internal sealed class DeveloperViewModel : ObservableModel
     public async Task CloseAsync()
     {
         _closed = true;
-        _cancellation?.Cancel();
+        if (!_installCommitted) _cancellation?.Cancel();
         if (_active is not null)
         {
             try { await _active; }

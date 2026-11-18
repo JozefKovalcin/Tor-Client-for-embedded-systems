@@ -220,6 +220,41 @@ def list_builds(workspace):
     return {"builds": result}
 
 
+def smoke_passed(result, version):
+    required = {"--version", "--help", "shipped_configs", "compiled_modules",
+                "invalid_config_rejected", "startup_and_writable_state", "clean_shutdown", "restart"}
+    rows = result.get("tests", [])
+    passed = {row["id"]: row["detail"] for row in rows if row["status"] == "PASS"}
+    skipped = {row["id"] for row in rows if row["status"] == "SKIPPED"}
+    return (len(passed) + len(skipped) == len(rows) and required.issubset(passed)
+            and {"public_bootstrap", "socks_remote_dns"}.issubset(skipped)
+            and bool(re.match(r"Tor version " + re.escape(version) + r"(?:\.|\s|$)", passed["--version"])))
+
+
+def candidate(workspace, build_id):
+    run, record = get_record(workspace, build_id)
+    if record.get("schemaVersion") != 1 or record.get("state") != "BUILT" or record.get("compilerExit") != 0 or record.get("smokeState") != "PASS":
+        raise ValueError("Only a locally built artifact with a successful offline smoke test can be approved")
+    package = run / record["package"]
+    package_hash = sha256(package / "package-report.json")
+    version = next(source["version"] for source in source_manifest()["sources"] if source["name"] == "tor")
+    license_lock = sha256(NATIVE / "source-manifest.json")
+    if (version != record.get("version") or license_lock != record.get("sourceManifestSha256")
+            or package_hash != record.get("packageReportSha256") or package_hash != record.get("smokePackageSha256")
+            or sha256(NATIVE / "build-windows.sh") != record.get("recipeSha256")):
+        raise ValueError("Build and offline smoke do not share the reviewed source, recipe and artifact identity")
+    report = verify_artifacts(package)
+    evidence = resolve_record_path(run, record.get("smokeEvidence"))
+    if (report["files"] != record.get("artifacts") or sha256(evidence) != record.get("smokeEvidenceSha256")
+            or not smoke_passed(json_file(evidence, encoding="utf-8-sig"), version)):
+        raise ValueError("Artifact or offline acceptance evidence changed")
+    binary_pins = {name.lower(): item["sha256"] for name, item in report["files"].items()
+                   if name.lower() in report["pe"]}
+    return {"id": build_id, "version": version, "profile": record["profile"], "packagePath": str(package),
+            "reportSha256": package_hash, "sourceSha256": license_lock,
+            "files": [{"name": name, "sha256": digest} for name, digest in sorted(binary_pins.items())]}
+
+
 def smoke(workspace, build_id):
     if os.name != "nt":
         raise ValueError("Native Windows is required for artifact smoke testing")
@@ -227,11 +262,21 @@ def smoke(workspace, build_id):
     with operation_lock(workspace, ".build-lock"):
         run, record = get_record(workspace, build_id)
         package = run / record["package"]
-        if record.get("state") != "BUILT" or record.get("packageReportSha256") != sha256(package / "package-report.json") or \
-                verify_artifacts(package)["files"] != record.get("artifacts"):
+        manifest = verify_artifacts(package)
+        package_hash = sha256(package / "package-report.json")
+        if record.get("state") != "BUILT" or record.get("packageReportSha256") != package_hash or \
+                manifest["files"] != record.get("artifacts"):
             raise ValueError("An intact native build is required before offline smoke")
         # The existing smoke workflow uses a fresh private state scope and receives no Online flag.
         test = Path(tempfile.mkdtemp(prefix="smoke-", dir=run))
+        staged = test / "package"
+        for relative in (*manifest["files"], "package-report.json"):
+            target = resolve_record_path(staged, relative)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with ordinary_path(resolve_record_path(package, relative)).open("rb") as src, target.open("xb") as dst:
+                shutil.copyfileobj(src, dst)
+        if verify_artifacts(staged) != manifest or sha256(staged / "package-report.json") != package_hash:
+            raise ValueError("Smoke test snapshot differs from the verified package")
         script = test / "scripts/smoke-test.ps1"
         script.parent.mkdir()
         shutil.copyfile(ordinary_path(NATIVE / "scripts/smoke-test.ps1"), script)
@@ -240,19 +285,17 @@ def smoke(workspace, build_id):
         record["smokeState"] = "NOT RUN"
         record["smokeExit"] = None
         write_record(run / "build-record.json", record)
-        command = [str(powershell), "-NoProfile", "-NonInteractive", "-File", str(script), "-Dist", str(package)]
+        command = [str(powershell), "-NoProfile", "-NonInteractive", "-File", str(script), "-Dist", str(staged)]
         code = monitor(command, env, test, test / "offline-smoke.log")
         evidence = list((test / "runtime").glob("smoke-*/results.json"))
-        required = {"--version", "--help", "shipped_configs", "compiled_modules",
-                    "invalid_config_rejected", "startup_and_writable_state", "clean_shutdown", "restart"}
         if code == 0:
             result = json_file(evidence[0], encoding="utf-8-sig") if len(evidence) == 1 else {}
-            passed = {row["id"]: row["detail"] for row in result.get("tests", []) if row["status"] == "PASS"}
-            if not required.issubset(passed) or not re.match(r"Tor version " + re.escape(record["version"]) + r"(?:\.|\s|$)", passed["--version"]):
+            if not smoke_passed(result, record["version"]) or verify_artifacts(staged) != manifest:
                 code = 2
             else:
                 record["smokeEvidence"] = evidence[0].relative_to(run).as_posix()
                 record["smokeEvidenceSha256"] = sha256(evidence[0])
+                record["smokePackageSha256"] = package_hash
         record["smokeState"] = "PASS" if code == 0 else "FAIL"
         record["smokeExit"] = code & 0xffffffff
         write_record(run / "build-record.json", record)

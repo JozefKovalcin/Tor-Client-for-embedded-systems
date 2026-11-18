@@ -31,14 +31,17 @@ public sealed class OfflineTorService : IPeerTorService
         TorControlStatus.Disconnected, null, null, null, null, null, [], [], false, false);
 
     [SupportedOSPlatform("windows")]
-    public static OfflineTorService CreateWindows(string packageDirectory, string privateDirectory)
+    public static OfflineTorService CreateWindows(string packageDirectory, string privateDirectory) =>
+        CreateWindows(new PinnedWindowsRuntime(Path.GetFullPath(packageDirectory)), privateDirectory);
+
+    [SupportedOSPlatform("windows")]
+    public static OfflineTorService CreateWindows(PinnedWindowsRuntime runtime, string privateDirectory)
     {
         if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException();
-        packageDirectory = Path.GetFullPath(packageDirectory);
         privateDirectory = Path.GetFullPath(privateDirectory);
-        return new(packageDirectory, privateDirectory,
-            new WindowsTorSessionCommand(PinnedWindowsRuntime.Executable, [PinnedWindowsRuntime.ThreadLibrary]),
-            observe => new WindowsTorTaskHandler(new PinnedWindowsRuntime(packageDirectory), privateDirectory, observe));
+        return new(runtime.PackageDirectory, privateDirectory,
+            new WindowsTorSessionCommand(runtime.ExecutablePin, runtime.RuntimePins),
+            observe => new WindowsTorTaskHandler(runtime, privateDirectory, observe));
     }
 
     public OfflineTorService(string packageDirectory, string privateDirectory, WindowsTorSessionCommand command,

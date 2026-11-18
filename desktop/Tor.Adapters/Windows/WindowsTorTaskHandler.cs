@@ -25,8 +25,8 @@ public sealed class WindowsTorTaskHandler(PinnedWindowsRuntime runtime, string p
     public CommandKind Kind => CommandKind.WindowsTorSession;
     public async Task<TaskExecutionResult> ExecuteAsync(TaskCommand command, TaskExecutionContext context, CancellationToken token)
     {
-        if (command is not WindowsTorSessionCommand tor || tor.Executable != PinnedWindowsRuntime.Executable ||
-            !tor.RuntimeInputs.SequenceEqual(new[] { PinnedWindowsRuntime.ThreadLibrary }))
+        if (command is not WindowsTorSessionCommand tor || tor.Executable != runtime.ExecutablePin ||
+            !tor.RuntimeInputs.SequenceEqual(runtime.RuntimePins))
             return new(null, BlockedReason: "unreviewed-runtime");
         if (tor.OnlineSocksPort is < 1 or > 65535) return new(null, BlockedReason: "invalid-socks-port");
         ManagedTorSession session;

@@ -120,7 +120,7 @@ def require_approval(plan, approved_hash):
         raise ValueError("A specific current install plan must be approved")
 
 
-def install(plan, approved_hash, workspace, *, refresh=None):
+def install(plan, approved_hash, workspace, *, refresh=None, authorize=None):
     require_approval(plan, approved_hash)
     if os.name != "nt":
         raise ValueError("A native Windows installation is required")
@@ -160,12 +160,17 @@ def install(plan, approved_hash, workspace, *, refresh=None):
             if installed.returncode == 0:
                 raise ValueError("The selected package is already installed; refresh the plan")
             staged.append(archive_path)
-        print("Verified cached archives and signatures. Starting approved MSYS2 transaction.", flush=True)
         command = [str(pacman), "--config", msys_path(config), "-U", "--noconfirm", "--", *staged]
-        log_path = stage / "pacman.log"
-        with log_path.open("xb") as log, subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT, env=env, cwd=stage) as process:
-            for line in iter(process.stdout.readline, b""):
-                log.write(line)
-                print(line.decode("utf-8", "replace").rstrip(), flush=True)
-            return process.wait()
+        return execute_transaction(command, stage, env, authorize)
+
+
+def execute_transaction(command, stage, env, authorize):
+    if authorize is not None and not authorize():
+        raise ValueError("Installation was cancelled before the MSYS2 transaction")
+    print("[phase] installing approved packages", flush=True)
+    with (stage / "pacman.log").open("xb") as log, subprocess.Popen(command, stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env, cwd=stage) as process:
+        for line in iter(lambda: process.stdout.readline(65536), b""):
+            log.write(line)
+            print(line.decode("utf-8", "replace").rstrip(), flush=True)
+        return process.wait()

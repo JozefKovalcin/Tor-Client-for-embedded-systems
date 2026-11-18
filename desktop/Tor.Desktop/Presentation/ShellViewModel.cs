@@ -95,7 +95,8 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         : Offline?.TaskText ?? "Runtime unavailable";
 
     public ShellViewModel(ITaskFeed feed, IUiDispatcher dispatcher, SettingsStore settings,
-        IOfflineTorService? offline = null, string? offlineUnavailableReason = null, bool showRealWhenUnavailable = false)
+        IOfflineTorService? offline = null, string? offlineUnavailableReason = null, bool showRealWhenUnavailable = false,
+        string? bundledRuntime = null)
     {
         _feed = feed; _dispatcher = dispatcher; _settings = settings;
         var stored = settings.Load(out _settingsNotice);
@@ -122,7 +123,7 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
             new PageViewModel("Settings", "Save your appearance and Demo preferences.", ShowSettings: true)
         };
         Offline = offline is null ? null : new(offline, dispatcher);
-        if (OperatingSystem.IsWindows()) Developer = new(dispatcher);
+        if (OperatingSystem.IsWindows()) Developer = new(dispatcher, bundledRuntime);
         OfflineUnavailableReason = offlineUnavailableReason;
         _workspaceMode = offline is null && !showRealWhenUnavailable ? WorkspaceMode.Demo : WorkspaceMode.Offline;
         Pages = new(IsDemo ? _demoPages : _offlinePages);
@@ -279,7 +280,13 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         ShowRealOnlineCommand.Invalidate();
         ShowDeveloperCommand.Invalidate();
         SaveSettingsCommand.Invalidate();
-        if (OperatingSystem.IsWindows() && Developer is not null) await Developer.CloseAsync();
-        if (Offline is not null) await Offline.DisposeAsync().ConfigureAwait(false);
+        try
+        {
+            if (OperatingSystem.IsWindows() && Developer is not null) await Developer.CloseAsync();
+        }
+        finally
+        {
+            if (Offline is not null) await Offline.DisposeAsync().ConfigureAwait(false);
+        }
     }
 }
