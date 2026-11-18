@@ -4,7 +4,8 @@ namespace Tor.Control;
 
 public sealed class TorControlException(string reason) : IOException(reason);
 public sealed record ControlReply(int Code, IReadOnlyList<string> Lines);
-public sealed record BootstrapProgress(int Percent, string Tag);
+public enum BootstrapWarning { ConnectionRefused, ConnectionTimeout, NoRoute, IoError, Other }
+public sealed record BootstrapProgress(int Percent, string Tag, BootstrapWarning? Warning = null);
 
 /// <summary>Bounded Tor wire framing. Raw reply data is sensitive and is never logged by this library.</summary>
 public sealed class TorReplyReader(Stream stream)
