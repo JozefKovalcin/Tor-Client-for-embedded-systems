@@ -43,7 +43,10 @@ python -B packaging/pack_gui_preview.py --publish $publishDir --cache $env:NUGET
 ```
 
 The preview builder checks the package archives against the recorded SHA-512
-inventory and checks copied managed/native assets byte for byte. It copies
+inventory and checks copied managed/native assets byte for byte. It also matches
+the publish metadata against `windows-preview-assets.json` before writing the
+ZIP, so omitted or unexpected dependencies fail the package. Review this
+inventory alongside any intentional dependency update. The builder copies
 only the app assemblies and the chosen dependency assets for Windows x64,
 with package notices, a provenance manifest and per-file SHA-256 hashes.
 Private state, logs, cookies, developer configuration and other architectures'

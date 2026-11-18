@@ -15,6 +15,7 @@ import zipfile
 
 DESKTOP = Path(__file__).resolve().parents[1]
 PROJECT = DESKTOP / 'Tor.Desktop'
+ASSET_INVENTORY = Path(__file__).with_name('windows-preview-assets.json')
 PROJECT_ASSEMBLIES = {'Tor.Desktop.dll', 'Tor.Application.dll', 'Tor.Contracts.dll',
                       'Tor.Core.dll', 'Tor.Control.dll', 'Tor.Adapters.Windows.dll'}
 MIT_BODY = """Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -83,6 +84,24 @@ def notices(archive, package_id):
     return result
 
 
+def preview_assets(entry):
+    managed = [(name, member_path(name).name) for name in entry.get('runtime', {})]
+    native = [(name, name) for name, row in entry.get('runtimeTargets', {}).items()
+              if row.get('rid') in ('win', 'win-x64') and row.get('assetType') == 'native'
+              and name.lower().endswith('.dll')]
+    return managed + native
+
+
+def check_package_assets(deps, target, expected):
+    observed = {package: sorted(source for source, _ in assets)
+                for package, assets in target.items()
+                if assets and deps['libraries'][package]['type'] == 'package'}
+    if observed != expected:
+        differences = sorted(package for package in observed.keys() | expected.keys()
+                             if observed.get(package) != expected.get(package))
+        raise ValueError(f'Windows preview asset inventory differs: {", ".join(differences)}')
+
+
 def build_preview(publish, cache, destination):
     publish = publish.resolve(strict=True)
     cache = cache.resolve(strict=True)
@@ -101,22 +120,22 @@ def build_preview(publish, cache, destination):
     target_name = deps['runtimeTarget']['name']
     if target_name != '.NETCoreApp,Version=v11.0':
         raise ValueError('Expected the reviewed portable lock target')
+    asset_inventory_bytes = ASSET_INVENTORY.read_bytes()
+    target = {package: preview_assets(entry) for package, entry in deps['targets'][target_name].items()}
+    check_package_assets(deps, target, json.loads(asset_inventory_bytes))
     included = []
     projects = set()
-    for package, entry in deps['targets'][target_name].items():
+    for package, assets in target.items():
         package_id, version = package.split('/')
         library = deps['libraries'][package]
-        managed = [(name,member_path(name).name) for name in entry.get('runtime',{})]
-        native = [(name,name) for name, row in entry.get('runtimeTargets',{}).items()
-                  if row.get('rid') in ('win','win-x64') and row.get('assetType')=='native' and name.lower().endswith('.dll')]
         if library['type'] == 'project':
-            for _, name in managed:
-                if name not in PROJECT_ASSEMBLIES:
+            for _, name in assets:
+                if name not in PROJECT_ASSEMBLIES or name in projects:
                     raise ValueError(f'Unexpected project output: {name}')
                 projects.add(name)
                 artifacts[name] = read_file(publish,name)
             continue
-        if not managed and not native:
+        if not assets:
             continue
         pin = locked[package_id]
         reviewed = inventory[package_id]
@@ -130,7 +149,7 @@ def build_preview(publish, cache, destination):
         if sha512 != reviewed['signedArchiveSha512Base64']:
             raise ValueError(f'Cached package archive changed: {package}')
         with zipfile.ZipFile(io.BytesIO(archive_bytes)) as archive:
-            for source, name in (*managed,*native):
+            for source, name in assets:
                 payload = read_file(publish,name)
                 if payload != archive.read(str(member_path(source))) or name in artifacts:
                     raise ValueError(f'Build output differs from pinned package or collides: {name}')
@@ -145,6 +164,7 @@ def build_preview(publish, cache, destination):
     artifacts['README.md'] = (DESKTOP/'packaging'/'WINDOWS-OFFLINE.md').read_bytes()
     artifacts['provenance/packages.lock.json'] = lock_bytes
     artifacts['provenance/resolved-package-inventory.json'] = inventory_bytes
+    artifacts['provenance/windows-preview-assets.json'] = asset_inventory_bytes
     source_head = subprocess.check_output(['git','-C',str(DESKTOP),'rev-parse','HEAD'],text=True).strip()
     subprocess.run(['git','-C',str(DESKTOP),'diff','--quiet','HEAD','--','desktop'],check=True)
     manifest = {

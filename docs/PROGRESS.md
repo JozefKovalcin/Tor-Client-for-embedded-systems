@@ -1,3 +1,12 @@
+# TASK 08 — Windows preview integration — 2026-11-18
+
+The preview packager now checks its locked Windows asset inventory before
+creating a ZIP. In a local reproduction, removing the publish metadata entry
+for `libSkiaSharp.dll` previously yielded an incomplete ZIP. The corrected
+packager rejects the same input before writing a ZIP. Four focused asset
+inventory tests passed. The self-contained distribution still requires the
+pinned Windows x64 runtime packs and a reviewed RID lock.
+
 # TASK 07 — Windows offline desktop — 2026-11-17
 
 TASK 04 PRs #5, #10, #8, #6, #9 and #7 landed as merge commits. Their combined
