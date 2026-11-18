@@ -120,16 +120,14 @@ def add_tor(artifacts, runtime):
     report = (REPO / "windows-native/evidence/package-static.json").read_bytes()
     manifest = json.loads(report)
     inventory = manifest["files"]
-    entries = ["tor.exe", "libwinpthread-1.dll", "source-manifest.json",
-               *sorted(name for name in inventory if name.startswith("licenses/"))]
-    for name in entries:
+    for name in sorted(inventory):
         data = read_file(runtime, name)
         if sha(data) != inventory[name]["sha256"] or len(data) != inventory[name]["bytes"]:
             raise ValueError(f"Bundled Tor file differs from the reviewed package: {name}")
         artifacts[f"tor-runtime/{name}"] = data
     if artifacts["tor-runtime/source-manifest.json"] != (REPO / "windows-native/source-manifest.json").read_bytes():
         raise ValueError("Bundled Tor source lock differs from the current recipe")
-    artifacts["provenance/package-static.json"] = report
+    artifacts["tor-runtime/package-report.json"] = report
 
 
 def native_dependencies(artifacts, publish, runtime, native, objdump, system32):
