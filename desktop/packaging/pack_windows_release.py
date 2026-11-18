@@ -69,6 +69,7 @@ def add_managed_publish(artifacts, publish, archives, inventory, lock, native):
     assets = {key: [(name, member_path(name).name) for name in (*row.get("runtime", {}), *row.get("native", {}))
                     if not name.lower().endswith(".pdb")] for key, row in target.items()}
     check_package_assets(deps, assets, json.loads(ASSET_INVENTORY.read_bytes()))
+    locked_packages = lock["dependencies"]["net11.0"] | lock["dependencies"]["net11.0/win-x64"]
     project_files = set()
     found_framework = False
     for package, row in target.items():
@@ -100,7 +101,7 @@ def add_managed_publish(artifacts, publish, archives, inventory, lock, native):
         if not assets[package]:
             continue
         name, version = package.split("/")
-        pin = lock["dependencies"]["net11.0/win-x64"][name]
+        pin = locked_packages[name]
         if (pin["resolved"] != version or pin["contentHash"] != inventory[name]["nugetContentHash"]
                 or deps["libraries"][package]["sha512"] != "sha512-" + pin["contentHash"]):
             raise ValueError(f"RID lock differs from the verified package: {package}")
