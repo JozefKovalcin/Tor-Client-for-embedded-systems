@@ -1,3 +1,12 @@
+# TASK 09 — Windows online Tor Manager — 2026-11-18
+
+Windows x64 is the active product target. The online verification harness
+requires an explicit public-Tor opt-in. Public bootstrap, proxy destination
+reachability and clean-host release qualification remain NOT RUN. The pinned
+Microsoft runtime packs were verified and restored from an isolated local feed.
+A separate candidate RID lock enabled locked self-contained publication of the
+starting main tree. Release packaging and clean-host validation remain open.
+
 # TASK 08 — Windows preview integration — 2026-11-18
 
 The preview packager now checks its locked Windows asset inventory before

@@ -33,23 +33,36 @@ class WindowsManagerApplicationTests(unittest.TestCase):
             self.skipTest(f"Pinned .NET SDK {required} unavailable; compiled checks BLOCKED")
 
         desktop = ROOT / "desktop"
-        for project, assembly, arguments, result_marker in (
+        for project, assembly, arguments, exit_code, result_marker in (
             ("Tor.Application.Tests", desktop / "tests/Tor.Application.Tests/bin/Debug/net11.0/Tor.Application.Tests.dll",
-             ["--workspace", str(workspace / "cases")], "11 offline application behavior groups PASS"),
+             ["--workspace", str(workspace / "cases")], 0, "11 offline application behavior groups PASS"),
             ("Tor.Desktop.Tests", ROOT / "build/desktop/w4-tests/bin/Debug/net11.0/Tor.Desktop.Tests.dll",
-             [], "offline desktop integration assertions PASS"),
+             [], 0, "offline desktop integration assertions PASS"),
+            ("Tor.Online.Tests", desktop / "tests/Tor.Online.Tests/bin/Debug/net11.0/Tor.Online.Tests.dll",
+             ["--public-tor", str(workspace / "unused-runtime"), str(workspace / "unused-state")],
+             2, "NOT RUN: public Tor qualification requires"),
         ):
             with self.subTest(project=project):
                 path = desktop / "tests" / project / (project + ".csproj")
                 commands = [
                     [dotnet, "restore", str(path), "--source", str(feed), "-p:NuGetAudit=false", "--disable-parallel"],
                     [dotnet, "build", str(path), "--no-restore", "--disable-build-servers", "-p:UseSharedCompilation=false"],
-                    [dotnet, str(assembly), *arguments],
                 ]
                 for command in commands:
                     result = subprocess.run(command, cwd=desktop, env=env, text=True, capture_output=True, timeout=120)
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-                self.assertIn(result_marker, result.stdout)
+                result = subprocess.run([dotnet, str(assembly), *arguments], cwd=desktop, env=env,
+                                        text=True, capture_output=True, timeout=120)
+                self.assertEqual(result.returncode, exit_code, result.stdout + result.stderr)
+                self.assertIn(result_marker, result.stdout + result.stderr)
+                if exit_code:
+                    self.assertFalse((workspace / "unused-state").exists())
+                    policy = subprocess.run([dotnet, str(assembly), "--offline-policy"], cwd=desktop, env=env,
+                                            text=True, capture_output=True, timeout=120)
+                    self.assertEqual(policy.returncode, 0, policy.stdout + policy.stderr)
+                    self.assertIn("PASS: online configuration confines SOCKS to IPv4 loopback", policy.stdout)
+                    if os.name == "nt":
+                        self.assertIn("PASS: real Windows TCP listener and peer ownership", policy.stdout)
 
 
 if __name__ == "__main__":

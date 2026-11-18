@@ -1,5 +1,9 @@
 # Engineering roadmap
 
+The active product sequence is Windows online integration, authorized public
+bootstrap and SOCKS5 acceptance, then Windows x64 release qualification. The
+physical embedded sequence is deferred until those gates are complete.
+
 Native Windows source compilation and the two-PC test launcher are available
 in [windows-native](../windows-native/README.md). Separate follow-up work is
 a real two-PC public-network run, Windows 10 execution and sustained Windows
