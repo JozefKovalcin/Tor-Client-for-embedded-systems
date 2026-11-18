@@ -29,7 +29,7 @@ public sealed class TaskJournal : IDisposable
     {
         var path = CheckedPath("tasks.json");
         if (!File.Exists(path)) return Array.Empty<TaskProgress>();
-        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete);
         if (stream.Length > MaximumBytes) throw new InvalidDataException("Journal size limit exceeded");
         var result = JsonSerializer.Deserialize<TaskProgress[]>(stream, ContractJson.Options)
             ?? throw new InvalidDataException("Empty journal");
@@ -51,7 +51,7 @@ public sealed class TaskJournal : IDisposable
             stream.Flush(flushToDisk: true);
         }
         // Retain an interrupted temporary file if publication fails; never remove historical evidence.
-        File.Move(temporary, destination, overwrite: true);
+        Publish(temporary, destination);
     }
     internal void WriteLogs(IReadOnlyCollection<TaskLog> rows)
     {
@@ -64,7 +64,27 @@ public sealed class TaskJournal : IDisposable
         {
             stream.Write(bytes); stream.Flush(flushToDisk: true);
         }
-        File.Move(temporary, destination, overwrite: true);
+        Publish(temporary, destination);
     }
+
+    private static void Publish(string temporary, string destination)
+    {
+        for (int retry = 0; ; retry++)
+        {
+            try
+            {
+                File.Move(temporary, destination, overwrite: true);
+                return;
+            }
+            catch (Exception error) when (OperatingSystem.IsWindows() && retry < 3 &&
+                error is IOException or UnauthorizedAccessException && (error.HResult & 0xffff) is 5 or 32 or 33)
+            {
+                // A short-lived Windows file lock can deny the atomic rename. The flushed snapshot
+                // stays intact, and permanent denial still reaches the caller with the evidence.
+                Thread.Sleep(10 << retry);
+            }
+        }
+    }
+
     public void Dispose() => ownership.Dispose();
 }
