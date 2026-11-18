@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "runtimeIdentifier": "win-x64",
+  "sdk": "11.0.100",
+  "signingCertificateSource": "https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json",
+  "packages": [
+    {
+      "id": "Microsoft.NETCore.App.Runtime.win-x64",
+      "version": "11.0.0",
+      "size": 43769220,
+      "source": "https://api.nuget.org/v3-flatcontainer/microsoft.netcore.app.runtime.win-x64/11.0.0/microsoft.netcore.app.runtime.win-x64.11.0.0.nupkg",
+      "catalog": "https://api.nuget.org/v3/catalog0/data/2026.11.10.14.57.27/microsoft.netcore.app.runtime.win-x64.11.0.0.json",
+      "sha256": "1acb5da59cd994d3d50c9c52a9701bc8342948a1d8e4165f49bedf267c286b36",
+      "signedArchiveSha512Base64": "ZZQq6Upo0OyYCtNDsF/n4msWEOetdGlbPim6KMdKVQpJ+6pliMmVcw8sIIf7WJZhbc5FQAA9q9Xavs0I/RubSA==",
+      "nugetContentHash": "nAsnzl0M8c9nqmkmC/+eIgTsfLadtoCMkSYlerf3fuasvKYNhVXmbxpi2bJzpx3kW343wuH4HI38DDZ8QeAA4A==",
+      "repositorySignerSha256": "1f4b311d9acc115c8dc8018b5a49e00fce6da8e2855f9f014ca6f34570bc482d",
+      "license": "MIT",
+      "noticeFiles": [
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT"
+      ]
+    },
+    {
+      "id": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
+      "version": "11.0.0",
+      "size": 39246236,
+      "source": "https://api.nuget.org/v3-flatcontainer/microsoft.windowsdesktop.app.runtime.win-x64/11.0.0/microsoft.windowsdesktop.app.runtime.win-x64.11.0.0.nupkg",
+      "catalog": "https://api.nuget.org/v3/catalog0/data/2026.11.10.14.20.47/microsoft.windowsdesktop.app.runtime.win-x64.11.0.0.json",
+      "sha256": "1a5954e7945ecb3788cb88c66847e4c62d89e6739156355831029eb7d16d0c05",
+      "signedArchiveSha512Base64": "VuOw8R2vD7235q4Xez7/9/dXn2YpLsjVjnSDJWMY0EouWBJ4Xecx3J59l4gGq+3SLJHv2d5gbP1Y/8vuqhc7dw==",
+      "nugetContentHash": "ydbPL4s9TdGX0eMh6QVqlWJZX6Hs+WSbx2OYTgmKp+d58Hjt2M0HqZhF4enfaXNinnCP0YnTLCZXx26/VS7CkA==",
+      "repositorySignerSha256": "1f4b311d9acc115c8dc8018b5a49e00fce6da8e2855f9f014ca6f34570bc482d",
+      "license": "MIT",
+      "noticeFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "id": "Microsoft.AspNetCore.App.Runtime.win-x64",
+      "version": "11.0.0",
+      "size": 13367527,
+      "source": "https://api.nuget.org/v3-flatcontainer/microsoft.aspnetcore.app.runtime.win-x64/11.0.0/microsoft.aspnetcore.app.runtime.win-x64.11.0.0.nupkg",
+      "catalog": "https://api.nuget.org/v3/catalog0/data/2026.11.10.14.30.44/microsoft.aspnetcore.app.runtime.win-x64.11.0.0.json",
+      "sha256": "b121c568f8a9f02ffc24d72c29063157ad489d97904acc2d06ea0bc220049f35",
+      "signedArchiveSha512Base64": "t2qPSpfKVtJLBkX0DoJIM8DZAUq15usgdiLT/ebh2yqOUpYDURzAiWHY/OG3IjePNiRIvfS+Us2QH3uKhEhZMQ==",
+      "nugetContentHash": "9C5d4MdoOMnvqiWgUSl3ScvXHB41XYMEpXLwrgZJOhQuD4ekSlBLVzj8wDVKTjL1OGQTYMCfcOys/7e+zny0yg==",
+      "repositorySignerSha256": "1f4b311d9acc115c8dc8018b5a49e00fce6da8e2855f9f014ca6f34570bc482d",
+      "license": "MIT",
+      "noticeFiles": [
+        "THIRD-PARTY-NOTICES.TXT",
+        "LICENSE.txt"
+      ]
+    }
+  ]
+}

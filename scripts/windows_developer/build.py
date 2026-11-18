@@ -138,6 +138,18 @@ def monitor(command, env, cwd, log_path, stages=False):
         return process.wait()
 
 
+def build_environment(run, archives, linkage):
+    scratch = run / "tmp"
+    scratch.mkdir()
+    native = native_environment()
+    command_processor = Path(native.get("SystemRoot", "C:/Windows")) / "System32" / "cmd.exe"
+    # Native windres uses the command processor after the recipe narrows PATH to MSYS2.
+    return {**native, "PROFILE": "optimized", "LINKAGE": linkage, "COMSPEC": str(command_processor),
+            "TOR_WINDOWS_OFFLINE": "1", "TOR_WINDOWS_WORK": msys_path(run / "work"),
+            "TOR_WINDOWS_CACHE": msys_path(archives), "JOBS": str(min(os.cpu_count() or 1, 4)),
+            "TMPDIR": msys_path(scratch), "TMP": str(scratch), "TEMP": str(scratch)}
+
+
 def build(profile, source_cache, workspace):
     if os.name != "nt" or profile not in PROFILES:
         raise ValueError("The reviewed build recipe requires native Windows and a supported profile")
@@ -168,9 +180,7 @@ def build(profile, source_cache, workspace):
                   "version": next(s["version"] for s in source_manifest()["sources"] if s["name"] == "tor"),
                   "package": "pipeline/dist" if profile == "optimized-static" else "pipeline/dist-optimized-shared"}
         write_record(record_path, record)
-        env = {**native_environment(), "PROFILE": "optimized", "LINKAGE": PROFILES[profile],
-               "TOR_WINDOWS_OFFLINE": "1", "TOR_WINDOWS_WORK": msys_path(run / "work"),
-               "TOR_WINDOWS_CACHE": msys_path(archives), "JOBS": str(min(os.cpu_count() or 1, 4))}
+        env = build_environment(run, archives, PROFILES[profile])
         bash = ordinary_path(MSYS / "usr/bin/bash.exe")
         print("[phase] source and recipe snapshot ready", flush=True)
         print(f"Build ID {run.name}", flush=True)
@@ -207,7 +217,7 @@ def list_builds(workspace):
     if not parent.exists():
         return {"builds": []}
     result = []
-    for item in sorted(ordinary_path(parent, directory=True).iterdir(), key=lambda item: item.name, reverse=True):
+    for item in ordinary_path(parent, directory=True).iterdir():
         try:
             run, record = get_record(workspace, item.name)
             if record["state"] == "BUILT":
@@ -218,7 +228,11 @@ def list_builds(workspace):
             result.append(record)
         except (OSError, ValueError, KeyError):
             result.append({"id": item.name, "state": "UNVERIFIED"})
-    return {"builds": result}
+    def order(record):
+        started = record.get("startedUtc")
+        return (started if isinstance(started, str) else "", record["id"])
+
+    return {"builds": sorted(result, key=order, reverse=True)}
 
 
 def smoke_passed(result, version):

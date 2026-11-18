@@ -2,7 +2,9 @@ using System.Text.Json;
 
 namespace TorManager.Desktop.Services;
 
-internal sealed record UiSettings(int SchemaVersion = 1, string Mode = "Run Only", string Theme = "Dark", bool AnimateSimulation = true);
+internal enum RuntimeSource { Bundled, CustomVerified }
+internal sealed record UiSettings(int SchemaVersion = 1, string Mode = "Run Only", string Theme = "Dark",
+    bool AnimateSimulation = true, RuntimeSource? PreferredRuntime = null);
 
 internal sealed class SettingsStore(string path)
 {
@@ -49,7 +51,8 @@ internal sealed class SettingsStore(string path)
     private static void Validate(UiSettings settings)
     {
         if (settings.SchemaVersion != 1 || !new[] { "Run Only", "Developer", "Embedded" }.Contains(settings.Mode) ||
-            !new[] { "System", "Dark", "Light" }.Contains(settings.Theme))
+            !new[] { "System", "Dark", "Light" }.Contains(settings.Theme) ||
+            settings.PreferredRuntime is { } runtime && !Enum.IsDefined(runtime))
             throw new JsonException("Unsupported UI settings");
     }
 }
