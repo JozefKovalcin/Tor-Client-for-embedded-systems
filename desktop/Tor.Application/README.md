@@ -1,4 +1,4 @@
-# Offline Tor application service
+# Managed Windows Tor application service
 
 `IOfflineTorService` is the UI boundary for package inspection, starting and
 stopping one managed Windows session, and watching its state. The production
@@ -31,3 +31,18 @@ closes subscriptions. Task recovery never relaunches anything automatically.
 Explicit restart records a new task and links a preceding non-successful task.
 The core retains bounded history, and the session uses its maximum 24-hour
 task deadline. Private state and state from prior attempts remain on disk.
+
+The same service implements `IOnlineTorService`. `StartOnlineAsync` accepts only
+a numbered loopback SOCKS5 port. A real offline task and a real online task
+share one admission and cleanup gate. Online restart serializes the stop and
+start and waits for confirmed process cleanup before the replacement. Existing
+journal ownership prevents a second app using the same private state workspace
+from starting another Tor session. There is no automatic relaunch on failure
+or crash recovery.
+
+Snapshots distinguish authenticated control, the observed bootstrap, an owned
+local SOCKS5 listener and a usable Tor circuit. After bootstrap and circuit
+confirmation, the app accepts explicit connectivity and NEWNYM requests.
+An HTTPS response through the SOCKS listener is tested separately from local
+listener availability. NEWNYM requests affect future streams subject to Tor's
+rate limits and provide no IP-address or complete identity-isolation guarantee.
