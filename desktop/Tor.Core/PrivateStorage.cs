@@ -1,5 +1,6 @@
 using System.Security.AccessControl;
 using System.Security.Principal;
+using System.Runtime.Versioning;
 
 namespace Tor.Core;
 
@@ -11,11 +12,10 @@ public static class PrivateStorage
         if (Directory.Exists(path) || File.Exists(path)) throw new IOException("Private scope already exists");
         if (OperatingSystem.IsWindows())
         {
-            var owner = WindowsIdentity.GetCurrent().User ?? throw new UnauthorizedAccessException("Missing Windows owner");
+            var identities = WindowsPrivateIdentities();
             var acl = new DirectorySecurity();
-            acl.SetOwner(owner); acl.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
-            foreach (var identity in new[] { owner, new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null),
-                new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null) })
+            acl.SetOwner(identities[0]); acl.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
+            foreach (var identity in identities)
                 acl.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl,
                     InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
             new DirectoryInfo(path).Create(acl);
@@ -27,6 +27,51 @@ public static class PrivateStorage
     public static void RequireOwnerOnly(string path) => RequireOwnerOnly(path, directory: true);
 
     public static void RequireOwnerOnlyFile(string path) => RequireOwnerOnly(path, directory: false);
+
+    public static FileStream OpenPrivateFile(string path, FileMode mode)
+    {
+        if (mode is not (FileMode.CreateNew or FileMode.OpenOrCreate)) throw new ArgumentOutOfRangeException(nameof(mode));
+        path = Path.GetFullPath(path);
+        RequireOwnerOnly(Path.GetDirectoryName(path) ?? throw new ArgumentException("Private file needs a parent", nameof(path)));
+        if (mode == FileMode.OpenOrCreate)
+        {
+            try
+            {
+                if ((File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
+                    throw new InvalidDataException("Private file cannot be a link");
+                RequireOwnerOnlyFile(path);
+            }
+            catch (FileNotFoundException) { }
+        }
+        FileStream stream;
+        if (OperatingSystem.IsWindows())
+        {
+            var identities = WindowsPrivateIdentities();
+            var acl = new FileSecurity();
+            // An elevated token can otherwise create files owned by Administrators.
+            acl.SetOwner(identities[0]);
+            acl.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
+            foreach (var identity in identities)
+                acl.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, AccessControlType.Allow));
+            stream = new FileInfo(path).Create(mode, FileSystemRights.Read | FileSystemRights.Write,
+                FileShare.None, 4096, FileOptions.None, acl);
+        }
+        else stream = new FileStream(path, new FileStreamOptions
+        {
+            Mode = mode, Access = FileAccess.ReadWrite, Share = FileShare.None,
+            UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite
+        });
+        try { RequireOwnerOnlyFile(path); return stream; }
+        catch { stream.Dispose(); throw; }
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static SecurityIdentifier[] WindowsPrivateIdentities()
+    {
+        using var identity = WindowsIdentity.GetCurrent();
+        return [identity.User ?? throw new UnauthorizedAccessException("Missing Windows owner"),
+            new(WellKnownSidType.LocalSystemSid, null), new(WellKnownSidType.BuiltinAdministratorsSid, null)];
+    }
 
     private static void RequireOwnerOnly(string path, bool directory)
     {
@@ -44,14 +89,12 @@ public static class PrivateStorage
                 throw new UnauthorizedAccessException("Private directory must be owner-only");
             return;
         }
-        var owner = WindowsIdentity.GetCurrent().User ?? throw new UnauthorizedAccessException("Missing Windows owner");
-        var allowed = new[] { owner, new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null),
-            new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null) };
+        var allowed = WindowsPrivateIdentities();
         const AccessControlSections sections = AccessControlSections.Access | AccessControlSections.Owner;
         FileSystemSecurity security = directory ? new DirectoryInfo(path).GetAccessControl(sections)
             : new FileInfo(path).GetAccessControl(sections);
-        if (!owner.Equals(security.GetOwner(typeof(SecurityIdentifier))))
-            throw new UnauthorizedAccessException("Private directory owner differs from current user");
+        if (!allowed[0].Equals(security.GetOwner(typeof(SecurityIdentifier))))
+            throw new UnauthorizedAccessException("Private storage owner differs from current user");
         foreach (FileSystemAccessRule rule in security.GetAccessRules(true, true, typeof(SecurityIdentifier)))
         {
             if (rule.AccessControlType != AccessControlType.Allow) continue;

@@ -63,7 +63,7 @@ public sealed class PinnedWindowsRuntime
                 // Copy only the verified open streams. Never enumerate/copy package
                 // neighbors, manifests, .local redirection or other DLLs by pathname.
                 verifiedSources[index].Position = 0;
-                using (var output = new FileStream(destination, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                using (var output = PrivateStorage.OpenPrivateFile(destination, FileMode.CreateNew))
                 {
                     verifiedSources[index].CopyTo(output); output.Flush(flushToDisk: true);
                 }

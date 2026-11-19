@@ -28,11 +28,8 @@ public sealed class HostedOnionStore(string privateProfile)
     public async Task<OnionAddress> RegisterAsync(IPersistentOnionPeerTransport tor, int port,
         HostingIdentityAction action, OnionAddress? previouslyConfirmed, CancellationToken token)
     {
-        PrivateStorage.RequireOwnerOnly(profile);
         var lockPath = Path.Combine(profile, ".onion-hosting-writer");
-        if (Exists(lockPath)) PrivateStorage.RequireOwnerOnlyFile(lockPath);
-        using var writer = new FileStream(lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-        PrivateStorage.RequireOwnerOnlyFile(lockPath);
+        using var writer = PrivateStorage.OpenPrivateFile(lockPath, FileMode.OpenOrCreate);
         var current = Exists(DirectoryPath) ? Read() : ((OnionAddress Address, OnionServiceKey Key)?)null;
         using var currentKey = current?.Key;
         if (action == HostingIdentityAction.Restore)
@@ -102,12 +99,11 @@ public sealed class HostedOnionStore(string privateProfile)
         var temp = Path.Combine(staging, replace ? suffix : Path.GetFileName(IdentityPath));
         try
         {
-            using (var file = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            using (var file = PrivateStorage.OpenPrivateFile(temp, FileMode.CreateNew))
             {
                 file.Write(protectedBytes);
                 file.Flush(flushToDisk: true);
             }
-            PrivateStorage.RequireOwnerOnlyFile(temp);
             if (replace) File.Move(temp, IdentityPath, overwrite: true);
             else Directory.Move(staging, DirectoryPath);
         }

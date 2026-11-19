@@ -206,10 +206,8 @@ public sealed class PeerProfileStore
 
     private FileStream Lock()
     {
-        PrivateStorage.RequireOwnerOnly(root);
         var path = Path.Combine(root, ".contacts-writer");
-        if (Exists(path)) PrivateStorage.RequireOwnerOnlyFile(path);
-        return new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+        return PrivateStorage.OpenPrivateFile(path, FileMode.OpenOrCreate);
     }
 
     private byte[] Read(string name)
@@ -231,12 +229,11 @@ public sealed class PeerProfileStore
         string temp = Path.Combine(root, "pending-" + Guid.NewGuid().ToString("N"));
         try
         {
-            using (var file = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            using (var file = PrivateStorage.OpenPrivateFile(temp, FileMode.CreateNew))
             {
                 file.Write(data);
                 file.Flush(flushToDisk: true);
             }
-            PrivateStorage.RequireOwnerOnlyFile(temp);
             File.Move(temp, path, overwrite: replace);
         }
         finally { if (File.Exists(temp)) File.Delete(temp); }

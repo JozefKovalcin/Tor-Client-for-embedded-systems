@@ -137,14 +137,7 @@ public sealed class PeerDeliveryStore
 
     private FileStream AcquireWriter()
     {
-        try
-        {
-            PrivateStorage.RequireOwnerOnly(root);
-            CheckPrivateFile(writer);
-            var lease = new FileStream(writer, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-            try { PrivateStorage.RequireOwnerOnlyFile(writer); return lease; }
-            catch { lease.Dispose(); throw; }
-        }
+        try { return PrivateStorage.OpenPrivateFile(writer, FileMode.OpenOrCreate); }
         catch (InvalidDataException) { throw new PeerDeliveryStorageException(); }
     }
 
@@ -202,12 +195,11 @@ public sealed class PeerDeliveryStore
         string temp = Path.Combine(root, "pending-delivery-" + Guid.NewGuid().ToString("N"));
         try
         {
-            using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            using (var stream = PrivateStorage.OpenPrivateFile(temp, FileMode.CreateNew))
             {
                 stream.Write(protectedData);
                 stream.Flush(flushToDisk: true);
             }
-            PrivateStorage.RequireOwnerOnlyFile(temp);
             publish(temp, path);
         }
         finally { if (File.Exists(temp)) File.Delete(temp); }

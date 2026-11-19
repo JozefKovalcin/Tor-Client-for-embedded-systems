@@ -205,6 +205,12 @@ static class Program
         if (OperatingSystem.IsWindows())
             foreach (var value in new[] { "NUL", "CON.txt", "folder/COM1", "artifact.", "folder./child" })
                 Check.Throws<InvalidDataException>(() => w.Files.Resolve(value));
+        var owned = Path.Combine(w.Root, "owned");
+        using (var created = PrivateStorage.OpenPrivateFile(owned, FileMode.CreateNew)) created.WriteByte(17);
+        PrivateStorage.RequireOwnerOnlyFile(owned);
+        Check.Throws<IOException>(() => PrivateStorage.OpenPrivateFile(owned, FileMode.CreateNew).Dispose());
+        using (var reopened = PrivateStorage.OpenPrivateFile(owned, FileMode.OpenOrCreate))
+            Check.That(reopened.ReadByte() == 17, "Creating a private file replaced existing content");
         var handler = new Handler(CommandKind.NativeLinuxBuild, (_, _, _) => Task.FromResult(Success()));
         await using var core = new TaskOrchestrator([handler], w.Files, w.Journal(), Capacity);
         core.Submit([new("no-output", new NativeLinuxBuildCommand(w.Input, [], ["missing.bin"]), [], new(1, 1, 1, false))]);
