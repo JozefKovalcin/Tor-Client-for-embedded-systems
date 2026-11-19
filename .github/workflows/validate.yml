@@ -35,6 +35,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: desktop/global.json
       - name: Install lightweight checks
         run: sudo apt-get update && sudo apt-get install -y shellcheck build-essential
       - name: Script and regression tests
