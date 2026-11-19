@@ -11,7 +11,7 @@ namespace TorManager.Desktop.Presentation;
 
 internal enum PeerState
 {
-    WaitingForTor, Ready, CredentialNeeded, CredentialFailed, InvalidPeerInput, UntrustedPeer, Registering, Connecting,
+    WaitingForTor, Ready, CredentialNeeded, CredentialFailed, DeliveryUnavailable, InvalidPeerInput, UntrustedPeer, Registering, Connecting,
     Hosting, Connected, Disconnected, WaitingForReconnect, RejectedPeer, AuthenticationFailed,
     OperationFailed, SendFailed, CleanupUnconfirmed, Retrying, EndpointSaved, ContactChanged
 }
@@ -48,6 +48,7 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
     private long revision = -1;
     private PeerDeliveryStore? delivery;
     private ReliablePeerSession? reliable;
+    private PeerDeliverySnapshot? visibleDelivery;
     private IReadOnlyList<PeerMessageRow> deliveryRows = [];
     private IReadOnlyList<PeerMessageRow> historyRows = [];
     private bool saveHistory;
@@ -87,6 +88,7 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
         PeerState.Ready => "Ready to host or connect.",
         PeerState.CredentialNeeded => "Create a local peer identity to pair this profile.",
         PeerState.CredentialFailed => "The private peer profile could not be verified. Its identity was preserved.",
+        PeerState.DeliveryUnavailable => "The private message store is unavailable. Check local storage before reconnecting.",
         PeerState.InvalidPeerInput => "Enter the peer’s SHA-256 fingerprint and a full v3 onion address when connecting.",
         PeerState.Registering => "Registering a loopback onion service…",
         PeerState.Connecting => "Connecting through Tor…",
@@ -186,6 +188,7 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
             if (!CanEditPeer) return;
             bool recipientChanged = selectedPeer?.Fingerprint != value?.Fingerprint;
             if (!Set(ref selectedPeer, value)) return;
+            visibleDelivery = null;
             if (recipientChanged)
             {
                 Draft = "";
@@ -421,7 +424,7 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
                     await ReadPeerAsync(inbound, token, store);
                     SetStatus(PeerState.WaitingForReconnect);
                 }
-                catch (Exception error) when (!token.IsCancellationRequested &&
+                catch (Exception error) when (!token.IsCancellationRequested && error is not PeerDeliveryStorageException &&
                     error is AuthenticationException or IOException or InvalidDataException or OperationCanceledException or DecoderFallbackException)
                 {
                     SetStatus(PeerState.RejectedPeer);
@@ -435,6 +438,7 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
             SetStatus(PeerState.Disconnected);
         }
         catch (AuthenticationException) { SetStatus(PeerState.AuthenticationFailed); }
+        catch (PeerDeliveryStorageException) { SetStatus(PeerState.DeliveryUnavailable); }
         catch (Exception error) when (error is InvalidDataException or UnauthorizedAccessException or JsonException)
         { SetStatus(PeerState.CredentialFailed); }
         catch (Exception error) when (error is IOException or SocketException or OperationCanceledException or
@@ -473,6 +477,7 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
                 return; // An authenticated Close intentionally ends this connection.
             }
             catch (Exception error) when (store is not null && !token.IsCancellationRequested &&
+                error is not PeerDeliveryStorageException &&
                 attemptNumber < MaximumReconnectAttempts && error is IOException or SocketException or OperationCanceledException)
             {
                 retry = attemptNumber + 1;
@@ -524,11 +529,12 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
         }
         finally
         {
+            var previous = reliable;
             reliable = null;
             connection = null;
             if (store is not null && ReferenceEquals(delivery, store))
             {
-                try { ApplyDelivery(store.Snapshot()); }
+                try { ApplyDelivery(previous?.DisplaySnapshot() ?? store.Snapshot()); }
                 catch (Exception error) when (ProfileFailure(error))
                 { DeliveryNotice = "Could not refresh the private delivery state."; }
             }
@@ -546,7 +552,7 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
                 store.Enqueue(Draft);
                 Draft = "";
                 reliable?.Wake();
-                ApplyDelivery(store.Snapshot());
+                ApplyDelivery(reliable?.DisplaySnapshot() ?? store.Snapshot());
                 DeliveryNotice = "Queued securely. Delivery changes after the peer acknowledges it.";
             }
             catch (ArgumentException) { DeliveryNotice = "Enter a message of 1 to 8192 UTF-8 bytes."; }
@@ -591,10 +597,15 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
 
     private void SetStatus(PeerState value)
     {
-        if (!Set(ref state, value, nameof(Status)) || SelectedPeer is not { } peer ||
+        var previous = state;
+        if (!Set(ref state, value, nameof(Status))) return;
+        if (visibleDelivery is { } snapshot && (previous == PeerState.Retrying || value == PeerState.Retrying))
+            ApplyDelivery(snapshot);
+        if (SelectedPeer is not { } peer ||
             value is not (PeerState.Registering or PeerState.Connecting or PeerState.Hosting or PeerState.Connected
                 or PeerState.Disconnected or PeerState.WaitingForReconnect or PeerState.RejectedPeer
-                or PeerState.AuthenticationFailed or PeerState.OperationFailed or PeerState.CleanupUnconfirmed or PeerState.Retrying)
+                or PeerState.AuthenticationFailed or PeerState.OperationFailed or PeerState.CleanupUnconfirmed or
+                PeerState.DeliveryUnavailable or PeerState.Retrying)
                 && !(value == PeerState.WaitingForTor && resumeAfterTor is not null)) return;
         connectionHistory.TryGetValue(peer.Fingerprint, out var history);
         connectionHistory[peer.Fingerprint] = [new(DateTimeOffset.UtcNow, Status), .. (history ?? []).Take(11)];
@@ -603,13 +614,22 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
 
     private void ApplyDelivery(PeerDeliverySnapshot snapshot)
     {
-        if (snapshot.Revision <= revision) return;
+        if (snapshot.Revision < revision) return;
         revision = snapshot.Revision;
+        visibleDelivery = snapshot;
         Set(ref saveHistory, snapshot.HistoryEnabled, nameof(SaveHistory));
         HistoryRows = snapshot.History.Select(item => new PeerMessageRow(item.Id.ToString("N")[..8],
             item.Incoming ? "Incoming" : "Outgoing", "Archived", item.Text)).Reverse().ToArray();
         DeliveryRows = snapshot.Outbox.Select(item => new PeerMessageRow(item.Id.ToString("N")[..8], "Outgoing",
-                item.Status.ToString(), item.Text))
+                item.Status switch
+                {
+                    PeerDeliveryStatus.Delivered => "Acknowledged",
+                    PeerDeliveryStatus.Expired => "Expired",
+                    _ when state == PeerState.Retrying => "Retrying",
+                    PeerDeliveryStatus.Sent => "Sent · awaiting acknowledgement",
+                    PeerDeliveryStatus.SendFailed => "Send failed · kept in queue",
+                    _ => item.Status.ToString()
+                }, item.Text))
             .Concat(snapshot.Inbox.Select(item => new PeerMessageRow(item.Id.ToString("N")[..8], "Incoming", "Received", item.Text)))
             .ToArray();
     }
