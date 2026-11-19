@@ -156,6 +156,11 @@ internal static class OnlineDesktopTests
         check(model.CreateIdentityCommand.CanExecute(null) && !Directory.Exists(fresh), "profile discovery creates no identity or directory");
         model.CreateIdentityCommand.Execute(null);
         string original = model.Fingerprint;
+        if (original.Length != 64)
+        {
+            // Keep GUI errors sanitized while surfacing a storage failure in this isolated test.
+            using var probe = new PeerProfileStore(fresh + "-probe").CreateIdentity();
+        }
         check(original.Length == 64 && service.OnlineStarts == 0, "explicit identity creation works before starting Tor");
         model.SaveRecoveryCommand.Execute(null);
         check(!model.SaveRecoveryCommand.CanExecute(null) && !model.RecoverIdentityCommand.CanExecute(null),
