@@ -71,6 +71,23 @@ Windows Schannel temporarily uses an OS user key container until disposal.
 [Tor SOCKS extensions](https://spec.torproject.org/socks-extensions.html) ·
 [.NET TLS server authentication](https://learn.microsoft.com/en-us/dotnet/api/system.net.security.sslstream.authenticateasserverasync)
 
+## Recover the local TLS identity on Windows
+
+In **Peers**, open **Local TLS identity recovery** while the certificate is
+healthy and choose **Save protected recovery copy**. The Manager keeps a
+DPAPI-protected copy in the original owner-private profile for the same
+Windows account. The copy remains local and the saved Onion Service key
+has its own storage.
+
+If the primary TLS file becomes missing or corrupt, reopen Tor Manager.
+Confirm recovery and choose **Recover original TLS identity**. The
+certificate must match the existing trust store. Recovery preserves an
+openable primary, existing contact revocations and the encrypted outbox.
+For a corrupt readable primary, the Manager saves its protected bytes
+under a separate name before replacement. DPAPI can report similar errors
+for corruption and a blob from another Windows account. Recovery requires
+an independently decryptable copy that matches this profile.
+
 ## Protocol version 1
 
 Mutual TLS 1.2 or 1.3 must negotiate ALPN `tor-peer/1`. Resumption and

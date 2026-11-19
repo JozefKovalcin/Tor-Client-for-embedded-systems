@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Security.Cryptography;
+using System.Text.Json;
 using System.Threading.Channels;
 
 namespace Tor.Application;
@@ -9,7 +11,8 @@ public sealed class ReliablePeerSession
     private readonly PeerConnection peer;
     private readonly PeerDeliveryStore store;
     private readonly SemaphoreSlim writer = new(1, 1);
-    private readonly ConcurrentDictionary<Guid, byte> sent = new();
+    private readonly ConcurrentDictionary<Guid, PeerDeliveryStatus> sent = new();
+    private readonly object publication = new();
     private readonly Channel<byte> change = Channel.CreateBounded<byte>(new BoundedChannelOptions(1)
         { SingleReader = true, FullMode = BoundedChannelFullMode.DropWrite });
     private readonly Action<PeerDeliverySnapshot> observe;
@@ -26,6 +29,21 @@ public sealed class ReliablePeerSession
     }
 
     public void Wake() => change.Writer.TryWrite(0);
+
+    public PeerDeliverySnapshot DisplaySnapshot()
+    {
+        var snapshot = WithStore(store.Snapshot);
+        // The overlay is session-local. A durable ACK or expiry always wins.
+        return snapshot with { Outbox = snapshot.Outbox.Select(row =>
+            row.Status == PeerDeliveryStatus.Pending && sent.TryGetValue(row.Id, out var state)
+                ? row with { Status = state }
+                : row).ToArray() };
+    }
+
+    private void Publish()
+    {
+        lock (publication) observe(DisplaySnapshot());
+    }
 
     public async Task RunAsync(CancellationToken token)
     {
@@ -54,16 +72,25 @@ public sealed class ReliablePeerSession
         while (true)
         {
             token.ThrowIfCancellationRequested();
-            var snapshot = store.Snapshot();
-            observe(snapshot);
+            var snapshot = WithStore(store.Snapshot);
+            Publish();
             var pending = snapshot.Outbox.Where(row => row.Status == PeerDeliveryStatus.Pending).ToArray();
             var pendingIds = pending.Select(row => row.Id).ToHashSet();
             foreach (var id in sent.Keys)
                 if (!pendingIds.Contains(id)) sent.TryRemove(id, out _);
             foreach (var item in pending)
             {
-                if (!sent.TryAdd(item.Id, 0)) continue;
-                await WriteAsync(ReliablePeerWire.Encode(item), token).ConfigureAwait(false);
+                if (!sent.TryAdd(item.Id, PeerDeliveryStatus.Sending)) continue;
+                Publish();
+                try { await WriteAsync(ReliablePeerWire.Encode(item), token).ConfigureAwait(false); }
+                catch (Exception error) when (!token.IsCancellationRequested && IsStopError(error))
+                {
+                    sent[item.Id] = PeerDeliveryStatus.SendFailed;
+                    Publish();
+                    throw;
+                }
+                sent[item.Id] = PeerDeliveryStatus.Sent;
+                Publish();
             }
             using var refresh = CancellationTokenSource.CreateLinkedTokenSource(token);
             refresh.CancelAfter(TimeSpan.FromSeconds(15));
@@ -81,15 +108,26 @@ public sealed class ReliablePeerSession
             {
                 if (sent.ContainsKey(received.Id))
                 {
-                    store.Acknowledge(received.Id);
-                    observe(store.Snapshot());
+                    WithStore(() => { store.Acknowledge(received.Id); return true; });
+                    Publish();
                 }
                 continue;
             }
-            var acceptance = store.Accept(received.Id, received.ExpiresUtc, received.Text!);
+            var acceptance = WithStore(() => store.Accept(received.Id, received.ExpiresUtc, received.Text!), receiving: true);
             if (acceptance == PeerAcceptance.Expired) continue;
-            if (acceptance == PeerAcceptance.Accepted) observe(store.Snapshot());
+            if (acceptance == PeerAcceptance.Accepted) Publish();
             await WriteAsync(ReliablePeerWire.Ack(received.Id), token).ConfigureAwait(false);
+        }
+    }
+
+    private static T WithStore<T>(Func<T> operation, bool receiving = false)
+    {
+        try { return operation(); }
+        catch (PeerDeliveryStorageException) { throw; }
+        catch (Exception error) when ((!receiving || error is not InvalidDataException) &&
+            error is IOException or UnauthorizedAccessException or CryptographicException or JsonException or InvalidDataException)
+        {
+            throw new PeerDeliveryStorageException();
         }
     }
 

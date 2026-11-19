@@ -153,6 +153,9 @@ internal static class OnlineDesktopTests
         model.CreateIdentityCommand.Execute(null);
         string original = model.Fingerprint;
         check(original.Length == 64 && service.OnlineStarts == 0, "explicit identity creation works before starting Tor");
+        model.SaveRecoveryCommand.Execute(null);
+        check(!model.SaveRecoveryCommand.CanExecute(null) && !model.RecoverIdentityCommand.CanExecute(null),
+            "an openable local identity has a protected copy and cannot be replaced from the GUI");
         using var fixture = new PeerIdentity();
         model.Label = "Test peer";
         model.PeerFingerprint = fixture.Fingerprint;
@@ -176,6 +179,21 @@ internal static class OnlineDesktopTests
             reopened.SelectedPeer = reopened.Contacts.Single();
             check(reopened.Fingerprint == original && reopened.DeliveryRows.Single().Text == "durable fixture" && reopened.SaveHistory,
                 "identity, pin, pending message and explicit history preference survive a new model instance");
+        }
+        byte[] originalDpapi = File.ReadAllBytes(Path.Combine(fresh, "peer-security", "local-identity.dpapi"));
+        var identityFile = Path.Combine(fresh, "peer-security", "local-identity.dpapi");
+        File.WriteAllBytes(identityFile, [0x3a, 0x01, 0x27]);
+        await using (var recovery = new PeerViewModel(service, profile))
+        {
+            recovery.ReadExistingProfile();
+            check(recovery.CanApproveIdentityRecovery && !recovery.RecoverIdentityCommand.CanExecute(null) &&
+                !recovery.CreateIdentityCommand.CanExecute(null), "damaged identity waits for explicit recovery consent");
+            recovery.ApproveIdentityRecovery = true;
+            recovery.RecoverIdentityCommand.Execute(null);
+            recovery.SelectedPeer = recovery.Contacts.Single();
+            check(recovery.Fingerprint == original && recovery.DeliveryRows.Single().Text == "durable fixture" &&
+                !recovery.ApproveIdentityRecovery && File.ReadAllBytes(identityFile).SequenceEqual(originalDpapi),
+                "approved recovery restores the same TLS identity and encrypted queue");
         }
         using var first = new PausedPeerTransport();
         service.PeerTransport = first;

@@ -4,7 +4,8 @@ using Tor.Core;
 
 namespace Tor.Application;
 
-public enum PeerDeliveryStatus { Pending, Delivered, Expired }
+public enum PeerDeliveryStatus { Pending, Delivered, Expired, Sending, Sent, SendFailed }
+public sealed class PeerDeliveryStorageException() : IOException("The private peer delivery state is unavailable.");
 public sealed record PeerDeliveryItem(Guid Id, long ExpiresUtc, string? Text, PeerDeliveryStatus Status);
 public sealed record PeerHistoryItem(Guid Id, bool Incoming, long ReceivedUtc, string Text);
 public sealed record PeerDeliverySnapshot(long Revision, IReadOnlyList<PeerDeliveryItem> Outbox,
@@ -20,6 +21,7 @@ public sealed class PeerDeliveryStore
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
     private readonly string root, path, writer, local, remote;
     private readonly TimeProvider clock;
+    private readonly Action<string, string> publish;
     private readonly object gate = new();
     internal string LocalFingerprint => local;
     internal string RemoteFingerprint => remote;
@@ -31,7 +33,8 @@ public sealed class PeerDeliveryStore
         public List<PeerHistoryItem> History { get; init; } = [];
     }
 
-    internal PeerDeliveryStore(string securityRoot, string localFingerprint, string peerFingerprint, TimeProvider? clock = null)
+    internal PeerDeliveryStore(string securityRoot, string localFingerprint, string peerFingerprint,
+        TimeProvider? clock = null, Action<string, string>? publish = null)
     {
         root = securityRoot;
         local = Convert.ToHexString(PeerIdentity.ParseFingerprint(localFingerprint));
@@ -39,6 +42,7 @@ public sealed class PeerDeliveryStore
         path = Path.Combine(root, "delivery-" + remote + ".dpapi");
         writer = Path.Combine(root, "delivery-" + remote + ".lock");
         this.clock = clock ?? TimeProvider.System;
+        this.publish = publish ?? (static (source, destination) => File.Move(source, destination, overwrite: true));
     }
 
     public PeerDeliveryItem Enqueue(string text)
@@ -105,11 +109,10 @@ public sealed class PeerDeliveryStore
     {
         lock (gate)
         {
-            PrivateStorage.RequireOwnerOnly(root);
-            CheckPrivateFile(writer);
-            using var lease = new FileStream(writer, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-            PrivateStorage.RequireOwnerOnlyFile(writer);
-            var data = Read();
+            using var lease = AcquireWriter();
+            QueueFile data;
+            try { data = Read(); }
+            catch (InvalidDataException) { throw new PeerDeliveryStorageException(); }
             long now = clock.GetUtcNow().ToUnixTimeSeconds();
             bool expired = data.Inbox.RemoveAll(item => item.ExpiresUtc <= now) != 0;
             expired |= data.History.RemoveAll(item => item.ReceivedUtc <= now - HistoryTtlSeconds) != 0;
@@ -123,9 +126,26 @@ public sealed class PeerDeliveryStore
             if (expired) data = data with { Revision = checked(data.Revision + 1) };
             var result = operation(data, now);
             if (result.Changed && !expired) data = data with { Revision = checked(data.Revision + 1) };
-            if (expired || result.Changed) Write(data);
+            if (expired || result.Changed)
+            {
+                try { Write(data); }
+                catch (InvalidDataException) { throw new PeerDeliveryStorageException(); }
+            }
             return result.Result;
         }
+    }
+
+    private FileStream AcquireWriter()
+    {
+        try
+        {
+            PrivateStorage.RequireOwnerOnly(root);
+            CheckPrivateFile(writer);
+            var lease = new FileStream(writer, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+            try { PrivateStorage.RequireOwnerOnlyFile(writer); return lease; }
+            catch { lease.Dispose(); throw; }
+        }
+        catch (InvalidDataException) { throw new PeerDeliveryStorageException(); }
     }
 
     private QueueFile Read()
@@ -188,7 +208,7 @@ public sealed class PeerDeliveryStore
                 stream.Flush(flushToDisk: true);
             }
             PrivateStorage.RequireOwnerOnlyFile(temp);
-            File.Move(temp, path, overwrite: true);
+            publish(temp, path);
         }
         finally { if (File.Exists(temp)) File.Delete(temp); }
     }

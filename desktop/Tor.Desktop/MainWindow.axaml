@@ -204,6 +204,17 @@
                 <TextBox Text="{Binding Fingerprint, Mode=OneWay}" IsReadOnly="True" FontFamily="Cascadia Mono, Consolas, monospace"
                          AutomationProperties.Name="Your certificate fingerprint" />
                 <Button Content="Create local peer identity" Command="{Binding CreateIdentityCommand}" />
+                <Expander Header="Local TLS identity recovery" IsVisible="{Binding HasPrivateProfile}">
+                  <StackPanel Spacing="8">
+                    <TextBlock Classes="muted" Text="Keep a DPAPI-protected copy for this Windows account so you can restore the same local certificate."
+                               TextWrapping="Wrap" />
+                    <Button Content="Save protected recovery copy" Command="{Binding SaveRecoveryCommand}" />
+                    <CheckBox Content="I confirm recovery of the original local TLS identity"
+                              IsEnabled="{Binding CanApproveIdentityRecovery}" IsChecked="{Binding ApproveIdentityRecovery}" />
+                    <Button Content="Recover original TLS identity" Command="{Binding RecoverIdentityCommand}" />
+                    <TextBlock Classes="live" Text="{Binding RecoveryNotice}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Expander>
                 <TextBlock Text="Paired contact" Classes="label" />
                 <ComboBox ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedPeer}" IsEnabled="{Binding CanEditPeer}"
                           HorizontalAlignment="Stretch" PlaceholderText="Select a paired contact"
