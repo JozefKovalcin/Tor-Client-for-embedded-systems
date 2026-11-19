@@ -77,7 +77,11 @@ internal sealed class DeveloperViewModel : ObservableModel
             () => Idle && ApproveRuntime && Selected is { State: "BUILT", Smoke: "PASS" });
         RollbackCommand = new(RollbackAsync, () => Status = "Rollback failed.", () => Idle && _bundledRuntime is not null);
         _commands = [ScanCommand, PlanCommand, InstallCommand, BuildCommand, ListCommand, SmokeCommand, ActivateCommand, ExportCommand, RollbackCommand];
-        CancelCommand = new(() => _cancellation?.Cancel(), () => _cancellation is not null && !_installCommitted);
+        CancelCommand = new(() =>
+        {
+            _cancellation?.Cancel();
+            _refresh?.Cancel();
+        }, () => _cancellation is not null && !_installCommitted);
     }
 
     private AsyncCommand RunCommand(WindowsDeveloperAction action, Func<bool>? condition = null) =>
@@ -167,7 +171,7 @@ internal sealed class DeveloperViewModel : ObservableModel
             if (_closed) return;
             var outcome = core.Snapshot().Single(row => row.TaskId == taskId);
             var headline = listener.CommittedInstallExitCode is uint committed
-                ? $"Install transaction finished · exit {committed}"
+                ? $"Approved installer exited · code {committed}"
                 : $"{action} · {outcome.State.ToUpperInvariant()} · exit {outcome.RawExitCode?.ToString() ?? "unavailable"}";
             bool installing = action == WindowsDeveloperAction.Install;
             using var refresh = token.IsCancellationRequested
@@ -181,6 +185,7 @@ internal sealed class DeveloperViewModel : ObservableModel
                 refreshed = await ReadAsync(spec with { Action = installing ? WindowsDeveloperAction.Scan : WindowsDeveloperAction.List },
                     refresh.Token, selectNewestBuild: action == WindowsDeveloperAction.Build);
             }
+            catch (OperationCanceledException) when (refresh.IsCancellationRequested) { refreshed = false; }
             finally { _refresh = null; }
             Status = headline + (refreshed ? installing ? " · dependencies rescanned" : "" : " · refresh failed");
             return;
