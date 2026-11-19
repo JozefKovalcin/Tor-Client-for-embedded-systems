@@ -55,3 +55,16 @@ class WindowsDeveloperScanTests(unittest.TestCase):
         with patch.object(probe, "output", return_value=subprocess.CompletedProcess([], 0, "10.0.200 [older]\n11.0.100 [pinned]\n")):
             observed = probe.dotnet(Path("dotnet"), "dotnet-sdk", "--list-sdks", "11.0.100")
             self.assertEqual((observed["status"], observed["version"]), ("AVAILABLE", "11.0.100"))
+
+    def test_recipe_launcher_and_python_match_actual_precedence(self):
+        with tempfile.TemporaryDirectory() as temporary, patch.object(developer, "MSYS", Path(temporary)):
+            ucrt = Path(temporary) / "ucrt64/bin"
+            ucrt.mkdir(parents=True)
+            msys = Path(temporary) / "usr/bin"
+            msys.mkdir(parents=True)
+            (ucrt / "bash.exe").touch()
+            (ucrt / "python3.exe").touch()
+            (msys / "python3.exe").touch()
+            probe = developer.RecipeProbe()
+            self.assertIsNone(probe._lookup("bash", "bash"))
+            self.assertEqual(probe._lookup("msys2-python", "python3"), ucrt / "python3.exe")

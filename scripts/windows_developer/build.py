@@ -11,7 +11,7 @@ import subprocess
 import tempfile
 import zipfile
 
-from .install import msys_path, native_environment, operation_lock
+from .install import TOOLCHAIN_LOCK, msys_path, native_environment, operation_lock
 from .scan import MSYS, PROFILES, ROOT, _require_pe, inspect_source, ordinary_path, scan, sha256, source_manifest
 
 
@@ -155,7 +155,7 @@ def build(profile, source_cache, workspace):
         raise ValueError("The reviewed build recipe requires native Windows and a supported profile")
     workspace = ordinary_path(workspace, directory=True)
     source_cache = ordinary_path(source_cache, directory=True)
-    with operation_lock(workspace, ".build-lock"):
+    with operation_lock(workspace, TOOLCHAIN_LOCK):
         report = scan(profile, source_cache, workspace)
         if report["status"] != "AVAILABLE":
             raise ValueError("Preflight did not accept all required dependencies and verified inputs")
@@ -163,27 +163,34 @@ def build(profile, source_cache, workspace):
         builds.mkdir(exist_ok=True)
         ordinary_path(builds, directory=True)
         run = Path(tempfile.mkdtemp(prefix="run-", dir=builds))
-        recipe, archives = run / "pipeline", run / "archives"
-        stage_recipe(recipe)
-        stage_archives(source_cache, archives, source_manifest()["sources"])
         record_path = run / "build-record.json"
         record = {"schemaVersion": 1, "id": run.name, "profile": profile, "linkage": PROFILES[profile],
                   "startedUtc": datetime.now(timezone.utc).isoformat(), "state": "INTERRUPTED",
                   "compilerExit": None, "smokeState": "NOT RUN",
-                  "sourceManifestSha256": sha256(recipe / "source-manifest.json"),
-                  "recipeSha256": sha256(recipe / "build-windows.sh"),
-                  "recipeFiles": {path.relative_to(recipe).as_posix(): sha256(path)
-                                  for path in sorted(recipe.rglob("*")) if path.is_file()},
-                  "compilerFlags": [line for line in (recipe / "build-windows.sh").read_text(encoding="utf-8").splitlines()
-                                    if line.startswith(("export CFLAGS=", "export LDFLAGS="))],
                   "toolchain": {row["id"]: row["detectedVersion"] for row in report["dependencies"]},
                   "version": next(s["version"] for s in source_manifest()["sources"] if s["name"] == "tor"),
                   "package": "pipeline/dist" if profile == "optimized-static" else "pipeline/dist-optimized-shared"}
         write_record(record_path, record)
+        print(f"Build ID {run.name}", flush=True)
+        recipe, archives = run / "pipeline", run / "archives"
+        try:
+            stage_recipe(recipe)
+            stage_archives(source_cache, archives, source_manifest()["sources"])
+        except (OSError, ValueError):
+            record.update(state="FAILED", failurePhase="staging")
+            write_record(record_path, record)
+            raise
+        record.update(
+            sourceManifestSha256=sha256(recipe / "source-manifest.json"),
+            recipeSha256=sha256(recipe / "build-windows.sh"),
+            recipeFiles={path.relative_to(recipe).as_posix(): sha256(path)
+                         for path in sorted(recipe.rglob("*")) if path.is_file()},
+            compilerFlags=[line for line in (recipe / "build-windows.sh").read_text(encoding="utf-8").splitlines()
+                           if line.startswith(("export CFLAGS=", "export LDFLAGS="))])
+        write_record(record_path, record)
         env = build_environment(run, archives, PROFILES[profile])
         bash = ordinary_path(MSYS / "usr/bin/bash.exe")
         print("[phase] source and recipe snapshot ready", flush=True)
-        print(f"Build ID {run.name}", flush=True)
         command = [str(bash), "--noprofile", "--norc", msys_path(recipe / "build-windows.sh")]
         code = monitor(command, env, run, run / "manager-build.log", stages=True)
         record["compilerExit"] = code & 0xffffffff
@@ -272,7 +279,7 @@ def candidate(workspace, build_id):
 
 def export_runtime(workspace, build_id):
     workspace = ordinary_path(workspace, directory=True)
-    with operation_lock(workspace, ".build-lock"):
+    with operation_lock(workspace, TOOLCHAIN_LOCK):
         approved = candidate(workspace, build_id)
         package = Path(approved["packagePath"])
         report_path = package / "package-report.json"
@@ -322,7 +329,7 @@ def smoke(workspace, build_id):
     if os.name != "nt":
         raise ValueError("Native Windows is required for artifact smoke testing")
     workspace = ordinary_path(workspace, directory=True)
-    with operation_lock(workspace, ".build-lock"):
+    with operation_lock(workspace, TOOLCHAIN_LOCK):
         run, record = get_record(workspace, build_id)
         package = run / record["package"]
         manifest = verify_artifacts(package)
