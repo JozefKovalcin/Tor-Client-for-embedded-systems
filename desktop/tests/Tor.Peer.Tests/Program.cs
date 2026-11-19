@@ -32,15 +32,16 @@ try
         await PublicTor.VerifyDisabledPolicyAsync(offlineRuntime, offlineState);
         return 0;
     }
-    if (OperatingSystem.IsWindows() && args is ["--public-persistent-host", "--approve-public-tor", var candidate, var persistentState])
-    {
-        await PublicTor.RunPersistentHostAsync(candidate, persistentState);
-        return 0;
-    }
     if (OperatingSystem.IsWindows() &&
-        args is ["--public-persistent-host", "--approve-public-tor", var comparisonCandidate, var comparisonState, "--compare-fresh-client"])
+        args is [var mode, "--approve-public-tor", var input, var persistentState, .. var options] &&
+        mode is "--public-persistent-host" or "--public-persistent-host-bundled" &&
+        (options is [] or ["--compare-fresh-client"] ||
+            mode == "--public-persistent-host-bundled" && options is ["--compare-renewed-circuits"]))
     {
-        await PublicTor.RunPersistentHostAsync(comparisonCandidate, comparisonState, compareFresh: true);
+        await PublicTor.RunPersistentHostAsync(input, persistentState,
+            bundled: mode == "--public-persistent-host-bundled",
+            compareFresh: options is ["--compare-fresh-client"],
+            compareRenewedCircuits: options is ["--compare-renewed-circuits"]);
         return 0;
     }
     if (args is not ["--public-tor", "--approve-public-tor", var runtime, var state])
@@ -79,7 +80,7 @@ internal static class Check
     }
 }
 
-internal static class Offline
+internal static partial class Offline
 {
     internal static async Task PrivateDeliveryAsync(string fresh)
     {
@@ -244,6 +245,8 @@ internal static class Offline
         using var a = new PeerIdentity();
         using var b = new PeerIdentity();
         using var other = new PeerIdentity();
+        await VerifyHandshakeStagesAsync(a, b);
+        await VerifyOwnedAcceptAndReconnectAsync(a, b);
         using var fixture = new LoopbackTransport();
         await using var host = await PeerHost.StartAsync(fixture, a, b.Fingerprint);
         Check.That(fixture.Port > 0, "The host did not register its bound listener.");
@@ -514,12 +517,13 @@ internal static class Offline
         Check.That(string.Equals(await receivedByB, response, StringComparison.Ordinal), "Client B received different content.");
     }
 
-    private sealed class LoopbackTransport : IOnionPeerTransport, IDisposable
+    private sealed class LoopbackTransport : IOnionPeerTransport, IOwnedOnionPeerListener, IDisposable
     {
         private readonly CancellationTokenSource lifetime = new();
         internal static OnionAddress Address { get; } = OnionAddress.Parse(new string('a', 56) + ".onion");
         internal int Port { get; private set; }
         internal bool Removed { get; private set; }
+        internal bool RefuseNextIncoming { get; set; }
         public CancellationToken Lifetime => lifetime.Token;
         public Task<OnionAddress> HostAsync(int loopbackPort, CancellationToken token)
         {
@@ -528,6 +532,12 @@ internal static class Offline
         }
         public Task RemoveAsync(OnionAddress address) { Removed = true; return Task.CompletedTask; }
         public Task WaitForPublicationAsync(OnionAddress address, CancellationToken token) => Task.CompletedTask;
+        public bool OwnsIncomingConnection(IPEndPoint listener, IPEndPoint peer)
+        {
+            bool verified = !RefuseNextIncoming;
+            RefuseNextIncoming = false;
+            return verified;
+        }
         public async Task<Stream> ConnectAsync(OnionAddress address, CancellationToken token)
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);

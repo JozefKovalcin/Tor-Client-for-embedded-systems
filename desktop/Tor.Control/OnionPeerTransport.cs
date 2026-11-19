@@ -42,10 +42,19 @@ public interface IPersistentOnionPeerTransport : IOnionPeerTransport
     Task<OnionAddress> RestoreHostAsync(int loopbackPort, OnionAddress address, OnionServiceKey key, CancellationToken token);
 }
 
-public enum OnionSocksPhase { LocalProxy, OnionConnect }
+public interface IOwnedOnionPeerListener
+{
+    bool OwnsIncomingConnection(IPEndPoint listener, IPEndPoint peer);
+}
 
-public sealed class OnionSocksTimeoutException(OnionSocksPhase phase) : IOException(
-    phase == OnionSocksPhase.LocalProxy ? "The local SOCKS handshake timed out." : "The Onion Service tunnel timed out.")
+public enum OnionSocksPhase { LocalProxy, OnionConnect, RecoveryBudget }
+
+public sealed class OnionSocksTimeoutException(OnionSocksPhase phase) : IOException(phase switch
+{
+    OnionSocksPhase.LocalProxy => "The local SOCKS handshake timed out.",
+    OnionSocksPhase.RecoveryBudget => "The Onion Service connection and recovery budget elapsed.",
+    _ => "The Onion Service tunnel timed out."
+})
 {
     public OnionSocksPhase Phase { get; } = phase;
 }

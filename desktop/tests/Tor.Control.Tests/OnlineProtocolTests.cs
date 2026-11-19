@@ -42,6 +42,8 @@ static partial class Program
         await Assert.Throws<TorControlException>(() => client.RequestNewIdentityAsync());
         await Assert.Throws<TorControlException>(() => client.GenerateOnionAsync(8181));
         await Assert.Throws<TorControlException>(() =>
+            client.ObserveDescriptorAsync(OnionAddress.Parse(MockServer.FixtureServiceId + ".onion")));
+        await Assert.Throws<TorControlException>(() =>
             client.RefreshOnionDescriptorAsync(OnionAddress.Parse(MockServer.FixtureServiceId + ".onion")));
         using var key = new OnionServiceKey(new byte[OnionServiceKey.ByteLength]);
         await Assert.Throws<TorControlException>(() =>
@@ -58,12 +60,16 @@ static partial class Program
             await using var client = await TorControlClient.ConnectAsync(IPAddress.Loopback, server.Port);
             await client.AuthenticateAsync(server.Cookie);
             using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(mode == "descriptor-refresh" ? 5 : 1));
+            using var observation = await client.ObserveDescriptorAsync(address, deadline.Token);
             if (mode == "descriptor-refresh")
                 Assert.That(await client.RefreshOnionDescriptorAsync(address, deadline.Token),
                     "An authenticated matching RECEIVED event did not complete descriptor refresh");
             else
                 await Assert.Throws<OperationCanceledException>(() => client.RefreshOnionDescriptorAsync(address, deadline.Token));
             await client.ShutdownAsync();
+            var expected = OnionDescriptorEvents.Failed;
+            if (mode == "descriptor-refresh") expected |= OnionDescriptorEvents.Received;
+            Assert.That(observation.Events == expected, "A descriptor observation included unrelated or raw event data");
             Assert.That(server.Commands.Count(v => v == "HSFETCH") == 1 && server.Commands.Contains("SIGNAL"),
                 "Refresh was repeated or its cancellation prevented authenticated shutdown");
         }
