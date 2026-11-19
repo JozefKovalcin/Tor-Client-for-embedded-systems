@@ -66,8 +66,10 @@ def smoke(run, digest, source, cancel):
         tor.write_bytes(binary)
         tor.chmod(0o700)
         pid_file = private / "pid"
+        config = private / "torrc"
+        config.write_text("# Offline smoke defaults\n", encoding="ascii")
         environment = {"PATH": "/usr/bin:/bin", "HOME": str(private), "LC_ALL": "C"}
-        common = [str(tor), "--defaults-torrc", "/dev/null", "-f", "/dev/null",
+        common = [str(tor), "--defaults-torrc", str(config), "-f", str(config),
                   "--DataDirectory", str(private / "state"), "--PidFile", str(pid_file),
                   "--RunAsDaemon", "0", "--DisableNetwork", "1", "--SocksPort", "0"]
         version = subprocess.check_output([str(tor), "--version"], cwd=private, env=environment, timeout=10,
