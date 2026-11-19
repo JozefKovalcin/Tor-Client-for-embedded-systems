@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
+using System.Text.Json;
 using System.Threading.Channels;
 using Tor.Adapters.Windows;
 using Tor.Application;
@@ -42,6 +43,13 @@ internal static class Program
             Console.WriteLine("PASS native-developer-cancellation-kills-worker-and-child");
             return;
         }
+        if (args is ["--windows-candidate", var candidate, var bundled, var state])
+        {
+            if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException();
+            await NativeCandidate(candidate, bundled, state).WaitAsync(TimeSpan.FromSeconds(50));
+            Console.WriteLine("PASS native-custom-runtime-verified-activation-offline-lease-and-rollback");
+            return;
+        }
         if (args is not ["--workspace", var root] || !Path.IsPathFullyQualified(root))
             throw new ArgumentException("Use --workspace <absolute temporary test directory> or --windows-smoke <runtime> <test directory>");
         Directory.CreateDirectory(root);
@@ -57,6 +65,40 @@ internal static class Program
         await Group("service-crash-recovery-does-not-launch", () => Recovery(Fresh(root)));
         await Group("service-slow-subscriber-keeps-current-snapshot", () => SlowSubscriber(Fresh(root)));
         Console.WriteLine("11 offline application behavior groups PASS");
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static async Task NativeCandidate(string candidateFile, string bundled, string state)
+    {
+        Assert(Path.IsPathFullyQualified(candidateFile) && Path.IsPathFullyQualified(bundled) &&
+            Path.IsPathFullyQualified(state), "The native candidate test requires explicit absolute paths.");
+        var input = new FileInfo(candidateFile);
+        Assert(input.Length is > 0 and <= 64_000, "Invalid runtime candidate size.");
+        await using var stream = input.OpenRead();
+        var candidate = await JsonSerializer.DeserializeAsync<RuntimeCandidate>(stream, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+            ?? throw new InvalidDataException("Runtime candidate is missing.");
+        PrivateStorage.CreateNewDirectory(state);
+        var selection = new WindowsRuntimeSelection(Path.Combine(state, "selection"));
+        selection.Activate(candidate);
+        var approved = selection.ReadRuntime(bundled);
+        Assert(approved.IsCustom && approved.RuntimePins.Count == candidate.Files.Length - 1,
+            "Approved runtime lost a reviewed DLL.");
+        await using (var app = OfflineTorService.CreateWindows(approved, Path.Combine(state, "session")))
+        {
+            await app.StartAsync();
+            await Until(app, snapshot => snapshot.SessionStatus == TorSessionStatus.RunningOffline &&
+                snapshot.ControlStatus == TorControlStatus.Authenticated);
+            Assert(app.Snapshot.Online is null, "Offline candidate unexpectedly enabled networking.");
+            try { selection.Activate(candidate); throw new InvalidOperationException("Activation bypassed an active session."); }
+            catch (IOException) { }
+            try { selection.Rollback(bundled); throw new InvalidOperationException("Rollback bypassed an active session."); }
+            catch (IOException) { }
+            await app.StopAsync();
+            await Until(app, snapshot => snapshot.SessionStatus == TorSessionStatus.Stopped);
+            Assert(app.Snapshot.CurrentTask?.RawExitCode == 0, "Custom Tor did not stop with a native exit code of zero.");
+        }
+        selection.Rollback(bundled);
+        Assert(!selection.ReadRuntime(bundled).IsCustom, "Rollback did not restore the reviewed bundled runtime.");
     }
 
     private static async Task Group(string name, Func<Task> test)

@@ -196,6 +196,26 @@ internal static class Offline
         using (var unavailable = new FileStream(queueLock, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
             await Check.RejectAsync(() => Task.FromResult(expiring.Snapshot()),
                 "The delivery store ignored its exclusive writer lease.", typeof(IOException));
+        byte[] previousQueue = File.ReadAllBytes(queueFile);
+        using (var preventReplace = new FileStream(queueFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+            await Check.RejectAsync(() =>
+            {
+                expiring.SetHistoryEnabled(true);
+                return Task.CompletedTask;
+            }, "Queue publication replaced a protected open file.", typeof(IOException), typeof(UnauthorizedAccessException));
+        Check.That(File.ReadAllBytes(queueFile).SequenceEqual(previousQueue) &&
+            !Directory.EnumerateFiles(security, "pending-delivery-*").Any() && !expiring.Snapshot().HistoryEnabled,
+            "A failed atomic replacement leaked temporary state or changed the committed queue.");
+        var diskFull = new PeerDeliveryStore(security, a.Fingerprint, b.Fingerprint, clock,
+            (_, _) => throw new IOException("Simulated disk full at atomic publication.", unchecked((int)0x80070070)));
+        await Check.RejectAsync(() =>
+        {
+            diskFull.SetHistoryEnabled(true);
+            return Task.CompletedTask;
+        }, "Disk-full publication appeared successful.", typeof(IOException));
+        Check.That(File.ReadAllBytes(queueFile).SequenceEqual(previousQueue) &&
+            !Directory.EnumerateFiles(security, "pending-delivery-*").Any(),
+            "Simulated disk exhaustion changed committed state or leaked a temporary file.");
         byte[] damaged = [0x27, 0x19, 0x08];
         File.WriteAllBytes(queueFile, damaged);
         await Check.RejectAsync(() => Task.FromResult(expiring.Snapshot()),
@@ -210,7 +230,7 @@ internal static class Offline
                 "Unreadable local state was not classified as a private storage failure.", typeof(PeerDeliveryStorageException));
         }
         Console.WriteLine("PASS durable pre-send, lost ACK, pin-bound queues, restart deduplication, bidirectional ACK, TTL and opt-in history");
-        Console.WriteLine("PASS session-local Sent, full queue, writer lease contention and corrupt DPAPI refusal");
+        Console.WriteLine("PASS session-local Sent, queue and disk-full, writer contention, failed replacement and corrupt DPAPI refusal");
     }
 
     private sealed class FixtureClock(DateTimeOffset utc) : TimeProvider
@@ -247,8 +267,20 @@ internal static class Offline
             await Check.RejectAsync(() => Task.FromResult(reopened.Pair(local, "Revoked", remote.Fingerprint, null, true)),
                 "Revoked pin was restored implicitly.", typeof(InvalidOperationException));
         }
+        string originalFingerprint;
         using (var local = reopened.OpenIdentity()!)
+        {
+            originalFingerprint = local.Fingerprint;
             Check.That(reopened.ReadContacts(local).Single().Revoked, "Revocation was lost across a reload.");
+            reopened.SaveRecoveryCopy(local);
+            await Check.RejectAsync(() => Task.FromResult(reopened.RecoverIdentity(explicitlyApproved: true)),
+                "Recovery overwrote an openable identity.", typeof(InvalidOperationException));
+            await Check.RejectAsync(() =>
+            {
+                reopened.SaveRecoveryCopy(local);
+                return Task.CompletedTask;
+            }, "Recovery copy was overwritten.", typeof(IOException));
+        }
         Console.WriteLine("PASS first-use consent, identity/pin restart, duplicate trust and persistent revocation");
 
         var secret = Path.Combine(fresh, "peer-security", "local-identity.dpapi");
@@ -261,6 +293,28 @@ internal static class Offline
             typeof(IOException));
         Check.That(File.ReadAllBytes(secret).SequenceEqual(new byte[] { 0x11, 0x22, 0x33 }), "Failed open changed stored credential.");
         Console.WriteLine("PASS malformed or lost identity fails closed without replacing credential");
+        await Check.RejectAsync(() => Task.FromResult(reopened.RecoverIdentity(explicitlyApproved: false)),
+            "The recovery path bypassed explicit consent.", typeof(InvalidOperationException));
+        var copy = Path.Combine(fresh, "peer-security", "local-identity-recovery.dpapi");
+        var otherPath = Path.Combine(fresh, "other-profile");
+        var another = new PeerProfileStore(otherPath);
+        using var anotherIdentity = another.CreateIdentity();
+        File.Copy(Path.Combine(otherPath, "peer-security", "local-identity.dpapi"), copy, overwrite: true);
+        await Check.RejectAsync(() => Task.FromResult(reopened.RecoverIdentity(explicitlyApproved: true)),
+            "Recovery accepted a protected key from another profile.", typeof(InvalidDataException));
+        Check.That(File.ReadAllBytes(secret).SequenceEqual(new byte[] { 0x11, 0x22, 0x33 }),
+            "An unrelated recovery file changed the primary credential.");
+        File.WriteAllBytes(copy, encrypted);
+        using var recovered = reopened.RecoverIdentity(explicitlyApproved: true);
+        Check.That(recovered.Fingerprint == originalFingerprint && reopened.ReadContacts(recovered).Single().Revoked &&
+            File.ReadAllBytes(secret).SequenceEqual(encrypted), "Recovery changed the TLS identity or contact revocation.");
+        string preserved = Directory.GetFiles(Path.GetDirectoryName(secret)!, "damaged-identity-*.dpapi").Single();
+        Check.That(File.ReadAllBytes(preserved).SequenceEqual(new byte[] { 0x11, 0x22, 0x33 }),
+            "Recovery discarded the corrupt state instead of preserving it privately.");
+        File.Move(secret, Path.Combine(Path.GetDirectoryName(secret)!, "fixture-removed-primary.dpapi"));
+        using var recoveredMissing = reopened.RecoverIdentity(explicitlyApproved: true);
+        Check.That(recoveredMissing.Fingerprint == originalFingerprint, "A missing primary restored a different identity.");
+        Console.WriteLine("PASS explicit owner-private recovery preserves the original TLS identity, contacts and damaged bytes");
     }
 
     internal static async Task RunAsync()

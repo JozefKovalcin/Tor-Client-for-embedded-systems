@@ -12,6 +12,7 @@ public sealed record TrustedPeer(string Label, string Fingerprint, string? Onion
 public sealed class PeerProfileStore
 {
     private const string IdentityName = "local-identity.dpapi";
+    private const string RecoveryName = "local-identity-recovery.dpapi";
     private const int Limit = 64 * 1024, MaxPeers = 128;
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
     private readonly string root;
@@ -31,12 +32,64 @@ public sealed class PeerProfileStore
     {
         if (!Exists(root)) return null;
         PrivateStorage.RequireOwnerOnly(root);
-        byte[] clear = PeerPrivateData.Unprotect(Read(IdentityName));
+        return OpenBoundIdentity(Read(IdentityName));
+    }
+
+    public bool HasRecoveryCopy => Exists(Path.Combine(root, RecoveryName));
+
+    public void SaveRecoveryCopy(PeerIdentity active)
+    {
+        ArgumentNullException.ThrowIfNull(active);
+        using var gate = Lock();
+        var protectedIdentity = Read(IdentityName);
+        using var current = OpenBoundIdentity(protectedIdentity);
+        if (active.Fingerprint != current.Fingerprint)
+            throw new InvalidOperationException("The local identity changed. Reopen the profile before saving a recovery copy.");
+        Write(RecoveryName, protectedIdentity, replace: false);
+    }
+
+    public PeerIdentity RecoverIdentity(bool explicitlyApproved)
+    {
+        if (!explicitlyApproved) throw new InvalidOperationException("Confirm recovery of the existing local TLS identity.");
+        using var gate = Lock();
+        var recovery = Read(RecoveryName);
+        var identity = OpenBoundIdentity(recovery);
         try
         {
-            var result = PeerIdentity.LoadPrivateCertificate(clear);
-            try { _ = ReadContacts(result); return result; }
-            catch { result.Dispose(); throw; }
+            bool present = Exists(Path.Combine(root, IdentityName));
+            if (present)
+            {
+                byte[] previous = Read(IdentityName);
+                try
+                {
+                    using var healthy = OpenProtectedIdentity(previous);
+                    throw new InvalidOperationException("The current local identity can be opened and was preserved.");
+                }
+                catch (CryptographicException)
+                {
+                    // Keep the previous protected bytes inside the private directory.
+                    Write("damaged-identity-" + Guid.NewGuid().ToString("N") + ".dpapi", previous, replace: false);
+                }
+            }
+            Write(IdentityName, recovery, replace: present);
+            return identity;
+        }
+        catch { identity.Dispose(); throw; }
+    }
+
+    private PeerIdentity OpenBoundIdentity(byte[] payload)
+    {
+        var identity = OpenProtectedIdentity(payload);
+        try { _ = ReadContacts(identity); return identity; }
+        catch { identity.Dispose(); throw; }
+    }
+
+    private static PeerIdentity OpenProtectedIdentity(byte[] payload)
+    {
+        byte[] clear = PeerPrivateData.Unprotect(payload);
+        try
+        {
+            return PeerIdentity.LoadPrivateCertificate(clear);
         }
         finally { CryptographicOperations.ZeroMemory(clear); }
     }

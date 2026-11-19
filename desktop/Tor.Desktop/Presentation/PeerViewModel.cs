@@ -41,6 +41,8 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
     private IReadOnlyList<TrustedPeer> contacts = [];
     private TrustedPeer? selectedPeer;
     private bool canCreate;
+    private bool hasRecoveryCopy, approveIdentityRecovery;
+    private string recoveryNotice = "";
     private (OnionAddress Address, string Fingerprint, bool Hosting)? resumeAfterTor;
     private OnionAddress? savedHostingAddress;
     private bool invalidHostingIdentity, approveHostingRotation;
@@ -56,7 +58,8 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
     private readonly Dictionary<string, PeerConnectionEvent[]> connectionHistory = new(StringComparer.Ordinal);
 
     private ActionCommand? hostCommand, connectCommand, createIdentityCommand, savePeerCommand, revokePeerCommand,
-        saveEndpointCommand, rotatePeerCommand, createHostingCommand, rotateHostingCommand, transientHostCommand;
+        saveEndpointCommand, rotatePeerCommand, createHostingCommand, rotateHostingCommand, transientHostCommand,
+        saveRecoveryCommand, recoverIdentityCommand;
     private AsyncCommand? sendCommand, disconnectCommand;
     public ActionCommand HostCommand => hostCommand ??= new(
         () => Begin(hosting: true, hostAction: hostingStore is null ? null : HostingIdentityAction.Restore),
@@ -75,6 +78,10 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
     public AsyncCommand DisconnectCommand => disconnectCommand ??= new(DisconnectAsync,
         () => SetStatus(PeerState.CleanupUnconfirmed), () => (attempt is not null || resumeAfterTor is not null) && !stopping);
     public ActionCommand CreateIdentityCommand => createIdentityCommand ??= new(CreateProfile, () => canCreate && CanEditPeer);
+    public ActionCommand SaveRecoveryCommand => saveRecoveryCommand ??= new(SaveRecoveryCopy,
+        () => profile is not null && identity is not null && !hasRecoveryCopy && CanEditPeer);
+    public ActionCommand RecoverIdentityCommand => recoverIdentityCommand ??= new(RecoverIdentity,
+        () => hasRecoveryCopy && identity is null && !canCreate && ApproveIdentityRecovery && CanEditPeer);
     public ActionCommand SavePeerCommand => savePeerCommand ??= new(() => Pair(rotate: false), CanPair);
     public ActionCommand RotatePeerCommand => rotatePeerCommand ??= new(() => Pair(rotate: true), () => CanPair() && SelectedPeer is not null);
     public ActionCommand SaveEndpointCommand => saveEndpointCommand ??= new(SaveEndpoint,
@@ -83,6 +90,18 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
     public ActionCommand RevokePeerCommand => revokePeerCommand ??= new(Revoke, () => profile is not null && identity is not null && SelectedPeer is not null && CanEditPeer);
 
     public string Fingerprint => identity?.Fingerprint ?? "";
+    public bool HasPrivateProfile => profile is not null;
+    public bool CanApproveIdentityRecovery => hasRecoveryCopy && identity is null && !canCreate && CanEditPeer;
+    public string RecoveryNotice
+    {
+        get => recoveryNotice;
+        private set => Set(ref recoveryNotice, value);
+    }
+    public bool ApproveIdentityRecovery
+    {
+        get => approveIdentityRecovery;
+        set { if (Set(ref approveIdentityRecovery, value)) RecoverIdentityCommand.Invalidate(); }
+    }
     public string Status => state switch
     {
         PeerState.Ready => "Ready to host or connect.",
@@ -242,6 +261,7 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
         if (identity is not null || profile is null && !available) return;
         try
         {
+            hasRecoveryCopy = profile?.HasRecoveryCopy == true;
             identity = profile is null ? new PeerIdentity() : profile.OpenIdentity();
             canCreate = identity is null;
             if (canCreate) SetStatus(PeerState.CredentialNeeded);
@@ -286,6 +306,38 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
             SetStatus(available ? PeerState.Ready : PeerState.WaitingForTor);
         }
         catch (Exception error) when (ProfileFailure(error)) { SetStatus(PeerState.CredentialFailed); }
+        finally { Changed(nameof(Fingerprint)); Invalidate(); }
+    }
+
+    private void SaveRecoveryCopy()
+    {
+        try
+        {
+            profile!.SaveRecoveryCopy(identity!);
+            hasRecoveryCopy = true;
+            RecoveryNotice = "Protected recovery copy saved for this Windows user.";
+        }
+        catch (Exception error) when (ProfileFailure(error))
+        { RecoveryNotice = "The recovery copy could not be saved. The existing identity was preserved."; }
+        finally { Invalidate(); }
+    }
+
+    private void RecoverIdentity()
+    {
+        if (!CanApproveIdentityRecovery || !ApproveIdentityRecovery) return;
+        ApproveIdentityRecovery = false;
+        try
+        {
+            identity = profile!.RecoverIdentity(explicitlyApproved: true);
+            LoadContacts();
+            SetStatus(available ? PeerState.Ready : PeerState.WaitingForTor);
+            RecoveryNotice = "Original local TLS identity restored. Existing trusted contacts were retained.";
+        }
+        catch (Exception error) when (ProfileFailure(error))
+        {
+            SetStatus(PeerState.CredentialFailed);
+            RecoveryNotice = "The private recovery copy could not be used.";
+        }
         finally { Changed(nameof(Fingerprint)); Invalidate(); }
     }
 
@@ -639,8 +691,10 @@ internal sealed class PeerViewModel(IPeerTorService tor, PeerProfileStore? profi
         Changed(nameof(CanEditPeer));
         Changed(nameof(CanEditSelectedPeer));
         Changed(nameof(CanApproveHostingRotation));
+        Changed(nameof(CanApproveIdentityRecovery));
         HostCommand.Invalidate(); ConnectCommand.Invalidate(); SendCommand.Invalidate(); DisconnectCommand.Invalidate();
         CreateIdentityCommand.Invalidate(); SavePeerCommand.Invalidate(); RevokePeerCommand.Invalidate();
+        SaveRecoveryCommand.Invalidate(); RecoverIdentityCommand.Invalidate();
         SaveEndpointCommand.Invalidate(); RotatePeerCommand.Invalidate();
         CreateHostingCommand.Invalidate(); RotateHostingCommand.Invalidate(); TransientHostCommand.Invalidate();
     }
