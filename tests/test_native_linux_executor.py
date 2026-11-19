@@ -40,6 +40,7 @@ class SourceSafetyTests(unittest.TestCase):
                     filename, content = item
                     member = tarfile.TarInfo(filename)
                     member.size = len(content)
+                    member.mtime = 1_600_000_000
                     archive.addfile(member, io.BytesIO(content))
         return {"name": name, "version": "synthetic", "archive": path.name,
                 "directory": name, "sha256": build.native.hash_file(path),
@@ -55,6 +56,7 @@ class SourceSafetyTests(unittest.TestCase):
         before = (self.root / "cache" / pin["archive"]).read_bytes()
         directory, count = self.extract(pin)
         self.assertEqual((directory / "configure").read_bytes(), b"synthetic data")
+        self.assertEqual((directory / "configure").stat().st_mtime, 1_600_000_000)
         self.assertGreater(count, 0)
         self.assertEqual((self.root / "cache" / pin["archive"]).read_bytes(), before)
         self.assertEqual(build.native.hash_file(self.root / "snapshots" / pin["archive"]), pin["sha256"])

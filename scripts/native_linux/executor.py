@@ -224,6 +224,8 @@ def extract_snapshot(snapshot, source_root, pin, *, byte_budget, checkpoint=None
                 if copied != member.size:
                     raise ValueError("truncated member")
                 destination.chmod(0o700 if member.mode & 0o111 else 0o600)
+                # Release mtimes keep make from regenerating shipped Autotools files.
+                os.utime(destination, (member.mtime, member.mtime), follow_symlinks=False)
         if _source_digest(stream, checkpoint) != pin["sha256"]:
             raise ValueError("snapshot changed during extraction")
     directory = root / pin["directory"]
