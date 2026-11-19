@@ -202,7 +202,8 @@ still be cached by B, so the restored connection uses bounded retries.
 The Manager gives the local SOCKS handshake its own short deadline. It
 allows Tor's full rendezvous timeout on the Onion connect. For a recoverable
 onion-specific failure it requests one descriptor refresh through the
-authenticated controller before one optional retry. Connection failures
+authenticated controller. The retry uses a fresh SOCKS isolation token so it
+can establish a separate circuit without renewing other Tor connections. Connection failures
 report the stage and the SOCKS reply code when Tor returns one.
 Console diagnostics omit the address, pins and key material.
 If separately authorized, pass `-CompareFreshClient` to run a fresh-client

@@ -1,10 +1,11 @@
-"""Synthetic ELF and manifest fixtures; never compile, package or run Tor."""
+"""Synthetic ELF, manifest and archive fixtures. They never compile or run Tor."""
 import copy
 import hashlib
 import json
 import os
 from pathlib import Path
 import struct
+import tarfile
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -149,7 +150,7 @@ class PackagePlanTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.folder = Path(self.temporary.name)
+        self.folder = Path(self.temporary.name).resolve(strict=True)
         self.root = Path(__file__).resolve().parents[1]
         self.policy = package.native._load_json(self.root / "config/native-linux/v1.json")
         self.pins = []
@@ -195,6 +196,24 @@ class PackagePlanTests(unittest.TestCase):
 
     def plan(self):
         return package.package_plan(self.folder, self.expected)
+
+    def test_archive_is_deterministic_and_contains_only_the_verified_payload(self):
+        (self.folder / "prefix/bin/local-only.txt").write_bytes(b"must never be packaged")
+        first = self.folder / "first.tar.gz"
+        other = self.folder / "other.tar.gz"
+        result = package.create_archive(self.folder, self.expected, first)
+        package.create_archive(self.folder, self.expected, other)
+        self.assertEqual(first.read_bytes(), other.read_bytes())
+        self.assertEqual(result["packagingExecutionStatus"], "PASS")
+        self.assertFalse(result["readyForDistribution"])
+        with tarfile.open(first, "r:gz") as archive:
+            expected = [row["destinationRef"] for row in result["files"]] + ["runtime-inventory.json"]
+            self.assertEqual(archive.getnames(), sorted(expected))
+            self.assertEqual(archive.getmember("bin/tor").mode, 0o755)
+            self.assertEqual(json.load(archive.extractfile("runtime-inventory.json"))["distributionTarget"],
+                             result["distributionTarget"])
+        with self.assertRaises(FileExistsError):
+            package.create_archive(self.folder, self.expected, first)
 
     def test_only_exact_binary_and_pinned_licenses_are_planned_without_writes(self):
         private = self.folder / "prefix" / "DataDirectory"

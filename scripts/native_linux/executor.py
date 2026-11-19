@@ -224,6 +224,12 @@ def extract_snapshot(snapshot, source_root, pin, *, byte_budget, checkpoint=None
                 if copied != member.size:
                     raise ValueError("truncated member")
                 destination.chmod(0o700 if member.mode & 0o111 else 0o600)
+                # Release mtimes keep make from regenerating shipped Autotools files.
+                times = (member.mtime, member.mtime)
+                if os.utime in os.supports_follow_symlinks:
+                    os.utime(destination, times, follow_symlinks=False)
+                else:
+                    os.utime(destination, times)
         if _source_digest(stream, checkpoint) != pin["sha256"]:
             raise ValueError("snapshot changed during extraction")
     directory = root / pin["directory"]
@@ -279,6 +285,8 @@ def build_commands(plan, output):
     for name in SOURCE_ORDER:
         cwd = str(output / "sources" / pins[name]["directory"])
         environment = dict(env)
+        if name == "libseccomp":
+            environment["GPERF"] = tools["gperf"]["path"]
         if name == "tor":
             environment["CFLAGS"] += " -fPIE"
             environment["LDFLAGS"] += " -pie"
@@ -371,8 +379,9 @@ class ProcessRunner:
 
 
 class Progress:
-    def __init__(self, task_id, path):
+    def __init__(self, task_id, path, observe=None):
         self.task_id, self.path, self.sequence = task_id, Path(path), 0
+        self.observe = observe
 
     def emit(self, state, phase, message, *, result=None, reason=None):
         self.sequence += 1
@@ -387,6 +396,8 @@ class Progress:
         with self.path.open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(value, allow_nan=False, sort_keys=True) + "\n")
             stream.flush()
+        if self.observe is not None:
+            self.observe(value)
         return value
 
 
@@ -476,7 +487,7 @@ def _create_workspace_run(output, parent_fd):
         os.close(descriptor)
 
 
-def _run_verified(plan, output, archive_cache, cancellation, *, runner=None, workspace=None):
+def _run_verified(plan, output, archive_cache, cancellation, *, runner=None, workspace=None, observe=None):
     """Internal engine; public entry obtains fresh qualification and approval."""
     deadline = time.monotonic() + BUILD_TIMEOUT
     runner = runner or ProcessRunner(deadline=deadline)
@@ -504,7 +515,7 @@ def _run_verified(plan, output, archive_cache, cancellation, *, runner=None, wor
         (output / folder).mkdir(mode=0o700)
     # Input hashes identify reusable inputs; task IDs identify distinct attempts.
     task_id = "native-build-" + uuid.uuid4().hex
-    progress = Progress(task_id, output / "events.jsonl")
+    progress = Progress(task_id, output / "events.jsonl", observe=observe)
     manifest = {"schemaVersion": 1, "kind": ADAPTER_ID, "taskId": task_id,
                 "executionInputSha256": plan["executionInputSha256"], "inputs": plan["inputs"],
                 "buildRequest": plan["buildRequest"],
@@ -566,7 +577,7 @@ def _run_verified(plan, output, archive_cache, cancellation, *, runner=None, wor
 
 
 def execute_build(source_dir, output_dir, archive_cache, *, approved_input_sha256=None,
-                  cancellation=None, root=native.ROOT):
+                  cancellation=None, root=native.ROOT, observe=None):
     """Execute only after fresh qualification and explicit exact-input approval."""
     if sys.platform != "linux":
         raise BuildBlocked("source execution requires the selected native Linux host")
@@ -584,7 +595,7 @@ def execute_build(source_dir, output_dir, archive_cache, *, approved_input_sha25
             raise BuildBlocked("fresh qualification or approved input digest differs")
         with _create_workspace_run(output, parent_fd) as run_fd:
             return _run_verified(plan, output, archive_cache, cancellation or threading.Event(),
-                                 workspace=(parent_fd, run_fd))
+                                 workspace=(parent_fd, run_fd), observe=observe)
 
 
 def main(argv=None):

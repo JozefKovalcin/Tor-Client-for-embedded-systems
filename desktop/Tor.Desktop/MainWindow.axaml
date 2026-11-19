@@ -20,6 +20,10 @@
             <Border Classes="card" DataContext="{Binding $parent[Window].DataContext.Developer}">
               <StackPanel Spacing="10">
                 <StackPanel IsEnabled="{Binding Idle}" Spacing="6">
+                  <StackPanel IsVisible="{Binding IsLinux}" Spacing="6">
+                    <TextBlock Classes="label" Text="Verified source checkout" />
+                    <TextBox Text="{Binding SourceCheckout}" AutomationProperties.Name="Verified source checkout" />
+                  </StackPanel>
                   <TextBlock Classes="label" Text="Verified archive directory" />
                   <TextBox Text="{Binding Sources}" AutomationProperties.Name="Verified archive directory" />
                   <TextBlock Classes="label" Text="Private build workspace" />
@@ -37,11 +41,11 @@
               <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="8">
                 <WrapPanel>
                   <Button Classes="primary" Content="Scan PC" Command="{Binding ScanCommand}" Margin="0,0,8,0" />
-                  <Button Content="Prepare installation plan" Command="{Binding PlanCommand}" />
+                  <Button Content="Prepare installation plan" Command="{Binding PlanCommand}" IsVisible="{Binding IsWindows}" />
                 </WrapPanel>
                 <SelectableTextBlock Text="{Binding PlanDetails}" FontFamily="Consolas, monospace" TextWrapping="Wrap" />
-                <CheckBox Content="I approve this exact installation plan" IsChecked="{Binding Confirmed}" IsEnabled="{Binding Idle}" />
-                <Button Content="Install approved packages" Command="{Binding InstallCommand}" />
+                <CheckBox Content="I approve this exact installation plan" IsChecked="{Binding Confirmed}" IsEnabled="{Binding Idle}" IsVisible="{Binding IsWindows}" />
+                <Button Content="Install approved packages" Command="{Binding InstallCommand}" IsVisible="{Binding IsWindows}" />
                 <ItemsControl ItemsSource="{Binding Dependencies}">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -63,10 +67,14 @@
               </StackPanel>
             </StackPanel>
             <StackPanel IsVisible="{Binding ShowDeveloperBuild}">
-              <WrapPanel DataContext="{Binding $parent[Window].DataContext.Developer}">
-                <Button Content="Run preflight" Command="{Binding ScanCommand}" Margin="0,0,8,0" />
-                <Button Classes="primary" Content="Compile verified sources" Command="{Binding BuildCommand}" />
-              </WrapPanel>
+              <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="6">
+                <CheckBox Content="I approve compilation from the verified inputs" IsChecked="{Binding Confirmed}"
+                          IsEnabled="{Binding Idle}" IsVisible="{Binding IsLinux}" />
+                <WrapPanel>
+                  <Button Content="Run preflight" Command="{Binding ScanCommand}" Margin="0,0,8,0" />
+                  <Button Classes="primary" Content="Compile verified sources" Command="{Binding BuildCommand}" />
+                </WrapPanel>
+              </StackPanel>
             </StackPanel>
             <StackPanel IsVisible="{Binding ShowDeveloperArtifacts}">
               <StackPanel DataContext="{Binding $parent[Window].DataContext.Developer}" Spacing="8">
@@ -82,15 +90,16 @@
                   <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Display}" /></DataTemplate></ComboBox.ItemTemplate>
                 </ComboBox>
                 <Button Content="Run offline smoke" Command="{Binding SmokeCommand}" />
-                <Button Classes="primary" Content="Export verified runtime ZIP" Command="{Binding ExportCommand}" />
+                <Button Classes="primary" Content="Export verified runtime archive" Command="{Binding ExportCommand}" />
                 <TextBlock Text="Export is available after an offline smoke test passes. The ZIP is saved in the workspace’s exports folder."
-                           TextWrapping="Wrap" Classes="muted" />
-                <CheckBox Content="I approve this verified local build for future Tor sessions" IsChecked="{Binding ApproveRuntime}" IsEnabled="{Binding Idle}" />
-                <WrapPanel>
+                           TextWrapping="Wrap" Classes="muted" IsVisible="{Binding IsWindows}" />
+                <CheckBox Content="I approve this verified local build for future Tor sessions" IsChecked="{Binding ApproveRuntime}"
+                          IsEnabled="{Binding Idle}" IsVisible="{Binding IsWindows}" />
+                <WrapPanel IsVisible="{Binding IsWindows}">
                   <Button Content="Activate approved build" Command="{Binding ActivateCommand}" Margin="0,0,8,0" />
                   <Button Content="Roll back runtime" Command="{Binding RollbackCommand}" />
                 </WrapPanel>
-                <TextBlock Text="Activation and rollback take effect after restarting Tor Manager." TextWrapping="Wrap" Classes="muted" />
+                <TextBlock Text="Activation and rollback take effect after restarting Tor Manager." TextWrapping="Wrap" Classes="muted" IsVisible="{Binding IsWindows}" />
               </StackPanel>
             </StackPanel>
             <Border Classes="log" DataContext="{Binding $parent[Window].DataContext.Developer}">

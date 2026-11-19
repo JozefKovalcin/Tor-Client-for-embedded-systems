@@ -178,10 +178,10 @@ public sealed class WindowsTorTaskHandler(PinnedWindowsRuntime runtime, string p
             using var combined = CancellationTokenSource.CreateLinkedTokenSource(token, Lifetime);
             combined.CancelAfter(TimeSpan.FromSeconds(175));
             var pid = current.Session.ProcessId;
-            Task<Stream> Connect() =>
+            Task<Stream> Connect(bool isolate = false) =>
                 OnionSocksConnection.ConnectAsync(new(IPAddress.Loopback, current.SocksPort), address,
                     peer => !combined.IsCancellationRequested && current.Ready && !current.Session.Completion.IsCompleted &&
-                            WindowsTcpOwner.OwnsPeer(pid, current.SocksPort, peer), combined.Token);
+                            WindowsTcpOwner.OwnsPeer(pid, current.SocksPort, peer), combined.Token, isolate);
             try
             {
                 try { return await Connect().ConfigureAwait(false); }
@@ -189,7 +189,7 @@ public sealed class WindowsTorTaskHandler(PinnedWindowsRuntime runtime, string p
                 {
                     if (!await current.Session.Control.RefreshOnionDescriptorAsync(address, combined.Token).ConfigureAwait(false))
                         throw;
-                    return await Connect().ConfigureAwait(false);
+                    return await Connect(isolate: true).ConfigureAwait(false);
                 }
             }
             catch (OperationCanceledException) when (combined.IsCancellationRequested &&

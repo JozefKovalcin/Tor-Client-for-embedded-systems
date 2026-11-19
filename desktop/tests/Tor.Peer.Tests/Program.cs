@@ -580,6 +580,25 @@ internal static partial class Offline
             cancelled.Token), "Caller cancellation was mistaken for a SOCKS deadline.", typeof(OperationCanceledException));
         Check.That(OnionSocksConnection.OnionConnectBudget > TimeSpan.FromMinutes(2),
             "The application must allow Tor's native two-minute rendezvous timeout.");
+        var isolated = OnionSocksConnection.ConnectAsync(endpoint, LoopbackTransport.Address, _ => true,
+            deadline.Token, isolate: true);
+        using (var peer = await socks.AcceptTcpClientAsync(deadline.Token))
+        using (var connection = peer.GetStream())
+        {
+            var greeting = new byte[3];
+            await connection.ReadExactlyAsync(greeting, deadline.Token);
+            Check.That(greeting.SequenceEqual(new byte[] { 5, 1, 2 }), "Isolated SOCKS offered a downgrade.");
+            await connection.WriteAsync(new byte[] { 5, 2 }, deadline.Token);
+            var authentication = new byte[44];
+            await connection.ReadExactlyAsync(authentication, deadline.Token);
+            Check.That(authentication[0] == 1 && authentication[1] == 9 &&
+                authentication.AsSpan(2, 9).SequenceEqual("<torS0X>0"u8) && authentication[11] == 32,
+                "Malformed Tor stream-isolation token.");
+            await connection.WriteAsync(new byte[] { 1, 0 }, deadline.Token);
+            await connection.ReadExactlyAsync(new byte[69], deadline.Token);
+            await connection.WriteAsync(new byte[] { 5, 0, 0, 1, 127, 0, 0, 1, 0, 80 }, deadline.Token);
+            await using var tunnel = await isolated;
+        }
         Console.WriteLine("PASS SOCKS distinguishes proxy setup, onion timeout and caller cancellation");
     }
 

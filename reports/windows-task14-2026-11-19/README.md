@@ -118,3 +118,102 @@ The isolated selection activated the actual shared build, authenticated
 an offline Tor process, refused activation and rollback while the process
 held the lease, stopped it with exit 0, and rolled back to the bundled
 pin. The user's runtime selection was outside the test scope.
+
+## Audit follow-up, draft #39
+
+[Draft #39](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems/pull/39)
+addresses the ten repository audit findings. Both bundled Windows
+same-address restart tests passed with the original client alive, mutual
+TLS, exact two-way transfer and zero exit codes. The restored exchanges
+took about 123 seconds and 8.5 seconds. The retry uses a target-only
+descriptor refresh and a fresh SOCKS isolation token. The tests ran
+without NEWNYM or a fresh client. The successful manual NEWNYM comparison
+and earlier automatic failures above remain part of the record.
+
+Windows passed 183 portable tests with 10 platform skips, 26 private
+Peers workflow assertions, the native offline lifecycle suite, and all
+nine frozen online tests with the extracted bundled client. The tests
+exercised journal rollover and reopening, Tor lifetime and explicit stop,
+host identity creation and rotation, and removal of disposable runtime
+files after exit. Buildroot resolved all 15 Kconfig profiles on Ubuntu
+24.04 WSL. The checked cache remained reusable and rejected added files
+in the regression fixture.
+
+The self-contained Windows x64 archive
+`TorManager-win-x64-0.1.0-dev.20261119.6.zip` came from
+`160c6ee659d9f182c1ca92c93162665d4c1835d3`. Locked restore, 320 payload
+hashes, 20 native import inventories, the build-time provenance record,
+launch from a path with spaces and a System32-only PATH, and controlled
+exit 0 passed.
+
+| File | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Windows x64 ZIP | 55,433,613 | `0bcae1c41034bfe852b3f295f00242bdb85f5da9298edb7b626eb03035a1628c` |
+| Windows Manager EXE | 73,728 | `fbbaff47b2970e451e1be69ee7dbf2c83257a75f53b8f41a2baf9cdad010723a` |
+| Bundled Windows Tor EXE | 8,642,974 | `3a65024937320fb53a76615273d9cdf7718d9cf90855081dab4b73ae52d2c7f9` |
+| Bundled Windows companion DLL | 73,308 | `94334eab25e1a4043a3efdcf88636e722f387fe62fcc57c2533876a019baa04c` |
+| Bundled Windows Tor EXE and DLL | 8,716,282 | — |
+| Linux x64 runtime archive | 4,409,217 | `81c115c8ea753b8f3c085bf3ae65a29d320805ea5d81314c71f247ed22e61976` |
+| Linux Tor ELF | 11,734,256 | `6c4c0f0d85e3b8802c97c79f3ee55a0332802ceb8890103f07cd2035e771a886` |
+
+Ubuntu 24.04 x86_64 on WSL used GCC 13.3.0 and glibc 2.39 under a
+regular build account. Run `run-8d35be6545f340ecb3fdec4056f36b62` compiled
+all five pinned sources from cache. The earlier libevent timestamp and
+missing gperf failures are preserved. The offline adapter then verified
+the real Linux executable, waited for its loopback control event loop,
+and collected exit 0.
+
+The Linux archive `tor-linux-x64-0.4.9.14-audit.tar.gz` contains Tor,
+five licenses and the runtime inventory. Its system dependencies are
+`libc.so.6`, `libm.so.6` and the x86_64 glibc loader. It was extracted and
+the resulting executable passed all nine frozen online assertions,
+including SOCKS5, v3 onion reachability, two-way SHA-256 integrity and
+same-address reconnection. The build manifest SHA-256 is
+`447025b46c01cffc0de3689123c86959341309d846825456d3475b86b0be1d05`.
+
+The same .NET Manager published and started under Xvfb on Ubuntu 24.04
+WSL. The packaged adapter listed the actual build and preserved a
+cancelled build manifest when its controller closed stdin. The Linux
+offline suite passed 190 tests with three platform skips. These results
+cover one Windows host and its Ubuntu WSL environment. Independent clean
+hosts, physical two-PC testing, public endurance and Windows DPI checks
+remain NOT RUN.
+
+Two Windows-to-WSL cross-platform attempts exercised the exact extracted
+runtimes and the existing echo and SAFECOOKIE helpers. The first exchanged
+the expected data in both directions, then timed out after Windows
+restarted. It did not wait for restored descriptor publication before
+asking the Linux client to reconnect. The second confirmed publication,
+requested the target descriptor from the original Linux Tor process and
+opened a fresh isolated SOCKS stream. That run passed before and after
+restart, including the same onion address, 1 MiB echo SHA-256, the
+server-push SHA-256, and exit 0 from both final processes.
+
+### Windows private file ownership
+
+The hosted Windows CI runner first exposed two environment differences.
+Test temporary paths used a short Windows alias, and its elevated process
+created new files with Administrators as the owner. The tests now use
+canonical fixture paths. Windows private writers assign the actual
+account SID and the private ACL at creation. They still check existing
+files before use. The shared helper covers peer TLS, contact locks,
+delivery data, Onion Service keys and disposable runtime staging.
+
+Candidate `TorManager-win-x64-0.1.0-dev.20261119.7.zip` was built from
+`71c32ceb9650479ea67a4494c80dec25ee4434c7`. It passed locked publish,
+320 payload hashes, extracted Manager launch and clean close, native
+offline SAFECOOKIE and lifecycle checks, and 26 Windows peer workflow
+assertions. A third Windows public persistent-host test passed with the
+original client. The host reopened the same onion address and TLS
+identity and both peers closed with exit 0. The .7 Tor EXE and DLL hashes
+match the .6 binaries used for the nine frozen online tests.
+
+The [Windows offline job](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems/actions/runs/44540579755/job/135617492756)
+and [Ubuntu checks](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems/actions/runs/44540579755/job/135617492556)
+passed on `71c32ce`. The Windows job passed the isolated private-peer
+workflow under the elevated account that reproduced the ownership error.
+The separately dispatched full embedded build remained SKIPPED.
+
+| File | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Windows x64 .7 ZIP | 55,434,062 | `3c50190c5f700b4e634d93b0d745d29bd0c3e5026ae7c0527cdcfc421a5fb0d3` |

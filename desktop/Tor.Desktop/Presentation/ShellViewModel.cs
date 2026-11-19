@@ -23,8 +23,8 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
     private readonly IReadOnlyList<PageViewModel> _offlinePages;
     private readonly IReadOnlyList<PageViewModel> _developerPages =
     [
-        new("Dependencies", "Scan the Windows host and review a pinned installation plan.", ShowDeveloper: true, ShowDeveloperDependencies: true),
-        new("Build Manager", "Verify local inputs and invoke the native MSYS2 UCRT64 recipe.", ShowDeveloper: true, ShowDeveloperBuild: true),
+        new("Dependencies", "Check the local tools and pinned source archives.", ShowDeveloper: true, ShowDeveloperDependencies: true),
+        new("Build Manager", "Verify local inputs and compile with the native toolchain.", ShowDeveloper: true, ShowDeveloperBuild: true),
         new("Builds", "Inspect build records and run offline acceptance checks.", ShowDeveloper: true, ShowDeveloperArtifacts: true)
     ];
     private PageViewModel _currentPage;
@@ -149,7 +149,7 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
             new PageViewModel("Settings", "Save your appearance, connection and workspace preferences.", ShowSettings: true)
         }.Where(page => !page.ShowPeers || offline is IPeerTorService).ToArray();
         Offline = offline is null ? null : new(offline, dispatcher, peerProfile, hostingIdentity);
-        if (OperatingSystem.IsWindows()) Developer = new(dispatcher, bundledRuntime);
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) Developer = new(dispatcher, bundledRuntime);
         OfflineUnavailableReason = offlineUnavailableReason;
         _connectionMode = stored.PreferredConnection switch
         {
@@ -368,7 +368,7 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         SaveSettingsCommand.Invalidate();
         try
         {
-            if (OperatingSystem.IsWindows() && Developer is not null) await Developer.CloseAsync();
+            if (Developer is not null) await Developer.CloseAsync();
         }
         finally
         {

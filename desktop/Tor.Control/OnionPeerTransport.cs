@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Tor.Control;
 
@@ -66,11 +68,11 @@ public static class OnionSocksConnection
     internal static readonly TimeSpan OnionConnectBudget = TimeSpan.FromSeconds(130);
 
     public static Task<Stream> ConnectAsync(IPEndPoint socks, OnionAddress remote,
-        Func<IPEndPoint, bool> verifyPeer, CancellationToken token) =>
-        ConnectAsync(socks, remote, verifyPeer, LocalHandshakeBudget, OnionConnectBudget, token);
+        Func<IPEndPoint, bool> verifyPeer, CancellationToken token, bool isolate = false) =>
+        ConnectAsync(socks, remote, verifyPeer, LocalHandshakeBudget, OnionConnectBudget, token, isolate);
 
     internal static async Task<Stream> ConnectAsync(IPEndPoint socks, OnionAddress remote,
-        Func<IPEndPoint, bool> verifyPeer, TimeSpan localBudget, TimeSpan onionBudget, CancellationToken token)
+        Func<IPEndPoint, bool> verifyPeer, TimeSpan localBudget, TimeSpan onionBudget, CancellationToken token, bool isolate = false)
     {
         ArgumentNullException.ThrowIfNull(verifyPeer);
         if (!socks.Address.Equals(IPAddress.Loopback) || socks.Port == 0)
@@ -85,7 +87,8 @@ public static class OnionSocksConnection
             if (!verifyPeer((IPEndPoint)socket.LocalEndPoint!))
                 throw new IOException("The SOCKS connection does not belong to the active Tor process.");
             var stream = new NetworkStream(socket, ownsSocket: true);
-            await Socks5ConnectivityProbe.NegotiateAsync(stream, deadline.Token).ConfigureAwait(false);
+            if (isolate) await NegotiateIsolatedAsync(stream, deadline.Token).ConfigureAwait(false);
+            else await Socks5ConnectivityProbe.NegotiateAsync(stream, deadline.Token).ConfigureAwait(false);
             deadline.Token.ThrowIfCancellationRequested();
             phase = OnionSocksPhase.OnionConnect;
             deadline.CancelAfter(onionBudget);
@@ -98,5 +101,18 @@ public static class OnionSocksConnection
             throw new OnionSocksTimeoutException(phase);
         }
         catch { socket.Dispose(); throw; }
+    }
+
+    private static async Task NegotiateIsolatedAsync(Stream stream, CancellationToken token)
+    {
+        var reply = new byte[2];
+        await stream.WriteAsync(new byte[] { 5, 1, 2 }, token).ConfigureAwait(false);
+        await stream.ReadExactlyAsync(reply, token).ConfigureAwait(false);
+        if (reply[0] != 5 || reply[1] != 2) throw new IOException("SOCKS5 stream isolation was refused.");
+        var isolation = Encoding.ASCII.GetBytes(Convert.ToHexString(RandomNumberGenerator.GetBytes(16)));
+        byte[] request = [1, 9, .. "<torS0X>0"u8, (byte)isolation.Length, .. isolation];
+        await stream.WriteAsync(request, token).ConfigureAwait(false);
+        await stream.ReadExactlyAsync(reply, token).ConfigureAwait(false);
+        if (reply[0] != 1 || reply[1] != 0) throw new IOException("SOCKS5 stream isolation was refused.");
     }
 }

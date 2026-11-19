@@ -22,10 +22,47 @@ REPO = PROJECT.parents[1]
 PACKAGING = Path(__file__).resolve().parent
 NET_PACK = "Microsoft.NETCore.App.Runtime.win-x64/11.0.0"
 TARGET = ".NETCoreApp,Version=v11.0/win-x64"
+PUBLISH_RECORD = "release-publish.json"
+ENTRYPOINT_FILES = ("Tor.Desktop.exe", "Tor.Desktop.deps.json", "Tor.Desktop.runtimeconfig.json")
+PUBLISH_FILES = sorted(PROJECT_ASSEMBLIES | set(ENTRYPOINT_FILES))
 
 
 def sha(data):
     return hashlib.sha256(data).hexdigest()
+
+
+def clean_source():
+    dirty = subprocess.check_output(["git", "-C", str(REPO), "status", "--porcelain", "--untracked-files=all",
+                                     "--", "desktop", "scripts", "config", "windows-native"], text=True)
+    if dirty:
+        raise ValueError("Release inputs must match the committed source")
+    return subprocess.check_output(["git", "-C", str(REPO), "rev-parse", "HEAD"], text=True).strip()
+
+
+def publish_hashes(artifacts):
+    return {name: sha(artifacts[name]) for name in PUBLISH_FILES}
+
+
+def build_publish(destination):
+    source = clean_source()
+    destination = destination.absolute()
+    destination.mkdir()
+    subprocess.run(["dotnet", "publish", str(PROJECT / "Tor.Desktop.csproj"), "-c", "Release", "-r", "win-x64",
+                    "--self-contained", "--no-restore", "-p:DebugType=None", "-p:DebugSymbols=false",
+                    "-o", str(destination)], cwd=PROJECT.parent, check=True)
+    files = publish_hashes({name: read_file(destination, name) for name in PUBLISH_FILES})
+    if clean_source() != source:
+        raise ValueError("Source changed during publish")
+    with (destination / PUBLISH_RECORD).open("x", encoding="utf-8") as record:
+        json.dump({"sourceCommit": source, "sha256": files}, record, sort_keys=True)
+
+
+def verify_publish(publish, artifacts, source):
+    raw = read_file(publish, PUBLISH_RECORD)
+    record = json.loads(raw)
+    if record != {"sourceCommit": source, "sha256": publish_hashes(artifacts)}:
+        raise ValueError("Publish files or commit differ from their build-time record")
+    return raw
 
 
 def locked_archives(feed, reviewed, runtime_packs):
@@ -174,6 +211,7 @@ def write_zip(destination, artifacts):
 def pack(publish, feed, runtime, destination, version, objdump, system32):
     if not re.fullmatch(r"\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?", version):
         raise ValueError("Provide a version number for the local release candidate")
+    source = clean_source()
     publish, feed, runtime = (path.resolve(strict=True) for path in (publish, feed, runtime))
     lock_path = PROJECT / "packages.win-x64.lock.json"
     lock_bytes = lock_path.read_bytes()
@@ -182,11 +220,12 @@ def pack(publish, feed, runtime, destination, version, objdump, system32):
     reviewed = json.loads(inventory_bytes)
     archives = locked_archives(feed, reviewed, json.loads(packs_bytes))
     artifacts = {}
-    for name in ("Tor.Desktop.exe", "Tor.Desktop.deps.json", "Tor.Desktop.runtimeconfig.json"):
+    for name in ENTRYPOINT_FILES:
         add_artifact(artifacts, publish, name)
     native = {"Tor.Desktop.exe"}
     add_managed_publish(artifacts, publish, archives, {item["id"]: item for item in reviewed["packages"]},
                         json.loads(lock_bytes), native)
+    artifacts["provenance/" + PUBLISH_RECORD] = verify_publish(publish, artifacts, source)
     for relative in developer_files():
         add_artifact(artifacts, publish, "developer/" + relative, read_file(REPO, relative))
     add_tor(artifacts, runtime)
@@ -199,8 +238,8 @@ def pack(publish, feed, runtime, destination, version, objdump, system32):
         "provenance/resolved-package-inventory.json": inventory_bytes,
         "provenance/windows-runtime-packs.json": packs_bytes,
     })
-    subprocess.run(["git", "-C", str(REPO), "diff", "--quiet", "HEAD", "--", "desktop", "scripts", "config", "windows-native"], check=True)
-    source = subprocess.check_output(["git", "-C", str(REPO), "rev-parse", "HEAD"], text=True).strip()
+    if clean_source() != source:
+        raise ValueError("Source changed during packaging")
     metadata = {"schemaVersion": 1, "version": version, "sourceCommit": source, "runtimeIdentifier": "win-x64",
                 "selfContained": True, "cleanHostQualification": "NOT RUN", "publicTorQualification": "NOT RUN",
                 "files": {name: {"bytes": len(data), "sha256": sha(data)} for name, data in sorted(artifacts.items())}}
@@ -215,5 +254,8 @@ if __name__ == "__main__":
     for arg in ("publish", "feed", "tor-runtime", "out", "objdump", "system32"):
         parser.add_argument("--" + arg, type=Path, required=True)
     parser.add_argument("--version", required=True)
+    parser.add_argument("--build-publish", action="store_true", help="publish from this commit into a new directory before packaging")
     args = parser.parse_args()
+    if args.build_publish:
+        build_publish(args.publish)
     print(json.dumps(pack(args.publish, args.feed, args.tor_runtime, args.out, args.version, args.objdump, args.system32)))

@@ -44,7 +44,7 @@ internal static class OnlineDesktopTests
         check(shell.IsOnline && service.OnlineStarts == 1 && service.Port == 19150 && !model.CanEditSocksPort &&
             model.SocksStatusText == "No SOCKS5 listener confirmed" && model.TorVersionText == "Version not reported",
             "explicit start forwards a validated port once and preserves the active workspace while status is unknown");
-        if (OperatingSystem.IsWindows())
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
         {
             shell.ShowDeveloperCommand.Execute(null);
             check(shell.IsDeveloper && shell.IsOnline && shell.CurrentPage.ShowDeveloper &&
@@ -111,11 +111,15 @@ internal static class OnlineDesktopTests
             activeRuntime: RuntimeSource.Bundled, hasVerifiedCustomRuntime: () => true))
         {
             await reopened.OpenAsync().WaitAsync(Limit);
-            check(reopened.IsOnline && reopened.IsDeveloper == OperatingSystem.IsWindows() &&
+            check(reopened.IsOnline && reopened.IsDeveloper == (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) &&
                 reopenedService.OnlineStarts == 0 && reopenedService.OfflineStarts == 0 &&
                 reopened.RuntimePreference.Contains("approved custom", StringComparison.Ordinal) &&
                 reopened.ActiveRuntime == "Bundled Tor",
                 "connection, workspace and runtime preferences reload independently without starting Tor");
+            if (OperatingSystem.IsLinux())
+                check(reopened.Developer is { IsLinux: true } developer &&
+                    developer.Profiles.SequenceEqual(["native-linux"]) && !developer.BuildCommand.CanExecute(null) &&
+                    !developer.PlanCommand.CanExecute(null), "Linux Developer requires preflight and has no Windows installer");
         }
         await using (var unavailable = new ShellViewModel(demo, new ImmediateDispatcher(), settings, showRealWhenUnavailable: true))
             check(unavailable.IsRealOffline && !unavailable.IsOnline,
@@ -152,6 +156,11 @@ internal static class OnlineDesktopTests
         check(model.CreateIdentityCommand.CanExecute(null) && !Directory.Exists(fresh), "profile discovery creates no identity or directory");
         model.CreateIdentityCommand.Execute(null);
         string original = model.Fingerprint;
+        if (original.Length != 64)
+        {
+            // Keep GUI errors sanitized while surfacing a storage failure in this isolated test.
+            using var probe = new PeerProfileStore(fresh + "-probe").CreateIdentity();
+        }
         check(original.Length == 64 && service.OnlineStarts == 0, "explicit identity creation works before starting Tor");
         model.SaveRecoveryCommand.Execute(null);
         check(!model.SaveRecoveryCommand.CanExecute(null) && !model.RecoverIdentityCommand.CanExecute(null),

@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -9,6 +10,19 @@ from desktop.packaging import pack_windows_release as release
 
 
 class WindowsReleasePackagingTests(unittest.TestCase):
+    def test_publish_record_binds_commit_and_file_hashes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            publish = Path(directory).resolve(strict=True)
+            artifacts = {name: name.encode() for name in release.PUBLISH_FILES}
+            original = {"sourceCommit": "a" * 40, "sha256": release.publish_hashes(artifacts)}
+            (publish / release.PUBLISH_RECORD).write_text(json.dumps(original), encoding="utf-8")
+            release.verify_publish(publish, artifacts, "a" * 40)
+            with self.assertRaisesRegex(ValueError, "build-time record"):
+                release.verify_publish(publish, artifacts, "b" * 40)
+            artifacts["Tor.Desktop.dll"] = b"changed"
+            with self.assertRaisesRegex(ValueError, "build-time record"):
+                release.verify_publish(publish, artifacts, "a" * 40)
+
     def test_reviewed_archive_bytes_are_checked_before_use(self):
         with tempfile.TemporaryDirectory() as directory:
             feed = Path(directory).resolve()

@@ -1,9 +1,8 @@
-# W6 native Linux packaging inventory and design
+# Native Linux runtime archive
 
-This dependent PR does **not** create or distribute a package. It supplies a
-read-only inventory for the selected Ubuntu 24.04 x86_64 / glibc 2.39 ABI and
-an explicit plan for the later authorized packaging gate. No ELF binary was
-compiled or executed for its tests; fixtures are structural byte arrays.
+Without `--out`, the command produces a read-only inventory for Ubuntu 24.04
+x86_64 and glibc 2.39. Add `--out /home/operator/exports/tor-linux-x64.tar.gz`
+to create and verify a new archive. The destination must be absent.
 
 ```sh
 python3 -B -m scripts.native_linux.packaging \
@@ -11,9 +10,9 @@ python3 -B -m scripts.native_linux.packaging \
   --expected-build-manifest-sha256 TRUSTED_PRODUCER_DIGEST
 ```
 
-The caller must supply the manifest digest from a verified producer/ref. A
-hash supplied alongside arbitrary untrusted data is not producer authentication.
-There is no `--execute`, downloader, shell, ldd or binary invocation.
+Supply the manifest digest from the verified build producer. The packager
+reads the pinned executable and licenses, then checks the finished archive.
+It invokes no executable from the build.
 
 ## Implemented inventory checks
 
@@ -35,40 +34,30 @@ There is no `--execute`, downloader, shell, ldd or binary invocation.
   to OS dependencies: the executor plans static private dependency libraries.
 - Original pinned source licenses checked again and referenced individually.
 
-The proposed file allowlist is exactly `bin/tor` plus the five license files.
+The allowlist is `bin/tor`, five license files and `runtime-inventory.json`.
+The inventory lists the loader, system dependencies, source input digest and
+payload hashes. The archive uses the source epoch and normalized file modes.
 The source/cache/run tree is never recursively packaged. Private state,
 identities, hidden-service directories, cookies, credentials, host config,
 home/tmp and logs are excluded. GeoIP/data files require a later explicit
 reviewed hashed allowlist; no wildcard copying is planned.
 
-## Unexecuted distribution gate
+## Manager
 
-Even when these metadata checks PASS, the result is:
+On Ubuntu 24.04 x86_64, build the shared Avalonia project from the locked
+dependencies. Open **Developer**, enter the clean checkout and local archive
+cache, and select an existing private build workspace on a native path
+without spaces. Create a fresh workspace with `install -d -m 700`.
+Run preflight, approve the displayed input digest, then compile. **Builds**
+shows results. **Run offline smoke** verifies and starts the selected client
+with networking disabled, then terminates it. **Export verified runtime
+archive** writes the archive into the workspace and reports its SHA-256.
 
-```text
-packagingExecutionStatus = NOT RUN
-packageArtifact = null
-readyForDistribution = false
-```
-
-ELF headers cannot prove effective runtime RELRO, W^X, stack protector/fortify
-coverage, successful loading, GLIBC symbol compatibility or complete runtime
-closure. The next separately authorized packaging implementation must:
-
-1. Verify the selected 24.04/2.39 ABI and inspect GLIBC symbol requirements,
-   final link map, fortify and stack-check symbols; reject unsupported closure.
-2. Audit transitive/bundled notices, then verify all runtime dependencies on a supported clean host without executing
-   untrusted `ldd` targets. Record loader/system package versions; self-contained
-   application logic does not remove the OS libc/kernel dependency.
-3. Snapshot/reverify exactly consumed files into a fresh private package tree,
-   with explicit normalized modes/ownership and SOURCE_DATE_EPOCH. Preserve
-   failures; never package a changing build prefix or previous runtime state.
-4. Create and reinspect the final deterministic archive allowlist/digests,
-   then emit a real W1 BuildArtifact with existing signature status accurately
-   `not-verified` unless an authorized trust system actually verified it.
-5. Execute the authorized offline smoke on the declared native host. Frozen
-   public Tor assertions require a distinct later approval; neither metadata
-   inspection nor WSL evidence substitutes for native runtime qualification.
+A successful archive check leaves `readyForDistribution` false. Clean-host
+runtime closure, public Tor and physical interoperability have separate
+acceptance gates. Extract the checked archive as a regular user and run
+`./bin/tor --version` on a compatible system. Keep Tor state and identities
+in the user's private directory.
 
 Format references: [ELF ABI program headers](https://gabi.xinuos.com/elf/07-pheader.html)
 and [ELF dynamic linking](https://gabi.xinuos.com/elf/08-dynamic.html).

@@ -1,16 +1,20 @@
-"""Read-only W6 ELF/runtime inventory and packaging design; creates no package.
+"""Verify ELF/package inputs and optionally create a deterministic runtime archive.
 
 Never invokes ldd or the inspected executable. A binary and license inventory
 is not clean-host runtime qualification or permission to distribute state.
 """
 import argparse
+import gzip
 import hashlib
+import io
 import json
 import os
 from pathlib import Path, PurePosixPath
 import re
 import stat
 import struct
+import tarfile
+import tempfile
 
 from scripts.contracts import require_valid
 from . import executor
@@ -177,7 +181,7 @@ def inspect_elf(data):
 
 
 def package_plan(build_root, expected_manifest_sha256, *, root=native.ROOT):
-    """Inspect verified build outputs; propose an exact allowlist, never tar them."""
+    """Inspect verified build outputs and return the exact allowlist."""
     if not native.SHA256.fullmatch(expected_manifest_sha256 or ""):
         raise ValueError("verified expected build-manifest SHA-256 required")
     build_root = Path(build_root).absolute()
@@ -233,7 +237,7 @@ def package_plan(build_root, expected_manifest_sha256, *, root=native.ROOT):
         files.append({"sourceRef": relative, "destinationRef": "licenses/" + pin["name"] + "-LICENSE.txt",
                       "sha256": pin["license_sha256"], "bytes": len(content)})
     return {"schemaVersion": 1, "kind": KIND, "targetId": policy["targetId"],
-            "buildManifestSha256": expected_manifest_sha256, "inputSha256": digest,
+            "buildManifestSha256": expected_manifest_sha256, "inputSha256": digest, "sourceDateEpoch": epoch,
             "files": files, "elfInventory": elf,
             "distributionTarget": {"architecture": "x86_64", "distro": "Ubuntu 24.04",
                                    "libc": "glibc 2.39", "loader": LOADER,
@@ -244,27 +248,66 @@ def package_plan(build_root, expected_manifest_sha256, *, root=native.ROOT):
                               "Verify full dependency closure on a supported clean host",
                               "Verify stack protector/fortify symbols and final link map",
                               "Audit transitive/bundled license notices before distribution",
-                              "Copy only the exact hashed allowlist into a fresh private package tree",
-                              "Create deterministic archive with SOURCE_DATE_EPOCH and normalized ownership",
-                              "Reinspect final archive allowlist and digests; reject any private state",
-                              "Emit W1 BuildArtifact only after a real package exists",
                               "Execute authorized offline runtime smoke; online qualification remains separate"],
             "excluded": ["home", "tmp", "logs", "snapshots", "DataDirectory", "hidden_service",
                          "control_auth_cookie", "credentials", "private identities", "host configuration"],
-            "limitations": ["Read-only inspection/design, no package written or executable launched",
-                            "Metadata PASS does not prove runtime, symbol ABI or complete ELF hardening",
+            "limitations": ["Metadata PASS does not prove runtime, symbol ABI or complete ELF hardening",
                             "The expected manifest digest must come from a trusted producer/reference",
-                            "Private prefix source libraries are statically linked; no universal ABI portability",
-                            "Future packaging must snapshot/reverify the exact consumed files"]}
+                            "Private prefix source libraries are statically linked; no universal ABI portability"]}
+
+
+def create_archive(build_root, expected_manifest_sha256, destination, *, root=native.ROOT):
+    plan = package_plan(build_root, expected_manifest_sha256, root=root)
+    destination = Path(destination).absolute()
+    payload = {}
+    for row in plan["files"]:
+        maximum = MAX_ELF_BYTES if row["destinationRef"] == "bin/tor" else 1024 * 1024
+        content = stable_bytes(scoped_file(build_root, row["sourceRef"]), maximum)
+        if len(content) != row["bytes"] or hashlib.sha256(content).hexdigest() != row["sha256"]:
+            raise ValueError("runtime package input changed after inspection")
+        payload[row["destinationRef"]] = content
+    inventory = {key: plan[key] for key in ("schemaVersion", "targetId", "buildManifestSha256",
+                                            "inputSha256", "sourceDateEpoch", "distributionTarget", "files")}
+    payload["runtime-inventory.json"] = (json.dumps(inventory, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    if destination.exists():
+        raise FileExistsError("The Linux runtime archive already exists")
+    with tempfile.NamedTemporaryFile(dir=destination.parent, prefix="pending-linux-", delete=False) as pending:
+        temporary = Path(pending.name)
+    try:
+        with temporary.open("wb") as raw:
+            with gzip.GzipFile(fileobj=raw, filename="", mode="wb", mtime=plan["sourceDateEpoch"]) as zipped:
+                with tarfile.open(fileobj=zipped, mode="w", format=tarfile.USTAR_FORMAT) as archive:
+                    for name, content in sorted(payload.items()):
+                        member = tarfile.TarInfo(name)
+                        member.size = len(content)
+                        member.mtime = plan["sourceDateEpoch"]
+                        member.mode = 0o755 if name == "bin/tor" else 0o644
+                        archive.addfile(member, io.BytesIO(content))
+            raw.flush()
+            os.fsync(raw.fileno())
+        with tarfile.open(temporary, "r:gz") as archive:
+            if archive.getnames() != sorted(payload) or any(
+                not member.isfile() or archive.extractfile(member).read() != payload[member.name]
+                for member in archive
+            ):
+                raise ValueError("Linux runtime archive verification failed")
+        artifact = {"path": str(destination), "bytes": temporary.stat().st_size, "sha256": native.hash_file(temporary)}
+        os.link(temporary, destination)
+    finally:
+        temporary.unlink(missing_ok=True)
+    plan.update(packagingExecutionStatus="PASS", packageArtifact=artifact)
+    return plan
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-root", required=True)
     parser.add_argument("--expected-build-manifest-sha256", required=True)
+    parser.add_argument("--out", type=Path, help="optional fresh .tar.gz destination")
     args = parser.parse_args(argv)
     try:
-        result = package_plan(args.build_root, args.expected_build_manifest_sha256)
+        result = (create_archive(args.build_root, args.expected_build_manifest_sha256, args.out)
+                  if args.out is not None else package_plan(args.build_root, args.expected_build_manifest_sha256))
         code = 0
     except (OSError, ValueError, KeyError, TypeError, UnicodeError, struct.error) as exc:
         result = {"schemaVersion": 1, "kind": KIND, "planningStatus": "BLOCKED",

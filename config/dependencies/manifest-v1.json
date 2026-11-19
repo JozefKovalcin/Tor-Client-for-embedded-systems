@@ -15,6 +15,7 @@
     {"id": "ranlib", "oses": ["windows", "linux"], "requirement": "Installed archive index tool with version observation", "optional": false, "owner": "package-manager", "approval": "user-consent"},
     {"id": "strip", "oses": ["windows", "linux"], "requirement": "Installed symbol tool with version observation", "optional": false, "owner": "package-manager", "approval": "user-consent"},
     {"id": "pkg-config", "oses": ["windows", "linux"], "requirement": "Installed pkg-config >=0.29", "minimumVersion": [0, 29], "optional": false, "owner": "package-manager", "approval": "user-consent"},
+    {"id": "gperf", "oses": ["linux"], "requirement": "Installed gperf for libseccomp syscall tables", "optional": false, "owner": "package-manager", "approval": "user-consent"},
     {"id": "perl", "oses": ["windows", "linux"], "requirement": "Installed Perl >=5.0", "minimumVersion": [5, 0], "optional": false, "owner": "package-manager", "approval": "user-consent"},
     {"id": "tar", "oses": ["windows", "linux"], "requirement": "Installed tar with version observation", "optional": false, "owner": "package-manager", "approval": "user-consent"},
     {"id": "patch", "oses": ["windows", "linux"], "requirement": "Installed patch with version observation", "optional": false, "owner": "package-manager", "approval": "user-consent"},

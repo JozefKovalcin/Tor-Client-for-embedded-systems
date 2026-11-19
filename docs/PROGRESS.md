@@ -1,3 +1,30 @@
+# Task 14 audit follow-up — 2026-11-19
+
+The bundled Tor completed two same-client public reconnect runs after a
+same-address host restart. The retry refreshes the target descriptor and
+uses a fresh SOCKS isolation token. Both tests checked mutual TLS,
+bidirectional integrity and controlled exits. The earlier failures remain
+in the evidence below.
+
+The audit changes also keep a healthy Tor process running past 24 hours,
+preserve structured journal events and archive old finished task records,
+publish the first saved hosting identity atomically, and remove disposable
+staged runtime files after confirmed exit. Windows package provenance now
+binds the source commit and publish hashes. The Windows offline CI job and
+complete Buildroot cache inventory check are in draft #39. New private
+Windows files explicitly use the current account as their owner, including
+when the launcher uses an elevated token.
+
+The same Manager published on Ubuntu 24.04 x86_64 and started under Xvfb.
+Its Developer pages use the Linux executor and archive checker. The Linux
+executor preserves pinned release timestamps and checks gperf before
+compilation. Tor 0.4.9.14 compiled and exported a checked Linux archive with
+five licenses and a dependency inventory. The Windows and WSL Linux
+clients both passed all nine frozen online tests. A cross-platform run
+also passed both directions and same-address recovery after Windows
+restarted, with the original Linux client still running. See the
+[audit follow-up evidence](../reports/windows-task14-2026-11-19/README.md#audit-follow-up-draft-39).
+
 # Windows Task 14 — 2026-11-19
 
 Windows now verifies accepted Onion Service connections against the owned

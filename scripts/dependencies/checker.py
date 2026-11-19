@@ -34,6 +34,7 @@ COMMANDS = {
     "ranlib": ("ranlib", "--version"),
     "strip": ("strip", "--version"),
     "pkg-config": ("pkg-config", "--version"),
+    "gperf": ("gperf", "--version"),
     "perl": ("perl", "-e", "print $^V"),
     "tar": ("tar", "--version"),
     "patch": ("patch", "--version"),

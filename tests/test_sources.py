@@ -1,14 +1,17 @@
 """Ensure upstream filesystem-skeleton links cannot escape extraction writes."""
 import io
+import hashlib
+import json
 from pathlib import Path
 import sys
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from bootstrap import extract_upstream
+from bootstrap import extract_upstream, source_tree
 TEST_TMP = ROOT / "build/test-tmp"
 TEST_TMP.mkdir(parents=True, exist_ok=True)
 
@@ -31,6 +34,25 @@ def archive(entries):
 
 
 class ExtractionTests(unittest.TestCase):
+    def test_cached_source_rejects_added_file(self):
+        with tempfile.TemporaryDirectory(dir=TEST_TMP) as tmp:
+            root = Path(tmp)
+            (root / "config").mkdir()
+            (root / "downloads").mkdir()
+            payload = root / "downloads/buildroot-audit.tar.xz"
+            with tarfile.open(payload, "w:xz") as tar:
+                entry = tarfile.TarInfo("buildroot-audit/support/file")
+                entry.size = 4
+                tar.addfile(entry, io.BytesIO(b"test"))
+            (root / "config/sources.lock.json").write_text(json.dumps({"buildroot": {
+                "version": "audit", "sha256": hashlib.sha256(payload.read_bytes()).hexdigest()}}))
+            with patch("bootstrap.ROOT", root):
+                source = source_tree()
+                self.assertEqual(source_tree(), source)
+                (source / "support/extra").touch()
+                with self.assertRaisesRegex(ValueError, "source inventory"):
+                    source_tree()
+
     def test_path_traversal_refused(self):
         with tempfile.TemporaryDirectory(dir=TEST_TMP) as tmp, archive([("../escape", "file", b"bad")]) as tar:
             with self.assertRaises(ValueError):

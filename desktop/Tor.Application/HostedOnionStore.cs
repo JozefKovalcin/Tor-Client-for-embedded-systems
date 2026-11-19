@@ -28,11 +28,8 @@ public sealed class HostedOnionStore(string privateProfile)
     public async Task<OnionAddress> RegisterAsync(IPersistentOnionPeerTransport tor, int port,
         HostingIdentityAction action, OnionAddress? previouslyConfirmed, CancellationToken token)
     {
-        PrivateStorage.RequireOwnerOnly(profile);
         var lockPath = Path.Combine(profile, ".onion-hosting-writer");
-        if (Exists(lockPath)) PrivateStorage.RequireOwnerOnlyFile(lockPath);
-        using var writer = new FileStream(lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-        PrivateStorage.RequireOwnerOnlyFile(lockPath);
+        using var writer = PrivateStorage.OpenPrivateFile(lockPath, FileMode.OpenOrCreate);
         var current = Exists(DirectoryPath) ? Read() : ((OnionAddress Address, OnionServiceKey Key)?)null;
         using var currentKey = current?.Key;
         if (action == HostingIdentityAction.Restore)
@@ -95,20 +92,26 @@ public sealed class HostedOnionStore(string privateProfile)
         }
         finally { CryptographicOperations.ZeroMemory(clear); }
 
-        if (!replace) PrivateStorage.CreateNewDirectory(DirectoryPath);
-        PrivateStorage.RequireOwnerOnly(DirectoryPath);
-        var temp = Path.Combine(DirectoryPath, "pending-" + Guid.NewGuid().ToString("N"));
+        var suffix = "pending-" + Guid.NewGuid().ToString("N");
+        var staging = replace ? DirectoryPath : Path.Combine(profile, ".onion-hosting-" + suffix);
+        if (!replace) PrivateStorage.CreateNewDirectory(staging);
+        PrivateStorage.RequireOwnerOnly(staging);
+        var temp = Path.Combine(staging, replace ? suffix : Path.GetFileName(IdentityPath));
         try
         {
-            using (var file = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            using (var file = PrivateStorage.OpenPrivateFile(temp, FileMode.CreateNew))
             {
                 file.Write(protectedBytes);
                 file.Flush(flushToDisk: true);
             }
-            PrivateStorage.RequireOwnerOnlyFile(temp);
-            File.Move(temp, IdentityPath, overwrite: replace);
+            if (replace) File.Move(temp, IdentityPath, overwrite: true);
+            else Directory.Move(staging, DirectoryPath);
         }
-        finally { if (File.Exists(temp)) File.Delete(temp); }
+        finally
+        {
+            if (File.Exists(temp)) File.Delete(temp);
+            if (!replace && Directory.Exists(staging)) Directory.Delete(staging);
+        }
     }
 
     private static bool Exists(string path)
