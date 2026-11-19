@@ -15,7 +15,8 @@ from . import executor, packaging, preflight
 
 
 RUN_ID = re.compile(r"run-[0-9a-f]{32}")
-PIN_FILES = ("config/native-linux/v1.json", "config/sources.lock.json", "windows-native/source-manifest.json",
+PIN_FILES = ("config/native-linux/v1.json", "config/dependencies/manifest-v1.json",
+             "config/sources.lock.json", "windows-native/source-manifest.json",
              *(f"config/upstream/{name}.hash" for name in ("tor", "libopenssl", "libevent", "libzlib", "libseccomp")))
 
 

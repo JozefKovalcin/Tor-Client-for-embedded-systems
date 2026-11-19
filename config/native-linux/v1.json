@@ -17,7 +17,7 @@
   "sourceManifest": "windows-native/source-manifest.json",
   "sourceNames": ["tor", "openssl", "libevent", "zlib"],
   "linuxAdditionalHashFile": "config/upstream/libseccomp.hash",
-  "requiredTools": ["python3", "gcc", "gcc-target", "ld", "ar", "ranlib", "strip", "make", "perl", "tar", "patch", "pkg-config", "bash", "git"],
+  "requiredTools": ["python3", "gcc", "gcc-target", "ld", "ar", "ranlib", "strip", "make", "perl", "tar", "patch", "pkg-config", "bash", "git", "gperf"],
   "systemLibraryObservations": ["openssl", "libevent", "zlib", "libseccomp"],
   "sourceTrust": "Existing HTTPS/SHA-256 and license pins; detached source signatures not independently verified",
   "windowsPatchesApplied": false

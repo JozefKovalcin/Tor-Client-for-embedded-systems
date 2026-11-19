@@ -225,7 +225,11 @@ def extract_snapshot(snapshot, source_root, pin, *, byte_budget, checkpoint=None
                     raise ValueError("truncated member")
                 destination.chmod(0o700 if member.mode & 0o111 else 0o600)
                 # Release mtimes keep make from regenerating shipped Autotools files.
-                os.utime(destination, (member.mtime, member.mtime), follow_symlinks=False)
+                times = (member.mtime, member.mtime)
+                if os.utime in os.supports_follow_symlinks:
+                    os.utime(destination, times, follow_symlinks=False)
+                else:
+                    os.utime(destination, times)
         if _source_digest(stream, checkpoint) != pin["sha256"]:
             raise ValueError("snapshot changed during extraction")
     directory = root / pin["directory"]
@@ -281,6 +285,8 @@ def build_commands(plan, output):
     for name in SOURCE_ORDER:
         cwd = str(output / "sources" / pins[name]["directory"])
         environment = dict(env)
+        if name == "libseccomp":
+            environment["GPERF"] = tools["gperf"]["path"]
         if name == "tor":
             environment["CFLAGS"] += " -fPIE"
             environment["LDFLAGS"] += " -pie"
