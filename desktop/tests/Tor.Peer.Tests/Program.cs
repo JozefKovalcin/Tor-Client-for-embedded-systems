@@ -35,10 +35,13 @@ try
     if (OperatingSystem.IsWindows() &&
         args is [var mode, "--approve-public-tor", var input, var persistentState, .. var options] &&
         mode is "--public-persistent-host" or "--public-persistent-host-bundled" &&
-        options is [] or ["--compare-fresh-client"])
+        (options is [] or ["--compare-fresh-client"] ||
+            mode == "--public-persistent-host-bundled" && options is ["--compare-renewed-circuits"]))
     {
         await PublicTor.RunPersistentHostAsync(input, persistentState,
-            bundled: mode == "--public-persistent-host-bundled", compareFresh: options.Length != 0);
+            bundled: mode == "--public-persistent-host-bundled",
+            compareFresh: options is ["--compare-fresh-client"],
+            compareRenewedCircuits: options is ["--compare-renewed-circuits"]);
         return 0;
     }
     if (args is not ["--public-tor", "--approve-public-tor", var runtime, var state])
