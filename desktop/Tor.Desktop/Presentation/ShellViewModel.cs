@@ -11,8 +11,6 @@ internal sealed record PageViewModel(string Title, string Description, bool Show
     bool ShowOffline = false, bool ShowDeveloper = false, bool ShowDeveloperDependencies = false,
     bool ShowDeveloperBuild = false, bool ShowDeveloperArtifacts = false, bool ShowPeers = false);
 internal sealed record LogCard(string Sequence, string TaskId, string Message, string Detail);
-internal enum ConnectionMode { Demo, RealOffline, RealOnline }
-internal enum WorkspaceMode { RunOnly, Developer, Embedded }
 
 internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDisposable
 {
@@ -61,6 +59,7 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
     public bool HasOfflineUnavailableReason => OfflineUnavailableReason is not null;
     public bool HasOffline => Offline is not null;
     public bool IsDemo => _connectionMode == ConnectionMode.Demo;
+    public bool IsRealOffline => _connectionMode == ConnectionMode.RealOffline;
     public bool IsOnline => _connectionMode == ConnectionMode.RealOnline;
     public bool IsDeveloper => _workspaceMode == WorkspaceMode.Developer;
     public bool HasOnline => Offline?.SupportsOnline == true;
@@ -147,13 +146,20 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
             new PageViewModel("Dashboard", "Start and monitor the verified Windows Tor runtime.", ShowOffline: true),
             new PageViewModel("Peers", "Pair contacts and exchange messages over Tor.", ShowPeers: true),
             new PageViewModel("Logs and Progress", "Task history and sanitized lifecycle events from this workspace.", ShowTasks: true),
-            new PageViewModel("Settings", "Save your appearance and Demo preferences.", ShowSettings: true)
+            new PageViewModel("Settings", "Save your appearance, connection and workspace preferences.", ShowSettings: true)
         }.Where(page => !page.ShowPeers || offline is IPeerTorService).ToArray();
         Offline = offline is null ? null : new(offline, dispatcher, peerProfile, hostingIdentity);
         if (OperatingSystem.IsWindows()) Developer = new(dispatcher, bundledRuntime);
         OfflineUnavailableReason = offlineUnavailableReason;
-        _connectionMode = offline is null && !showRealWhenUnavailable ? ConnectionMode.Demo : ConnectionMode.RealOffline;
-        Pages = new(IsDemo ? _demoPages : _offlinePages);
+        _connectionMode = stored.PreferredConnection switch
+        {
+            ConnectionMode.Demo => ConnectionMode.Demo,
+            ConnectionMode.RealOnline when HasOnline && Offline!.SelectOnline(true) => ConnectionMode.RealOnline,
+            _ => offline is null && !showRealWhenUnavailable ? ConnectionMode.Demo : ConnectionMode.RealOffline
+        };
+        _workspaceMode = stored.PreferredWorkspace == WorkspaceMode.Developer && HasDeveloper
+            ? WorkspaceMode.Developer : WorkspaceMode.RunOnly;
+        Pages = new(PagesForMode());
         _currentPage = Pages[0];
         Dependencies = new(feed.Dependencies);
         foreach (var task in feed.InitialTasks) Apply(task);
@@ -188,7 +194,8 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
             try
             {
                 _settings.Save(new(Mode: SelectedMode, Theme: Theme, AnimateSimulation: AnimateSimulation,
-                    PreferredRuntime: _preferredRuntime));
+                    PreferredRuntime: _preferredRuntime, PreferredConnection: _connectionMode,
+                    PreferredWorkspace: _workspaceMode));
                 SettingsNotice = "UI preferences saved in your local application-data directory.";
             }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException or JsonException or ArgumentException)
@@ -233,16 +240,22 @@ internal sealed class ShellViewModel : ObservableModel, IDisposable, IAsyncDispo
         UpdateNavigation(IsDeveloper ? CurrentPage : null);
     }
 
-    private void UpdateNavigation(PageViewModel? preferred)
+    private IEnumerable<PageViewModel> PagesForMode()
     {
         var connectionPages = IsDemo ? _demoPages : _offlinePages;
-        var pages = IsDeveloper
+        return IsDeveloper
             ? connectionPages.Where(page => !_developerPages.Any(developer => developer.Title == page.Title)).Concat(_developerPages)
             : connectionPages;
+    }
+
+    private void UpdateNavigation(PageViewModel? preferred)
+    {
+        var pages = PagesForMode();
         Pages.Clear();
         foreach (var page in pages) Pages.Add(page);
         CurrentPage = preferred is not null && Pages.Contains(preferred) ? preferred : Pages[0];
         Changed(nameof(IsDemo));
+        Changed(nameof(IsRealOffline));
         Changed(nameof(IsOnline));
         Changed(nameof(IsDeveloper));
         Changed(nameof(ModeHeading));
