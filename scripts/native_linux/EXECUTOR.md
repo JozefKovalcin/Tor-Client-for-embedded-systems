@@ -89,7 +89,8 @@ a publishable package. No `BuildArtifact` is emitted by the executor because
 packaging/ELF/runtime closure is a separate PR gate. Interrupted RUNNING manifests
 must be reconciled as interrupted by W5; this executor never reuses them.
 
-Packaging inventory/design follows separately. Do not include the source run,
+See [runtime packaging](PACKAGING.md) for an allowlisted archive and the
+Manager workflow. Do not include the source run,
 home/tmp/logs, cookies, credentials, DataDirectory or hidden-service state in a
 runtime package. Frozen public Tor assertions remain an explicitly authorized
 later integration gate.

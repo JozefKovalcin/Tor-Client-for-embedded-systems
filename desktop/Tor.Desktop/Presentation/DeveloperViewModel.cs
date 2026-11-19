@@ -1,6 +1,7 @@
 using System.Runtime.Versioning;
 using System.Text.Json;
 using Tor.Adapters.Windows;
+using Tor.Application;
 using Tor.Core;
 using TorManager.Desktop.Services;
 
@@ -13,7 +14,6 @@ internal sealed record DeveloperBuild(string Id, string State, string Version, s
     public string Display => $"{Id} · {State} · {Version} · {Profile} · offline smoke {Smoke}";
 }
 
-[SupportedOSPlatform("windows")]
 internal sealed class DeveloperViewModel : ObservableModel
 {
     public static readonly string DefaultWorkspace = Path.Combine(
@@ -22,6 +22,8 @@ internal sealed class DeveloperViewModel : ObservableModel
     private string _sources = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "TorNativeBuild", "downloads");
     private string _profile = "optimized-static";
+    private string _sourceCheckout = "";
+    private string _linuxRun = "";
     private string _status = "Preflight has not run.", _report = "", _planDetails = "", _log = "";
     private string? _approval;
     private bool _confirmed, _ready, _closed;
@@ -36,7 +38,10 @@ internal sealed class DeveloperViewModel : ObservableModel
     private bool _approveRuntime;
     private bool _installCommitted;
 
-    public IReadOnlyList<string> Profiles { get; } = ["optimized-static", "optimized-shared"];
+    public IReadOnlyList<string> Profiles { get; }
+    public bool IsLinux => OperatingSystem.IsLinux();
+    public bool IsWindows => OperatingSystem.IsWindows();
+    public string SourceCheckout { get => _sourceCheckout; set { if (Set(ref _sourceCheckout, value)) InputsChanged(); } }
     public string Workspace { get => _workspace; set { if (Set(ref _workspace, value)) InputsChanged(); } }
     public string Sources { get => _sources; set { if (Set(ref _sources, value)) InputsChanged(); } }
     public string Profile { get => _profile; set { if (Profiles.Contains(value) && Set(ref _profile, value)) InputsChanged(); } }
@@ -49,7 +54,11 @@ internal sealed class DeveloperViewModel : ObservableModel
     public IReadOnlyList<DeveloperBuild> Builds { get => _builds; private set => Set(ref _builds, value); }
     public DeveloperBuild? Selected { get => _selected; set { if (Set(ref _selected, value)) RefreshSelection(); } }
     public DeveloperBuild? CompareWith { get => _compareWith; set { if (Set(ref _compareWith, value)) RefreshSelection(); } }
-    public bool Confirmed { get => _confirmed; set { if (Set(ref _confirmed, value)) InstallCommand.Invalidate(); } }
+    public bool Confirmed
+    {
+        get => _confirmed;
+        set { if (Set(ref _confirmed, value)) { InstallCommand.Invalidate(); BuildCommand.Invalidate(); } }
+    }
     public bool ApproveRuntime { get => _approveRuntime; set { if (Set(ref _approveRuntime, value)) ActivateCommand.Invalidate(); } }
     public AsyncCommand ScanCommand { get; }
     public AsyncCommand PlanCommand { get; }
@@ -66,16 +75,24 @@ internal sealed class DeveloperViewModel : ObservableModel
     {
         _dispatcher = dispatcher;
         _bundledRuntime = bundledRuntime;
+        Profiles = IsLinux ? ["native-linux"] : ["optimized-static", "optimized-shared"];
+        if (IsLinux)
+        {
+            _profile = Profiles[0];
+            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            _workspace = Path.Combine(home, "tor-manager-builds");
+            _sources = Path.Combine(home, "tor-sources");
+        }
         ScanCommand = RunCommand(WindowsDeveloperAction.Scan);
-        PlanCommand = RunCommand(WindowsDeveloperAction.PlanInstall);
-        InstallCommand = RunCommand(WindowsDeveloperAction.Install, () => Confirmed && _approval is not null);
-        BuildCommand = RunCommand(WindowsDeveloperAction.Build, () => _ready);
+        PlanCommand = RunCommand(WindowsDeveloperAction.PlanInstall, () => IsWindows);
+        InstallCommand = RunCommand(WindowsDeveloperAction.Install, () => IsWindows && Confirmed && _approval is not null);
+        BuildCommand = RunCommand(WindowsDeveloperAction.Build, () => _ready && (!IsLinux || Confirmed));
         ListCommand = RunCommand(WindowsDeveloperAction.List);
         SmokeCommand = RunCommand(WindowsDeveloperAction.Smoke, () => Selected?.State == "BUILT");
         ExportCommand = RunCommand(WindowsDeveloperAction.Export, () => Selected is { State: "BUILT", Smoke: "PASS" });
         ActivateCommand = new(() => TrackAsync(WindowsDeveloperAction.Candidate), () => Status = "Activation failed.",
-            () => Idle && ApproveRuntime && Selected is { State: "BUILT", Smoke: "PASS" });
-        RollbackCommand = new(RollbackAsync, () => Status = "Rollback failed.", () => Idle && _bundledRuntime is not null);
+            () => IsWindows && Idle && ApproveRuntime && Selected is { State: "BUILT", Smoke: "PASS" });
+        RollbackCommand = new(RollbackAsync, () => Status = "Rollback failed.", () => IsWindows && Idle && _bundledRuntime is not null);
         _commands = [ScanCommand, PlanCommand, InstallCommand, BuildCommand, ListCommand, SmokeCommand, ActivateCommand, ExportCommand, RollbackCommand];
         CancelCommand = new(() =>
         {
@@ -94,7 +111,8 @@ internal sealed class DeveloperViewModel : ObservableModel
         Invalidate();
         try
         {
-            _active = RunAsync(action, cancellation.Token);
+            _active = OperatingSystem.IsWindows() ? RunWindowsAsync(action, cancellation.Token)
+                : RunLinuxAsync(action, cancellation.Token);
             await _active;
         }
         catch (OperationCanceledException) { Status = "Cancelled. Completed system transactions and saved evidence are retained."; }
@@ -104,7 +122,57 @@ internal sealed class DeveloperViewModel : ObservableModel
         finally { _active = null; _cancellation = null; _installCommitted = false; Invalidate(); }
     }
 
-    private async Task RunAsync(WindowsDeveloperAction action, CancellationToken token)
+    private async Task RunLinuxAsync(WindowsDeveloperAction action, CancellationToken token)
+    {
+        Status = $"Running {action}…";
+        Log = "";
+        if (action == WindowsDeveloperAction.Scan)
+        {
+            _ready = false;
+            _approval = null;
+            Confirmed = false;
+            _linuxRun = "run-" + Guid.NewGuid().ToString("N");
+            var result = await LinuxDeveloperRunner.RunAsync("scan", SourceCheckout, Workspace, Sources, _linuxRun, "", AppendLog, token);
+            _ready = result.GetProperty("readyForExecution").GetBoolean();
+            _approval = _ready ? result.GetProperty("executionInputSha256").GetString() : null;
+            Dependencies = result.GetProperty("preflight").GetProperty("checks").EnumerateArray().Select(item =>
+                new DeveloperDependency(Text(item, "id"), Text(item, "status"), Text(item, "requirement"),
+                    Text(item, "reason"), Text(item, "path"), Text(item, "owner"))).ToArray();
+            Status = _ready ? "Preflight AVAILABLE · approve the input digest to compile." : "Preflight BLOCKED.";
+            Report = Format(result);
+            return;
+        }
+        if (action == WindowsDeveloperAction.Export)
+        {
+            var result = await LinuxDeveloperRunner.RunAsync("export", SourceCheckout, Workspace, Sources, Selected!.Id, "", AppendLog, token);
+            Status = "Verified Linux runtime exported.";
+            Report = Format(result);
+            return;
+        }
+        string? headline = null;
+        string? buildId = Selected?.Id;
+        if (action == WindowsDeveloperAction.Build)
+        {
+            var approval = _approval ?? throw new InvalidOperationException("Run preflight before compiling.");
+            _ready = false;
+            _approval = null;
+            Confirmed = false;
+            buildId = _linuxRun;
+            var result = await LinuxDeveloperRunner.RunAsync("build", SourceCheckout, Workspace, Sources, buildId, approval, AppendLog, token);
+            headline = $"Build {Text(result, "status")} · {Text(result, "path")}";
+        }
+        if (action == WindowsDeveloperAction.Smoke)
+        {
+            var result = await LinuxDeveloperRunner.RunAsync("smoke", SourceCheckout, Workspace, Sources, Selected!.Id, "", AppendLog, token);
+            headline = $"Offline start and stop {Text(result, "status")} · {Text(result, "version")}";
+        }
+        var list = await LinuxDeveloperRunner.RunAsync("list", SourceCheckout, Workspace, Sources, "", "", AppendLog, token);
+        ReadBuilds(list, buildId);
+        if (headline is not null) Status = headline;
+    }
+
+    [SupportedOSPlatform("windows")]
+    private async Task RunWindowsAsync(WindowsDeveloperAction action, CancellationToken token)
     {
         var spec = new WindowsDeveloperCommand(action, Profile, Sources, Workspace, _approval, Selected?.Id);
         Status = $"Running {action}…";
@@ -207,6 +275,7 @@ internal sealed class DeveloperViewModel : ObservableModel
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
     }
 
+    [SupportedOSPlatform("windows")]
     private async Task<bool> ReadAsync(WindowsDeveloperCommand spec, CancellationToken token, bool selectNewestBuild = false)
     {
         var result = await WindowsDeveloperRunner.RunAsync(spec, null, token);
@@ -238,15 +307,19 @@ internal sealed class DeveloperViewModel : ObservableModel
         }
         else
         {
-            var previous = selectNewestBuild ? null : Selected?.Id;
-            Builds = data.GetProperty("builds").EnumerateArray().Select(item => new DeveloperBuild(Text(item, "id"),
-                Text(item, "state"), Text(item, "version"), Text(item, "profile"), Text(item, "smokeState"), item.Clone())).ToArray();
-            CompareWith = null;
-            Selected = Builds.FirstOrDefault(item => item.Id == previous) ?? Builds.FirstOrDefault();
-            RefreshSelection();
-            Status = $"{Builds.Count} recorded builds.";
+            ReadBuilds(data, selectNewestBuild ? null : Selected?.Id);
         }
         return true;
+    }
+
+    private void ReadBuilds(JsonElement data, string? previous)
+    {
+        Builds = data.GetProperty("builds").EnumerateArray().Select(item => new DeveloperBuild(Text(item, "id"),
+            Text(item, "state"), Text(item, "version"), Text(item, "profile"), Text(item, "smokeState"), item.Clone())).ToArray();
+        CompareWith = null;
+        Selected = Builds.FirstOrDefault(item => item.Id == previous) ?? Builds.FirstOrDefault();
+        RefreshSelection();
+        Status = $"{Builds.Count} recorded builds.";
     }
 
     private static string Format(JsonElement data) => JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
@@ -285,6 +358,7 @@ internal sealed class DeveloperViewModel : ObservableModel
 
     private Task RollbackAsync()
     {
+        if (!OperatingSystem.IsWindows()) return Task.CompletedTask;
         try
         {
             WindowsRuntimeSelection.ForCurrentUser().Rollback(_bundledRuntime!);
