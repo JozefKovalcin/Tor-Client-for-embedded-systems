@@ -1,36 +1,32 @@
 # Windows Tor Manager development
 
-## Current Windows qualification
+## Current Windows qualification, Task 14
 
 | ID | State | Source and evidence | Remaining |
 | --- | --- | --- | --- |
-| WIN-03-HOST | PARTIAL | PR #31 verified simulated restart. Two public runs restored and republished the original address but failed reconnect. The app now honors Tor's rendezvous limit and can refresh the targeted descriptor. Two follow-ups reached initial SOCKS CONNECT and stalled at TLS before restart. | Investigate the initial public TLS stall, then qualify reconnect in the live-client scenario. |
-| WIN-03-MODES | VERIFIED | Draft #32. Separate connection, workspace and runtime preference in the UI. Real Developer retained an active offline session and the Peers page. | DPI and full keyboard matrix. |
-| WIN-04 | PARTIAL | Real Developer read-only diagnostics accepted the prepared local cache. Installer approval, eligibility and cancellation have automated evidence. | Real system installation requires a separate approval and an eligible package. |
-| WIN-05 | VERIFIED for optimized-static | Draft #32. Real GUI compile, PE inventory, eight offline smoke checks and 21-file ZIP export passed for `run-mm7s33j8`. Earlier GCC and windres failures were fixed and retained. | Shared build remains outside the approved run. |
-| WIN-06 | VERIFIED | The local Windows x64 candidate passed the development-host offline gate. Locked restore, candidate publish, bundled Tor, 319 payload hashes, 20 native PE imports and offline startup/shutdown passed. | Clean-host qualification and production release authorization. |
-| WIN-2PC | NOT RUN | A distinct field gate remains pending. | User-operated physical two-PC and clean-host acceptance. |
+| WIN-01 / WIN-02 | VERIFIED offline | `PeerProfileStore`, `PeerDeliveryStore`, `ReliablePeerSession` and Peers add approved recovery, session-local send progress, and local storage error reporting. | Independent-host acceptance remains pending. |
+| WIN-03-HOST | PARTIAL | Draft #35 at `98b7aab` gives separately sanitized descriptor, SOCKS, TCP, TLS and ready evidence. Verified `optimized-static` passed live-client reconnect once at `0a784ce`. Bundled unassisted reconnect failed before ingress even after descriptor receipt. Explicit NEWNYM allowed the same bundled client to reconnect. | Identify why the original bundled session stalls after descriptor refresh and qualify unassisted reconnect for the release runtime. |
+| WIN-03-MODES | VERIFIED offline | Standalone draft #36 at `c5ef5f2` preserves connection, workspace and runtime choices across launches without starting Tor. Windows preview rendered light and dark and passed keyboard entry, Peer navigation and Developer gating. | Minimum-size and DPI matrix NOT RUN. |
+| WIN-04 | PARTIAL | Draft #37 at `f8cd37a` verifies actual recipe tool paths, blocks incomplete local install plans and preserves installer exit through refresh cancellation. | Real system install BLOCKED because no eligible missing package was found. |
+| WIN-05 | VERIFIED offline | Static `run-mm7s33j8` and shared `run-3zhx3mpr` both compiled from verified sources. Shared compiler exit 0, PE closure, eight offline smoke checks, verified 25-file export and real isolated activation/rollback passed. | Shared public-network qualification NOT RUN. |
+| WIN-06 | VERIFIED offline | Locked self-contained Win-x64 publish, 319 files, 20 PE import lists, native SAFECOOKIE offline and real GUI launch/controlled exit. | Full public suite and clean-host acceptance. |
+| WIN-07 | VERIFIED for offline fixtures | 100 authenticated local reconnects, interrupted TLS, lost ACK, TTL, queue capacity, failed atomic replacement, simulated disk full, corrupt DPAPI and owned process cleanup. | Public endurance remains NOT RUN. |
+| WIN-2PC | NOT RUN | Field acceptance is deferred to the user. | Clean Windows and two physical PCs after software gates. |
 
-The final package was built from `9b35250a6de0dd3bffcd7834ab20bb5bd4891f52`.
-The offline repository regression returned 178 PASS and 10 platform
-SKIPPED. The native pipeline returned six PASS. The Windows peer fixture
-returned 23 PASS. Both isolated native environment regressions used the
-installed UCRT64 tools.
+Main was verified at `32c7dce`. Draft #35 is stacked on #33. Draft #36 and
+draft #37 target main independently. Draft #38 stacks on #36. Draft #34
+retains the original stacked redesign provenance. The
+[Task 14 evidence](../reports/windows-task14-2026-11-19/README.md)
+records tested heads, telemetry, offline logs and the package checksum.
 
-**NEXT_ACTION** Follow [PROGRESS.md](PROGRESS.md) with the exact Windows
-candidate and native export recorded in the
-[release evidence](../reports/windows-product-2026-11-18/README.md).
-The [public persistent-host evidence](../reports/windows-persistent-host-2026-11-18/README.md)
-records reconnect failures before the SOCKS deadline fix and initial TLS
-timeouts in two follow-ups. Reproduce the TLS stall before qualifying the
-host restart. The mandatory network suite has its own approval.
-The user deferred clean-host and physical two-PC
-acceptance. Run the shared native profile and real installation path only
-after their respective approvals.
+**IMPLEMENTATION COMPLETE** remains pending. **PUBLIC TOR QUALIFIED** remains
+FAIL for the bundled release runtime. **FIELD QUALIFIED** is NOT RUN.
 
-DEVELOPMENT COMPLETE is pending. FIELD QUALIFIED is NOT RUN.
+**NEXT_ACTION** Compare the descriptor revision in use and the introduction
+and rendezvous outcomes before and after explicit circuit renewal in the
+same bundled client. Keep the failing unassisted gate visible.
 
-## Persistent hosted identity batch
+## Historical persistent hosted identity batch
 
 Verified GitHub main at `68002b9b4a31e5da5acc152a3c17b3e49da7daed` and
 draft #30 at `383f861850b99503a62d20a666654fc06120bb3d`, with

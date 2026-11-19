@@ -1,3 +1,25 @@
+# Windows Task 14 — 2026-11-19
+
+Windows now verifies accepted Onion Service connections against the owned
+Tor process. It separates SOCKS, host TCP, TLS, ALPN and application-ready
+diagnostics. Two bounded accept slots avoid blocking a healthy peer behind
+a stalled owned socket. A native SOCKS `0x06` can trigger one targeted
+descriptor refresh. The corrected `optimized-static` runtime passed
+same-client public reconnect once. The bundled runtime still timed out
+after descriptor receipt. A fresh client passed. A separate experiment
+also passed with explicit `NEWNYM` and the same original client process.
+
+The standalone GUI branch restores all three mode preferences without
+starting Tor. The integrated preview passed controlled offline launch
+and exit, light and dark rendering, keyboard navigation and missing-input
+Developer gating. The Peer fixtures covered 100 local reconnects,
+write failures, durable acknowledgements and identity recovery.
+The real `optimized-shared` build `run-3zhx3mpr` passed compile, native
+inventory, offline smoke, verified ZIP export, isolated activation and
+rollback. The integrated Win-x64 preview `0.1.0-dev.20261119.3` has
+319 verified payload hashes and 20 native PE import inventories. See the
+[Task 14 evidence](../reports/windows-task14-2026-11-19/README.md).
+
 # Windows public persistent hosting — 2026-11-18
 
 The Manager now allows the verified Tor runtime to finish its native

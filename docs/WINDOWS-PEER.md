@@ -211,6 +211,22 @@ still determines the qualification result.
 The console runner exercises the application backend on one Windows host.
 The physical test below covers graphical and independent-host acceptance.
 
+### Recover a stalled connection on the existing Tor process
+
+When the remote host has restored its saved Onion Service, a stalled
+bundled client can try the operator recovery demonstrated in Task 14.
+In **Dashboard**, choose **New Identity** and wait for the status to
+confirm the signal. In **Peers**, choose the same paired contact and
+**Connect to Peer**. The local Tor process stays running and the existing
+certificate pin still applies. This action renews circuits and client
+state for the local Tor instance, including future activity from other
+applications using that instance.
+
+The diagnostic runner offers `-PersistentBundled -CompareRenewedCircuits`
+with an approved bundled package. It attempts the original reconnect once,
+then observes authenticated `NEWNYM` and compares a second attempt from the
+same process. See [the executed result](../reports/windows-task14-2026-11-19/README.md#public-persistent-onion-service).
+
 ## Two physical PCs with the graphical workflow
 
 With separate authorization, stage the same reviewed Windows x64 artifact
