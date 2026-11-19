@@ -11,7 +11,9 @@ preserve structured journal events and archive old finished task records,
 publish the first saved hosting identity atomically, and remove disposable
 staged runtime files after confirmed exit. Windows package provenance now
 binds the source commit and publish hashes. The Windows offline CI job and
-complete Buildroot cache inventory check are in draft #39.
+complete Buildroot cache inventory check are in draft #39. New private
+Windows files explicitly use the current account as their owner, including
+when the launcher uses an elevated token.
 
 The same Manager published on Ubuntu 24.04 x86_64 and started under Xvfb.
 Its Developer pages use the Linux executor and archive checker. The Linux

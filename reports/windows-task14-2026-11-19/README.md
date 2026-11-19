@@ -188,3 +188,32 @@ requested the target descriptor from the original Linux Tor process and
 opened a fresh isolated SOCKS stream. That run passed before and after
 restart, including the same onion address, 1 MiB echo SHA-256, the
 server-push SHA-256, and exit 0 from both final processes.
+
+### Windows private file ownership
+
+The hosted Windows CI runner first exposed two environment differences.
+Test temporary paths used a short Windows alias, and its elevated process
+created new files with Administrators as the owner. The tests now use
+canonical fixture paths. Windows private writers assign the actual
+account SID and the private ACL at creation. They still check existing
+files before use. The shared helper covers peer TLS, contact locks,
+delivery data, Onion Service keys and disposable runtime staging.
+
+Candidate `TorManager-win-x64-0.1.0-dev.20261119.7.zip` was built from
+`71c32ceb9650479ea67a4494c80dec25ee4434c7`. It passed locked publish,
+320 payload hashes, extracted Manager launch and clean close, native
+offline SAFECOOKIE and lifecycle checks, and 26 Windows peer workflow
+assertions. A third Windows public persistent-host test passed with the
+original client. The host reopened the same onion address and TLS
+identity and both peers closed with exit 0. The .7 Tor EXE and DLL hashes
+match the .6 binaries used for the nine frozen online tests.
+
+The [Windows offline job](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems/actions/runs/44540579755/job/135617492756)
+and [Ubuntu checks](https://github.com/JozefKovalcin/Tor-Client-for-embedded-systems/actions/runs/44540579755/job/135617492556)
+passed on `71c32ce`. The Windows job passed the isolated private-peer
+workflow under the elevated account that reproduced the ownership error.
+The separately dispatched full embedded build remained SKIPPED.
+
+| File | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Windows x64 .7 ZIP | 55,434,062 | `3c50190c5f700b4e634d93b0d745d29bd0c3e5026ae7c0527cdcfc421a5fb0d3` |
