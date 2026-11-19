@@ -13,6 +13,8 @@ param(
     [Parameter(ParameterSetName = 'Persistent')]
     [Parameter(ParameterSetName = 'PersistentBundled')]
     [switch] $CompareFreshClient,
+    [Parameter(ParameterSetName = 'PersistentBundled')]
+    [switch] $CompareRenewedCircuits,
     [Parameter(Mandatory)] [string] $NewStatePath
 )
 
@@ -24,6 +26,9 @@ if (-not $ApprovePublicTor) {
 if (-not $IsWindows) {
     Write-Output 'BLOCKED: this workflow requires PowerShell 7 on Windows.'
     exit 2
+}
+if ($CompareFreshClient -and $CompareRenewedCircuits) {
+    throw 'Choose exactly one optional reconnect comparison.'
 }
 
 $repo = Split-Path -Parent $PSScriptRoot
@@ -54,6 +59,7 @@ try {
     if ($LASTEXITCODE) { exit $LASTEXITCODE }
     $testArgs = @($mode, '--approve-public-tor', $runtime, $state)
     if ($CompareFreshClient) { $testArgs += '--compare-fresh-client' }
+    if ($CompareRenewedCircuits) { $testArgs += '--compare-renewed-circuits' }
     dotnet "tests/$testName/bin/Debug/net11.0/$testName.dll" @testArgs
     exit $LASTEXITCODE
 }

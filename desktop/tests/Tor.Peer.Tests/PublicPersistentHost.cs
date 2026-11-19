@@ -12,7 +12,8 @@ internal static partial class PublicTor
 {
     // Both connection profiles and the runtime approval are scoped to this run.
     [SupportedOSPlatform("windows")]
-    internal static async Task RunPersistentHostAsync(string input, string state, bool bundled, bool compareFresh)
+    internal static async Task RunPersistentHostAsync(string input, string state, bool bundled, bool compareFresh,
+        bool compareRenewedCircuits)
     {
         var root = Path.GetFullPath(state);
         PrivateStorage.CreateNewDirectory(root);
@@ -72,7 +73,24 @@ internal static partial class PublicTor
                 Check.That(hosted.Address == firstAddress, "Tor returned a different v3 address after the restart.");
                 Console.WriteLine("PASS native Tor restored the same v3 address and the host reopened the same TLS identity.");
                 await CheckPublicationAsync(hosted, "restored", token);
-                try { await CheckPublicExchangeAsync(hosted, clientB, firstFingerprint, idB, "restored", token); }
+                try
+                {
+                    await CheckPublicExchangeAsync(hosted, clientB, firstFingerprint, idB, "restored", token,
+                        attemptLimit: compareRenewedCircuits ? 1 : null);
+                }
+                catch (CheckFailed liveFailure) when (compareRenewedCircuits && !token.IsCancellationRequested)
+                {
+                    Console.WriteLine($"FAIL original client: {liveFailure.Message}");
+                    var renewed = await clientB.RequestNewIdentityAsync(token);
+                    Check.That(renewed.Status == OnlineActionStatus.Succeeded,
+                        "The authenticated controller did not observe NEWNYM. The circuit comparison was NOT RUN.");
+                    Check.That(clientB.Snapshot.ProcessId == client && ProcessAlive(client),
+                        "The original client process changed before the circuit comparison.");
+                    Console.WriteLine("PASS authenticated NEWNYM observed on the same client process.");
+                    await CheckPublicExchangeAsync(hosted, clientB, firstFingerprint, idB, "renewed-circuits comparison",
+                        token, attemptLimit: 1);
+                    throw new CheckFailed("Renewing circuits on the original client passed. Its unassisted reconnect failed.");
+                }
                 catch (CheckFailed liveFailure) when (compareFresh && !token.IsCancellationRequested)
                 {
                     Console.WriteLine($"FAIL original client: {liveFailure.Message}");
@@ -134,11 +152,11 @@ internal static partial class PublicTor
     }
 
     private static async Task CheckPublicExchangeAsync(PeerHost host, IPeerTorService service, string hostPin,
-        PeerIdentity client, string phase, CancellationToken token)
+        PeerIdentity client, string phase, CancellationToken token, int? attemptLimit = null)
     {
         var transport = service.GetPeerTransport()
             ?? throw new CheckFailed("Client B has no verified SOCKS listener.");
-        int maxAttempts = phase == "restored" ? 3 : 2;
+        int maxAttempts = attemptLimit ?? (phase == "restored" ? 3 : 2);
         byte[] pin = PeerIdentity.ParseFingerprint(hostPin);
         for (int attempt = 1; attempt <= maxAttempts; attempt++)
         {
