@@ -4,7 +4,7 @@ using Tor.Core;
 
 namespace Tor.Application;
 
-public enum PeerDeliveryStatus { Pending, Delivered, Expired }
+public enum PeerDeliveryStatus { Pending, Delivered, Expired, Sending, Sent, SendFailed }
 public sealed record PeerDeliveryItem(Guid Id, long ExpiresUtc, string? Text, PeerDeliveryStatus Status);
 public sealed record PeerHistoryItem(Guid Id, bool Incoming, long ReceivedUtc, string Text);
 public sealed record PeerDeliverySnapshot(long Revision, IReadOnlyList<PeerDeliveryItem> Outbox,

@@ -114,14 +114,27 @@ internal static partial class Offline
         await using (first.Client)
         await using (first.Server)
         {
+            using var active = CancellationTokenSource.CreateLinkedTokenSource(deadline.Token);
+            var sent = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var session = new ReliablePeerSession(first.Client, aStore, state =>
+            {
+                if (state.Outbox.Any(item => item.Id == outbound.Id && item.Status == PeerDeliveryStatus.Sent))
+                    sent.TrySetResult();
+            });
             var received = first.Server.ReceiveAsync(deadline.Token);
-            await first.Client.SendAsync(wire, deadline.Token);
+            var sender = session.RunAsync(active.Token);
             var decoded = ReliablePeerWire.Decode((await received)!);
+            await sent.Task.WaitAsync(deadline.Token);
+            Check.That(aStore.Snapshot().Outbox.Single().Status == PeerDeliveryStatus.Pending,
+                "An unacknowledged send changed the durable queue state.");
             Check.That(bStore.Accept(decoded.Id, decoded.ExpiresUtc, decoded.Text!) == PeerAcceptance.Accepted,
                 "New message was not durably accepted.");
             await Check.RejectAsync(() => Task.FromResult(bStore.Accept(decoded.Id, decoded.ExpiresUtc, "changed")),
                 "A reused ID with changed contents was accepted.", typeof(InvalidDataException));
             // Deliberately end before an ACK is sent, as if the recipient crashed here.
+            await active.CancelAsync();
+            try { await sender; }
+            catch (OperationCanceledException) when (active.IsCancellationRequested) { }
         }
         Check.That(aStore.Snapshot().Outbox.Single().Status == PeerDeliveryStatus.Pending, "Missing ACK implied delivery.");
         aStore = aProfile.OpenDelivery(a, bContact);
@@ -181,7 +194,32 @@ internal static partial class Offline
             "Opting out did not preserve prior history within its retention window.");
         clock.Utc = clock.Utc.AddDays(8);
         Check.That(expiring.Snapshot().History.Count == 0, "Opt-in history exceeded its retention.");
+        for (int index = 0; index < 64; index++) expiring.Enqueue("bounded fixture");
+        await Check.RejectAsync(() => Task.FromResult(expiring.Enqueue("one too many")),
+            "Queue capacity displaced an unacknowledged message.", typeof(InvalidOperationException));
+        Check.That(expiring.Snapshot().Outbox.All(item => item.Status == PeerDeliveryStatus.Pending),
+            "A full queue changed pending delivery state.");
+        var security = Path.Combine(aPath, "peer-security");
+        var queueFile = Path.Combine(security, "delivery-" + b.Fingerprint + ".dpapi");
+        var queueLock = Path.ChangeExtension(queueFile, ".lock");
+        using (var unavailable = new FileStream(queueLock, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+            await Check.RejectAsync(() => Task.FromResult(expiring.Snapshot()),
+                "The delivery store ignored its exclusive writer lease.", typeof(IOException));
+        byte[] damaged = [0x27, 0x19, 0x08];
+        File.WriteAllBytes(queueFile, damaged);
+        await Check.RejectAsync(() => Task.FromResult(expiring.Snapshot()),
+            "The delivery store accepted corrupt protected state.", typeof(CryptographicException), typeof(InvalidDataException));
+        Check.That(File.ReadAllBytes(queueFile).SequenceEqual(damaged), "Failed open replaced the protected queue.");
+        var damagedPair = await PairAsync(host, fixture, b.Fingerprint, a, deadline.Token, PeerProtocol.Reliable);
+        await using (damagedPair.Client)
+        await using (damagedPair.Server)
+        {
+            var session = new ReliablePeerSession(damagedPair.Client, expiring, _ => { });
+            await Check.RejectAsync(() => Task.FromResult(session.DisplaySnapshot()),
+                "Unreadable local state was not classified as a private storage failure.", typeof(PeerDeliveryStorageException));
+        }
         Console.WriteLine("PASS durable pre-send, lost ACK, pin-bound queues, restart deduplication, bidirectional ACK, TTL and opt-in history");
+        Console.WriteLine("PASS session-local Sent, full queue, writer lease contention and corrupt DPAPI refusal");
     }
 
     private sealed class FixtureClock(DateTimeOffset utc) : TimeProvider
