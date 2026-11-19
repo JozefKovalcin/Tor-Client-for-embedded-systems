@@ -185,9 +185,7 @@ public sealed class WindowsTorTaskHandler(PinnedWindowsRuntime runtime, string p
             try
             {
                 try { return await Connect().ConfigureAwait(false); }
-                catch (IOException error) when (!combined.IsCancellationRequested &&
-                    error is OnionSocksTimeoutException { Phase: OnionSocksPhase.OnionConnect } or
-                        Socks5ConnectException { ReplyCode: 0xF0 or 0xF2 or 0xF3 or 0xF7 })
+                catch (IOException error) when (!combined.IsCancellationRequested && ShouldRefreshOnionDescriptor(error))
                 {
                     if (!await current.Session.Control.RefreshOnionDescriptorAsync(address, combined.Token).ConfigureAwait(false))
                         throw;
@@ -201,6 +199,11 @@ public sealed class WindowsTorTaskHandler(PinnedWindowsRuntime runtime, string p
             }
         }
     }
+
+    // Tor maps its native stream timeout to the standard SOCKS TTL-expired reply.
+    internal static bool ShouldRefreshOnionDescriptor(IOException error) =>
+        error is OnionSocksTimeoutException { Phase: OnionSocksPhase.OnionConnect } or
+            Socks5ConnectException { ReplyCode: 0x06 or 0xF0 or 0xF2 or 0xF3 or 0xF7 };
 
     private async Task MonitorOnlineAsync(ActiveOnline current, TaskExecutionContext context)
     {

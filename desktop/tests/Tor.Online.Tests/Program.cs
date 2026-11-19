@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Runtime.Versioning;
 using Tor.Adapters.Windows;
 using Tor.Application;
+using Tor.Control;
 using Tor.Core;
 
 return await Qualification.RunAsync(args);
@@ -80,6 +81,12 @@ internal static class Qualification
     [SupportedOSPlatform("windows")]
     private static async Task VerifyLoopbackOwnershipAsync()
     {
+        Require(WindowsTorTaskHandler.ShouldRefreshOnionDescriptor(new Socks5ConnectException(0x06)),
+            "Tor's native rendezvous timeout bypassed the one target descriptor refresh.");
+        Require(!WindowsTorTaskHandler.ShouldRefreshOnionDescriptor(new Socks5ConnectException(0xF5)) &&
+            !WindowsTorTaskHandler.ShouldRefreshOnionDescriptor(new OnionSocksTimeoutException(OnionSocksPhase.LocalProxy)),
+            "An authorization or local proxy failure attempted a descriptor refresh.");
+        Console.WriteLine("PASS: native SOCKS TTL expiry permits one targeted refresh, unlike proxy and authorization faults.");
         using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(10));
         using var listener = new TcpListener(IPAddress.Loopback, 0) { ExclusiveAddressUse = true };
         listener.Start();

@@ -84,10 +84,11 @@ internal static partial class Offline
         using var fixture = new LoopbackTransport { RefuseNextIncoming = true };
         await using var listener = await PeerHost.StartAsync(fixture, host, client.Fingerprint, token);
         var rejected = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var first = listener.AcceptAsync(stage =>
+        void Rejected(PeerHandshakeStage stage)
         {
             if (stage == PeerHandshakeStage.HostTcpOwnerRejected) rejected.TrySetResult();
-        }, token);
+        }
+        var first = listener.AcceptAsync(Rejected, Rejected, token);
         using (var unowned = new TcpClient(AddressFamily.InterNetwork))
         {
             await unowned.ConnectAsync(IPAddress.Loopback, fixture.Port, token);
@@ -107,5 +108,45 @@ internal static partial class Offline
             Check.That(await incoming.ReceiveAsync(token) is null, "A reconnect cycle lost its authenticated close.");
         }
         Console.WriteLine($"PASS unowned ingress rejected before TLS; 100 authenticated local reconnects in {Stopwatch.GetElapsedTime(started).TotalSeconds:F2}s");
+
+        using var bounded = CancellationTokenSource.CreateLinkedTokenSource(token);
+        bounded.CancelAfter(TimeSpan.FromSeconds(5));
+        var accepted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        void Accepted(PeerHandshakeStage stage)
+        {
+            if (stage == PeerHandshakeStage.HostTcpAccepted) accepted.TrySetResult();
+        }
+        var competing = listener.AcceptAsync(Accepted, Accepted, bounded.Token);
+        using var stalled = new TcpClient(AddressFamily.InterNetwork);
+        await stalled.ConnectAsync(IPAddress.Loopback, fixture.Port, bounded.Token);
+        await accepted.Task.WaitAsync(bounded.Token);
+        await using var live = await PeerConnection.ConnectAsync(fixture, listener.Address, client, host.Fingerprint, bounded.Token);
+        await using var hosted = await competing;
+        await ExchangeAsync(hosted, live, "second owned stream", "first stream stalled", bounded.Token);
+        Check.That(await stalled.GetStream().ReadAsync(new byte[1], bounded.Token) == 0,
+            "The stalled competing socket survived a completed peer handshake.");
+        Console.WriteLine("PASS an owned TCP stream stalled before TLS does not block the next authenticated peer");
+
+        var bothAccepted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int acceptedCount = 0;
+        void Remember(PeerHandshakeStage stage)
+        {
+            if (stage == PeerHandshakeStage.HostTcpAccepted && Interlocked.Increment(ref acceptedCount) == 2)
+                bothAccepted.TrySetResult();
+        }
+        var survivor = listener.AcceptAsync(Remember, Remember, bounded.Token);
+        using var closing = new TcpClient(AddressFamily.InterNetwork);
+        await closing.ConnectAsync(IPAddress.Loopback, fixture.Port, bounded.Token);
+        using var second = new TcpClient(AddressFamily.InterNetwork);
+        await second.ConnectAsync(IPAddress.Loopback, fixture.Port, bounded.Token);
+        await bothAccepted.Task.WaitAsync(bounded.Token);
+        closing.Dispose();
+        Check.That(await Task.WhenAny(survivor, Task.Delay(150, bounded.Token)) != survivor,
+            "A failed owned stream aborted a second accepted handshake.");
+        await using var survivingClient = await PeerConnection.AuthenticateAsync(second.GetStream(), client,
+            PeerIdentity.ParseFingerprint(host.Fingerprint), false, token, bounded.Token);
+        await using var survivingHost = await survivor;
+        await ExchangeAsync(survivingHost, survivingClient, "surviving request", "surviving reply", bounded.Token);
+        Console.WriteLine("PASS an early close does not cancel the other accepted TLS handshake");
     }
 }

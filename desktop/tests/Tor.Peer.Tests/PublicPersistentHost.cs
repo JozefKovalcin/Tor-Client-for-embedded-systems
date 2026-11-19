@@ -146,9 +146,10 @@ internal static partial class PublicTor
             deadline.CancelAfter(TimeSpan.FromSeconds(195));
             using var descriptor = transport is IOnionDescriptorDiagnostics diagnostics
                 ? await diagnostics.ObserveDescriptorAsync(host.Address, deadline.Token) : null;
-            var hostTrace = new HandshakeTiming();
+            var firstHostTrace = new HandshakeTiming();
+            var secondHostTrace = new HandshakeTiming();
             var clientTrace = new HandshakeTiming();
-            var inbound = host.AcceptAsync(hostTrace.Record, deadline.Token);
+            var inbound = host.AcceptAsync(firstHostTrace.Record, secondHostTrace.Record, deadline.Token);
             string stage = "SOCKS tunnel";
             Exception? exchangeFailure = null, hostFailure = null;
             try
@@ -179,7 +180,8 @@ internal static partial class PublicTor
                 try { await (await inbound).DisposeAsync(); }
                 catch (OperationCanceledException) when (pendingAccept && !token.IsCancellationRequested) { }
                 catch (Exception error) when (IsConnectionFailure(error)) { hostFailure = error; }
-                Console.WriteLine($"TRACE {phase} attempt {attempt}/{maxAttempts}: descriptor={descriptor?.Events}; host [{hostTrace}]; client [{clientTrace}].");
+                Console.WriteLine($"TRACE {phase} attempt {attempt}/{maxAttempts}: descriptor={descriptor?.Events}; " +
+                    $"host slot 1 [{firstHostTrace}]; host slot 2 [{secondHostTrace}]; client [{clientTrace}].");
             }
             string result = $"{phase} attempt {attempt}/{maxAttempts}: {stage} failed ({FailureCode(exchangeFailure)}).";
             if (hostFailure is not null && !ReferenceEquals(hostFailure, exchangeFailure))

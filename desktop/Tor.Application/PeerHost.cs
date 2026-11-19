@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using Tor.Control;
 
 namespace Tor.Application;
@@ -46,41 +47,75 @@ public sealed class PeerHost : IAsyncDisposable
 
     public Task WaitForPublicationAsync(CancellationToken token) => tor.WaitForPublicationAsync(Address, token);
 
-    public Task<PeerConnection> AcceptAsync(CancellationToken token = default) => AcceptAsync(null, token);
+    public Task<PeerConnection> AcceptAsync(CancellationToken token = default) => AcceptAsync(null, null, token);
 
-    internal async Task<PeerConnection> AcceptAsync(Action<PeerHandshakeStage>? trace, CancellationToken token)
+    internal async Task<PeerConnection> AcceptAsync(Action<PeerHandshakeStage>? firstTrace,
+        Action<PeerHandshakeStage>? secondTrace, CancellationToken token)
     {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref disposed) != 0, this);
         if (Interlocked.Exchange(ref accepting, 1) != 0) throw new InvalidOperationException("A peer accept is already pending.");
         try
         {
             using var operation = CancellationTokenSource.CreateLinkedTokenSource(token, hostToken);
-            while (true)
+            var firstAccepted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var secondAccepted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var first = AcceptOneAsync(firstTrace, firstAccepted, operation.Token);
+            var second = AcceptOneAsync(secondTrace, secondAccepted, operation.Token);
+            var completed = await Task.WhenAny(first, second).ConfigureAwait(false);
+            var other = completed == first ? second : first;
+            var otherAccepted = completed == first ? secondAccepted : firstAccepted;
+            if (completed.IsFaulted && otherAccepted.Task.IsCompletedSuccessfully && !operation.IsCancellationRequested)
+                (completed, other) = (other, completed);
+            PeerConnection? winner = null;
+            try { return winner = await completed.ConfigureAwait(false); }
+            finally
             {
-                var accepted = await listener.AcceptSocketAsync(operation.Token).ConfigureAwait(false);
                 try
                 {
-                    bool verified = tor is not IOwnedOnionPeerListener owner ||
-                        accepted.LocalEndPoint is IPEndPoint local && accepted.RemoteEndPoint is IPEndPoint peer &&
-                        owner.OwnsIncomingConnection(local, peer);
-                    if (!verified)
-                    {
-                        accepted.Dispose();
-                        trace?.Invoke(PeerHandshakeStage.HostTcpOwnerRejected);
-                        continue;
-                    }
-                    trace?.Invoke(PeerHandshakeStage.HostTcpAccepted);
-                    return await PeerConnection.AuthenticateAsync(new NetworkStream(accepted, ownsSocket: true), identity,
-                        remotePin, true, hostToken, operation.Token, protocol, trace).ConfigureAwait(false);
+                    await operation.CancelAsync().ConfigureAwait(false);
+                    try { await (await other.ConfigureAwait(false)).DisposeAsync().ConfigureAwait(false); }
+                    catch (Exception error) when (error is IOException or SocketException or OperationCanceledException or
+                        AuthenticationException or ObjectDisposedException) { }
                 }
                 catch
                 {
-                    accepted.Dispose();
+                    if (winner is not null) await winner.DisposeAsync().ConfigureAwait(false);
                     throw;
                 }
             }
         }
         finally { Volatile.Write(ref accepting, 0); }
+    }
+
+    private async Task<PeerConnection> AcceptOneAsync(Action<PeerHandshakeStage>? trace,
+        TaskCompletionSource verified, CancellationToken token)
+    {
+        // An owned TCP stream can stall before the first TLS record. Keep one
+        // additional accept slot while the first negotiates, then close the loser.
+        while (true)
+        {
+            var accepted = await listener.AcceptSocketAsync(token).ConfigureAwait(false);
+            try
+            {
+                if (tor is IOwnedOnionPeerListener owner &&
+                    !(accepted.LocalEndPoint is IPEndPoint local && accepted.RemoteEndPoint is IPEndPoint peer &&
+                      owner.OwnsIncomingConnection(local, peer)))
+                {
+                    accepted.Dispose();
+                    trace?.Invoke(PeerHandshakeStage.HostTcpOwnerRejected);
+                    continue;
+                }
+                verified.TrySetResult();
+                trace?.Invoke(PeerHandshakeStage.HostTcpAccepted);
+                return await PeerConnection.AuthenticateAsync(new NetworkStream(accepted, ownsSocket: true), identity,
+                    remotePin, true, hostToken, token, protocol, trace).ConfigureAwait(false);
+            }
+            catch
+            {
+                accepted.Dispose();
+                throw;
+            }
+        }
     }
 
     public async ValueTask DisposeAsync()
