@@ -329,11 +329,12 @@ static partial class Program
         await File.WriteAllTextAsync(Path.Combine(neighbors, "tor.exe.manifest"), "harmless synthetic ignored external manifest fixture");
         Directory.CreateDirectory(Path.Combine(neighbors, "tor.exe.local"));
         await File.WriteAllTextAsync(Path.Combine(neighbors, "tor.exe.local/unlisted.dll"), "harmless synthetic redirection fixture; never executed");
+        string executionDirectory;
         await using (var isolated = await ManagedTorSession.StartOfflineAsync(new PinnedWindowsRuntime(neighbors), parent))
         {
             using var observed = Process.GetProcessById(isolated.ProcessId);
             var executable = observed.MainModule?.FileName ?? throw new Exception("Managed executable location unavailable");
-            var executionDirectory = Path.GetDirectoryName(executable)!;
+            executionDirectory = Path.GetDirectoryName(executable)!;
             Assert.That(!executable.StartsWith(neighbors + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase), "Original package directory remained executable search scope");
             Assert.That(Directory.GetFileSystemEntries(executionDirectory).Select(Path.GetFileName).Order(StringComparer.OrdinalIgnoreCase)
                 .SequenceEqual(new[] { "libwinpthread-1.dll", "tor.exe" }, StringComparer.OrdinalIgnoreCase), "Unverified package neighbor/redirection reached private execution directory");
@@ -341,6 +342,8 @@ static partial class Program
                 Assert.That(!module.FileName.StartsWith(neighbors + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase), "A module loaded from unverified package directory");
             Assert.That((await isolated.StopAsync()).RawExitCode == 0, "Isolated staged Tor shutdown failed");
         }
+        Assert.That(!Directory.Exists(executionDirectory) && Directory.Exists(Path.Combine(
+            Path.GetDirectoryName(executionDirectory)!, "state")), "Stopped session did not discard only its staged runtime");
         Assert.That(File.Exists(Path.Combine(neighbors, "version.dll")) && Directory.Exists(Path.Combine(neighbors, "tor.exe.local")), "Source package neighbors were unexpectedly modified");
         Console.WriteLine("PASS unlisted DLL/external manifest/.local neighbors excluded from private verified execution and loaded modules");
         var contents = Directory.GetFiles(parent, "*.json", SearchOption.AllDirectories)

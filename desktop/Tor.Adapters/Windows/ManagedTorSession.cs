@@ -32,6 +32,8 @@ public sealed class ManagedTorSession : IAsyncDisposable
     private readonly Process process;
     private readonly WindowsJob job;
     private readonly IReadOnlyList<FileStream> runtimeLocks;
+    private readonly string[] stagedFiles;
+    private readonly string root;
     private readonly Task drainOutput, drainError;
     private readonly SemaphoreSlim stopGate = new(1, 1);
     private TorControlClient? control;
@@ -40,9 +42,14 @@ public sealed class ManagedTorSession : IAsyncDisposable
     public int ProcessId => process.Id;
     public TorControlClient Control => control ?? throw new InvalidOperationException("Control authentication not complete");
     public Task<TorProcessOutcome> Completion { get; }
-    private ManagedTorSession(Process process, WindowsJob job, IReadOnlyList<FileStream> runtimeLocks)
+    private ManagedTorSession(Process process, WindowsJob job, IReadOnlyList<FileStream> runtimeLocks, string root)
     {
         this.process = process; this.job = job; this.runtimeLocks = runtimeLocks;
+        this.root = root;
+        var executionDirectory = Path.Combine(root, "runtime");
+        stagedFiles = runtimeLocks.Select(stream => stream.Name)
+            .Where(path => string.Equals(Path.GetDirectoryName(path), executionDirectory, StringComparison.OrdinalIgnoreCase))
+            .ToArray();
         drainOutput = DiscardAsync(process.StandardOutput); drainError = DiscardAsync(process.StandardError);
         Completion = ObserveExitAsync();
     }
@@ -128,7 +135,7 @@ public sealed class ManagedTorSession : IAsyncDisposable
             if (!process.Start()) throw new IOException("Managed Tor did not start");
             processStarted = true;
             job.Assign(process);
-            session = new ManagedTorSession(process, job, locks);
+            session = new ManagedTorSession(process, job, locks, root);
             observe?.Invoke(new(process.Id, false, Authenticating: true));
             using var startup = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             startup.CancelAfter(TimeSpan.FromSeconds(15));
@@ -240,8 +247,36 @@ public sealed class ManagedTorSession : IAsyncDisposable
                 if (control is not null) await control.DisposeAsync().ConfigureAwait(false);
                 await Task.WhenAll(drainOutput, drainError).WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
             }
-            finally { foreach (var stream in runtimeLocks) stream.Dispose(); process.Dispose(); }
+            finally
+            {
+                foreach (var stream in runtimeLocks) stream.Dispose();
+                bool exited = process.HasExited;
+                process.Dispose();
+                if (exited) DiscardStagedFiles();
+            }
         }
         // Private state remains owned by the endpoint/session; no automatic deletion or export.
+    }
+
+    private void DiscardStagedFiles()
+    {
+        var runtime = Path.Combine(root, "runtime");
+        try
+        {
+            PrivateStorage.RequireOwnerOnly(runtime);
+            foreach (var path in stagedFiles)
+            {
+                PrivateStorage.RequireOwnerOnlyFile(path);
+                File.Delete(path);
+            }
+            Directory.Delete(runtime);
+            var temporary = Path.Combine(root, "temporary");
+            PrivateStorage.RequireOwnerOnly(temporary);
+            if (!Directory.EnumerateFileSystemEntries(temporary).Any()) Directory.Delete(temporary);
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException)
+        {
+            // Leave any file whose scope or ownership cannot be confirmed.
+        }
     }
 }

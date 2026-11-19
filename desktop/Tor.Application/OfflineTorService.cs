@@ -346,7 +346,7 @@ public sealed class OfflineTorService : IPeerTorService
         {
             var handlers = store is null ? Array.Empty<ITaskHandler>() : new[] { handlerFactory(Observe) };
             var opened = new TaskOrchestrator(handlers, store ?? new VerifiedFileStore(privateDirectory), journal,
-                SessionResources, maximumTasks: 1024, maximumTaskDuration: TimeSpan.FromHours(24));
+                SessionResources, maximumTasks: 1024);
             var cancellation = new CancellationTokenSource();
             lock (gate)
             {
@@ -384,7 +384,7 @@ public sealed class OfflineTorService : IPeerTorService
     private void PublishLocked()
     {
         var tasks = core?.Snapshot() ?? [];
-        var current = tasks.LastOrDefault(row => row.TaskId == taskId) ?? tasks.LastOrDefault();
+        var current = tasks.LastOrDefault(row => row.TaskId == taskId) ?? tasks.MaxBy(row => row.TimestampUtc);
         bool authenticated = active && observation.Authenticated;
         var control = authenticated ? TorControlStatus.Authenticated : active && observation.Authenticating
             ? TorControlStatus.Authenticating : TorControlStatus.Disconnected;

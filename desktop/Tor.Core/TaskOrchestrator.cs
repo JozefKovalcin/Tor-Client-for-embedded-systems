@@ -48,6 +48,7 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
         if (this.maximumTaskDuration <= TimeSpan.Zero || this.maximumTaskDuration > TimeSpan.FromHours(24))
             throw new ArgumentOutOfRangeException(nameof(maximumTaskDuration));
         var recovered = journal.Read();
+        foreach (var log in journal.ReadLogs()) logs.Enqueue(log);
         if (recovered.Count > maximumTasks) throw new InvalidDataException("Recovered task capacity exceeded");
         foreach (var previous in recovered)
         {
@@ -79,7 +80,7 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
         lock (gate)
         {
             ObjectDisposedException.ThrowIf(disposed || stopping, this);
-            if (graph.Count == 0 || graph.Count > maximumTasks - entries.Count)
+            if (graph.Count == 0 || graph.Count > maximumTasks)
                 throw new InvalidOperationException("Bounded task queue capacity exceeded");
             // Freeze/recognize every command before mutating queue state. A public
             // unsupported subtype must reject the complete graph, not only its tail.
@@ -93,7 +94,8 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
             foreach (var task in prepared)
             {
                 ContractReference.Require(task.Id);
-                if (entries.ContainsKey(task.Id)) throw new InvalidDataException("Task ID already used");
+                if (entries.ContainsKey(task.Id) || journal.IsArchived(task.Id))
+                    throw new InvalidDataException("Task ID already used");
                 task.Resources.Validate();
                 if (task.DependsOn.Count > maximumTasks || task.Command.Inputs.Count > 64 || task.Command.OutputRefs.Count > 32)
                     throw new InvalidDataException("Task edge/input/output capacity exceeded");
@@ -127,6 +129,22 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
                 visiting.Remove(id); visited.Add(id);
             }
             foreach (var id in incoming.Keys) Visit(id);
+            var archived = new HashSet<string>(StringComparer.Ordinal);
+            int needed = entries.Count + prepared.Length - maximumTasks;
+            if (needed > 0)
+            {
+                var protectedIds = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var task in prepared.Concat(entries.Values
+                    .Where(x => !Terminal(x.Progress.State)).Select(x => x.Submission!)))
+                {
+                    protectedIds.UnionWith(task.DependsOn);
+                    if (task.RetryOfTaskId is { } retry) protectedIds.Add(retry);
+                }
+                archived.UnionWith(entries.Values.Where(x => !x.Active && Terminal(x.Progress.State) &&
+                        !protectedIds.Contains(x.Progress.TaskId)).OrderBy(x => x.Progress.TimestampUtc)
+                    .Take(needed).Select(x => x.Progress.TaskId));
+                if (archived.Count < needed) throw new InvalidOperationException("Bounded task queue capacity exceeded");
+            }
             var staged = prepared.Select(task =>
             {
                 var progress = new TaskProgress(1, task.Id, null, 0, DateTimeOffset.UtcNow, "queued", "queued",
@@ -140,7 +158,8 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
             {
                 // Both durable writes must succeed before admission is acknowledged,
                 // mutable queue/log state changes, or subscribers see a queued event.
-                journal.Write(previousRows.Concat(staged.Select(x => x.Progress)).ToArray());
+                foreach (var id in archived) journal.Archive(entries[id].Progress);
+                journal.Write(previousRows.Where(x => !archived.Contains(x.TaskId)).Concat(staged.Select(x => x.Progress)).ToArray());
                 journal.WriteLogs(proposedLogs);
             }
             catch (Exception admissionError) when (admissionError is not OutOfMemoryException and not StackOverflowException)
@@ -150,6 +169,11 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
                 catch (Exception rollbackError) when (rollbackError is not OutOfMemoryException and not StackOverflowException)
                 { throw new AggregateException("Admission rejected; durable journal rollback also failed", admissionError, rollbackError); }
                 throw;
+            }
+            foreach (var id in archived)
+            {
+                entries[id].Cancellation.Dispose();
+                entries.Remove(id);
             }
             foreach (var item in staged) entries.Add(item.Progress.TaskId, item);
             ReplaceLogs(proposedLogs);
@@ -288,7 +312,8 @@ public sealed class TaskOrchestrator : ITaskService, IAsyncDisposable
             try
             {
                 foreach (var input in item.Submission!.Command.Inputs) files.Verify(input);
-                item.Cancellation.CancelAfter(maximumTaskDuration);
+                if (item.Submission.Command is not WindowsTorSessionCommand)
+                    item.Cancellation.CancelAfter(maximumTaskDuration);
                 item.Cancellation.Token.ThrowIfCancellationRequested();
                 var context = new TaskExecutionContext((phase, done, total, unit) =>
                 {

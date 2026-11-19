@@ -95,9 +95,11 @@ public sealed class HostedOnionStore(string privateProfile)
         }
         finally { CryptographicOperations.ZeroMemory(clear); }
 
-        if (!replace) PrivateStorage.CreateNewDirectory(DirectoryPath);
-        PrivateStorage.RequireOwnerOnly(DirectoryPath);
-        var temp = Path.Combine(DirectoryPath, "pending-" + Guid.NewGuid().ToString("N"));
+        var suffix = "pending-" + Guid.NewGuid().ToString("N");
+        var staging = replace ? DirectoryPath : Path.Combine(profile, ".onion-hosting-" + suffix);
+        if (!replace) PrivateStorage.CreateNewDirectory(staging);
+        PrivateStorage.RequireOwnerOnly(staging);
+        var temp = Path.Combine(staging, replace ? suffix : Path.GetFileName(IdentityPath));
         try
         {
             using (var file = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
@@ -106,9 +108,14 @@ public sealed class HostedOnionStore(string privateProfile)
                 file.Flush(flushToDisk: true);
             }
             PrivateStorage.RequireOwnerOnlyFile(temp);
-            File.Move(temp, IdentityPath, overwrite: replace);
+            if (replace) File.Move(temp, IdentityPath, overwrite: true);
+            else Directory.Move(staging, DirectoryPath);
         }
-        finally { if (File.Exists(temp)) File.Delete(temp); }
+        finally
+        {
+            if (File.Exists(temp)) File.Delete(temp);
+            if (!replace && Directory.Exists(staging)) Directory.Delete(staging);
+        }
     }
 
     private static bool Exists(string path)

@@ -145,6 +145,11 @@ static class Program
         core.Submit([w.Probe("one", resources: new(5, 1, 1, false)), w.Probe("two")]);
         Check.Throws<InvalidOperationException>(() => core.Submit([w.Probe("three")])); await core.RunUntilIdleAsync();
         Check.That(core.Snapshot().Single(x => x.TaskId == "one").State == "blocked", "Oversized reservation not blocked");
+        core.Submit([w.Probe("three", ["two"])]);
+        await core.RunUntilIdleAsync();
+        Check.That(core.Snapshot().Select(x => x.TaskId).ToHashSet().SetEquals(["two", "three"]) &&
+            Directory.GetFiles(w.Root, "history-*.json").Length == 1, "Finished tasks did not make space without losing a dependency");
+        Check.Throws<InvalidDataException>(() => core.Submit([w.Probe("one")]));
     }
 
     static async Task Recovery()
@@ -164,6 +169,12 @@ static class Program
         Check.Throws<InvalidOperationException>(() => core.Retry("lost", "implicit-retry"));
         core.Submit([w.Probe("explicit-retry") with { RetryOfTaskId = "lost" }]); await core.RunUntilIdleAsync();
         Check.That(calls == 1, "Explicit recovery resubmission did not run"); Export.AddRange(core.Snapshot());
+        var events = core.Logs().ToArray();
+        await core.DisposeAsync();
+        await using var reopened = new TaskOrchestrator([handler], w.Files, w.Journal(), Capacity);
+        Check.That(events.Length > 0 && reopened.Logs().SequenceEqual(events), "Reopen lost structured events");
+        reopened.Submit([w.Probe("next")]);
+        Check.That(reopened.Logs().Take(events.Length).SequenceEqual(events), "Next submission overwrote historical events");
     }
 
     static async Task Streams()
@@ -236,6 +247,24 @@ static class Program
             maximumTaskDuration: TimeSpan.FromMilliseconds(30));
         core.Submit([w.Probe("deadline")]); await core.RunUntilIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
         Check.That(core.Snapshot().Single().State == "cancelled" && core.Snapshot().Single().ReasonCode == "deadline-exceeded", "Deadline lost or mislabeled");
+        using var sessionWorkspace = new Workspace();
+        var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var session = new Handler(CommandKind.WindowsTorSession, async (_, _, token) =>
+        {
+            started.SetResult();
+            await Task.Delay(Timeout.Infinite, token);
+            return Success();
+        });
+        await using var longRunning = new TaskOrchestrator([session], sessionWorkspace.Files, sessionWorkspace.Journal(),
+            Capacity, maximumTaskDuration: TimeSpan.FromMilliseconds(30));
+        longRunning.Submit([new("tor-session", new WindowsTorSessionCommand(sessionWorkspace.Input, []), [], new(1, 0, 0, false))]);
+        var pending = longRunning.RunUntilIdleAsync();
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(3));
+        await Task.Delay(100);
+        Check.That(longRunning.Snapshot().Single().State == "running", "Healthy Tor received a finite task deadline");
+        longRunning.Cancel("tor-session");
+        await pending.WaitAsync(TimeSpan.FromSeconds(3));
+        Check.That(longRunning.Snapshot().Single().ReasonCode == "user-cancelled", "Tor no longer responds to explicit Stop");
     }
     static async Task UnexpectedExit()
     {
