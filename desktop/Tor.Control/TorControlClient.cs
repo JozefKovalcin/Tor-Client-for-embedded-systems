@@ -36,6 +36,7 @@ public sealed class TorControlClient : IAsyncDisposable
     private long? lastIdentityRequest;
     private TaskCompletionSource? pendingIdentitySignal;
     private DescriptorRefresh? pendingDescriptor;
+    private OnionDescriptorObservation? descriptorObservation;
     private volatile bool authenticated;
     private bool authenticationAttempted;
     private bool disposed;
@@ -101,6 +102,25 @@ public sealed class TorControlClient : IAsyncDisposable
         CommandAsync("SETEVENTS STATUS_CLIENT SIGNAL HS_DESC", true, token, drainAfterAdmission: true);
 
     private sealed record DescriptorRefresh(OnionAddress Address, TaskCompletionSource Received);
+
+    public async Task<OnionDescriptorObservation> ObserveDescriptorAsync(OnionAddress address, CancellationToken token = default)
+    {
+        ArgumentNullException.ThrowIfNull(address);
+        var observation = new OnionDescriptorObservation(address,
+            current => Interlocked.CompareExchange(ref descriptorObservation, null, current));
+        if (Interlocked.CompareExchange(ref descriptorObservation, observation, null) is not null)
+            throw new InvalidOperationException("A descriptor observation is already active.");
+        try
+        {
+            await SubscribeOnionPublicationAsync(token).ConfigureAwait(false);
+            return observation;
+        }
+        catch
+        {
+            observation.Dispose();
+            throw;
+        }
+    }
 
     public async Task<bool> RefreshOnionDescriptorAsync(OnionAddress address, CancellationToken token = default)
     {
@@ -319,6 +339,8 @@ public sealed class TorControlClient : IAsyncDisposable
                         Volatile.Read(ref pendingDescriptor) is { } pending &&
                         reply.Lines[0][received.Length..].Split(' ', 2)[0] == pending.Address.ServiceId)
                         pending.Received.TrySetResult();
+                    if (Volatile.Read(ref descriptorObservation) is { } observation)
+                        ObserveDescriptorEvent(reply.Lines[0], observation);
                 }
                 else
                 {
@@ -334,6 +356,22 @@ public sealed class TorControlClient : IAsyncDisposable
         }
         finally { CloseTransport(); events.Writer.TryComplete(); onionUploads.Writer.TryComplete(); }
     }
+    private static void ObserveDescriptorEvent(string line, OnionDescriptorObservation observation)
+    {
+        const string prefix = "HS_DESC ";
+        if (!line.StartsWith(prefix, StringComparison.Ordinal)) return;
+        var fields = line[prefix.Length..].Split(' ', 3);
+        if (fields.Length != 3 || fields[1] != observation.Address.ServiceId) return;
+        observation.Record(fields[0] switch
+        {
+            "REQUESTED" => OnionDescriptorEvents.Requested,
+            "RECEIVED" => OnionDescriptorEvents.Received,
+            "FAILED" => OnionDescriptorEvents.Failed,
+            "IGNORE" => OnionDescriptorEvents.Ignored,
+            _ => OnionDescriptorEvents.None
+        });
+    }
+
     private static BootstrapProgress? ParseBootstrap(ControlReply reply)
     {
         string text = reply.Lines[0];

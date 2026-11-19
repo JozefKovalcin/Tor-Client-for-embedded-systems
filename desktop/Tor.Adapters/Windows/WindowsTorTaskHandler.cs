@@ -125,7 +125,8 @@ public sealed class WindowsTorTaskHandler(PinnedWindowsRuntime runtime, string p
                !current.Session.Completion.IsCompleted ? new PeerTransport(current) : null;
     }
 
-    private sealed class PeerTransport(ActiveOnline current) : IPersistentOnionPeerTransport
+    private sealed class PeerTransport(ActiveOnline current) :
+        IPersistentOnionPeerTransport, IOwnedOnionPeerListener, IOnionDescriptorDiagnostics
     {
         public CancellationToken Lifetime => current.Token;
 
@@ -164,6 +165,14 @@ public sealed class WindowsTorTaskHandler(PinnedWindowsRuntime runtime, string p
         public Task WaitForPublicationAsync(OnionAddress address, CancellationToken token) =>
             current.Session.Control.WaitForOnionPublicationAsync(address, token);
 
+        public Task<OnionDescriptorObservation> ObserveDescriptorAsync(OnionAddress address, CancellationToken token) =>
+            current.Session.Control.ObserveDescriptorAsync(address, token);
+
+        public bool OwnsIncomingConnection(IPEndPoint listener, IPEndPoint peer) =>
+            peer.Address.Equals(IPAddress.Loopback) &&
+            !Lifetime.IsCancellationRequested && !current.Session.Completion.IsCompleted &&
+            WindowsTcpOwner.OwnsPeer(current.Session.ProcessId, peer.Port, listener);
+
         public async Task<Stream> ConnectAsync(OnionAddress address, CancellationToken token)
         {
             using var combined = CancellationTokenSource.CreateLinkedTokenSource(token, Lifetime);
@@ -173,14 +182,22 @@ public sealed class WindowsTorTaskHandler(PinnedWindowsRuntime runtime, string p
                 OnionSocksConnection.ConnectAsync(new(IPAddress.Loopback, current.SocksPort), address,
                     peer => !combined.IsCancellationRequested && current.Ready && !current.Session.Completion.IsCompleted &&
                             WindowsTcpOwner.OwnsPeer(pid, current.SocksPort, peer), combined.Token);
-            try { return await Connect().ConfigureAwait(false); }
-            catch (IOException error) when (!combined.IsCancellationRequested &&
-                error is OnionSocksTimeoutException { Phase: OnionSocksPhase.OnionConnect } or
-                    Socks5ConnectException { ReplyCode: 0xF0 or 0xF2 or 0xF3 or 0xF7 })
+            try
             {
-                if (!await current.Session.Control.RefreshOnionDescriptorAsync(address, combined.Token).ConfigureAwait(false))
-                    throw;
-                return await Connect().ConfigureAwait(false);
+                try { return await Connect().ConfigureAwait(false); }
+                catch (IOException error) when (!combined.IsCancellationRequested &&
+                    error is OnionSocksTimeoutException { Phase: OnionSocksPhase.OnionConnect } or
+                        Socks5ConnectException { ReplyCode: 0xF0 or 0xF2 or 0xF3 or 0xF7 })
+                {
+                    if (!await current.Session.Control.RefreshOnionDescriptorAsync(address, combined.Token).ConfigureAwait(false))
+                        throw;
+                    return await Connect().ConfigureAwait(false);
+                }
+            }
+            catch (OperationCanceledException) when (combined.IsCancellationRequested &&
+                !token.IsCancellationRequested && !Lifetime.IsCancellationRequested)
+            {
+                throw new OnionSocksTimeoutException(OnionSocksPhase.RecoveryBudget);
             }
         }
     }

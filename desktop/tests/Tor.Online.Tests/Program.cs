@@ -92,6 +92,7 @@ internal static class Qualification
         using var accepted = await listener.AcceptSocketAsync(deadline.Token);
         var peer = (IPEndPoint)client.LocalEndPoint!;
         Require(WindowsTcpOwner.OwnsPeer(pid, server.Port, peer), "The established loopback socket was not attributed to its owner.");
+        Require(WindowsTcpOwner.OwnsPeer(pid, peer.Port, server), "The Tor-side outgoing tuple must also be attributed to its owner.");
         Require(!WindowsTcpOwner.OwnsPeer(pid + 1, server.Port, peer), "The established socket was attributed to another PID.");
         Require(!WindowsTcpOwner.OwnsPeer(pid, server.Port, new IPEndPoint(IPAddress.Any, peer.Port)),
             "An endpoint outside IPv4 loopback passed the ownership check.");

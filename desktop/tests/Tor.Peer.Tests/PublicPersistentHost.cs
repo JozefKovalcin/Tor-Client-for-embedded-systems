@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.Versioning;
 using System.Security.Authentication;
@@ -11,22 +12,11 @@ internal static partial class PublicTor
 {
     // Both connection profiles and the runtime approval are scoped to this run.
     [SupportedOSPlatform("windows")]
-    internal static async Task RunPersistentHostAsync(string candidatePath, string state, bool compareFresh = false)
+    internal static async Task RunPersistentHostAsync(string input, string state, bool bundled, bool compareFresh)
     {
-        var input = new FileInfo(candidatePath);
-        Check.That(input.Length is > 0 and <= 64 * 1024, "The runtime candidate file has an invalid size.");
-        await using var stream = input.OpenRead();
-        var candidate = await JsonSerializer.DeserializeAsync<RuntimeCandidate>(stream, new JsonSerializerOptions(JsonSerializerDefaults.Web))
-            ?? throw new CheckFailed("No verified runtime candidate was supplied.");
-        Check.That(candidate.Profile == "optimized-static", "An optimized-static runtime candidate is required.");
-
         var root = Path.GetFullPath(state);
         PrivateStorage.CreateNewDirectory(root);
-        var selection = new WindowsRuntimeSelection(Path.Combine(root, "runtime"));
-        selection.Activate(candidate);
-        var runtime = selection.ReadRuntime(candidate.PackagePath);
-        Check.That(runtime.IsCustom, "The isolated run did not select the verified custom runtime.");
-        Console.WriteLine("PASS isolated runtime activation verified EXE, DLL and build-report hashes.");
+        var runtime = await SelectPersistentRuntimeAsync(input, root, bundled);
 
         string profileA = Path.Combine(root, "host A");
         string profileB = Path.Combine(root, "client B");
@@ -101,6 +91,29 @@ internal static partial class PublicTor
         }
     }
 
+    [SupportedOSPlatform("windows")]
+    private static async Task<PinnedWindowsRuntime> SelectPersistentRuntimeAsync(string path, string root, bool bundled)
+    {
+        if (bundled)
+        {
+            // ManagedTorSession checks the fixed runtime pins before staging either process.
+            Console.WriteLine("Runtime selection: bundled Windows Tor with fixed EXE and DLL pins.");
+            return new PinnedWindowsRuntime(Path.GetFullPath(path));
+        }
+        var input = new FileInfo(path);
+        Check.That(input.Length is > 0 and <= 64 * 1024, "The runtime candidate file has an invalid size.");
+        await using var stream = input.OpenRead();
+        var candidate = await JsonSerializer.DeserializeAsync<RuntimeCandidate>(stream, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+            ?? throw new CheckFailed("No verified runtime candidate was supplied.");
+        Check.That(candidate.Profile == "optimized-static", "An optimized-static runtime candidate is required.");
+        var selection = new WindowsRuntimeSelection(Path.Combine(root, "runtime"));
+        selection.Activate(candidate);
+        var runtime = selection.ReadRuntime(candidate.PackagePath);
+        Check.That(runtime.IsCustom, "The isolated run did not select the verified custom runtime.");
+        Console.WriteLine("PASS isolated custom runtime verified EXE, DLL and build-report hashes.");
+        return runtime;
+    }
+
     private static Task<PeerHost> StartPersistentAsync(IPeerTorService service, HostedOnionStore store, PeerIdentity host,
         PeerIdentity client, HostingIdentityAction action, OnionAddress? expected, CancellationToken token)
     {
@@ -131,14 +144,21 @@ internal static partial class PublicTor
         {
             using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token, transport.Lifetime);
             deadline.CancelAfter(TimeSpan.FromSeconds(195));
-            var inbound = host.AcceptAsync(deadline.Token);
+            using var descriptor = transport is IOnionDescriptorDiagnostics diagnostics
+                ? await diagnostics.ObserveDescriptorAsync(host.Address, deadline.Token) : null;
+            var hostTrace = new HandshakeTiming();
+            var clientTrace = new HandshakeTiming();
+            var inbound = host.AcceptAsync(hostTrace.Record, deadline.Token);
             string stage = "SOCKS tunnel";
+            Exception? exchangeFailure = null, hostFailure = null;
             try
             {
                 var tunnel = await transport.ConnectAsync(host.Address, deadline.Token);
+                clientTrace.Record(PeerHandshakeStage.ClientSocksEstablished);
                 stage = "mutual TLS";
                 await using var connection = await PeerConnection.AuthenticateAsync(
-                    tunnel, client, pin, false, transport.Lifetime, deadline.Token);
+                    tunnel, client, pin, false, transport.Lifetime, deadline.Token, trace: clientTrace.Record);
+                stage = "host handshake completion";
                 var server = await inbound;
                 stage = "bidirectional transfer";
                 await RoundTripAsync(server, connection, $"{phase} B → A", $"{phase} A → B", deadline.Token);
@@ -150,31 +170,56 @@ internal static partial class PublicTor
             }
             catch (Exception error) when (IsConnectionFailure(error))
             {
-                string reason = error switch
-                {
-                    Socks5ConnectException rejected => $"SOCKS5 reply 0x{rejected.ReplyCode:X2}",
-                    OnionSocksTimeoutException timeout => $"{timeout.Phase} deadline elapsed",
-                    SocketException socket => $"socket error {socket.SocketErrorCode}",
-                    _ => error.GetType().Name
-                };
-                string result = $"{phase} attempt {attempt}/{maxAttempts}: {stage} failed ({reason}).";
-                if (attempt == maxAttempts || token.IsCancellationRequested ||
-                    transport.Lifetime.IsCancellationRequested || error is AuthenticationException)
-                    throw new CheckFailed(result);
-                Console.WriteLine($"RETRY {result}");
+                exchangeFailure = error;
             }
             finally
             {
+                bool pendingAccept = !inbound.IsCompleted;
                 await deadline.CancelAsync();
                 try { await (await inbound).DisposeAsync(); }
-                catch (Exception error) when (IsConnectionFailure(error)) { }
+                catch (OperationCanceledException) when (pendingAccept && !token.IsCancellationRequested) { }
+                catch (Exception error) when (IsConnectionFailure(error)) { hostFailure = error; }
+                Console.WriteLine($"TRACE {phase} attempt {attempt}/{maxAttempts}: descriptor={descriptor?.Events}; host [{hostTrace}]; client [{clientTrace}].");
             }
+            string result = $"{phase} attempt {attempt}/{maxAttempts}: {stage} failed ({FailureCode(exchangeFailure)}).";
+            if (hostFailure is not null && !ReferenceEquals(hostFailure, exchangeFailure))
+                result += $" Host outcome: {FailureCode(hostFailure)}.";
+            if (attempt == maxAttempts || token.IsCancellationRequested || transport.Lifetime.IsCancellationRequested ||
+                exchangeFailure is AuthenticationException || hostFailure is AuthenticationException)
+                throw new CheckFailed(result);
+            Console.WriteLine($"RETRY {result}");
             await Task.Delay(TimeSpan.FromSeconds(3), token);
         }
     }
 
     private static bool IsConnectionFailure(Exception error) =>
         error is IOException or SocketException or OperationCanceledException or AuthenticationException;
+
+    private static string FailureCode(Exception? error) => error switch
+    {
+        Socks5ConnectException rejected => $"SOCKS5 reply 0x{rejected.ReplyCode:X2}",
+        OnionSocksTimeoutException timeout => $"{timeout.Phase} deadline elapsed",
+        PeerHandshakeTimeoutException timeout => $"{timeout.Phase} deadline elapsed",
+        SocketException socket => $"socket error {socket.SocketErrorCode}",
+        null => "no fault observed",
+        _ => error.GetType().Name
+    };
+
+    private sealed class HandshakeTiming
+    {
+        private static readonly PeerHandshakeStage[] Stages = Enum.GetValues<PeerHandshakeStage>();
+        private readonly long started = Stopwatch.GetTimestamp();
+        private readonly long[] ticks = new long[Stages.Length];
+
+        internal void Record(PeerHandshakeStage stage) =>
+            Interlocked.CompareExchange(ref ticks[(int)stage], Stopwatch.GetTimestamp(), 0);
+
+        public override string ToString() => string.Join(", ", Stages
+            .Select(stage => (stage, at: Interlocked.Read(ref ticks[(int)stage])))
+            .Where(item => item.at != 0)
+            .OrderBy(item => item.at)
+            .Select(item => $"{item.stage}@{(long)Stopwatch.GetElapsedTime(started, item.at).TotalMilliseconds}ms"));
+    }
 
     private static async Task StopVerifiedAsync(IPeerTorService service, int pid, CancellationToken token)
     {

@@ -46,16 +46,39 @@ public sealed class PeerHost : IAsyncDisposable
 
     public Task WaitForPublicationAsync(CancellationToken token) => tor.WaitForPublicationAsync(Address, token);
 
-    public async Task<PeerConnection> AcceptAsync(CancellationToken token = default)
+    public Task<PeerConnection> AcceptAsync(CancellationToken token = default) => AcceptAsync(null, token);
+
+    internal async Task<PeerConnection> AcceptAsync(Action<PeerHandshakeStage>? trace, CancellationToken token)
     {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref disposed) != 0, this);
         if (Interlocked.Exchange(ref accepting, 1) != 0) throw new InvalidOperationException("A peer accept is already pending.");
         try
         {
             using var operation = CancellationTokenSource.CreateLinkedTokenSource(token, hostToken);
-            var accepted = await listener.AcceptSocketAsync(operation.Token).ConfigureAwait(false);
-            return await PeerConnection.AuthenticateAsync(new NetworkStream(accepted, ownsSocket: true), identity,
-                remotePin, true, hostToken, operation.Token, protocol).ConfigureAwait(false);
+            while (true)
+            {
+                var accepted = await listener.AcceptSocketAsync(operation.Token).ConfigureAwait(false);
+                try
+                {
+                    bool verified = tor is not IOwnedOnionPeerListener owner ||
+                        accepted.LocalEndPoint is IPEndPoint local && accepted.RemoteEndPoint is IPEndPoint peer &&
+                        owner.OwnsIncomingConnection(local, peer);
+                    if (!verified)
+                    {
+                        accepted.Dispose();
+                        trace?.Invoke(PeerHandshakeStage.HostTcpOwnerRejected);
+                        continue;
+                    }
+                    trace?.Invoke(PeerHandshakeStage.HostTcpAccepted);
+                    return await PeerConnection.AuthenticateAsync(new NetworkStream(accepted, ownsSocket: true), identity,
+                        remotePin, true, hostToken, operation.Token, protocol, trace).ConfigureAwait(false);
+                }
+                catch
+                {
+                    accepted.Dispose();
+                    throw;
+                }
+            }
         }
         finally { Volatile.Write(ref accepting, 0); }
     }
