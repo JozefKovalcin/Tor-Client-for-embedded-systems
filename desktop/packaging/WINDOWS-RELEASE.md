@@ -30,9 +30,12 @@ static Tor package with its original source manifest and license files.
 
 ```powershell
 dotnet restore desktop/Tor.Desktop/Tor.Desktop.csproj --locked-mode -p:RuntimeIdentifier=win-x64 -p:SelfContained=true --source $feed --packages $cache -p:NuGetAudit=false
-dotnet publish desktop/Tor.Desktop/Tor.Desktop.csproj -c Release -r win-x64 --self-contained --no-restore -p:DebugType=None -p:DebugSymbols=false -o $publish
-python -B -m desktop.packaging.pack_windows_release --publish $publish --feed $feed --tor-runtime $tor --objdump $objdump --system32 "$env:SystemRoot\System32" --version $version --out $zip
+python -B -m desktop.packaging.pack_windows_release --build-publish --publish $publish --feed $feed --tor-runtime $tor --objdump $objdump --system32 "$env:SystemRoot\System32" --version $version --out $zip
 ```
+
+Use a new directory for `$publish`. The command records the source commit
+and the published application hashes before packaging. To repackage this
+output, omit `--build-publish` and use the same source commit.
 
 The packager checks the reviewed assets, signed archive hashes, framework
 runtime list, bundled licenses and native DLL import closure on the local

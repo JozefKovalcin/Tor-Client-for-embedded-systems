@@ -49,6 +49,31 @@ jobs:
           path: build/config-check/**/.config
           include-hidden-files: true
           if-no-files-found: warn
+  windows-offline:
+    runs-on: windows-2025
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_GENERATE_ASPNET_CERTIFICATE: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: desktop/global.json
+      - name: Portable and compiled checks
+        run: python -B scripts/check.py
+      - name: Build Windows Manager from the lock
+        working-directory: desktop
+        run: |
+          dotnet restore Tor.Desktop/Tor.Desktop.csproj --locked-mode
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          dotnet build Tor.Desktop/Tor.Desktop.csproj -c Release --no-restore
+      - name: Windows private peer workflow
+        run: |
+          $state = Join-Path $env:RUNNER_TEMP "tor-peer-$([guid]::NewGuid().ToString('N'))"
+          dotnet build/desktop/w4-tests/bin/Debug/net11.0/Tor.Desktop.Tests.dll --private-peer-ui $state
   full:
     if: github.event_name == 'workflow_dispatch' && inputs.full_build
     needs: checks

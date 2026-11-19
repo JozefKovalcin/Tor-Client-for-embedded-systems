@@ -78,7 +78,13 @@ def source_tree():
     # Do not silently discard edits in a user's cached source tree.
     import hashlib
     with tarfile.open(archive) as tar:
-        for member in tar:
+        members = tar.getmembers()
+        expected = {Path(member.name) for member in members}
+        expected.update(ancestor for name in list(expected) for ancestor in name.parents if ancestor != Path("."))
+        actual = {source.relative_to(parent), *(path.relative_to(parent) for path in source.rglob("*"))}
+        if source.is_symlink() or actual != expected:
+            raise ValueError("modified or incomplete upstream source inventory: " + str(source))
+        for member in members:
             path = parent / member.name
             if member.isfile() or member.islnk():
                 expected = hashlib.sha256(tar.extractfile(member).read()).hexdigest()
@@ -88,6 +94,8 @@ def source_tree():
                 # WSL's Windows-backed filesystem normalizes trailing slashes.
                 if not path.is_symlink() or os.readlink(path).rstrip("/") != member.linkname.rstrip("/"):
                     raise ValueError("modified upstream symlink: " + str(path))
+            elif member.isdir() and (not path.is_dir() or path.is_symlink()):
+                raise ValueError("modified upstream directory: " + str(path))
     return source
 
 
