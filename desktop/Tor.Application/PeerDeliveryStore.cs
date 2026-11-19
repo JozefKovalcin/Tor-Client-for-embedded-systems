@@ -5,6 +5,7 @@ using Tor.Core;
 namespace Tor.Application;
 
 public enum PeerDeliveryStatus { Pending, Delivered, Expired, Sending, Sent, SendFailed }
+public sealed class PeerDeliveryStorageException() : IOException("The private peer delivery state is unavailable.");
 public sealed record PeerDeliveryItem(Guid Id, long ExpiresUtc, string? Text, PeerDeliveryStatus Status);
 public sealed record PeerHistoryItem(Guid Id, bool Incoming, long ReceivedUtc, string Text);
 public sealed record PeerDeliverySnapshot(long Revision, IReadOnlyList<PeerDeliveryItem> Outbox,
@@ -109,7 +110,9 @@ public sealed class PeerDeliveryStore
             CheckPrivateFile(writer);
             using var lease = new FileStream(writer, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
             PrivateStorage.RequireOwnerOnlyFile(writer);
-            var data = Read();
+            QueueFile data;
+            try { data = Read(); }
+            catch (InvalidDataException) { throw new PeerDeliveryStorageException(); }
             long now = clock.GetUtcNow().ToUnixTimeSeconds();
             bool expired = data.Inbox.RemoveAll(item => item.ExpiresUtc <= now) != 0;
             expired |= data.History.RemoveAll(item => item.ReceivedUtc <= now - HistoryTtlSeconds) != 0;

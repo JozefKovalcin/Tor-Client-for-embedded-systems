@@ -5,8 +5,6 @@ using System.Threading.Channels;
 
 namespace Tor.Application;
 
-public sealed class PeerDeliveryStorageException() : IOException("The private peer delivery state is unavailable.");
-
 /// <summary>Retries a durable outbox on a freshly authenticated v2 connection.</summary>
 public sealed class ReliablePeerSession
 {
@@ -125,6 +123,7 @@ public sealed class ReliablePeerSession
     private static T WithStore<T>(Func<T> operation, bool receiving = false)
     {
         try { return operation(); }
+        catch (PeerDeliveryStorageException) { throw; }
         catch (Exception error) when ((!receiving || error is not InvalidDataException) &&
             error is IOException or UnauthorizedAccessException or CryptographicException or JsonException or InvalidDataException)
         {

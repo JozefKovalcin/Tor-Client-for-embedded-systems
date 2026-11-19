@@ -199,7 +199,7 @@ internal static class Offline
         byte[] damaged = [0x27, 0x19, 0x08];
         File.WriteAllBytes(queueFile, damaged);
         await Check.RejectAsync(() => Task.FromResult(expiring.Snapshot()),
-            "The delivery store accepted corrupt protected state.", typeof(CryptographicException), typeof(InvalidDataException));
+            "The delivery store accepted corrupt protected state.", typeof(CryptographicException), typeof(PeerDeliveryStorageException));
         Check.That(File.ReadAllBytes(queueFile).SequenceEqual(damaged), "Failed open replaced the protected queue.");
         var damagedPair = await PairAsync(host, fixture, b.Fingerprint, a, deadline.Token, PeerProtocol.Reliable);
         await using (damagedPair.Client)
