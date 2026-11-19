@@ -3,4 +3,8 @@
     <TargetFramework>net11.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable><TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Tor.Peer.Tests" />
+    <InternalsVisibleTo Include="Tor.Online.Tests" />
+  </ItemGroup>
 </Project>

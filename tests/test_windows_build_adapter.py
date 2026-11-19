@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import struct
@@ -7,6 +8,7 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+from types import SimpleNamespace
 import zipfile
 
 from scripts.windows_developer import build as adapter
@@ -78,6 +80,24 @@ class WindowsBuildAdapterTests(unittest.TestCase):
                 })
             builds = adapter.list_builds(workspace)["builds"]
             self.assertEqual([build["id"] for build in builds], ["run-aaaaaa", "run-zzzzzz"])
+
+    def test_staging_failure_preserves_incomplete_build_without_spawning(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary)
+            with (
+                patch.object(adapter, "os", SimpleNamespace(name="nt", fsync=os.fsync)),
+                patch.object(adapter, "scan", return_value={"status": "AVAILABLE", "dependencies": []}),
+                patch.object(adapter, "stage_recipe"),
+                patch.object(adapter, "stage_archives", side_effect=OSError("fixture staging error")),
+                patch.object(adapter, "monitor") as runner,
+            ):
+                with self.assertRaisesRegex(OSError, "fixture staging error"):
+                    adapter.build("optimized-static", workspace, workspace)
+                runner.assert_not_called()
+            record, = adapter.list_builds(workspace)["builds"]
+            self.assertEqual((record["state"], record["failurePhase"], record["profile"]),
+                             ("FAILED", "staging", "optimized-static"))
+            self.assertIsNone(record["compilerExit"])
 
     def test_offline_smoke_rejects_wrong_version_and_online_result(self):
         offline = [

@@ -42,17 +42,43 @@ public interface IPersistentOnionPeerTransport : IOnionPeerTransport
     Task<OnionAddress> RestoreHostAsync(int loopbackPort, OnionAddress address, OnionServiceKey key, CancellationToken token);
 }
 
+public interface IOwnedOnionPeerListener
+{
+    bool OwnsIncomingConnection(IPEndPoint listener, IPEndPoint peer);
+}
+
+public enum OnionSocksPhase { LocalProxy, OnionConnect, RecoveryBudget }
+
+public sealed class OnionSocksTimeoutException(OnionSocksPhase phase) : IOException(phase switch
+{
+    OnionSocksPhase.LocalProxy => "The local SOCKS handshake timed out.",
+    OnionSocksPhase.RecoveryBudget => "The Onion Service connection and recovery budget elapsed.",
+    _ => "The Onion Service tunnel timed out."
+})
+{
+    public OnionSocksPhase Phase { get; } = phase;
+}
+
 public static class OnionSocksConnection
 {
-    public static async Task<Stream> ConnectAsync(IPEndPoint socks, OnionAddress remote,
-        Func<IPEndPoint, bool> verifyPeer, CancellationToken token)
+    internal static readonly TimeSpan LocalHandshakeBudget = TimeSpan.FromSeconds(8);
+    // The managed Tor uses its default SocksTimeout of 120 seconds for rendezvous streams.
+    internal static readonly TimeSpan OnionConnectBudget = TimeSpan.FromSeconds(130);
+
+    public static Task<Stream> ConnectAsync(IPEndPoint socks, OnionAddress remote,
+        Func<IPEndPoint, bool> verifyPeer, CancellationToken token) =>
+        ConnectAsync(socks, remote, verifyPeer, LocalHandshakeBudget, OnionConnectBudget, token);
+
+    internal static async Task<Stream> ConnectAsync(IPEndPoint socks, OnionAddress remote,
+        Func<IPEndPoint, bool> verifyPeer, TimeSpan localBudget, TimeSpan onionBudget, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(verifyPeer);
         if (!socks.Address.Equals(IPAddress.Loopback) || socks.Port == 0)
             throw new ArgumentException("Expected an owned IPv4 loopback SOCKS endpoint.", nameof(socks));
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
-        deadline.CancelAfter(TimeSpan.FromSeconds(45));
+        deadline.CancelAfter(localBudget);
         var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        var phase = OnionSocksPhase.LocalProxy;
         try
         {
             await socket.ConnectAsync(socks, deadline.Token).ConfigureAwait(false);
@@ -60,8 +86,16 @@ public static class OnionSocksConnection
                 throw new IOException("The SOCKS connection does not belong to the active Tor process.");
             var stream = new NetworkStream(socket, ownsSocket: true);
             await Socks5ConnectivityProbe.NegotiateAsync(stream, deadline.Token).ConfigureAwait(false);
+            deadline.Token.ThrowIfCancellationRequested();
+            phase = OnionSocksPhase.OnionConnect;
+            deadline.CancelAfter(onionBudget);
             await Socks5ConnectivityProbe.RequestTunnelAsync(stream, remote.Host, OnionAddress.VirtualPort, deadline.Token).ConfigureAwait(false);
             return stream;
+        }
+        catch (OperationCanceledException) when (!token.IsCancellationRequested)
+        {
+            socket.Dispose();
+            throw new OnionSocksTimeoutException(phase);
         }
         catch { socket.Dispose(); throw; }
     }

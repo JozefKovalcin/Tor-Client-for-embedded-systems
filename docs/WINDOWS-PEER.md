@@ -158,6 +158,42 @@ service, mutual TLS and two-way integrity. It stops B's Tor to interrupt the
 connection, restarts B and verifies a second exchange through the same onion.
 It then checks protocol close, onion removal and both process exits.
 
+### Persistent address on one Windows host
+
+The persistent-host variant uses two independent native Tor sessions and a
+verified Developer `optimized-static` build. First create a candidate JSON
+using `scripts.windows_developer candidate` from the approved build workspace.
+Keep the candidate file and fresh state path in the ignored test workspace.
+Compare the returned `tor.exe` digest with the recorded build evidence.
+
+```powershell
+python -B -m scripts.windows_developer candidate --workspace $buildWorkspace --sources $sourceCache --profile optimized-static --build-id $buildId |
+    Set-Content -LiteralPath $candidateJson -Encoding utf8NoBOM
+if ($LASTEXITCODE) { throw 'Verified runtime candidate generation failed.' }
+pwsh -NoProfile -File scripts/test_windows_online.ps1 -ApprovePublicTor `
+    -RuntimeCandidate $candidateJson -NewStatePath $freshStatePath
+```
+
+The runner verifies the selected runtime in an isolated approval store. It
+starts both clients, creates A's DPAPI-protected v3 identity and waits for
+authenticated descriptor publication. B exchanges exact test messages in both
+directions with A through its owned SOCKS listener and mutual TLS. The runner
+stops A, reopens its service and profile and imports the saved key. It checks
+the same v3 address and TLS fingerprint, observes publication again, repeats
+the message exchange, and checks all owned Tor exits. A recent descriptor can
+still be cached by B, so the restored connection uses bounded retries.
+The Manager gives the local SOCKS handshake its own short deadline. It
+allows Tor's full rendezvous timeout on the Onion connect. For a recoverable
+onion-specific failure it requests one descriptor refresh through the
+authenticated controller before one optional retry. Connection failures
+report the stage and the SOCKS reply code when Tor returns one.
+Console diagnostics omit the address, pins and key material.
+If separately authorized, pass `-CompareFreshClient` to run a fresh-client
+comparison following a failed reconnect from B. The original reconnect
+still determines the qualification result.
+The console runner exercises the application backend on one Windows host.
+The physical test below covers graphical and independent-host acceptance.
+
 ## Two physical PCs with the graphical workflow
 
 With separate authorization, stage the same reviewed Windows x64 artifact

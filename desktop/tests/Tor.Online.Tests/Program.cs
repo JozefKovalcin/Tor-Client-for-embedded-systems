@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Runtime.Versioning;
 using Tor.Adapters.Windows;
 using Tor.Application;
+using Tor.Control;
 using Tor.Core;
 
 return await Qualification.RunAsync(args);
@@ -59,7 +60,7 @@ internal static class Qualification
         var lines = WindowsOnlineTorSettings.Configuration(IOnlineTorService.DefaultSocksPort)
             .Split('\n', StringSplitOptions.RemoveEmptyEntries);
         Require(lines.SequenceEqual(new[] {
-            "SocksPort 127.0.0.1:9150 IsolateSOCKSAuth", "SocksPolicy accept 127.0.0.1/32",
+            "SocksPort 127.0.0.1:9150 IsolateSOCKSAuth ExtendedErrors", "SocksPolicy accept 127.0.0.1/32",
             "SocksPolicy reject *", "SafeSocks 1", "ExitRelay 0", "ExitPolicy reject *:*", "DisableNetwork 1"
         }), "The configured SOCKS and network policy changed.");
         VerifyInvalidPort(0);
@@ -80,6 +81,12 @@ internal static class Qualification
     [SupportedOSPlatform("windows")]
     private static async Task VerifyLoopbackOwnershipAsync()
     {
+        Require(WindowsTorTaskHandler.ShouldRefreshOnionDescriptor(new Socks5ConnectException(0x06)),
+            "Tor's native rendezvous timeout bypassed the one target descriptor refresh.");
+        Require(!WindowsTorTaskHandler.ShouldRefreshOnionDescriptor(new Socks5ConnectException(0xF5)) &&
+            !WindowsTorTaskHandler.ShouldRefreshOnionDescriptor(new OnionSocksTimeoutException(OnionSocksPhase.LocalProxy)),
+            "An authorization or local proxy failure attempted a descriptor refresh.");
+        Console.WriteLine("PASS: native SOCKS TTL expiry permits one targeted refresh, unlike proxy and authorization faults.");
         using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(10));
         using var listener = new TcpListener(IPAddress.Loopback, 0) { ExclusiveAddressUse = true };
         listener.Start();
@@ -92,6 +99,7 @@ internal static class Qualification
         using var accepted = await listener.AcceptSocketAsync(deadline.Token);
         var peer = (IPEndPoint)client.LocalEndPoint!;
         Require(WindowsTcpOwner.OwnsPeer(pid, server.Port, peer), "The established loopback socket was not attributed to its owner.");
+        Require(WindowsTcpOwner.OwnsPeer(pid, peer.Port, server), "The Tor-side outgoing tuple must also be attributed to its owner.");
         Require(!WindowsTcpOwner.OwnsPeer(pid + 1, server.Port, peer), "The established socket was attributed to another PID.");
         Require(!WindowsTcpOwner.OwnsPeer(pid, server.Port, new IPEndPoint(IPAddress.Any, peer.Port)),
             "An endpoint outside IPv4 loopback passed the ownership check.");

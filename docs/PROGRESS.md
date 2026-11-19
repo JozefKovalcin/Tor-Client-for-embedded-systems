@@ -1,3 +1,32 @@
+# Windows public persistent hosting — 2026-11-18
+
+The Manager now allows the verified Tor runtime to finish its native
+two-minute SOCKS rendezvous deadline. It separates local SOCKS setup from
+onion connection and can refresh the one requested descriptor after a
+recoverable fault. Offline checks passed the deadline, cancellation and
+authenticated descriptor cases.
+
+Two separately approved follow-ups using the same custom EXE and DLL
+passed native bootstrap, initial Onion publication and SOCKS tunnel
+establishment. Both stopped at the initial mutual TLS deadline. The
+second repeated that step once. Restored hosting and reconnect in these
+follow-ups were NOT RUN. Public qualification remains FAIL.
+
+One authorized single-host run used the verified `optimized-static` runtime
+`run-mm7s33j8`. Both clients passed authenticated bootstrap, the initial
+Onion Service published, and pinned TLS carried matching text in both
+directions. A restarted and imported the same DPAPI-protected v3 identity.
+Tor returned the same address and confirmed publication again. B stayed
+running, but the restored exchange failed with an `IOException`. The
+public persistent-host gate is FAIL.
+
+The separately approved repeat restored and republished the same address
+again. The original B stayed alive and all three restored connection
+attempts timed out in the SOCKS tunnel stage. Restored TLS and transfer
+were NOT RUN. Both processes exited with code 0. The broader online suite,
+clean-host and two-PC gates remain
+NOT RUN. See [the single-host evidence](../reports/windows-persistent-host-2026-11-18/README.md).
+
 # Windows self-contained candidate and Developer build — 2026-11-18
 
 Draft #32 adds independent connection and workspace selectors and a
@@ -29,8 +58,9 @@ Locked Avalonia Release build PASS. The Windows repository suite passed
 174 tests with 10 platform skips, including two new loopback Control
 groups. The Windows peer fixture passed 23 assertions, including simulated
 Tor and Manager restarts, explicit rotation and refusal of corrupt storage.
-Public Tor persistent lifecycle, visual/DPI inspection, physical two-PC
-and clean-host validation remain NOT RUN. See [the Peers workflow](WINDOWS-PEER.md).
+At this offline milestone, public Tor persistent lifecycle, visual/DPI
+inspection, physical two-PC and clean-host validation were NOT RUN.
+See [the Peers workflow](WINDOWS-PEER.md).
 
 # Windows product integration — 2026-11-18
 

@@ -17,6 +17,7 @@ static partial class Program
             ("newnym-distinguishes-event-ack-and-rate-limit", NewIdentity),
             ("cancelled-newnym-drains-reply-and-allows-shutdown", NewIdentityCancellation),
             ("onion-key-restores-the-same-address-on-a-new-control-session", OnionKeyRestore),
+            ("descriptor-refresh-waits-for-the-requested-onion", OnionDescriptorRefresh),
             ("invalid-onion-registration-is-cleaned-up-and-sanitized", InvalidOnionRegistration),
             ("socks5-domain-resolution-happens-through-proxy", SocksDestinationRejected),
             ("socks5-tls-starts-inside-established-tunnel", SocksTlsInTunnel),
@@ -40,10 +41,38 @@ static partial class Program
         await Assert.Throws<TorControlException>(() => client.GetOnlineStatusAsync());
         await Assert.Throws<TorControlException>(() => client.RequestNewIdentityAsync());
         await Assert.Throws<TorControlException>(() => client.GenerateOnionAsync(8181));
+        await Assert.Throws<TorControlException>(() =>
+            client.ObserveDescriptorAsync(OnionAddress.Parse(MockServer.FixtureServiceId + ".onion")));
+        await Assert.Throws<TorControlException>(() =>
+            client.RefreshOnionDescriptorAsync(OnionAddress.Parse(MockServer.FixtureServiceId + ".onion")));
         using var key = new OnionServiceKey(new byte[OnionServiceKey.ByteLength]);
         await Assert.Throws<TorControlException>(() =>
             client.RestoreOnionAsync(8181, OnionAddress.Parse(MockServer.FixtureServiceId + ".onion"), key));
         Assert.That(server.Commands.Count == 0, "Unauthenticated online command reached the server");
+    }
+
+    static async Task OnionDescriptorRefresh()
+    {
+        var address = OnionAddress.Parse(MockServer.FixtureServiceId + ".onion");
+        foreach (string mode in new[] { "descriptor-refresh", "descriptor-no-match" })
+        {
+            await using var server = new MockServer(mode);
+            await using var client = await TorControlClient.ConnectAsync(IPAddress.Loopback, server.Port);
+            await client.AuthenticateAsync(server.Cookie);
+            using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(mode == "descriptor-refresh" ? 5 : 1));
+            using var observation = await client.ObserveDescriptorAsync(address, deadline.Token);
+            if (mode == "descriptor-refresh")
+                Assert.That(await client.RefreshOnionDescriptorAsync(address, deadline.Token),
+                    "An authenticated matching RECEIVED event did not complete descriptor refresh");
+            else
+                await Assert.Throws<OperationCanceledException>(() => client.RefreshOnionDescriptorAsync(address, deadline.Token));
+            await client.ShutdownAsync();
+            var expected = OnionDescriptorEvents.Failed;
+            if (mode == "descriptor-refresh") expected |= OnionDescriptorEvents.Received;
+            Assert.That(observation.Events == expected, "A descriptor observation included unrelated or raw event data");
+            Assert.That(server.Commands.Count(v => v == "HSFETCH") == 1 && server.Commands.Contains("SIGNAL"),
+                "Refresh was repeated or its cancellation prevented authenticated shutdown");
+        }
     }
 
     static async Task OnionKeyRestore()

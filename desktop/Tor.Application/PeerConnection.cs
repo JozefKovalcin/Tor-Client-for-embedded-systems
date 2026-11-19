@@ -75,6 +75,7 @@ public sealed class PeerConnection : IAsyncDisposable
 {
     public const int MaxMessageBytes = 16 * 1024;
     private static readonly TimeSpan IoDeadline = TimeSpan.FromMinutes(2);
+    private static readonly TimeSpan HandshakeDeadline = TimeSpan.FromSeconds(12);
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
     private const int HeaderLength = 12;
     private const byte Message = 1, Close = 2;
@@ -106,13 +107,21 @@ public sealed class PeerConnection : IAsyncDisposable
     }
 
     internal static async Task<PeerConnection> AuthenticateAsync(Stream transport, PeerIdentity local, byte[] remotePin,
-        bool server, CancellationToken lifetime, CancellationToken token, PeerProtocol protocol = PeerProtocol.Transient)
+        bool server, CancellationToken lifetime, CancellationToken token, PeerProtocol protocol = PeerProtocol.Transient,
+        Action<PeerHandshakeStage>? trace = null, TimeSpan? tlsDeadline = null, TimeSpan? readyDeadline = null)
     {
+        if (trace is not null) transport = new PeerHandshakeTraceStream(transport, server, trace);
         var tls = new SslStream(transport, leaveInnerStreamOpen: false);
-        using var operation = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime);
-        operation.CancelAfter(TimeSpan.FromSeconds(12));
-        bool MatchesPin(object sender, X509Certificate? cert, X509Chain? chain, SslPolicyErrors errors) => cert is not null &&
-            CryptographicOperations.FixedTimeEquals(cert.GetCertHash(HashAlgorithmName.SHA256), remotePin);
+        using var negotiation = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime);
+        negotiation.CancelAfter(tlsDeadline ?? HandshakeDeadline);
+        var phase = PeerHandshakePhase.Tls;
+        var stageToken = negotiation.Token;
+        bool MatchesPin(object sender, X509Certificate? cert, X509Chain? chain, SslPolicyErrors errors)
+        {
+            bool matched = cert is not null && CryptographicOperations.FixedTimeEquals(cert.GetCertHash(HashAlgorithmName.SHA256), remotePin);
+            trace?.Invoke(matched ? PeerHandshakeStage.RemotePinMatched : PeerHandshakeStage.RemotePinRejected);
+            return matched;
+        }
         var chainPolicy = new X509ChainPolicy { DisableCertificateDownloads = true, RevocationMode = X509RevocationMode.NoCheck };
         try
         {
@@ -122,6 +131,7 @@ public sealed class PeerConnection : IAsyncDisposable
                 PeerProtocol.Reliable => new SslApplicationProtocol("tor-peer/2"),
                 _ => throw new ArgumentOutOfRangeException(nameof(protocol))
             };
+            trace?.Invoke(PeerHandshakeStage.TlsStarted);
             if (server)
             {
                 await tls.AuthenticateAsServerAsync(new SslServerAuthenticationOptions
@@ -131,7 +141,7 @@ public sealed class PeerConnection : IAsyncDisposable
                     EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
                     ApplicationProtocols = [alpn], AllowTlsResume = false,
                     AllowRenegotiation = false
-                }, operation.Token).ConfigureAwait(false);
+                }, negotiation.Token).ConfigureAwait(false);
             }
             else
             {
@@ -143,22 +153,45 @@ public sealed class PeerConnection : IAsyncDisposable
                     EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
                     ApplicationProtocols = [alpn], AllowTlsResume = false,
                     AllowRenegotiation = false
-                }, operation.Token).ConfigureAwait(false);
+                }, negotiation.Token).ConfigureAwait(false);
             }
+            negotiation.Token.ThrowIfCancellationRequested();
+            negotiation.CancelAfter(Timeout.InfiniteTimeSpan);
+            trace?.Invoke(PeerHandshakeStage.TlsCompleted);
             if (!tls.IsMutuallyAuthenticated || !tls.IsEncrypted || tls.RemoteCertificate is null ||
                 tls.NegotiatedApplicationProtocol != alpn)
                 throw new AuthenticationException("Mutual TLS and the selected peer protocol were not negotiated.");
+            trace?.Invoke(PeerHandshakeStage.AlpnVerified);
             // The acknowledgement occurs after the server has validated the client certificate.
             // This keeps a TLS 1.3 client from reporting a connection before both pins passed.
             byte[] ready = [(byte)'T', (byte)'P', (byte)protocol, server ? (byte)'S' : (byte)'C'];
             byte[] expected = [(byte)'T', (byte)'P', (byte)protocol, server ? (byte)'C' : (byte)'S'];
             var reply = new byte[4];
-            if (!server) await tls.WriteAsync(ready, operation.Token).ConfigureAwait(false);
+            phase = PeerHandshakePhase.Ready;
+            using var operation = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime);
+            operation.CancelAfter(readyDeadline ?? HandshakeDeadline);
+            stageToken = operation.Token;
+            if (!server)
+            {
+                await tls.WriteAsync(ready, operation.Token).ConfigureAwait(false);
+                trace?.Invoke(PeerHandshakeStage.ReadySent);
+            }
             await tls.ReadExactlyAsync(reply, operation.Token).ConfigureAwait(false);
             if (!reply.AsSpan().SequenceEqual(expected)) throw new AuthenticationException("Peer protocol acknowledgement failed.");
-            if (server) await tls.WriteAsync(ready, operation.Token).ConfigureAwait(false);
+            trace?.Invoke(PeerHandshakeStage.ReadyReceived);
+            if (server)
+            {
+                await tls.WriteAsync(ready, operation.Token).ConfigureAwait(false);
+                trace?.Invoke(PeerHandshakeStage.ReadySent);
+            }
             operation.Token.ThrowIfCancellationRequested();
             return new(tls, lifetime, protocol, local.Fingerprint, Convert.ToHexString(remotePin));
+        }
+        catch (OperationCanceledException) when (stageToken.IsCancellationRequested &&
+            !token.IsCancellationRequested && !lifetime.IsCancellationRequested)
+        {
+            await tls.DisposeAsync().ConfigureAwait(false);
+            throw new PeerHandshakeTimeoutException(phase);
         }
         catch { await tls.DisposeAsync().ConfigureAwait(false); throw; }
     }

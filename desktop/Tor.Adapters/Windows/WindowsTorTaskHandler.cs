@@ -125,7 +125,8 @@ public sealed class WindowsTorTaskHandler(PinnedWindowsRuntime runtime, string p
                !current.Session.Completion.IsCompleted ? new PeerTransport(current) : null;
     }
 
-    private sealed class PeerTransport(ActiveOnline current) : IPersistentOnionPeerTransport
+    private sealed class PeerTransport(ActiveOnline current) :
+        IPersistentOnionPeerTransport, IOwnedOnionPeerListener, IOnionDescriptorDiagnostics
     {
         public CancellationToken Lifetime => current.Token;
 
@@ -144,7 +145,7 @@ public sealed class WindowsTorTaskHandler(PinnedWindowsRuntime runtime, string p
             await current.IdentityGate.WaitAsync(combined.Token).ConfigureAwait(false);
             try
             {
-                await current.Session.Control.SubscribeOnionPublicationAsync().ConfigureAwait(false);
+                await current.Session.Control.SubscribeOnionPublicationAsync(combined.Token).ConfigureAwait(false);
                 return await register(combined.Token).ConfigureAwait(false);
             }
             finally { current.IdentityGate.Release(); }
@@ -164,15 +165,45 @@ public sealed class WindowsTorTaskHandler(PinnedWindowsRuntime runtime, string p
         public Task WaitForPublicationAsync(OnionAddress address, CancellationToken token) =>
             current.Session.Control.WaitForOnionPublicationAsync(address, token);
 
+        public Task<OnionDescriptorObservation> ObserveDescriptorAsync(OnionAddress address, CancellationToken token) =>
+            current.Session.Control.ObserveDescriptorAsync(address, token);
+
+        public bool OwnsIncomingConnection(IPEndPoint listener, IPEndPoint peer) =>
+            peer.Address.Equals(IPAddress.Loopback) &&
+            !Lifetime.IsCancellationRequested && !current.Session.Completion.IsCompleted &&
+            WindowsTcpOwner.OwnsPeer(current.Session.ProcessId, peer.Port, listener);
+
         public async Task<Stream> ConnectAsync(OnionAddress address, CancellationToken token)
         {
             using var combined = CancellationTokenSource.CreateLinkedTokenSource(token, Lifetime);
+            combined.CancelAfter(TimeSpan.FromSeconds(175));
             var pid = current.Session.ProcessId;
-            return await OnionSocksConnection.ConnectAsync(new(IPAddress.Loopback, current.SocksPort), address,
-                peer => !combined.IsCancellationRequested && current.Ready && !current.Session.Completion.IsCompleted &&
-                        WindowsTcpOwner.OwnsPeer(pid, current.SocksPort, peer), combined.Token).ConfigureAwait(false);
+            Task<Stream> Connect() =>
+                OnionSocksConnection.ConnectAsync(new(IPAddress.Loopback, current.SocksPort), address,
+                    peer => !combined.IsCancellationRequested && current.Ready && !current.Session.Completion.IsCompleted &&
+                            WindowsTcpOwner.OwnsPeer(pid, current.SocksPort, peer), combined.Token);
+            try
+            {
+                try { return await Connect().ConfigureAwait(false); }
+                catch (IOException error) when (!combined.IsCancellationRequested && ShouldRefreshOnionDescriptor(error))
+                {
+                    if (!await current.Session.Control.RefreshOnionDescriptorAsync(address, combined.Token).ConfigureAwait(false))
+                        throw;
+                    return await Connect().ConfigureAwait(false);
+                }
+            }
+            catch (OperationCanceledException) when (combined.IsCancellationRequested &&
+                !token.IsCancellationRequested && !Lifetime.IsCancellationRequested)
+            {
+                throw new OnionSocksTimeoutException(OnionSocksPhase.RecoveryBudget);
+            }
         }
     }
+
+    // Tor maps its native stream timeout to the standard SOCKS TTL-expired reply.
+    internal static bool ShouldRefreshOnionDescriptor(IOException error) =>
+        error is OnionSocksTimeoutException { Phase: OnionSocksPhase.OnionConnect } or
+            Socks5ConnectException { ReplyCode: 0x06 or 0xF0 or 0xF2 or 0xF3 or 0xF7 };
 
     private async Task MonitorOnlineAsync(ActiveOnline current, TaskExecutionContext context)
     {
