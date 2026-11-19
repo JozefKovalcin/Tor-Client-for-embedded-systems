@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import re
+import socket
 import subprocess
 import sys
 import tempfile
@@ -66,12 +67,15 @@ def smoke(run, digest, source, cancel):
         tor.write_bytes(binary)
         tor.chmod(0o700)
         pid_file = private / "pid"
+        port_file = private / "control-port"
         config = private / "torrc"
         config.write_text("# Offline smoke defaults\n", encoding="ascii")
         environment = {"PATH": "/usr/bin:/bin", "HOME": str(private), "LC_ALL": "C"}
         common = [str(tor), "--defaults-torrc", str(config), "-f", str(config),
                   "--DataDirectory", str(private / "state"), "--PidFile", str(pid_file),
-                  "--RunAsDaemon", "0", "--DisableNetwork", "1", "--SocksPort", "0"]
+                  "--RunAsDaemon", "0", "--DisableNetwork", "1", "--SocksPort", "0",
+                  "--ControlPort", "127.0.0.1:auto", "--ControlPortWriteToFile", str(port_file),
+                  "--CookieAuthentication", "1"]
         version = subprocess.check_output([str(tor), "--version"], cwd=private, env=environment, timeout=10,
                                           text=True).splitlines()[0]
         subprocess.run([*common, "--verify-config"], cwd=private, env=environment, timeout=10, check=True,
@@ -82,13 +86,22 @@ def smoke(run, digest, source, cancel):
                               stderr=subprocess.DEVNULL) as process:
             try:
                 deadline = time.monotonic() + 15
-                while not pid_file.exists():
+                while not (pid_file.exists() and port_file.exists()):
                     if process.poll() is not None or time.monotonic() >= deadline:
                         raise ValueError("Verified Tor did not start offline")
                     if cancel.wait(0.05):
                         raise InterruptedError("Offline launch cancelled")
                 if pid_file.read_text().strip() != str(process.pid) or process.poll() is not None:
                     raise ValueError("Offline PID evidence differs from the owned process")
+                endpoint = re.fullmatch(r"PORT=127\.0\.0\.1:([0-9]{1,5})", port_file.read_text().strip())
+                if endpoint is None:
+                    raise ValueError("No private loopback Control endpoint was published")
+                # The PID can appear before Tor installs its event loop and signal handlers.
+                with socket.create_connection(("127.0.0.1", int(endpoint[1])), timeout=5) as control:
+                    control.sendall(b"PROTOCOLINFO 1\r\n")
+                    with control.makefile("rb") as response:
+                        if response.readline(128) != b"250-PROTOCOLINFO 1\r\n":
+                            raise ValueError("The owned offline Tor Control event loop did not respond")
             finally:
                 if process.poll() is None:
                     process.terminate()
