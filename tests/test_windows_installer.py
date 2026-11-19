@@ -24,12 +24,22 @@ class WindowsInstallerPlanTests(unittest.TestCase):
             (cache / (archive.name + ".sig")).write_bytes(b"test signature")
             fixture = (("make", "reviewed", "1", "msys/x86_64", "x86_64", hashlib.sha256(b"test archive").hexdigest(), 1),)
             scan = {"profile": "optimized-static", "dependencies": [{"id": "make", "status": "MISSING"},
-                    {"id": "pacman", "status": "AVAILABLE"}, {"id": "gcc", "status": "MISSING"}]}
+                    {"id": "pacman", "status": "AVAILABLE"}, {"id": "gcc", "status": "MISSING"},
+                    {"id": "gpg", "status": "AVAILABLE"}, {"id": "cygpath", "status": "AVAILABLE"}]}
             with patch.object(install, "PACKAGES", fixture):
                 report = install.installation_plan(scan, cache)
                 self.assertEqual([row["package"] for row in report["packages"]], ["reviewed"])
                 self.assertEqual(report["manualDependencies"], ["gcc"])
                 install.require_approval(report, report["approvalSha256"])
+                for row in scan["dependencies"]:
+                    if row["id"] == "gpg":
+                        row["status"] = "BLOCKED"
+                unavailable = install.installation_plan(scan, cache)
+                self.assertEqual(unavailable["blockedTools"], ["gpg"])
+                self.assertEqual(unavailable["status"], "BLOCKED")
+                for row in scan["dependencies"]:
+                    if row["id"] == "gpg":
+                        row["status"] = "AVAILABLE"
                 with self.assertRaisesRegex(ValueError, "must be approved"):
                     install.require_approval(report, None)
                 with self.assertRaisesRegex(ValueError, "must be approved"):

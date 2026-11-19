@@ -26,7 +26,7 @@ internal sealed class DeveloperViewModel : ObservableModel
     private string? _approval;
     private bool _confirmed, _ready, _closed;
     private DeveloperBuild? _selected, _compareWith;
-    private CancellationTokenSource? _cancellation;
+    private CancellationTokenSource? _cancellation, _refresh;
     private Task? _active;
     private IReadOnlyList<DeveloperDependency> _dependencies = [];
     private IReadOnlyList<DeveloperBuild> _builds = [];
@@ -77,7 +77,11 @@ internal sealed class DeveloperViewModel : ObservableModel
             () => Idle && ApproveRuntime && Selected is { State: "BUILT", Smoke: "PASS" });
         RollbackCommand = new(RollbackAsync, () => Status = "Rollback failed.", () => Idle && _bundledRuntime is not null);
         _commands = [ScanCommand, PlanCommand, InstallCommand, BuildCommand, ListCommand, SmokeCommand, ActivateCommand, ExportCommand, RollbackCommand];
-        CancelCommand = new(() => _cancellation?.Cancel(), () => _cancellation is not null && !_installCommitted);
+        CancelCommand = new(() =>
+        {
+            _cancellation?.Cancel();
+            _refresh?.Cancel();
+        }, () => _cancellation is not null && !_installCommitted);
     }
 
     private AsyncCommand RunCommand(WindowsDeveloperAction action, Func<bool>? condition = null) =>
@@ -162,13 +166,27 @@ internal sealed class DeveloperViewModel : ObservableModel
             using var watcher = CancellationTokenSource.CreateLinkedTokenSource(token);
             var updates = ObserveAsync(core, taskId, watcher.Token);
             try { await core.RunUntilIdleAsync(token); }
+            catch (OperationCanceledException) when (token.IsCancellationRequested && !_closed) { }
             finally { await watcher.CancelAsync(); await updates; }
-            token.ThrowIfCancellationRequested();
+            if (_closed) return;
             var outcome = core.Snapshot().Single(row => row.TaskId == taskId);
-            var headline = $"{action} · {outcome.State.ToUpperInvariant()} · exit {outcome.RawExitCode?.ToString() ?? "unavailable"}";
+            var headline = listener.CommittedInstallExitCode is uint committed
+                ? $"Approved installer exited · code {committed}"
+                : $"{action} · {outcome.State.ToUpperInvariant()} · exit {outcome.RawExitCode?.ToString() ?? "unavailable"}";
             bool installing = action == WindowsDeveloperAction.Install;
-            bool refreshed = await ReadAsync(spec with { Action = installing ? WindowsDeveloperAction.Scan : WindowsDeveloperAction.List },
-                token, selectNewestBuild: action == WindowsDeveloperAction.Build);
+            using var refresh = token.IsCancellationRequested
+                ? new CancellationTokenSource()
+                : CancellationTokenSource.CreateLinkedTokenSource(token);
+            refresh.CancelAfter(TimeSpan.FromSeconds(45));
+            _refresh = refresh;
+            bool refreshed;
+            try
+            {
+                refreshed = await ReadAsync(spec with { Action = installing ? WindowsDeveloperAction.Scan : WindowsDeveloperAction.List },
+                    refresh.Token, selectNewestBuild: action == WindowsDeveloperAction.Build);
+            }
+            catch (OperationCanceledException) when (refresh.IsCancellationRequested) { refreshed = false; }
+            finally { _refresh = null; }
             Status = headline + (refreshed ? installing ? " · dependencies rescanned" : "" : " · refresh failed");
             return;
         }
@@ -299,6 +317,7 @@ internal sealed class DeveloperViewModel : ObservableModel
     public async Task CloseAsync()
     {
         _closed = true;
+        _refresh?.Cancel();
         if (!_installCommitted) _cancellation?.Cancel();
         if (_active is not null)
         {

@@ -24,6 +24,7 @@ SigLevel = Required TrustedOnly
 LocalFileSigLevel = Required TrustedOnly
 GPGDir = /etc/pacman.d/gnupg/
 """
+TOOLCHAIN_LOCK = ".toolchain-lock"
 
 
 def plan_digest(data):
@@ -52,12 +53,16 @@ def installation_plan(report, cache=None):
         selected.append({"id": check, "package": package, "version": version, "sha256": digest,
                          "archive": filename, "sourceUrl": "https://mirror.msys2.org/" + repo_path + "/" + filename,
                          "stagingBytes": size, "approximateInstalledBytes": installed})
+    package_checks = {p[0] for p in PACKAGES}
     unsupported = sorted(name for name, state in observations.items()
-                         if state in ("MISSING", "INCOMPATIBLE", "BLOCKED") and name not in {p[0] for p in PACKAGES})
+                         if state in ("MISSING", "INCOMPATIBLE", "UNKNOWN", "BLOCKED")
+                         and (name not in package_checks or state != "MISSING"))
+    required_tools = ("pacman", "gpg", "cygpath")
+    blocked_tools = [name for name in required_tools if observations.get(name) != "AVAILABLE"]
     result = {"kind": "windows-install-plan", "profile": report["profile"], "packages": selected,
-              "blockedArchives": blocked, "manualDependencies": unsupported,
+              "blockedArchives": blocked, "blockedTools": blocked_tools, "manualDependencies": unsupported,
               "effects": "Writes the existing MSYS2 installation. No elevation, PATH changes, updates, downloads or reboot requested.",
-              "status": "AVAILABLE" if selected and observations.get("pacman") == "AVAILABLE" else "BLOCKED"}
+              "status": "AVAILABLE" if selected and not blocked_tools else "BLOCKED"}
     return {**result, "approvalSha256": plan_digest(result)}
 
 
@@ -129,7 +134,7 @@ def install(plan, approved_hash, workspace, *, refresh=None, authorize=None):
     pacman = ordinary_path(MSYS / "usr/bin/pacman.exe")
     gpg = ordinary_path(MSYS / "usr/bin/gpg.exe")
     env = native_environment()
-    with operation_lock(workspace, ".install-lock"):
+    with operation_lock(workspace, TOOLCHAIN_LOCK):
         if refresh is None:
             raise ValueError("An installation requires a fresh host scan")
         require_approval(installation_plan(refresh()), approved_hash)

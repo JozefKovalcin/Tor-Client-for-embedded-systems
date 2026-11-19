@@ -22,6 +22,7 @@ MSYS = Path("C:/msys64")
 PROFILES = {"optimized-static": "static", "optimized-shared": "shared"}
 TOOLS = ("bash", "msys2-gcc", "msys2-gcc-target", "make", "ld", "ar", "ranlib", "strip", "pkg-config", "perl", "tar", "patch")
 EXTRA = ("windres", "objdump", "nm", "dlltool", "curl", "sha256sum", "pacman", "cygpath")
+LOCAL_PACKAGE_INSTALLS = frozenset(("make", "pkg-config"))
 BOOTSTRAP_URL = "https://www.msys2.org/docs/installer/"
 DOTNET_URL = "https://dotnet.microsoft.com/download/dotnet/11.0"
 
@@ -70,7 +71,12 @@ class RecipeProbe(ReadOnlyProbe):
     def _candidates(self, name, executable):
         if name == "git":
             return super()._candidates(name, executable)
-        roots = (MSYS / "ucrt64/bin",) if name.startswith("msys2-") else (MSYS / "ucrt64/bin", MSYS / "usr/bin")
+        if name in {"bash", "pacman", "cygpath", "gpg"}:
+            roots = (MSYS / "usr/bin",)
+        elif name in {"msys2-gcc", "msys2-gcc-target"}:
+            roots = (MSYS / "ucrt64/bin",)
+        else:
+            roots = (MSYS / "ucrt64/bin", MSYS / "usr/bin")
         return [folder / (executable + ".exe") for folder in roots]
 
     def _lookup(self, name, executable):
@@ -209,12 +215,15 @@ def scan(profile, cache, output, probe=None):
         observed = probe.tool(name)
         status, reason = _classified_tool(specs[name], observed)
         add(name, specs[name]["requirement"], {**observed, "status": status, "reason": reason}, optional=name == "git",
-            method="manual" if name == "git" else "MSYS2 signed package", url=BOOTSTRAP_URL if name != "git" else None)
+            method="approved local MSYS2 package" if name in LOCAL_PACKAGE_INSTALLS else "manual",
+            url=BOOTSTRAP_URL if name != "git" else None)
     for name in EXTRA:
         add(name, "Version observed in the MSYS2 recipe environment", probe.installed_tool(name, name),
-            method="MSYS2 signed package", url=BOOTSTRAP_URL)
-    add("msys2-python", "MSYS2 Python >=3.12", probe.installed_tool("msys2-python", MSYS / "usr/bin/python3.exe", minimum=(3, 12, 0)),
-        method="MSYS2 signed package", url=BOOTSTRAP_URL)
+            url=BOOTSTRAP_URL)
+    add("gpg", "Verify locally staged package signatures before installation", probe.installed_tool("gpg", "gpg"),
+        optional=True, phase="install", url=BOOTSTRAP_URL)
+    add("msys2-python", "MSYS2 Python >=3.12", probe.installed_tool("msys2-python", "python3", minimum=(3, 12, 0)),
+        url=BOOTSTRAP_URL)
     python = probe.tool("python")
     status, reason = _classified_tool({"minimumVersion": [3, 12]}, python)
     add("host-python", "Windows Python >=3.12 to run developer tooling", {**python, "status": status, "reason": reason})

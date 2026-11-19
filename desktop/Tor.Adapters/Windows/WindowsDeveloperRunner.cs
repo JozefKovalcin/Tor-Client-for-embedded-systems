@@ -4,7 +4,7 @@ using Tor.Core;
 
 namespace Tor.Adapters.Windows;
 
-public sealed record WindowsDeveloperResult(uint ExitCode, string Output, string Errors);
+public sealed record WindowsDeveloperResult(uint ExitCode, string Output, string Errors, bool InstallCommitted = false);
 
 [SupportedOSPlatform("windows")]
 public sealed class WindowsDeveloperRunner(Action<string> log) : ITaskHandler
@@ -14,6 +14,7 @@ public sealed class WindowsDeveloperRunner(Action<string> log) : ITaskHandler
         @"C:\Program Files\Python314\python.exe", @"C:\Program Files\Python313\python.exe",
         @"C:\Program Files\Python312\python.exe", @"C:\msys64\ucrt64\bin\python.exe"];
     public CommandKind Kind => CommandKind.WindowsDeveloper;
+    public uint? CommittedInstallExitCode { get; private set; }
 
     public async Task<TaskExecutionResult> ExecuteAsync(TaskCommand command, TaskExecutionContext context,
         CancellationToken cancellationToken)
@@ -22,6 +23,7 @@ public sealed class WindowsDeveloperRunner(Action<string> log) : ITaskHandler
             task.Action is not (WindowsDeveloperAction.Install or WindowsDeveloperAction.Build or WindowsDeveloperAction.Smoke))
             return new(null, BlockedReason: "unsupported-developer-operation");
         var result = await RunAsync(task, log, cancellationToken, phase => context.Report(phase)).ConfigureAwait(false);
+        if (result.InstallCommitted) CommittedInstallExitCode = result.ExitCode;
         return new(result.ExitCode);
     }
 
@@ -117,7 +119,7 @@ public sealed class WindowsDeveloperRunner(Action<string> log) : ITaskHandler
             job.Dispose();
             await Task.WhenAll(output, errors).ConfigureAwait(false);
             if (!committing) cancellationToken.ThrowIfCancellationRequested();
-            return new(unchecked((uint)process.ExitCode), await output, await errors);
+            return new(unchecked((uint)process.ExitCode), await output, await errors, InstallCommitted: committing);
         }
         catch (IOException) when (cancellationToken.IsCancellationRequested)
         { throw new OperationCanceledException(cancellationToken); }
