@@ -5,11 +5,11 @@
 | ID | State | Source and evidence | Remaining |
 | --- | --- | --- | --- |
 | WIN-01 / WIN-02 | VERIFIED offline | `PeerProfileStore`, `PeerDeliveryStore`, `ReliablePeerSession` and Peers add approved recovery, session-local send progress, and local storage error reporting. | Independent-host acceptance remains pending. |
-| WIN-03-HOST | PARTIAL | Draft #35 at `98b7aab` gives separately sanitized descriptor, SOCKS, TCP, TLS and ready evidence. Verified `optimized-static` passed live-client reconnect once at `0a784ce`. Bundled unassisted reconnect failed before ingress even after descriptor receipt. Explicit NEWNYM allowed the same bundled client to reconnect. | Identify why the original bundled session stalls after descriptor refresh and qualify unassisted reconnect for the release runtime. |
+| WIN-03-HOST | VERIFIED single host | Draft #39 reran the bundled same-address restart twice. The original client reconnected without NEWNYM, with mutual TLS, both directions and exit 0. Draft #35 retains the earlier unassisted failures and explicit recovery evidence. | Independent-host acceptance and public endurance. |
 | WIN-03-MODES | VERIFIED offline | Standalone draft #36 at `c5ef5f2` preserves connection, workspace and runtime choices across launches without starting Tor. Windows preview rendered light and dark and passed keyboard entry, Peer navigation and Developer gating. | Minimum-size and DPI matrix NOT RUN. |
 | WIN-04 | PARTIAL | Draft #37 at `f8cd37a` verifies actual recipe tool paths, blocks incomplete local install plans and preserves installer exit through refresh cancellation. | Real system install BLOCKED because no eligible missing package was found. |
 | WIN-05 | VERIFIED offline | Static `run-mm7s33j8` and shared `run-3zhx3mpr` both compiled from verified sources. Shared compiler exit 0, PE closure, eight offline smoke checks, verified 25-file export and real isolated activation/rollback passed. | Shared public-network qualification NOT RUN. |
-| WIN-06 | VERIFIED offline | Locked self-contained Win-x64 publish, 319 files, 20 PE import lists, native SAFECOOKIE offline and real GUI launch/controlled exit. | Full public suite and clean-host acceptance. |
+| WIN-06 | VERIFIED on development host | Draft #39 adds build-time publish hashes and a locked self-contained Win-x64 publish. The extracted runtime passed all nine frozen online tests and the Manager closed with exit 0. | Clean-host acceptance and physical two-PC interoperability. |
 | WIN-07 | VERIFIED for offline fixtures | 100 authenticated local reconnects, interrupted TLS, lost ACK, TTL, queue capacity, failed atomic replacement, simulated disk full, corrupt DPAPI and owned process cleanup. | Public endurance remains NOT RUN. |
 | WIN-2PC | NOT RUN | Field acceptance is deferred to the user. | Clean Windows and two physical PCs after software gates. |
 
@@ -19,12 +19,9 @@ retains the original stacked redesign provenance. The
 [Task 14 evidence](../reports/windows-task14-2026-11-19/README.md)
 records tested heads, telemetry, offline logs and the package checksum.
 
-**IMPLEMENTATION COMPLETE** remains pending. **PUBLIC TOR QUALIFIED** remains
-FAIL for the bundled release runtime. **FIELD QUALIFIED** is NOT RUN.
-
-**NEXT_ACTION** Compare the descriptor revision in use and the introduction
-and rendezvous outcomes before and after explicit circuit renewal in the
-same bundled client. Keep the failing unassisted gate visible.
+The bundled same-address reconnect previously failed and now passed twice
+on a single Windows development host. **FIELD QUALIFIED** is NOT RUN.
+See the [audit follow-up evidence](../reports/windows-task14-2026-11-19/README.md#audit-follow-up-draft-39).
 
 ## Historical persistent hosted identity batch
 
