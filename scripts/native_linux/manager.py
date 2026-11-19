@@ -121,9 +121,9 @@ def operation(args, cancelled):
             raise ValueError("Expected a Manager build ID")
         run = workspace / args.run
         if args.action == "scan":
-            return executor.execution_plan(source, run, args.cache, root=source)
+            return executor.execution_plan(str(source), str(run), args.cache, root=source)
         if args.action == "build":
-            result = executor.execute_build(source, run, args.cache, approved_input_sha256=args.approval,
+            result = executor.execute_build(str(source), str(run), args.cache, approved_input_sha256=args.approval,
                                             cancellation=cancelled, root=source,
                                             observe=lambda row: print(row["phase"] + " · " + row["state"], file=sys.stderr, flush=True))
             if result["status"] == "PASS":
@@ -147,7 +147,7 @@ def main():
     cancelled = threading.Event()
 
     def watch_parent():
-        sys.stdin.buffer.read(1)
+        os.read(sys.stdin.fileno(), 1)
         cancelled.set()
 
     threading.Thread(target=watch_parent, daemon=True).start()
