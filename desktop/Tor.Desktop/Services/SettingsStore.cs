@@ -3,8 +3,11 @@ using System.Text.Json;
 namespace TorManager.Desktop.Services;
 
 internal enum RuntimeSource { Bundled, CustomVerified }
+internal enum ConnectionMode { Demo, RealOffline, RealOnline }
+internal enum WorkspaceMode { RunOnly, Developer, Embedded }
 internal sealed record UiSettings(int SchemaVersion = 1, string Mode = "Run Only", string Theme = "Dark",
-    bool AnimateSimulation = true, RuntimeSource? PreferredRuntime = null);
+    bool AnimateSimulation = true, RuntimeSource? PreferredRuntime = null,
+    ConnectionMode? PreferredConnection = null, WorkspaceMode? PreferredWorkspace = null);
 
 internal sealed class SettingsStore(string path)
 {
@@ -52,7 +55,9 @@ internal sealed class SettingsStore(string path)
     {
         if (settings.SchemaVersion != 1 || !new[] { "Run Only", "Developer", "Embedded" }.Contains(settings.Mode) ||
             !new[] { "System", "Dark", "Light" }.Contains(settings.Theme) ||
-            settings.PreferredRuntime is { } runtime && !Enum.IsDefined(runtime))
+            settings.PreferredRuntime is { } runtime && !Enum.IsDefined(runtime) ||
+            settings.PreferredConnection is { } connection && !Enum.IsDefined(connection) ||
+            settings.PreferredWorkspace is not (null or WorkspaceMode.RunOnly or WorkspaceMode.Developer))
             throw new JsonException("Unsupported UI settings");
     }
 }

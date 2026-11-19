@@ -20,11 +20,11 @@ internal static class OnlineDesktopTests
         var model = shell.Offline!;
         check(shell.Pages.Single(page => page.ShowPeers).Title == "Peers",
             "paired contact navigation is available before switching to Real Online");
-        check(shell.ModeHeading == "Real Offline" && !model.IsOnline && service.Watchers == 1,
+        check(shell.ModeHeading == "Real Offline" && shell.IsRealOffline && !model.IsOnline && service.Watchers == 1,
             "online-capable Windows shell still opens in Real Offline with one watcher");
         shell.ShowDemo();
         shell.ShowRealOnline();
-        check(shell.ModeHeading == "Real Online" && model.IsOnline && service.OnlineStarts == 0 && service.OfflineStarts == 0 &&
+        check(shell.ModeHeading == "Real Online" && !shell.IsRealOffline && model.IsOnline && service.OnlineStarts == 0 && service.OfflineStarts == 0 &&
             model.SocksPortText == "9150" && !model.NewIdentityCommand.CanExecute(null) && !model.CheckConnectivityCommand.CanExecute(null),
             "selecting Real Online authorizes no start or proxy probe");
 
@@ -101,8 +101,25 @@ internal static class OnlineDesktopTests
         await service.Stopped.Task.WaitAsync(Limit);
         await ObserveAsync(model, () => model.SessionText == "Stopped" && model.CanSwitchToDemo);
         shell.ShowRealOffline();
-        check(shell.ModeHeading == "Real Offline" && !model.IsOnline && service.Watchers == 1 && service.OfflineStarts == 0 &&
+        check(shell.ModeHeading == "Real Offline" && shell.IsRealOffline && !model.IsOnline && service.Watchers == 1 && service.OfflineStarts == 0 &&
             !model.CheckConnectivityCommand.CanExecute(null), "confirmed stop permits returning to offline without starting a process");
+        shell.ShowRealOnline();
+        shell.ShowDeveloperCommand.Execute(null);
+        shell.SaveSettingsCommand.Execute(null);
+        var reopenedService = new FakeService();
+        await using (var reopened = new ShellViewModel(demo, new ImmediateDispatcher(), settings, reopenedService,
+            activeRuntime: RuntimeSource.Bundled, hasVerifiedCustomRuntime: () => true))
+        {
+            await reopened.OpenAsync().WaitAsync(Limit);
+            check(reopened.IsOnline && reopened.IsDeveloper == OperatingSystem.IsWindows() &&
+                reopenedService.OnlineStarts == 0 && reopenedService.OfflineStarts == 0 &&
+                reopened.RuntimePreference.Contains("approved custom", StringComparison.Ordinal) &&
+                reopened.ActiveRuntime == "Bundled Tor",
+                "connection, workspace and runtime preferences reload independently without starting Tor");
+        }
+        await using (var unavailable = new ShellViewModel(demo, new ImmediateDispatcher(), settings, showRealWhenUnavailable: true))
+            check(unavailable.IsRealOffline && !unavailable.IsOnline,
+                "saved online selection falls back without a verified runtime");
         Console.WriteLine("online desktop interaction assertions PASS");
     }
 
